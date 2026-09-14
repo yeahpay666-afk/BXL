@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的已办 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    .result-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .result-pass {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    .result-reject {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    .result-transfer {
+      background: #ffedd5;
+      color: #ea580c;
+    }
+
+    .action-link {
+      color: var(--primary-color);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .action-link:hover {
+      text-decoration: underline;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .card-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .type-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #f1f5f9;
+      color: var(--text-secondary);
+    }
+
+    .system-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .system-erp { background: #dbeafe; color: #2563eb; }
+    .system-hr { background: #f3e8ff; color: #9333ea; }
+    .system-oa { background: #dcfce7; color: #16a34a; }
+    .system-crm { background: #ffedd5; color: #ea580c; }
+    .system-srm { background: #fef3c7; color: #d97706; }
+    .system-t100 { background: #fee2e2; color: #dc2626; }
+    .system-bi { background: #e0e7ff; color: #4f46e5; }
+
+    .count-badge-green {
+      background: #dcfce7;
+      color: #16a34a;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .page-ellipsis {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">柏</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>2025-01-15 晴 18°</span>
+        </div>
+        <div class="header-bell">
+          🔔
+          <span class="badge">5</span>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <div class="sub-nav-item active">首页概览</div>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">首页导航</div>
+    <div class="sidebar-subtitle">快速访问常用功能</div>
+    <div class="sidebar-menu">
+      <a href="index.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🏠</span>
+        <span>首页概览</span>
+      </a>
+      <div class="sidebar-menu-item active">
+        <span class="sidebar-menu-icon">📋</span>
+        <span>我的待办</span>
+      </div>
+      <a href="news-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📰</span>
+        <span>集团新闻</span>
+      </a>
+      <a href="notice-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📢</span>
+        <span>公告通知</span>
+      </a>
+      <a href="study.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📚</span>
+        <span>柏家学堂</span>
+      </a>
+      <div class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📄</span>
+        <span>最新文档</span>
+      </div>
+      <a href="ai-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🤖</span>
+        <span>AI智能体</span>
+      </a>
+    </div>
+    <a href="index.html" class="sidebar-footer">
+      <span>←</span>
+      <span>返回门户首页</span>
+    </a>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 面包屑 -->
+    <div class="breadcrumb">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span class="current">我的待办</span>
+    </div>
+
+    <!-- 页面标题 -->
+    <h1 class="page-title">我的待办</h1>
+    <p class="page-desc">查看已处理的待办事项记录</p>
+
+    <!-- Tab切换 -->
+    <div class="tabs">
+      <a href="todo-list.html" class="tab-item">
+        <span>待办</span>
+        <span class="tab-count">17</span>
+      </a>
+      <div class="tab-item active">
+        <span>已办</span>
+        <span class="tab-count">28</span>
+      </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <span class="icon">🔍</span>
+        <input type="text" placeholder="搜索已办事项...">
+      </div>
+      <select class="filter-select">
+        <option>全部类型</option>
+        <option>审批</option>
+        <option>申请</option>
+        <option>任务</option>
+        <option>确认</option>
+        <option>通知</option>
+      </select>
+      <select class="filter-select">
+        <option>全部结果</option>
+        <option>已通过</option>
+        <option>已驳回</option>
+        <option>已转办</option>
+      </select>
+      <select class="filter-select">
+        <option>全部系统</option>
+        <option>ERP</option>
+        <option>HR</option>
+        <option>OA</option>
+        <option>CRM</option>
+        <option>SRM</option>
+        <option>T100</option>
+        <option>BI</option>
+      </select>
+      <div class="filter-status">
+        <div class="filter-status-item">
+          <span class="dot" style="background: #10b981;"></span>
+          <span>已通过</span>
+          <span class="count">18</span>
+        </div>
+        <div class="filter-status-item">
+          <span class="dot" style="background: #ef4444;"></span>
+          <span>已驳回</span>
+          <span class="count">3</span>
+        </div>
+        <div class="filter-status-item">
+          <span class="dot" style="background: #f59e0b;"></span>
+          <span>已转办</span>
+          <span class="count">7</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 已办事项卡片 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          已办事项
+          <span class="count-badge-green">28条</span>
+        </div>
+        <div class="card-header-right">
+          <button class="refresh-btn">
+            <span>🔄</span>
+            <span>刷新</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>待办标题</th>
+                <th style="width: 80px;">类型</th>
+                <th style="width: 90px;">来源系统</th>
+                <th style="width: 90px;">发起人</th>
+                <th style="width: 150px;">处理时间</th>
+                <th style="width: 100px;">处理结果</th>
+                <th style="width: 80px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ERP采购订单审批 - PO20250110002</td>
+                <td><span class="type-tag">审批</span></td>
+                <td><span class="system-tag system-erp">ERP</span></td>
+                <td>王磊</td>
+                <td>2025-01-14 15:30</td>
+                <td><span class="result-tag result-pass">已通过</span></td>
+                <td>
+                  <span class="action-link">详情</span>
+                </td>
+              </tr>
+              <tr>
+                <td>CRM客户合同审批 - 广州贸易有限公司季度合同</td>
+                <td><span class="type-tag">审批</span></td>
+                <td><span class="system-tag system-crm">CRM</span></td>
+                <td>刘志远</td>
+                <td>2025-01-14 11:20</td>
+                <td><span class="result-tag result-pass">已通过</span></td>
+                <td>
+                  <span class="action-link">详情</span>
+                </td>
+              </tr>
+              <tr>
+                <td>OA报销审批 - 差旅费报销单20250108001</td>
+                <td><span class="type-tag">审批</span></td>
+                <td><span class="system-tag system-oa">OA</span></td>
+                <td>孙丽</td>
+                <td>2025-01-13 16:45</td>
+                <td><span class="result-tag result-reject">已驳回</span></td>
+                <td>
+                  <span class="action-link">详情</span>
+                </td>
+              </tr>
+              <tr>
+                <td>HR转正审批 - 市场部陈明试用期转正申请</td>
+                <td><span class="type-tag">审批</span></td>
+                <td><span class="system-tag system-hr">HR</span></td>
+                <td>陈晓燕</td>
+                <td>2025-01-13 10:00</td>
+                <td><span class="result-tag result-pass">已通过</span></td>
+                <td>
+                  <span class="action-link">详情</span>
+                </td>
+              </tr>
+              <tr>
+                <td>SRM供应商准入审批 - 深圳包装材料有限公司</td>
+                <td><span class="type-tag">审批</span></td>
+                <td><span class="system-tag system-srm">SRM</span></td>
+                <td>周明</td>
+                <td>2025-01-12 14:30</td>
+                <td><span class="result-tag result-transfer">已转办</span></td>
+                <td>
+                  <span class="action-link">详情</span>
+                </td>
+              </tr>
+              <tr>
+                <td>T100生产计划审批 - 月度生产计划2025年1月</td>
+                <td><span class="type-tag">审批</span></td>
+                <td><span class="system-tag system-t100">T100</span></td>
+                <td>吴刚</td>
+                <td>2025-01-12 09:15</td>
+                <td><span class="result-tag result-pass">已通过</span></td>
+                <td>
+                  <span class="action-link">详情</span>
+                </td>
+              </tr>
+              <tr>
+                <td>OA用印申请 - 合同盖章申请20250106001</td>
+                <td><span class="type-tag">申请</span></td>
+                <td><span class="system-tag system-oa">OA</span></td>
+                <td>赵伟</td>
+                <td>2025-01-11 17:00</td>
+                <td><span class="result-tag result-pass">已通过</span></td>
+                <td>
+                  <span class="action-link">详情</span>
+                </td>
+              </tr>
+              <tr>
+                <td>BI报表审批 - 2024年度财务分析报告发布</td>
+                <td><span class="type-tag">审批</span></td>
+                <td><span class="system-tag system-bi">BI</span></td>
+                <td>系统</td>
+                <td>2025-01-10 16:20</td>
+                <td><span class="result-tag result-pass">已通过</span></td>
+                <td>
+                  <span class="action-link">详情</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- 分页 -->
+      <div style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
+        <div class="pagination" style="padding: 0;">
+          <div class="pagination-info">共28条记录</div>
+          <button class="page-btn disabled">‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <span class="page-ellipsis">...</span>
+          <button class="page-btn">4</button>
+          <button class="page-btn">›</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

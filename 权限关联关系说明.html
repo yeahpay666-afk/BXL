@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户·角色·权限·岗位 标准关联关系</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    line-height: 1.7;
+    padding: 40px 20px;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .doc-header {
+    background: linear-gradient(135deg, #1a5fb4, #2563eb);
+    color: #fff;
+    padding: 32px 40px;
+  }
+  .doc-header h1 { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+  .doc-header p { font-size: 14px; opacity: 0.85; }
+  .doc-body { padding: 32px 40px; }
+
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 32px 0 16px;
+    padding-left: 12px;
+    border-left: 4px solid #2563eb;
+  }
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #334155;
+    margin: 20px 0 10px;
+  }
+  p { font-size: 14px; color: #475569; margin-bottom: 10px; }
+  .note {
+    background: #eff6ff;
+    border-left: 3px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #1e40af;
+    margin: 12px 0;
+  }
+  .warn {
+    background: #fef3c7;
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #92400e;
+    margin: 12px 0;
+  }
+
+  /* 关系图 */
+  .relation-diagram {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .relation-diagram svg { width: 100%; max-width: 820px; height: auto; }
+
+  /* 表格 */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th {
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 500;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+  tr:hover td { background: #f8fafc; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .tag-blue { background: #dbeafe; color: #2563eb; }
+  .tag-green { background: #dcfce7; color: #16a34a; }
+  .tag-purple { background: #ede9fe; color: #7c3aed; }
+  .tag-orange { background: #fed7aa; color: #c2410c; }
+  .tag-gray { background: #f1f5f9; color: #64748b; }
+
+  /* 实体卡片 */
+  .entity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .entity-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    background: #fff;
+  }
+  .entity-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .entity-card .icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .entity-card ul {
+    list-style: none;
+    font-size: 13px;
+    color: #64748b;
+  }
+  .entity-card ul li {
+    padding: 3px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .entity-card ul li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    color: #94a3b8;
+    font-weight: bold;
+  }
+
+  /* 流程步骤 */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+  }
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    position: relative;
+    padding-bottom: 20px;
+  }
+  .flow-step:last-child { padding-bottom: 0; }
+  .flow-step::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 36px;
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+  }
+  .flow-step:last-child::before { display: none; }
+  .flow-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .flow-content {
+    flex: 1;
+    padding-top: 4px;
+  }
+  .flow-content h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .flow-content p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .doc-footer {
+    padding: 20px 40px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="doc-header">
+    <h1>用户 · 角色 · 权限 · 岗位 标准关联关系</h1>
+    <p>柏星龙业务数字化中台 · 权限体系设计文档 · 2026-08-26</p>
+  </div>
+
+  <div class="doc-body">
+
+    <!-- 一、总体架构 -->
+    <h2>一、总体架构</h2>
+    <p>权限体系采用 <strong>RBAC + 岗位</strong> 模型，通过"用户 → 岗位 → 角色 → 权限 → 应用"五层链路实现权限控制。岗位作为用户与角色之间的桥梁，实现人员变动时只调岗位不调角色。</p>
+
+    <div class="relation-diagram">
+      <svg viewBox="0 0 820 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+            <path d="M1 1 L7 4 L1 7 Z" fill="#94a3b8"/>
+          </marker>
+          <marker id="arr-brand" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+            <path d="M1 1 L7 4 L1 7 Z" fill="#2563eb"/>
+          </marker>
+        </defs>
+
+        <!-- 用户 -->
+        <rect x="20" y="100" width="130" height="70" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+        <text x="85" y="128" text-anchor="middle" fill="#0891b2" font-size="15" font-weight="600">👤 用户</text>
+        <text x="85" y="148" text-anchor="middle" fill="#64748b" font-size="11">张建国 / 李明辉</text>
+
+        <!-- 岗位 -->
+        <rect x="200" y="100" width="130" height="70" rx="10" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+        <text x="265" y="128" text-anchor="middle" fill="#7c3aed" font-size="15" font-weight="600">💼 岗位</text>
+        <text x="265" y="148" text-anchor="middle" fill="#64748b" font-size="11">HR经理 / 销售经理</text>
+
+        <!-- 角色 -->
+        <rect x="380" y="100" width="130" height="70" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+        <text x="445" y="128" text-anchor="middle" fill="#2563eb" font-size="15" font-weight="600">👑 角色</text>
+        <text x="445" y="148" text-anchor="middle" fill="#64748b" font-size="11">HR管理员 / 审批人</text>
+
+        <!-- 权限 -->
+        <rect x="560" y="40" width="130" height="70" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+        <text x="625" y="68" text-anchor="middle" fill="#d97706" font-size="15" font-weight="600">🔐 权限</text>
+        <text x="625" y="88" text-anchor="middle" fill="#64748b" font-size="11">菜单/按钮/字段</text>
+
+        <!-- 应用 -->
+        <rect x="560" y="160" width="130" height="70" rx="10" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="625" y="188" text-anchor="middle" fill="#059669" font-size="15" font-weight="600">🖥️ 应用</text>
+        <text x="625" y="208" text-anchor="middle" fill="#64748b" font-size="11">T100/HR/OA...</text>
+
+        <!-- 连线 -->
+        <path d="M150 135 L200 135" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+        <text x="175" y="128" text-anchor="middle" fill="#64748b" font-size="10">分配</text>
+
+        <path d="M330 135 L380 135" stroke="#7c3aed" stroke-width="2.5" fill="none" marker-end="url(#arr-brand)"/>
+        <text x="355" y="128" text-anchor="middle" fill="#7c3aed" font-size="10" font-weight="500">绑定</text>
+
+        <path d="M510 120 Q540 80 560 70" stroke="#2563eb" stroke-width="2.5" fill="none" marker-end="url(#arr-brand)"/>
+        <text x="540" y="85" text-anchor="middle" fill="#2563eb" font-size="10" font-weight="500">配置</text>
+
+        <path d="M510 150 Q540 190 560 200" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+        <text x="540" y="185" text-anchor="middle" fill="#64748b" font-size="10">针对</text>
+
+        <!-- 回环: 角色→用户(继承) -->
+        <path d="M445 100 Q300 30 85 100" stroke="#0891b2" stroke-width="1.5" stroke-dasharray="5,4" fill="none" marker-end="url(#arr)" opacity="0.5"/>
+        <text x="265" y="25" text-anchor="middle" fill="#0891b2" font-size="10" opacity="0.6">权限继承</text>
+      </svg>
+    </div>
+
+    <div class="note">
+      <strong>核心链路：</strong>用户分配岗位 → 岗位绑定角色 → 角色配置权限 → 权限针对具体应用。用户通过岗位间接继承角色权限，不直接绑定角色。
+    </div>
+
+    <!-- 二、实体定义 -->
+    <h2>二、实体定义</h2>
+
+    <div class="entity-grid">
+      <div class="entity-card">
+        <h4><div class="icon" style="background:#ecfeff;">👤</div>用户 (User)</h4>
+        <ul>
+          <li>系统中的实际使用者，对应具体员工</li>
+          <li>属性：姓名、工号、部门、岗位</li>
+          <li>一个用户只能属于一个岗位</li>
+          <li>权限来源：通过岗位间接继承角色权限</li>
+          <li>示例：张建国 → HR经理岗位</li>
+        </ul>
+      </div>
+      <div class="entity-card">
+        <h4><div class="icon" style="background:#f5f3ff;">💼</div>岗位 (Position)</h4>
+        <ul>
+          <li>组织架构中的职位，是角色的容器</li>
+          <li>属性：岗位名称、编码、所属部门</li>
+          <li>一个岗位可绑定多个角色（1:N）</li>
+          <li>自动包含默认角色"基础用户"</li>
+          <li>示例：HR经理 → [HR管理员, OA审批人, BI查看者]</li>
+        </ul>
+      </div>
+      <div class="entity-card">
+        <h4><div class="icon" style="background:#eff6ff;">👑</div>角色 (Role)</h4>
+        <ul>
+          <li>权限的集合，是权限配置的载体</li>
+          <li>属性：角色名称、编码、可访问的系统、数据范围</li>
+          <li>一个角色可被多个岗位绑定（N:M）</li>
+          <li>一个角色可针对多个应用配置权限</li>
+          <li>示例：HR管理员 → 可访问HR系统 + 菜单/按钮/字段权限</li>
+        </ul>
+      </div>
+      <div class="entity-card">
+        <h4><div class="icon" style="background:#fffbeb;">🔐</div>权限 (Permission)</h4>
+        <ul>
+          <li>四级粒度：菜单 → 按钮 → 数据行 → 数据列</li>
+          <li><strong>菜单权限</strong>：控制可见的菜单页面</li>
+          <li><strong>按钮权限</strong>：控制页面内的操作按钮</li>
+          <li><strong>数据行权限</strong>：按组织架构控制可见数据范围</li>
+          <li><strong>数据列权限</strong>：字段级控制（不可见/不可更改/部门可见脱敏）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 三、关联关系矩阵 -->
+    <h2>三、关联关系矩阵</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>关系</th>
+          <th>基数</th>
+          <th>说明</th>
+          <th>维护入口</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>用户 → 岗位</td>
+          <td><span class="tag tag-blue">N:1</span></td>
+          <td>一个用户属于一个岗位，一个岗位可有多个用户</td>
+          <td>用户管理 → 分配岗位</td>
+        </tr>
+        <tr>
+          <td>岗位 → 角色</td>
+          <td><span class="tag tag-purple">N:M</span></td>
+          <td>一个岗位绑定多个角色，一个角色可被多个岗位引用</td>
+          <td>岗位管理 → 关联角色</td>
+        </tr>
+        <tr>
+          <td>角色 → 权限</td>
+          <td><span class="tag tag-orange">1:N</span></td>
+          <td>一个角色拥有多套权限配置（按应用分）</td>
+          <td>角色管理 → 配置权限</td>
+        </tr>
+        <tr>
+          <td>角色 → 应用</td>
+          <td><span class="tag tag-green">N:M</span></td>
+          <td>角色配置"可访问的系统"，决定顶部导航可见性</td>
+          <td>角色管理 → 可访问的系统</td>
+        </tr>
+        <tr>
+          <td>权限 → 应用</td>
+          <td><span class="tag tag-gray">N:1</span></td>
+          <td>每套权限配置针对一个具体应用</td>
+          <td>权限配置 → 选择业务系统</td>
+        </tr>
+        <tr>
+          <td>岗位 → 默认角色</td>
+          <td><span class="tag tag-green">1:1</span></td>
+          <td>所有岗位自动包含"基础用户"角色，不可取消</td>
+          <td>系统内置，不可配置</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 四、权限配置流程 -->
+    <h2>四、标准配置流程</h2>
+
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <h4>应用管理：注册业务系统</h4>
+          <p>在「应用管理」中新增业务系统（T100/HR/OA/CRM...），配置系统名称、编码、API地址。系统内置"全部系统"作为中台自身。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <h4>角色管理：创建角色并配置权限</h4>
+          <p>在「角色管理」新建角色，设置"可访问的系统"（影响顶部导航），点击"配置权限"进入权限配置页，针对每个应用分别配置菜单/按钮/数据行/数据列四级权限。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content">
+          <h4>岗位管理：创建岗位并绑定角色</h4>
+          <p>在「岗位管理」新建岗位，选择所属部门（三级组织架构树），勾选该岗位包含的角色。系统自动包含"基础用户"默认角色。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-content">
+          <h4>用户管理：分配岗位</h4>
+          <p>在「用户管理」为用户分配岗位，用户自动继承该岗位绑定的所有角色权限。支持按岗位批量分配。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-content">
+          <h4>权限生效</h4>
+          <p>用户登录后，系统根据 岗位→角色→权限 链路计算最终权限集合，控制顶部导航可见性、菜单可见性、按钮可操作性、数据可见范围和字段脱敏。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 五、权限四级模型 -->
+    <h2>五、权限四级模型</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:100px;">层级</th>
+          <th style="width:120px;">控制对象</th>
+          <th>配置方式</th>
+          <th style="width:160px;">示例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-blue">L1 菜单</span></td>
+          <td>页面可见性</td>
+          <td>树形三态复选框，父→子联动</td>
+          <td>勾选"员工档案" → 用户可见该菜单</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-orange">L2 按钮</span></td>
+          <td>操作权限</td>
+          <td>按菜单分组，每个按钮独立勾选</td>
+          <td>勾选"新增" → 用户可点击新增按钮</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">L3 数据行</span></td>
+          <td>数据范围</td>
+          <td>5种范围：全部/本部门/本部门及下属/本人/自定义规则</td>
+          <td>选"本部门" → 只看到本部门员工数据</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">L4 数据列</span></td>
+          <td>字段级控制</td>
+          <td>三选一：不可见 / 不可更改 / 部门可见(脱敏)</td>
+          <td>设"手机号"为部门可见 → 显示 138****5678</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 六、特殊规则 -->
+    <h2>六、特殊规则</h2>
+
+    <h3>6.1 默认角色机制</h3>
+    <div class="note">
+      <strong>"基础用户"（ROLE_BASE_USER）</strong>是系统最低权限角色，所有岗位自动包含且不可取消。权限范围：门户首页访问、集团新闻/公告查看、个人信息维护。任何用户登录后至少拥有此权限。
+    </div>
+
+    <h3>6.2 "全部系统"选项</h3>
+    <div class="note">
+      角色配置"可访问的系统"时，"全部系统"为聚合选项。选中后自动勾选所有具体系统（T100/HR/OA/CRM/SRM/BI/每刻报销）；选中任意具体系统时自动取消"全部系统"。此配置影响的是<strong>顶部导航访问权限</strong>，业务中台自身的权限。
+    </div>
+
+    <h3>6.3 权限继承与合并</h3>
+    <div class="warn">
+      一个用户通过岗位可能继承多个角色，权限取<strong>并集</strong>（而非交集）。即角色A有"新增"按钮权限、角色B有"删除"按钮权限，则用户同时拥有新增和删除权限。
+    </div>
+
+    <h3>6.4 数据列脱敏规则</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>操作类型</th>
+          <th>效果</th>
+          <th>适用场景</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag" style="background:#fee2e2;color:#dc2626;">不可见</span></td>
+          <td>字段完全隐藏</td>
+          <td>敏感字段如薪资、身份证号</td>
+        </tr>
+        <tr>
+          <td><span class="tag" style="background:#fed7aa;color:#c2410c;">不可更改</span></td>
+          <td>字段可见但只读</td>
+          <td>关键字段如工号、入职日期</td>
+        </tr>
+        <tr>
+          <td><span class="tag" style="background:#dcfce7;color:#16a34a;">部门可见(脱敏)</span></td>
+          <td>跨部门可见但脱敏显示</td>
+          <td>手机号 138****5678、邮箱 z***@xx.com</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 七、示例场景 -->
+    <h2>七、典型场景示例</h2>
+
+    <h3>场景：HR部门新员工入职</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>步骤</th>
+          <th>操作</th>
+          <th>结果</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>应用管理已注册 HR 系统</td>
+          <td>HR 作为可选应用出现在角色配置中</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>角色管理创建"HR管理员"角色，可访问系统选"HR"，配置菜单/按钮/数据权限</td>
+          <td>角色拥有 HR 系统的完整权限</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>岗位管理创建"HR经理"岗位，关联角色：HR管理员 + OA审批人 + BI报表查看者</td>
+          <td>岗位包含3个角色 + 默认基础用户</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>用户管理中新增员工"张建国"，分配岗位"HR经理"</td>
+          <td>张建国自动继承4个角色的全部权限</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>张建国登录系统</td>
+          <td>顶部导航可见：首页、HR、OA、BI；菜单可见 HR 系统下的员工档案等；数据范围限本部门；手机号字段脱敏显示</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>场景：员工调岗（从HR经理调为销售经理）</h3>
+    <div class="note">
+      只需在「用户管理」中将该用户的岗位从"HR经理"改为"销售经理"，权限自动切换。无需逐个调整角色绑定——这是岗位模式的核心优势。
+    </div>
+
+  </div>
+
+  <div class="doc-footer">
+    柏星龙业务数字化中台 · 权限体系设计文档 · 2026-08-26
+  </div>
+</div>
+</body>
+</html>

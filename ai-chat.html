@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>柏小星 - AI智能助手</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>2025-01-15 周三 晴 18°</span>
+        </div>
+        <div class="header-bell">
+          🔔
+          <span class="badge">5</span>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item active">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <!-- 对话历史侧边栏 -->
+  <aside class="chat-sidebar">
+    <div class="chat-sidebar-header">
+      <button class="new-chat-btn">
+        <span>✏️</span>
+        <span>新对话</span>
+      </button>
+    </div>
+
+    <div class="chat-history-title">历史对话</div>
+    <div class="chat-history-list">
+      <div class="chat-history-item active">
+        <div class="chat-history-item-title">帮我查询今天的待办事项</div>
+        <div class="chat-history-item-time">今天 09:30</div>
+      </div>
+      <div class="chat-history-item">
+        <div class="chat-history-item-title">生成本月考勤汇总报表</div>
+        <div class="chat-history-item-time">昨天 14:20</div>
+      </div>
+      <div class="chat-history-item">
+        <div class="chat-history-item-title">分析Q4销售数据趋势</div>
+        <div class="chat-history-item-time">1月13日</div>
+      </div>
+      <div class="chat-history-item">
+        <div class="chat-history-item-title">帮我写一份采购合同模板</div>
+        <div class="chat-history-item-time">1月12日</div>
+      </div>
+      <div class="chat-history-item">
+        <div class="chat-history-item-title">新员工入职流程有哪些步骤</div>
+        <div class="chat-history-item-time">1月10日</div>
+      </div>
+      <div class="chat-history-item">
+        <div class="chat-history-item-title">公司年假政策是怎样的</div>
+        <div class="chat-history-item-time">1月8日</div>
+      </div>
+    </div>
+
+    <div class="chat-sidebar-footer">
+      <div class="header-avatar" style="width: 36px; height: 36px; font-size: 14px;">张</div>
+      <div class="chat-sidebar-user">
+        <div class="chat-sidebar-user-name">张建国</div>
+        <div class="chat-sidebar-user-role">产品经理</div>
+      </div>
+      <div class="chat-sidebar-settings">⚙️</div>
+    </div>
+  </aside>
+
+  <!-- 主对话区 -->
+  <div class="chat-main">
+    <!-- 对话信息栏 -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-ai-avatar">🌟</div>
+        <div class="chat-ai-info">
+          <div class="chat-ai-name">
+            柏小星
+            <span class="chat-ai-status" title="在线"></span>
+          </div>
+          <div class="chat-ai-desc">AI智能助手</div>
+        </div>
+      </div>
+      <div class="chat-header-right">
+        <select class="chat-model-select">
+          <option>GPT-4o</option>
+          <option>GPT-4</option>
+          <option>GPT-3.5</option>
+        </select>
+        <div class="chat-header-icon" title="收藏">⭐</div>
+        <div class="chat-header-icon" title="更多">⋯</div>
+      </div>
+    </div>
+
+    <!-- 对话内容区 -->
+    <div class="chat-content">
+      <!-- AI消息1 -->
+      <div class="chat-message">
+        <div class="chat-message-avatar ai">🌟</div>
+        <div>
+          <div class="chat-message-bubble ai">
+            <p>你好！我是柏小星 🌟 你的AI智能助手。我可以帮你：</p>
+            <ul>
+              <li>查询待办事项与日程安排</li>
+              <li>生成报表与数据分析</li>
+              <li>解答公司制度与流程问题</li>
+              <li>起草文档与合同模板</li>
+            </ul>
+            <div class="chat-quick-questions">
+              <button class="chat-quick-btn">今天有什么待办</button>
+              <button class="chat-quick-btn">生成本月报表</button>
+              <button class="chat-quick-btn">年假怎么申请</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 用户消息 -->
+      <div class="chat-message user">
+        <div class="chat-message-avatar user">张</div>
+        <div class="chat-message-bubble user">
+          帮我查询今天的待办事项
+        </div>
+      </div>
+
+      <!-- AI消息2 -->
+      <div class="chat-message">
+        <div class="chat-message-avatar ai">🌟</div>
+        <div>
+          <div class="chat-message-bubble ai">
+            <p>好的，已为您查询到今天的待办事项：</p>
+
+            <div class="chat-todo-item">
+              <div class="chat-todo-info">
+                <div class="chat-todo-title">审批报销单 - 张三提交</div>
+                <div class="chat-todo-meta">
+                  <span>09:30</span>
+                  <span>·</span>
+                  <span>生产类</span>
+                </div>
+              </div>
+              <button class="chat-todo-btn">审批</button>
+            </div>
+
+            <div class="chat-todo-item">
+              <div class="chat-todo-info">
+                <div class="chat-todo-title">采购合同签订 — 待处理</div>
+                <div class="chat-todo-meta">
+                  <span>11:00</span>
+                  <span>·</span>
+                  <span>采购类</span>
+                </div>
+              </div>
+              <button class="chat-todo-btn">审批</button>
+            </div>
+
+            <div class="chat-todo-item">
+              <div class="chat-todo-info">
+                <div class="chat-todo-title">月度报表审核 — 截止今日18:00</div>
+                <div class="chat-todo-meta">
+                  <span>16:00</span>
+                  <span>·</span>
+                  <span>销售类</span>
+                </div>
+              </div>
+              <button class="chat-todo-btn">审批</button>
+            </div>
+
+            <p style="margin-top: 12px;">共 <strong>5</strong> 条待办，其中 <strong>3</strong> 条需要今天处理。需要我帮你逐一处理吗？</p>
+          </div>
+          <div class="chat-message-actions">
+            <div class="chat-action-btn" title="复制">📋</div>
+            <div class="chat-action-btn" title="重新生成">🔄</div>
+            <div class="chat-action-btn" title="点赞">👍</div>
+            <div class="chat-action-btn" title="点踩">👎</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 输入区 -->
+    <div class="chat-input-area">
+      <div class="chat-input-toolbar">
+        <div class="chat-tool-btn" title="附件">📎</div>
+        <div class="chat-tool-btn" title="图片">🖼️</div>
+        <div class="chat-tool-btn" title="语音">🎤</div>
+      </div>
+      <div class="chat-input-wrapper">
+        <textarea class="chat-input" placeholder="输入你的问题，Enter 发送，Shift+Enter 换行" rows="1"></textarea>
+        <button class="chat-send-btn" title="发送">✈️</button>
+      </div>
+      <div class="chat-depth-toggle">
+        <span>深度思考</span>
+        <div class="toggle" onclick="this.classList.toggle('active')"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 自动调整输入框高度
+    const textarea = document.querySelector('.chat-input');
+    textarea.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // Enter发送，Shift+Enter换行
+    textarea.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        // 发送逻辑
+      }
+    });
+  </script>
+</body>
+</html>

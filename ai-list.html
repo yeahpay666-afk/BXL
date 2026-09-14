@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能办公 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>2025-01-15 周三 晴 18°</span>
+        </div>
+        <div class="header-bell">
+          🔔
+          <span class="badge">5</span>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <div class="sub-nav-item active">首页概览</div>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">首页导航</div>
+    <div class="sidebar-subtitle">快速访问常用功能</div>
+    <div class="sidebar-menu">
+      <a href="index.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🏠</span>
+        <span>首页概览</span>
+      </a>
+      <a href="todo-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📋</span>
+        <span>我的待办</span>
+      </a>
+      <a href="news-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📰</span>
+        <span>集团新闻</span>
+      </a>
+      <a href="notice-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📢</span>
+        <span>公告通知</span>
+      </a>
+      <div class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📄</span>
+        <span>最新文档</span>
+      </div>
+      <a href="study.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📚</span>
+        <span>柏家学堂</span>
+      </a>
+      <div class="sidebar-menu-item active">
+        <span class="sidebar-menu-icon">🤖</span>
+        <span>AI智能体</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 刷新按钮 -->
+    <button class="refresh-btn" onclick="location.reload()">
+      <span>🔄</span>
+      <span>刷新</span>
+    </button>
+
+    <!-- 面包屑 -->
+    <div class="breadcrumb">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span class="current">AI智能</span>
+    </div>
+
+    <!-- 页面标题 -->
+    <h1 class="page-title">智能办公</h1>
+    <p class="page-desc">探索和使用各类AI智能体，提升工作效率与创造力</p>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <span class="icon">🔍</span>
+        <input type="text" placeholder="搜索智能体名称...">
+      </div>
+      <select class="filter-select">
+        <option>全部分类</option>
+        <option>数据分析</option>
+        <option>办公协作</option>
+        <option>设计创意</option>
+        <option>客服对话</option>
+      </select>
+      <select class="filter-select">
+        <option>全部状态</option>
+        <option>已上线</option>
+        <option>测试中</option>
+        <option>已下线</option>
+      </select>
+      <div class="filter-status">
+        <div class="filter-status-item">
+          <span class="dot" style="background: #10b981;"></span>
+          <span>已上线</span>
+          <span class="count">8</span>
+        </div>
+        <div class="filter-status-item">
+          <span class="dot" style="background: #f59e0b;"></span>
+          <span>测试中</span>
+          <span class="count">3</span>
+        </div>
+        <div class="filter-status-item">
+          <span class="dot" style="background: #94a3b8;"></span>
+          <span>已下线</span>
+          <span class="count">2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI智能体卡片网格 -->
+    <div class="ai-grid">
+      <!-- AI 1 -->
+      <div class="ai-card">
+        <div class="ai-card-header">
+          <div class="ai-icon icon-blue">📊</div>
+          <span class="ai-status online">已上线</span>
+        </div>
+        <div class="ai-name">智能数据分析助手</div>
+        <div class="ai-desc">基于大模型的智能数据分析工具，支持自然语言查询、自动生成报表和可视化图表</div>
+        <div class="ai-tags">
+          <span class="ai-tag">数据分析</span>
+          <span class="ai-tag">BI</span>
+        </div>
+        <div class="ai-footer">
+          <div class="ai-usage">
+            <span>🔌</span>
+            <span>1,286次调用</span>
+          </div>
+          <a href="ai-chat.html" class="btn btn-primary btn-sm">立即使用</a>
+        </div>
+      </div>
+
+      <!-- AI 2 -->
+      <div class="ai-card">
+        <div class="ai-card-header">
+          <div class="ai-icon icon-purple">📝</div>
+          <span class="ai-status online">已上线</span>
+        </div>
+        <div class="ai-name">合同智能审查助手</div>
+        <div class="ai-desc">AI驱动的合同审查工具，自动识别风险条款、缺失内容，提供修改建议</div>
+        <div class="ai-tags">
+          <span class="ai-tag">法务</span>
+          <span class="ai-tag">合同管理</span>
+        </div>
+        <div class="ai-footer">
+          <div class="ai-usage">
+            <span>🔌</span>
+            <span>856次调用</span>
+          </div>
+          <a href="ai-chat.html" class="btn btn-primary btn-sm">立即使用</a>
+        </div>
+      </div>
+
+      <!-- AI 3 -->
+      <div class="ai-card">
+        <div class="ai-card-header">
+          <div class="ai-icon icon-orange">💬</div>
+          <span class="ai-status testing">测试中</span>
+        </div>
+        <div class="ai-name">智能客服机器人</div>
+        <div class="ai-desc">7x24小时智能客服，支持多轮对话，自动解答常见问题并转接人工</div>
+        <div class="ai-tags">
+          <span class="ai-tag">客服</span>
+          <span class="ai-tag">对话</span>
+        </div>
+        <div class="ai-footer">
+          <div class="ai-usage">
+            <span>🔌</span>
+            <span>432次调用</span>
+          </div>
+          <a href="ai-chat.html" class="btn btn-primary btn-sm">立即使用</a>
+        </div>
+      </div>
+
+      <!-- AI 4 -->
+      <div class="ai-card">
+        <div class="ai-card-header">
+          <div class="ai-icon icon-green">🌐</div>
+          <span class="ai-status online">已上线</span>
+        </div>
+        <div class="ai-name">多语言翻译助手</div>
+        <div class="ai-desc">支持中英日韩等20+语种实时翻译，保留原文格式，适用于商务文档</div>
+        <div class="ai-tags">
+          <span class="ai-tag">翻译</span>
+          <span class="ai-tag">多语言</span>
+        </div>
+        <div class="ai-footer">
+          <div class="ai-usage">
+            <span>🔌</span>
+            <span>2,150次调用</span>
+          </div>
+          <a href="ai-chat.html" class="btn btn-primary btn-sm">立即使用</a>
+        </div>
+      </div>
+
+      <!-- AI 5 -->
+      <div class="ai-card">
+        <div class="ai-card-header">
+          <div class="ai-icon icon-pink">🎨</div>
+          <span class="ai-status online">已上线</span>
+        </div>
+        <div class="ai-name">设计素材生成器</div>
+        <div class="ai-desc">AI驱动的包装设计素材生成工具，输入需求即可快速生成多种设计方案</div>
+        <div class="ai-tags">
+          <span class="ai-tag">设计</span>
+          <span class="ai-tag">创意</span>
+        </div>
+        <div class="ai-footer">
+          <div class="ai-usage">
+            <span>🔌</span>
+            <span>3,420次调用</span>
+          </div>
+          <a href="ai-chat.html" class="btn btn-primary btn-sm">立即使用</a>
+        </div>
+      </div>
+
+      <!-- AI 6 -->
+      <div class="ai-card" style="opacity: 0.7;">
+        <div class="ai-card-header">
+          <div class="ai-icon icon-gray">📋</div>
+          <span class="ai-status offline">已下线</span>
+        </div>
+        <div class="ai-name">会议纪要生成器</div>
+        <div class="ai-desc">自动将会议录音转为文字纪要，提取关键决策和待办事项</div>
+        <div class="ai-tags">
+          <span class="ai-tag">办公</span>
+          <span class="ai-tag">会议</span>
+        </div>
+        <div class="ai-footer">
+          <div class="ai-usage">
+            <span>🔌</span>
+            <span>168次调用</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" disabled style="cursor: not-allowed; opacity: 0.6;">已下线</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部分页 -->
+    <div class="pagination" style="margin-top: 24px;">
+      <div class="pagination-info">共13个智能体</div>
+      <button class="page-btn disabled">‹</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn disabled">›</button>
+    </div>
+  </main>
+  <script>
+  /* ===== 添加到首页「AI智能」板块 ===== */
+  var AI_AGENT_LIST = [
+    { id: 'ai-data',             name: '智能数据分析助手', icon: '📊', color: 'icon-blue',   href: 'ai-chat.html' },
+    { id: 'ai-contract-review',  name: '合同智能审查助手', icon: '📝', color: 'icon-purple', href: 'ai-chat.html' },
+    { id: 'ai-service',          name: '智能客服机器人',   icon: '💬', color: 'icon-orange', href: 'ai-chat.html' },
+    { id: 'ai-translate',        name: '多语言翻译助手',   icon: '🌐', color: 'icon-green',  href: 'ai-chat.html' },
+    { id: 'ai-design',           name: '设计素材生成器',   icon: '🎨', color: 'icon-pink',   href: 'ai-chat.html' }
+  ];
+  var AI_PORTAL_KEY = 'aiPortalApps';
+  var AI_PORTAL_DEFAULT = [
+    { id: 'ai-resume',   name: '简历筛选', icon: '📋', color: 'icon-purple', href: 'ai-resume.html' },
+    { id: 'ai-meeting',  name: '智能会议', icon: '🎙️', color: 'icon-blue',   href: 'ai-meeting.html' },
+    { id: 'ai-contract', name: '合同审查', icon: '📄', color: 'icon-green',  href: 'ai-contract.html' }
+  ];
+
+  function readAiPortal() {
+    try {
+      var raw = localStorage.getItem(AI_PORTAL_KEY);
+      if (raw) {
+        var arr = JSON.parse(raw);
+        if (Array.isArray(arr) && arr.length) return arr;
+      }
+    } catch (e) {}
+    return AI_PORTAL_DEFAULT.slice();
+  }
+  function saveAiPortal(arr) {
+    try { localStorage.setItem(AI_PORTAL_KEY, JSON.stringify(arr)); } catch (e) {}
+  }
+  function hasAgent(id) {
+    return readAiPortal().some(function(a) { return a.id === id; });
+  }
+
+  function bindAddToAiPortal() {
+    var cards = document.querySelectorAll('.ai-grid .ai-card');
+    cards.forEach(function(card, idx) {
+      var agent = AI_AGENT_LIST[idx];
+      if (!agent) return;
+      var footer = card.querySelector('.ai-footer');
+      if (!footer) return;
+
+      var addBtn = document.createElement('button');
+      addBtn.className = 'btn btn-outline btn-sm';
+      addBtn.title = '添加到首页 AI智能板块';
+
+      function refresh() {
+        var added = hasAgent(agent.id);
+        addBtn.textContent = added ? '已添加' : '＋ 添加';
+        addBtn.disabled = added;
+        addBtn.style.opacity = added ? '0.55' : '';
+        addBtn.style.cursor = added ? 'default' : '';
+      }
+
+      addBtn.addEventListener('click', function() {
+        var arr = readAiPortal();
+        if (!arr.some(function(a) { return a.id === agent.id; })) {
+          arr.push(agent);
+          saveAiPortal(arr);
+        }
+        refresh();
+      });
+
+      var useEl = footer.lastElementChild;
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;align-items:center;gap:8px;';
+      wrap.appendChild(addBtn);
+      if (useEl) wrap.appendChild(useEl);
+      footer.appendChild(wrap);
+      refresh();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', bindAddToAiPortal);
+  </script>
+</body>
+</html>
+

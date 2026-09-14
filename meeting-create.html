@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新建会议 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    body { background: #f1f5f9; }
+
+    /* 页面容器 */
+    .meeting-create-wrap {
+      max-width: 720px;
+      margin: 24px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    /* 顶部标题栏 */
+    .mc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 28px 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .mc-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+    .mc-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #64748b;
+      font-size: 18px;
+      border: none;
+      background: transparent;
+      transition: all 0.15s;
+    }
+    .mc-close:hover { background: #f1f5f9; }
+
+    /* 表单主体 */
+    .mc-body { padding: 20px 28px; }
+
+    /* 表单行 */
+    .mc-row {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .mc-label {
+      width: 100px;
+      flex-shrink: 0;
+      font-size: 14px;
+      color: #475569;
+      padding-top: 8px;
+      text-align: right;
+      padding-right: 16px;
+    }
+    .mc-label .req { color: #ef4444; margin-left: 2px; }
+    .mc-field { flex: 1; min-width: 0; }
+
+    /* 标题输入 */
+    .mc-title-input {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s;
+    }
+    .mc-title-input:focus { border-color: #3370ff; }
+
+    /* 时间选择 */
+    .mc-time-row { display: flex; align-items: center; gap: 8px; }
+    .mc-time-input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      outline: none;
+      box-sizing: border-box;
+      color: #1e293b;
+    }
+    .mc-time-input:focus { border-color: #3370ff; }
+    .mc-time-arrow { color: #94a3b8; font-size: 14px; }
+
+    /* 召集人 */
+    .mc-convener {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+    }
+    .mc-convener-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #3370ff;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .mc-convener-name { font-size: 14px; color: #1e293b; }
+    .mc-convener-tag {
+      font-size: 12px;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* 参会人 */
+    .mc-attendees-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      min-height: 44px;
+      padding: 6px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .mc-attendees-box:hover { border-color: #3370ff; }
+    .mc-attendee-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 4px 8px 4px 4px;
+      font-size: 13px;
+      color: #1e40af;
+    }
+    .mc-attendee-tag .tag-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #3370ff;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+    .mc-attendee-tag .tag-remove {
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 14px;
+      margin-left: 2px;
+    }
+    .mc-attendee-tag .tag-remove:hover { color: #ef4444; }
+    .mc-attendee-placeholder { color: #94a3b8; font-size: 14px; padding: 6px; }
+
+    /* 会议室 */
+    .mc-room-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      min-height: 44px;
+      padding: 6px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .mc-room-box:hover { border-color: #3370ff; }
+    .mc-room-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 13px;
+      color: #15803d;
+    }
+    .mc-room-tag .tag-remove { cursor: pointer; color: #94a3b8; margin-left: 2px; }
+    .mc-room-tag .tag-remove:hover { color: #ef4444; }
+    .mc-room-placeholder { color: #94a3b8; font-size: 14px; padding: 6px; }
+
+    /* 下拉选择 */
+    .mc-select {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      outline: none;
+      box-sizing: border-box;
+      background: #fff;
+      color: #1e293b;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+    .mc-select:focus { border-color: #3370ff; }
+
+    /* 提醒方式 */
+    .mc-notify-group { display: flex; gap: 12px; flex-wrap: wrap; }
+    .mc-notify-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: #475569;
+      cursor: pointer;
+    }
+    .mc-notify-item input[type="checkbox"] { accent-color: #3370ff; width: 16px; height: 16px; cursor: pointer; }
+
+    /* 视频会议 */
+    .mc-video-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mc-video-btn:hover { background: #eff6ff; border-color: #3370ff; color: #3370ff; }
+    .mc-video-btn.active { background: #3370ff; border-color: #3370ff; color: #fff; }
+
+    /* 附件上传 */
+    .mc-attach-area {
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mc-attach-area:hover { border-color: #3370ff; background: #f8fbff; }
+    .mc-attach-icon { font-size: 24px; color: #94a3b8; margin-bottom: 4px; }
+    .mc-attach-text { font-size: 13px; color: #64748b; }
+    .mc-attach-list { margin-top: 8px; }
+    .mc-attach-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #475569;
+    }
+    .mc-attach-item .attach-remove { margin-left: auto; cursor: pointer; color: #94a3b8; }
+    .mc-attach-item .attach-remove:hover { color: #ef4444; }
+
+    /* 文本域 */
+    .mc-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      outline: none;
+      box-sizing: border-box;
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+    .mc-textarea:focus { border-color: #3370ff; }
+
+    /* 底部按钮 */
+    .mc-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 28px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .mc-btn {
+      padding: 8px 24px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .mc-btn-cancel { background: #f1f5f9; color: #475569; }
+    .mc-btn-cancel:hover { background: #e2e8f0; }
+    .mc-btn-save { background: #3370ff; color: #fff; }
+    .mc-btn-save:hover { background: #2860e6; }
+
+    /* ===== 参会人弹窗 ===== */
+    .mc-modal-mask {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.25); z-index: 999;
+      display: none; align-items: center; justify-content: center;
+    }
+    .mc-modal-mask.show { display: flex; }
+    .mc-modal {
+      width: 560px; max-height: 80vh; background: #fff;
+      border-radius: 12px; display: flex; flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .mc-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid #f1f5f9;
+    }
+    .mc-modal-header h3 { font-size: 16px; font-weight: 600; margin: 0; color: #1e293b; }
+    .mc-modal-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+    .mc-modal-footer {
+      display: flex; justify-content: flex-end; gap: 8px;
+      padding: 12px 20px; border-top: 1px solid #f1f5f9;
+    }
+
+    /* 搜索框 */
+    .mc-search-box { position: relative; margin-bottom: 16px; }
+    .mc-search-input {
+      width: 100%; padding: 8px 12px 8px 36px;
+      border: 1px solid #e2e8f0; border-radius: 8px;
+      font-size: 14px; outline: none; box-sizing: border-box;
+    }
+    .mc-search-input:focus { border-color: #3370ff; }
+    .mc-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; }
+
+    /* 机构树 */
+    .mc-org-tree { font-size: 14px; }
+    .mc-org-node { padding: 6px 0; }
+    .mc-org-toggle { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+    .mc-org-toggle:hover { color: #3370ff; }
+    .mc-org-arrow { font-size: 10px; color: #94a3b8; transition: transform 0.15s; }
+    .mc-org-arrow.open { transform: rotate(90deg); }
+    .mc-org-children { padding-left: 20px; display: none; }
+    .mc-org-children.show { display: block; }
+
+    /* 人员列表 */
+    .mc-person-list { margin-top: 12px; }
+    .mc-person-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid #f8fafc;
+      cursor: pointer;
+    }
+    .mc-person-item:hover { background: #f8fbff; margin: 0 -8px; padding: 8px; border-radius: 6px; }
+    .mc-person-checkbox { width: 16px; height: 16px; accent-color: #3370ff; cursor: pointer; }
+    .mc-person-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #3370ff; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; flex-shrink: 0;
+    }
+    .mc-person-info { flex: 1; min-width: 0; }
+    .mc-person-name { font-size: 14px; color: #1e293b; }
+    .mc-person-dept { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    /* 会议室弹窗 */
+    .mc-room-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; border: 1px solid #f1f5f9; border-radius: 8px;
+      margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
+    }
+    .mc-room-item:hover { border-color: #3370ff; background: #f8fbff; }
+    .mc-room-item.selected { border-color: #3370ff; background: #eff6ff; }
+    .mc-room-radio { width: 16px; height: 16px; accent-color: #3370ff; cursor: pointer; }
+    .mc-room-info { flex: 1; }
+    .mc-room-name { font-size: 14px; color: #1e293b; font-weight: 500; }
+    .mc-room-meta { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .mc-room-status {
+      font-size: 12px; padding: 2px 8px; border-radius: 4px; font-weight: 500;
+    }
+    .mc-room-status.available { background: #f0fdf4; color: #15803d; }
+    .mc-room-status.unavailable { background: #fef2f2; color: #dc2626; }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
+    </nav>
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item active">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <a href="process.html" class="sub-nav-item">流程中心</a>
+      <a href="api.html" class="sub-nav-item">API中心</a>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <!-- 面包屑 -->
+  <div style="max-width:720px;margin:16px auto 0;padding:0 4px;">
+    <span style="font-size:13px;color:#94a3b8;">
+      <a href="index.html" style="color:#94a3b8;text-decoration:none;">首页</a> / 新建会议
+    </span>
+  </div>
+
+  <!-- 新建会议表单 -->
+  <div class="meeting-create-wrap">
+    <div class="mc-header">
+      <h2>新建会议</h2>
+      <button class="mc-close" onclick="history.back()">✕</button>
+    </div>
+    <div class="mc-body">
+      <!-- 日程标题 -->
+      <div class="mc-row">
+        <div class="mc-label">日程标题<span class="req">*</span></div>
+        <div class="mc-field">
+          <input type="text" class="mc-title-input" placeholder="请输入日程标题" id="mcTitle">
+        </div>
+      </div>
+
+      <!-- 时间 -->
+      <div class="mc-row">
+        <div class="mc-label">会议时间<span class="req">*</span></div>
+        <div class="mc-field">
+          <div class="mc-time-row">
+            <input type="datetime-local" class="mc-time-input" id="mcStart" value="2026-09-10T09:00">
+            <span class="mc-time-arrow">→</span>
+            <input type="datetime-local" class="mc-time-input" id="mcEnd" value="2026-09-10T10:00">
+          </div>
+        </div>
+      </div>
+
+      <!-- 召集人 -->
+      <div class="mc-row">
+        <div class="mc-label">召集人</div>
+        <div class="mc-field">
+          <div class="mc-convener">
+            <div class="mc-convener-avatar">张</div>
+            <span class="mc-convener-name">张建国</span>
+            <span class="mc-convener-tag">当前OA账号</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 参会人 -->
+      <div class="mc-row">
+        <div class="mc-label">参会人</div>
+        <div class="mc-field">
+          <div class="mc-attendees-box" onclick="openAttendeeModal()">
+            <span class="mc-attendee-placeholder" id="attendeePlaceholder">点击添加参会人</span>
+            <div id="attendeeTags" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 会议室 -->
+      <div class="mc-row">
+        <div class="mc-label">会议室</div>
+        <div class="mc-field">
+          <div class="mc-room-box" onclick="openRoomModal()">
+            <span class="mc-room-placeholder" id="roomPlaceholder">点击选择会议室</span>
+            <div id="roomTags" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 视频会议 -->
+      <div class="mc-row">
+        <div class="mc-label">视频会议</div>
+        <div class="mc-field">
+          <button class="mc-video-btn" id="videoBtn" onclick="toggleVideo()">
+            <span>📹</span>
+            <span>添加视频会议</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 提醒 -->
+      <div class="mc-row">
+        <div class="mc-label">提醒</div>
+        <div class="mc-field">
+          <select class="mc-select" id="mcRemind">
+            <option value="0">不提醒</option>
+            <option value="10">10分钟前</option>
+            <option value="30" selected>30分钟前</option>
+            <option value="60">1小时前</option>
+            <option value="120">2小时前</option>
+            <option value="1440">1天前</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 提醒方式 -->
+      <div class="mc-row">
+        <div class="mc-label">提醒方式</div>
+        <div class="mc-field">
+          <div class="mc-notify-group">
+            <label class="mc-notify-item"><input type="checkbox" value="sms" checked> 短信</label>
+            <label class="mc-notify-item"><input type="checkbox" value="email" checked> 邮件</label>
+            <label class="mc-notify-item"><input type="checkbox" value="msg" checked> 消息中心</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 重复 -->
+      <div class="mc-row">
+        <div class="mc-label">重复</div>
+        <div class="mc-field">
+          <select class="mc-select" id="mcRepeat">
+            <option value="none" selected>不重复</option>
+            <option value="daily">每天</option>
+            <option value="weekly">每周</option>
+            <option value="biweekly">每两周</option>
+            <option value="monthly">每月</option>
+            <option value="yearly">每年</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 附件 -->
+      <div class="mc-row">
+        <div class="mc-label">附件</div>
+        <div class="mc-field">
+          <div class="mc-attach-area" onclick="document.getElementById('mcAttach').click()">
+            <div class="mc-attach-icon">📎</div>
+            <div class="mc-attach-text">点击或拖拽上传附件</div>
+          </div>
+          <input type="file" id="mcAttach" style="display:none" multiple onchange="handleAttach(this)">
+          <div class="mc-attach-list" id="attachList"></div>
+        </div>
+      </div>
+
+      <!-- 日程描述 -->
+      <div class="mc-row">
+        <div class="mc-label">日程描述</div>
+        <div class="mc-field">
+          <textarea class="mc-textarea" id="mcDesc" placeholder="请输入日程描述"></textarea>
+        </div>
+      </div>
+
+      <!-- 可见范围 -->
+      <div class="mc-row">
+        <div class="mc-label">可见范围</div>
+        <div class="mc-field">
+          <select class="mc-select" id="mcVisible">
+            <option value="all" selected>所有参会人可见</option>
+            <option value="organizer">仅召集人可见</option>
+            <option value="custom">指定人员可见</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="mc-footer">
+      <button class="mc-btn mc-btn-cancel" onclick="history.back()">取消</button>
+      <button class="mc-btn mc-btn-save" onclick="saveMeeting()">保存</button>
+    </div>
+  </div>
+
+  <!-- 参会人弹窗 -->
+  <div class="mc-modal-mask" id="attendeeModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header">
+        <h3>选择参会人</h3>
+        <button class="mc-close" onclick="closeAttendeeModal()">✕</button>
+      </div>
+      <div class="mc-modal-body">
+        <div class="mc-search-box">
+          <span class="mc-search-icon">🔍</span>
+          <input type="text" class="mc-search-input" placeholder="搜索姓名" oninput="filterPerson(this.value)">
+        </div>
+        <!-- 机构树 -->
+        <div class="mc-org-tree" id="orgTree"></div>
+        <!-- 人员列表 -->
+        <div class="mc-person-list" id="personList"></div>
+      </div>
+      <div class="mc-modal-footer">
+        <button class="mc-btn mc-btn-cancel" onclick="closeAttendeeModal()">取消</button>
+        <button class="mc-btn mc-btn-save" onclick="confirmAttendees()">确认选择（<span id="attendeeCount">0</span>）</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 会议室弹窗 -->
+  <div class="mc-modal-mask" id="roomModal">
+    <div class="mc-modal">
+      <div class="mc-modal-header">
+        <h3>选择会议室</h3>
+        <button class="mc-close" onclick="closeRoomModal()">✕</button>
+      </div>
+      <div class="mc-modal-body">
+        <div class="mc-search-box">
+          <span class="mc-search-icon">🔍</span>
+          <input type="text" class="mc-search-input" placeholder="搜索会议室名称" oninput="filterRoom(this.value)">
+        </div>
+        <div id="roomList"></div>
+      </div>
+      <div class="mc-modal-footer">
+        <button class="mc-btn mc-btn-cancel" onclick="closeRoomModal()">取消</button>
+        <button class="mc-btn mc-btn-save" onclick="confirmRoom()">确认选择</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ===== 参会人数据 ===== */
+    var orgData = [
+      { name: '柏星龙集团', children: [
+        { name: '研发中心', persons: [
+          { name: '张建国', dept: '研发中心-产品部', avatar: '张' },
+          { name: '李明轩', dept: '研发中心-技术部', avatar: '李' },
+          { name: '王思雨', dept: '研发中心-设计部', avatar: '王' }
+        ]},
+        { name: '运营中心', persons: [
+          { name: '陈晓东', dept: '运营中心-运营部', avatar: '陈' },
+          { name: '刘雅婷', dept: '运营中心-市场部', avatar: '刘' }
+        ]},
+        { name: '职能中心', persons: [
+          { name: '赵海峰', dept: '职能中心-财务部', avatar: '赵' },
+          { name: '孙丽华', dept: '职能中心-人事部', avatar: '孙' },
+          { name: '周建国', dept: '职能中心-行政部', avatar: '周' }
+        ]}
+      ]}
+    ];
+
+    var selectedAttendees = [];
+    var tempSelected = [];
+
+    function buildOrgTree() {
+      var html = '';
+      orgData.forEach(function(org, oi) {
+        html += '<div class="mc-org-node">';
+        html += '<div class="mc-org-toggle" onclick="toggleOrgNode(this)">';
+        html += '<span class="mc-org-arrow">▶</span>';
+        html += '<span>' + org.name + '</span>';
+        html += '<span style="margin-left:auto;font-size:12px;color:#94a3b8;">(' + org.children.reduce(function(a,c){return a+c.persons.length;},0) + '人)</span>';
+        html += '</div>';
+        html += '<div class="mc-org-children">';
+        org.children.forEach(function(dept, di) {
+          html += '<div class="mc-org-node">';
+          html += '<div class="mc-org-toggle" onclick="toggleOrgNode(this)">';
+          html += '<span class="mc-org-arrow">▶</span>';
+          html += '<span>' + dept.name + '</span>';
+          html += '<span style="margin-left:auto;font-size:12px;color:#94a3b8;">(' + dept.persons.length + '人)</span>';
+          html += '</div>';
+          html += '<div class="mc-org-children">';
+          dept.persons.forEach(function(p, pi) {
+            var pid = oi + '-' + di + '-' + pi;
+            html += '<div class="mc-person-item" onclick="togglePerson(this,\'' + pid + '\')">';
+            html += '<input type="checkbox" class="mc-person-checkbox" data-pid="' + pid + '" onclick="event.stopPropagation(); togglePerson(this.parentElement,\'' + pid + '\')">';
+            html += '<div class="mc-person-avatar">' + p.avatar + '</div>';
+            html += '<div class="mc-person-info"><div class="mc-person-name">' + p.name + '</div>';
+            html += '<div class="mc-person-dept">' + p.dept + '</div></div>';
+            html += '</div>';
+          });
+          html += '</div></div>';
+        });
+        html += '</div></div>';
+      });
+      document.getElementById('orgTree').innerHTML = html;
+    }
+
+    function toggleOrgNode(el) {
+      var arrow = el.querySelector('.mc-org-arrow');
+      var children = el.nextElementSibling;
+      if (children) {
+        children.classList.toggle('show');
+        arrow.classList.toggle('open');
+      }
+    }
+
+    function findPerson(pid) {
+      var parts = pid.split('-');
+      var org = orgData[parseInt(parts[0])];
+      var dept = org.children[parseInt(parts[1])];
+      return dept.persons[parseInt(parts[2])];
+    }
+
+    function togglePerson(el, pid) {
+      var cb = el.querySelector('input[type="checkbox"]');
+      cb.checked = !cb.checked;
+      if (cb.checked) {
+        if (!tempSelected.find(function(p){return p.pid===pid;})) {
+          var person = findPerson(pid);
+          person.pid = pid;
+          tempSelected.push(person);
+        }
+      } else {
+        tempSelected = tempSelected.filter(function(p){return p.pid!==pid;});
+      }
+      document.getElementById('attendeeCount').textContent = tempSelected.length;
+    }
+
+    function filterPerson(val) {
+      var items = document.querySelectorAll('.mc-person-item');
+      items.forEach(function(item) {
+        var name = item.querySelector('.mc-person-name').textContent;
+        item.style.display = !val || name.indexOf(val) >= 0 ? '' : 'none';
+      });
+    }
+
+    function openAttendeeModal() {
+      tempSelected = selectedAttendees.slice();
+      buildOrgTree();
+      document.getElementById('attendeeCount').textContent = tempSelected.length;
+      document.getElementById('attendeeModal').classList.add('show');
+    }
+
+    function closeAttendeeModal() {
+      document.getElementById('attendeeModal').classList.remove('show');
+    }
+
+    function confirmAttendees() {
+      selectedAttendees = tempSelected.slice();
+      renderAttendeeTags();
+      closeAttendeeModal();
+    }
+
+    function renderAttendeeTags() {
+      var box = document.getElementById('attendeeTags');
+      var placeholder = document.getElementById('attendeePlaceholder');
+      if (selectedAttendees.length === 0) {
+        placeholder.style.display = 'inline';
+        box.innerHTML = '';
+        return;
+      }
+      placeholder.style.display = 'none';
+      box.innerHTML = selectedAttendees.map(function(p, i) {
+        return '<div class="mc-attendee-tag">' +
+          '<div class="tag-avatar">' + p.avatar + '</div>' +
+          '<span>' + p.name + '</span>' +
+          '<span class="tag-remove" onclick="removeAttendee(' + i + ')">✕</span>' +
+          '</div>';
+      }).join('');
+    }
+
+    function removeAttendee(idx) {
+      selectedAttendees.splice(idx, 1);
+      renderAttendeeTags();
+    }
+
+    /* ===== 会议室数据 ===== */
+    var roomData = [
+      { id: 'r1', name: '柏星龙一号会议室', location: 'A栋3楼', capacity: 20, status: 'available' },
+      { id: 'r2', name: '柏星龙二号会议室', location: 'A栋3楼', capacity: 12, status: 'available' },
+      { id: 'r3', name: '研发会议室', location: 'B栋2楼', capacity: 8, status: 'unavailable' },
+      { id: 'r4', name: '运营会议室', location: 'C栋1楼', capacity: 15, status: 'available' },
+      { id: 'r5', name: '高管会议室', location: 'A栋5楼', capacity: 6, status: 'unavailable' },
+      { id: 'r6', name: '培训室', location: 'B栋3楼', capacity: 30, status: 'available' }
+    ];
+    var selectedRoom = null;
+    var tempRoom = null;
+
+    function buildRoomList(val) {
+      val = val || '';
+      var list = roomData.filter(function(r) {
+        return !val || r.name.indexOf(val) >= 0;
+      });
+      var html = list.map(function(r) {
+        var isSel = tempRoom && tempRoom.id === r.id;
+        var statusText = r.status === 'available' ? '可用' : '已被占用';
+        var statusClass = r.status === 'available' ? 'available' : 'unavailable';
+        return '<div class="mc-room-item' + (isSel ? ' selected' : '') + '" onclick="selectRoom(\'' + r.id + '\')">' +
+          '<input type="radio" class="mc-room-radio" name="room" ' + (isSel ? 'checked' : '') + ' onclick="event.stopPropagation(); selectRoom(\'' + r.id + '\')">' +
+          '<div class="mc-room-info">' +
+            '<div class="mc-room-name">' + r.name + '</div>' +
+            '<div class="mc-room-meta">' + r.location + ' · 可容纳' + r.capacity + '人</div>' +
+          '</div>' +
+          '<span class="mc-room-status ' + statusClass + '">' + statusText + '</span>' +
+        '</div>';
+      }).join('');
+      document.getElementById('roomList').innerHTML = html || '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:14px;">未找到匹配的会议室</div>';
+    }
+
+    function filterRoom(val) { buildRoomList(val); }
+
+    function selectRoom(rid) {
+      tempRoom = roomData.find(function(r){return r.id===rid;});
+      buildRoomList();
+    }
+
+    function openRoomModal() {
+      tempRoom = selectedRoom;
+      buildRoomList();
+      document.getElementById('roomModal').classList.add('show');
+    }
+
+    function closeRoomModal() {
+      document.getElementById('roomModal').classList.remove('show');
+    }
+
+    function confirmRoom() {
+      selectedRoom = tempRoom;
+      renderRoomTag();
+      closeRoomModal();
+    }
+
+    function renderRoomTag() {
+      var box = document.getElementById('roomTags');
+      var placeholder = document.getElementById('roomPlaceholder');
+      if (!selectedRoom) {
+        placeholder.style.display = 'inline';
+        box.innerHTML = '';
+        return;
+      }
+      placeholder.style.display = 'none';
+      box.innerHTML = '<div class="mc-room-tag">' +
+        '<span>🏢 ' + selectedRoom.name + '</span>' +
+        '<span class="tag-remove" onclick="removeRoom()">✕</span>' +
+        '</div>';
+    }
+
+    function removeRoom() {
+      selectedRoom = null;
+      renderRoomTag();
+    }
+
+    /* ===== 视频会议 ===== */
+    var videoEnabled = false;
+    function toggleVideo() {
+      videoEnabled = !videoEnabled;
+      var btn = document.getElementById('videoBtn');
+      if (videoEnabled) {
+        btn.classList.add('active');
+        btn.innerHTML = '<span>📹</span><span>已添加视频会议</span>';
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '<span>📹</span><span>添加视频会议</span>';
+      }
+    }
+
+    /* ===== 附件 ===== */
+    var attachFiles = [];
+    function handleAttach(input) {
+      Array.prototype.forEach.call(input.files, function(f) {
+        attachFiles.push(f);
+      });
+      renderAttachList();
+      input.value = '';
+    }
+
+    function renderAttachList() {
+      var box = document.getElementById('attachList');
+      box.innerHTML = attachFiles.map(function(f, i) {
+        var icon = '📄';
+        if (f.type.indexOf('image') >= 0) icon = '🖼️';
+        else if (f.type.indexOf('video') >= 0) icon = '🎬';
+        else if (f.type.indexOf('pdf') >= 0) icon = '📕';
+        var size = (f.size / 1024).toFixed(1) + ' KB';
+        return '<div class="mc-attach-item">' +
+          '<span>' + icon + '</span>' +
+          '<span>' + f.name + '</span>' +
+          '<span style="color:#94a3b8;">' + size + '</span>' +
+          '<span class="attach-remove" onclick="removeAttach(' + i + ')">✕</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    function removeAttach(idx) {
+      attachFiles.splice(idx, 1);
+      renderAttachList();
+    }
+
+    /* ===== 保存 ===== */
+    function saveMeeting() {
+      var title = document.getElementById('mcTitle').value.trim();
+      if (!title) { alert('请输入日程标题'); return; }
+      alert('会议创建成功');
+      location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,2405 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" class=""><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面逻辑说明文档 - 柏星龙业务数字化中台</title>
+  <style>
+    :root {
+      --primary: #1a5fb4;
+      --primary-light: #dbeafe;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --success: #16a34a;
+      --success-light: #dcfce7;
+      --warning: #ea580c;
+      --warning-light: #ffedd5;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.7; }
+
+    .doc-container { max-width: 960px; margin: 0 auto; padding: 40px 32px 80px; }
+
+    /* 文档头部 */
+    .doc-header { text-align: center; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--border); }
+    .doc-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .doc-header .subtitle { font-size: 15px; color: var(--text-muted); }
+    .doc-header .meta { margin-top: 16px; display: flex; justify-content: center; gap: 24px; font-size: 13px; color: var(--text-muted); }
+    .doc-header .meta span { display: flex; align-items: center; gap: 4px; }
+
+    /* 目录 */
+    .doc-toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; margin-bottom: 40px; }
+    .doc-toc h3 { font-size: 15px; margin-bottom: 12px; color: var(--text-secondary); }
+    .doc-toc ol { list-style: none; counter-reset: toc; }
+    .doc-toc ol li { counter-increment: toc; padding: 4px 0; }
+    .doc-toc ol li::before { content: counter(toc) "."; color: var(--primary); font-weight: 600; margin-right: 8px; }
+    .doc-toc a { color: var(--text-primary); text-decoration: none; font-size: 14px; }
+    .doc-toc a:hover { color: var(--primary); }
+    .doc-toc .sub-item { padding-left: 28px; font-size: 13px; color: var(--text-secondary); }
+    .doc-toc .sub-item::before { content: "·"; margin-right: 8px; }
+
+    /* 章节 */
+    .doc-section { margin-bottom: 40px; }
+    .doc-section h2 { font-size: 22px; font-weight: 700; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); display: flex; align-items: center; gap: 8px; }
+    .doc-section h2 .icon { font-size: 24px; }
+    .doc-section h3 { font-size: 17px; font-weight: 600; margin: 24px 0 12px; color: var(--primary); display: flex; align-items: center; gap: 6px; }
+    .doc-section h3 .num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: var(--primary); color: #fff; border-radius: 6px; font-size: 13px; }
+    .doc-section h4 { font-size: 15px; font-weight: 600; margin: 16px 0 8px; color: var(--text-secondary); }
+    .doc-section p { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+    .doc-section ul, .doc-section ol { margin: 8px 0 12px 20px; }
+    .doc-section ul li, .doc-section ol li { font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+
+    /* 信息卡片 */
+    .info-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 12px 0; }
+    .info-card.highlight { border-left: 4px solid var(--primary); }
+    .info-card.success { border-left: 4px solid var(--success); }
+    .info-card.warning { border-left: 4px solid var(--warning); }
+    .info-card.danger { border-left: 4px solid var(--danger); }
+
+    /* 表格 */
+    .doc-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    .doc-table th { background: #f1f5f9; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text-primary); border: 1px solid var(--border); white-space: nowrap; }
+    .doc-table td { padding: 10px 14px; border: 1px solid var(--border); color: var(--text-secondary); }
+    .doc-table tr:nth-child(even) td { background: #fafbfc; }
+
+    /* 标签 */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    .tag-blue { background: var(--primary-light); color: var(--primary); }
+    .tag-green { background: var(--success-light); color: var(--success); }
+    .tag-orange { background: var(--warning-light); color: var(--warning); }
+    .tag-red { background: var(--danger-light); color: var(--danger); }
+    .tag-gray { background: #f1f5f9; color: #64748b; }
+
+    /* 流程图 */
+    .flow-diagram { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+    .flow-row { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .flow-node { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; text-align: center; min-width: 120px; }
+    .flow-node.main { background: var(--primary); color: #fff; }
+    .flow-node.sub { background: var(--primary-light); color: var(--primary); border: 1px solid #bfdbfe; }
+    .flow-node.leaf { background: #f1f5f9; color: var(--text-secondary); border: 1px solid var(--border); }
+    .flow-arrow { color: var(--text-muted); font-size: 18px; }
+    .flow-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* 代码 */
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: var(--primary); }
+
+    /* 底部 */
+    .doc-footer { text-align: center; padding-top: 32px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); }
+
+    @media (max-width: 768px) {
+      .doc-container { padding: 20px 16px; }
+      .doc-table { font-size: 12px; }
+      .doc-table th, .doc-table td { padding: 8px; }
+    }
+  </style>
+<style>.trae-browser-inspect-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999997;pointer-events:auto;background:rgba(0,0,0,0)}.trae-browser-inspect-highlight-box{position:absolute;top:0;left:0;z-index:999998;display:none}.trae-browser-inspect-highlight-tag{position:absolute;left:0px;top:0px;height:18px;padding:0 6px;box-sizing:border-box;border-radius:4px;background-color:var(--vscode-icube-colorSuccessHover, "#2FB287");color:var(--vscode-icube-colorSnow, "#fff");font-size:12px;font-weight:400;display:none;align-items:center;z-index:999999}.trae-browser-inspect-highlight-box-show{display:flex}.trae-browser-inspect-select-button.trae-browser-inspect-highlight-box-show{display:flex !important}.trae-browser-inspect-select-button{position:absolute;top:0;left:0;background-color:var(--vscode-icube--bg-bg-base-secondary, "#222427");color:var(--vscode-icube--text-text-default-active, "#F5F9FE");font-size:11px;font-weight:500;border:1px solid var(--vscode-icube--border-neutral-l1, "#E0E2F217");border-radius:6px;padding:0 8px;height:32px;display:none;align-items:center;cursor:pointer;z-index:999999;gap:4px}.trae-browser-inspect-select-button svg,.trae-browser-inspect-select-button span{z-index:1}.trae-browser-inspect-select-highlight-box{background:rgba(0,0,0,0) !important}.trae-browser-inspect-select-highlight-box .trae-browser-inspect-highlight-tag{background-color:var(--vscode-icube--status-success-active, "#1E8B56")}.trae-browser-inspect-comment-card-container{position:fixed;top:0;left:0;z-index:9999999;pointer-events:auto}.trae-browser-inspect-comment-card-container .trae-browser-inspect-comment-card{display:flex;padding-top:0px !important;align-items:center;z-index:9999999 !important;background-color:var(--vscode-icube--bg-bg-menu)}*[contenteditable]{outline:none}.trae-browser-inspect-click-effect{position:fixed;width:40px;height:40px;margin-left:-20px;margin-top:-20px;border-radius:50%;background-color:var(--vscode-icube-colorSuccessHover, #2FB287);pointer-events:none;animation:trae-browser-inspect-ripple 500ms ease-out forwards;z-index:999999}@keyframes trae-browser-inspect-ripple{0%{transform:scale(0.3);opacity:.8}100%{transform:scale(2);opacity:0}}.trae-browser-inspect-ref-box{position:absolute;border:2px solid var(--vscode-icube-colorSuccessHover, "#2FB287");pointer-events:none;z-index:999998;animation:trae-browser-inspect-fadeInOut 2s ease-in-out forwards}.trae-browser-inspect-ref-label{position:absolute;top:-14px;left:0;height:14px;padding:0 4px;box-sizing:border-box;border-radius:2px;background-color:var(--vscode-icube-colorSuccessHover, "#2FB287");color:var(--vscode-icube-colorSnow, "#fff");font-size:9px;font-weight:500;display:flex;align-items:center;white-space:nowrap;z-index:999999}@keyframes trae-browser-inspect-fadeInOut{0%{opacity:0}10%{opacity:1}90%{opacity:1}100%{opacity:0}}.trae-browser-inspect-input-highlight{position:absolute;border:2px solid var(--vscode-icube-colorSuccessHover, "#2FB287");border-radius:4px;pointer-events:none;z-index:999998;box-shadow:0 0 8px var(--vscode-icube-colorSuccessHover, "#2FB287");animation:trae-browser-inspect-input-pulse 600ms ease-out forwards}@keyframes trae-browser-inspect-input-pulse{0%{opacity:0;box-shadow:0 0 0 var(--vscode-icube-colorSuccessHover, "#2FB287")}30%{opacity:1;box-shadow:0 0 12px var(--vscode-icube-colorSuccessHover, "#2FB287")}100%{opacity:0;box-shadow:0 0 0 var(--vscode-icube-colorSuccessHover, "#2FB287")}}.trae-browser-inspect-virtual-cursor{position:fixed;width:20px;height:20px;pointer-events:none;z-index:9999999;opacity:0;transition:opacity .2s ease}.trae-browser-inspect-virtual-cursor.trae-browser-inspect-cursor-visible{opacity:1}.trae-browser-inspect-virtual-cursor.trae-browser-inspect-cursor-idle{animation:trae-browser-inspect-cursor-breathe 2s ease-in-out infinite}.trae-browser-inspect-virtual-cursor svg{width:20px;height:20px;filter:drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))}@keyframes trae-browser-inspect-cursor-breathe{0%,100%{opacity:.7}50%{opacity:1}}.trae-browser-inspect-scroll-indicator{position:fixed;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:8px;background-color:rgba(0,0,0,.7);color:#fff;font-size:13px;font-weight:500;pointer-events:none;z-index:999999;animation:trae-browser-inspect-indicator-fade 800ms ease-out forwards;backdrop-filter:blur(4px)}.trae-browser-inspect-scroll-indicator svg{width:16px;height:16px;fill:#fff}.trae-browser-inspect-scroll-indicator.trae-scroll-up{top:12px;left:50%;transform:translateX(-50%)}.trae-browser-inspect-scroll-indicator.trae-scroll-down{bottom:12px;left:50%;transform:translateX(-50%)}.trae-browser-inspect-scroll-indicator.trae-scroll-left{left:12px;top:50%;transform:translateY(-50%)}.trae-browser-inspect-scroll-indicator.trae-scroll-right{right:12px;top:50%;transform:translateY(-50%)}@keyframes trae-browser-inspect-indicator-fade{0%{opacity:0;transform:translateX(-50%) scale(0.9)}15%{opacity:1;transform:translateX(-50%) scale(1)}85%{opacity:1}100%{opacity:0}}.trae-browser-inspect-scroll-indicator.trae-scroll-left,.trae-browser-inspect-scroll-indicator.trae-scroll-right{animation-name:trae-browser-inspect-indicator-fade-y}@keyframes trae-browser-inspect-indicator-fade-y{0%{opacity:0;transform:translateY(-50%) scale(0.9)}15%{opacity:1;transform:translateY(-50%) scale(1)}85%{opacity:1}100%{opacity:0}}.trae-browser-inspect-key-badge{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:8px;background-color:rgba(0,0,0,.8);color:#fff;font-size:18px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,monospace;pointer-events:none;z-index:999999;animation:trae-browser-inspect-key-pop 500ms ease-out forwards;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.15);box-shadow:0 4px 12px rgba(0,0,0,.3);letter-spacing:1px}@keyframes trae-browser-inspect-key-pop{0%{opacity:0;transform:translateX(-50%) translateY(10px) scale(0.9)}20%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-10px)}}.trae-browser-inspect-step-badge{position:fixed;top:12px;left:12px;padding:6px 12px;border-radius:6px;background-color:var(--vscode-icube-colorSuccessHover, #2FB287);color:#fff;font-size:12px;font-weight:600;pointer-events:none;z-index:999999;animation:trae-browser-inspect-step-slide 600ms ease-out forwards;box-shadow:0 2px 8px rgba(47,178,135,.3);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.trae-browser-inspect-step-badge.trae-step-old{opacity:.4;transform:translateY(0)}@keyframes trae-browser-inspect-step-slide{0%{opacity:0;transform:translateX(-20px)}20%{opacity:1;transform:translateX(0)}100%{opacity:1;transform:translateX(0)}}.trae-browser-inspect-drag-trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999998}.trae-browser-inspect-drag-trail svg{width:100%;height:100%}.trae-browser-inspect-drag-trail .trae-drag-path{fill:none;stroke:var(--vscode-icube-colorSuccessHover, #2FB287);stroke-width:2;stroke-dasharray:8 4;opacity:.6;animation:trae-browser-inspect-dash 600ms linear forwards}.trae-browser-inspect-drag-trail .trae-drag-dot{fill:var(--vscode-icube-colorSuccessHover, #2FB287);filter:drop-shadow(0 0 4px rgba(47, 178, 135, 0.6))}.trae-browser-inspect-drag-trail .trae-drag-endpoint{fill:none;stroke:var(--vscode-icube-colorSuccessHover, #2FB287);stroke-width:2;opacity:.5}@keyframes trae-browser-inspect-dash{0%{stroke-dashoffset:200}100%{stroke-dashoffset:0}}.trae-browser-inspect-drag-trail.trae-drag-fade{animation:trae-browser-inspect-trail-fade 400ms ease-out forwards}@keyframes trae-browser-inspect-trail-fade{0%{opacity:1}100%{opacity:0}}</style><script type="module">(async () => {
+  try {
+    const client = await import('/@vite/client');
+    const hmr = client.createHotContext('hmr-handler/fake.js');
+    hmr.on('vite:afterUpdate', window['__ICUBE_WEBVIEW_HMR_CALLBACK_1788173905030']);
+  } catch {}
+})();</script><style>.buttonsCard-bTXa5j {
+  padding: var(--spacer-4);
+  background: none;
+  align-items: center;
+  gap: 0;
+  display: inline-flex;
+}
+
+.actionButton-opZL8g {
+  align-items: center;
+  gap: var(--spacer-4);
+  padding: var(--spacer-4) var(--spacer-8);
+  border-radius: var(--radius-4);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  background: none;
+  border: none;
+  display: inline-flex;
+}
+
+.actionButton-opZL8g:hover {
+  background: var(--bg-bg-overlay-l2);
+}
+
+.actionButton-opZL8g:active {
+  background: var(--bg-bg-overlay-l3);
+}
+
+.actionButton-opZL8g:focus-visible {
+  outline: 2px solid var(--status-primary-default);
+  outline-offset: 1px;
+}
+
+.icon-ObJEMt {
+  width: 16px;
+  height: 16px;
+  color: var(--icon-icon-default);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.title-GptGAg {
+  font-family: var(--font-family-default);
+  color: var(--text-text-default);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.shortcut-nbwTG4 {
+  color: var(--icon-icon-secondary);
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  display: flex;
+}
+
+.shortcutKey-EE6xrE {
+  font-family: var(--font-family-default);
+  color: var(--icon-icon-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 12px;
+}
+
+.divider-cFGVKQ {
+  box-sizing: content-box;
+  background-clip: content-box;
+  background-color: var(--border-border-neutral-l2);
+  flex-shrink: 0;
+  width: 1px;
+  height: 12px;
+  padding: 0 6px;
+}
+
+</style><style>.commentEditorCard-Un4Xaa {
+  width: 320px;
+  padding: var(--spacing-sm);
+  background: none;
+  flex-direction: column;
+  display: flex;
+}
+
+.textContainer-ZISwbW {
+  padding: var(--spacing-sm);
+  background: var(--bg-bg-overlay-l1);
+  border: 1px solid var(--border-border-neutral-l3);
+  border-radius: var(--radius-sm);
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding-right: 0;
+  display: flex;
+}
+
+.textarea-ggj4j6 {
+  padding: 0 var(--spacing-sm) 0 2px;
+  font-family: var(--font-family-default);
+  color: var(--text-text-default);
+  resize: none;
+  scrollbar-width: thin;
+  scrollbar-color: #56637726 transparent;
+  background: none;
+  border: none;
+  outline: none;
+  flex: 1;
+  max-height: 140px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  overflow-y: auto;
+}
+
+.textarea-ggj4j6::-webkit-scrollbar {
+  width: 6px;
+}
+
+.textarea-ggj4j6::-webkit-scrollbar-track {
+  background: none;
+}
+
+.textarea-ggj4j6::-webkit-scrollbar-thumb {
+  background: #56637726;
+  border-radius: 3px;
+}
+
+.textarea-ggj4j6::placeholder {
+  color: var(--text-text-tertiary);
+}
+
+.actionBar-u_t8vc {
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-xs);
+  opacity: 0;
+  max-height: 0;
+  transition: max-height .2s ease-out, opacity .2s ease-out, margin-top .2s ease-out;
+  display: flex;
+  overflow: hidden;
+}
+
+.actionBarVisible-PxXsje {
+  opacity: 1;
+  max-height: 32px;
+  margin-top: var(--spacing-sm);
+}
+
+.actionBarNoExpandAnimation-FCra2J {
+  transition: opacity .2s ease-out;
+}
+
+.actionBarNoExpandAnimation-FCra2J.actionBarVisible-PxXsje {
+  max-height: 32px;
+  margin-top: var(--spacing-sm);
+}
+
+.cancelButton-Lu0me9 {
+  height: 24px;
+  padding: 0 var(--spacing-xs);
+  background: var(--bg-bg-overlay-l2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  border: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.cancelButton-Lu0me9:hover, .cancelButton-Lu0me9:active {
+  background: var(--bg-bg-overlay-l3);
+}
+
+.cancelButton-Lu0me9:focus-visible {
+  outline: 2px solid var(--status-primary-default);
+  outline-offset: 1px;
+}
+
+.cancelText-j1RS1q {
+  font-family: var(--font-family-default);
+  color: var(--text-text-default);
+  white-space: nowrap;
+  padding: 0 var(--spacing-xs);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.submitButton-BqyEd7 {
+  height: 24px;
+  padding: 0 var(--spacing-sm);
+  background: var(--bg-bg-invert);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  border: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.submitButton-BqyEd7:hover:not(:disabled) {
+  background: var(--bg-bg-invert-hover);
+}
+
+.submitButton-BqyEd7:active:not(:disabled) {
+  background: var(--bg-bg-invert-active);
+}
+
+.submitButton-BqyEd7:disabled {
+  background: var(--bg-bg-invert-disabled);
+  color: var(--text-text-disabled);
+  cursor: not-allowed;
+}
+
+.submitButton-BqyEd7:focus-visible {
+  outline: 2px solid var(--status-primary-default);
+  outline-offset: 1px;
+}
+
+.submitText-N58QRq {
+  font-family: var(--font-family-default);
+  color: var(--text-text-onaccent);
+  white-space: nowrap;
+  padding: 0 var(--spacing-xs);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.submitButton-BqyEd7:disabled .submitText-N58QRq {
+  color: var(--text-text-disabled);
+}
+
+.submitIcon-vyKSKQ {
+  width: 12px;
+  height: 12px;
+  color: var(--icon-icon-onaccent);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.submitButton-BqyEd7:disabled .submitIcon-vyKSKQ {
+  color: var(--text-text-disabled);
+}
+
+.limitWarning-Hocj0v {
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--status-warning-default);
+  user-select: none;
+  flex: 1;
+  display: flex;
+}
+
+.limitText-hBXEaq {
+  font-family: var(--font-family-default);
+  color: var(--status-warning-default);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+</style><style>.previewCommentCardContainer-HEkpU8 {
+  border-radius: var(--radius-8);
+  background: var(--bg-bg-menu);
+  border: 1px solid var(--border-border-neutral-l1);
+  transition: width .25s cubic-bezier(.4, 0, .2, 1), height .25s cubic-bezier(.4, 0, .2, 1);
+  display: inline-block;
+  overflow: hidden;
+  box-shadow: 0 2px 6px #0003, 0 .5px #ffffff0f, inset 0 .5px #ffffff0f;
+}
+
+.previewCommentCardContent-ELaLah {
+  width: max-content;
+  position: relative;
+}
+
+.previewCommentCardFadeEnter-OMhMD9 {
+  opacity: 0;
+}
+
+.previewCommentCardFadeEnterActive-Eacuvn {
+  opacity: 1;
+  transition: opacity .2s ease-in;
+}
+
+.previewCommentCardFadeExit-ms9vgc {
+  opacity: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.previewCommentCardFadeExitActive-vyQTsd {
+  opacity: 0;
+  transition: opacity .15s ease-out;
+}
+
+.previewCommentCardSuccessCard-PWnm2o {
+  white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  display: flex;
+}
+
+.previewCommentCardSuccessIcon-Oht9Ir {
+  width: 16px;
+  height: 16px;
+  color: var(--status-success-default);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.previewCommentCardSuccessText-s40BWG {
+  font-family: var(--font-family-default);
+  color: var(--text-text-default);
+  user-select: none;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+</style><style id="trae-browser-inspect-drag-styles">
+            .trae-browser-inspect-draggable {
+                cursor: grab !important;
+            }
+            .trae-browser-inspect-dragging-active {
+                cursor: grabbing !important;
+            }
+            .trae-browser-inspect-drag-ghost {
+                opacity: 0.7;
+                pointer-events: none;
+                position: fixed;
+                z-index: 999998;
+                transform: scale(0.95);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                transition: none;
+            }
+            .trae-browser-inspect-element-placeholder {
+                opacity: 0.3;
+            }
+        </style><style>.trae-browser-inspect-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999997;pointer-events:auto;background:rgba(0,0,0,0)}.trae-browser-inspect-highlight-box{position:absolute;top:0;left:0;z-index:999998;display:none}.trae-browser-inspect-highlight-tag{position:absolute;left:0px;top:0px;height:18px;padding:0 6px;box-sizing:border-box;border-radius:4px;background-color:var(--vscode-icube-colorSuccessHover, "#2FB287");color:var(--vscode-icube-colorSnow, "#fff");font-size:12px;font-weight:400;display:none;align-items:center;z-index:999999}.trae-browser-inspect-highlight-box-show{display:flex}.trae-browser-inspect-select-button.trae-browser-inspect-highlight-box-show{display:flex !important}.trae-browser-inspect-select-button{position:absolute;top:0;left:0;background-color:var(--vscode-icube--bg-bg-base-secondary, "#222427");color:var(--vscode-icube--text-text-default-active, "#F5F9FE");font-size:11px;font-weight:500;border:1px solid var(--vscode-icube--border-neutral-l1, "#E0E2F217");border-radius:6px;padding:0 8px;height:32px;display:none;align-items:center;cursor:pointer;z-index:999999;gap:4px}.trae-browser-inspect-select-button svg,.trae-browser-inspect-select-button span{z-index:1}.trae-browser-inspect-select-highlight-box{background:rgba(0,0,0,0) !important}.trae-browser-inspect-select-highlight-box .trae-browser-inspect-highlight-tag{background-color:var(--vscode-icube--status-success-active, "#1E8B56")}.trae-browser-inspect-comment-card-container{position:fixed;top:0;left:0;z-index:9999999;pointer-events:auto}.trae-browser-inspect-comment-card-container .trae-browser-inspect-comment-card{display:flex;padding-top:0px !important;align-items:center;z-index:9999999 !important;background-color:var(--vscode-icube--bg-bg-menu)}*[contenteditable]{outline:none}.trae-browser-inspect-click-effect{position:fixed;width:40px;height:40px;margin-left:-20px;margin-top:-20px;border-radius:50%;background-color:var(--vscode-icube-colorSuccessHover, #2FB287);pointer-events:none;animation:trae-browser-inspect-ripple 500ms ease-out forwards;z-index:999999}@keyframes trae-browser-inspect-ripple{0%{transform:scale(0.3);opacity:.8}100%{transform:scale(2);opacity:0}}.trae-browser-inspect-ref-box{position:absolute;border:2px solid var(--vscode-icube-colorSuccessHover, "#2FB287");pointer-events:none;z-index:999998;animation:trae-browser-inspect-fadeInOut 2s ease-in-out forwards}.trae-browser-inspect-ref-label{position:absolute;top:-14px;left:0;height:14px;padding:0 4px;box-sizing:border-box;border-radius:2px;background-color:var(--vscode-icube-colorSuccessHover, "#2FB287");color:var(--vscode-icube-colorSnow, "#fff");font-size:9px;font-weight:500;display:flex;align-items:center;white-space:nowrap;z-index:999999}@keyframes trae-browser-inspect-fadeInOut{0%{opacity:0}10%{opacity:1}90%{opacity:1}100%{opacity:0}}.trae-browser-inspect-input-highlight{position:absolute;border:2px solid var(--vscode-icube-colorSuccessHover, "#2FB287");border-radius:4px;pointer-events:none;z-index:999998;box-shadow:0 0 8px var(--vscode-icube-colorSuccessHover, "#2FB287");animation:trae-browser-inspect-input-pulse 600ms ease-out forwards}@keyframes trae-browser-inspect-input-pulse{0%{opacity:0;box-shadow:0 0 0 var(--vscode-icube-colorSuccessHover, "#2FB287")}30%{opacity:1;box-shadow:0 0 12px var(--vscode-icube-colorSuccessHover, "#2FB287")}100%{opacity:0;box-shadow:0 0 0 var(--vscode-icube-colorSuccessHover, "#2FB287")}}.trae-browser-inspect-virtual-cursor{position:fixed;width:20px;height:20px;pointer-events:none;z-index:9999999;opacity:0;transition:opacity .2s ease}.trae-browser-inspect-virtual-cursor.trae-browser-inspect-cursor-visible{opacity:1}.trae-browser-inspect-virtual-cursor.trae-browser-inspect-cursor-idle{animation:trae-browser-inspect-cursor-breathe 2s ease-in-out infinite}.trae-browser-inspect-virtual-cursor svg{width:20px;height:20px;filter:drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))}@keyframes trae-browser-inspect-cursor-breathe{0%,100%{opacity:.7}50%{opacity:1}}.trae-browser-inspect-scroll-indicator{position:fixed;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:8px;background-color:rgba(0,0,0,.7);color:#fff;font-size:13px;font-weight:500;pointer-events:none;z-index:999999;animation:trae-browser-inspect-indicator-fade 800ms ease-out forwards;backdrop-filter:blur(4px)}.trae-browser-inspect-scroll-indicator svg{width:16px;height:16px;fill:#fff}.trae-browser-inspect-scroll-indicator.trae-scroll-up{top:12px;left:50%;transform:translateX(-50%)}.trae-browser-inspect-scroll-indicator.trae-scroll-down{bottom:12px;left:50%;transform:translateX(-50%)}.trae-browser-inspect-scroll-indicator.trae-scroll-left{left:12px;top:50%;transform:translateY(-50%)}.trae-browser-inspect-scroll-indicator.trae-scroll-right{right:12px;top:50%;transform:translateY(-50%)}@keyframes trae-browser-inspect-indicator-fade{0%{opacity:0;transform:translateX(-50%) scale(0.9)}15%{opacity:1;transform:translateX(-50%) scale(1)}85%{opacity:1}100%{opacity:0}}.trae-browser-inspect-scroll-indicator.trae-scroll-left,.trae-browser-inspect-scroll-indicator.trae-scroll-right{animation-name:trae-browser-inspect-indicator-fade-y}@keyframes trae-browser-inspect-indicator-fade-y{0%{opacity:0;transform:translateY(-50%) scale(0.9)}15%{opacity:1;transform:translateY(-50%) scale(1)}85%{opacity:1}100%{opacity:0}}.trae-browser-inspect-key-badge{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:8px;background-color:rgba(0,0,0,.8);color:#fff;font-size:18px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,monospace;pointer-events:none;z-index:999999;animation:trae-browser-inspect-key-pop 500ms ease-out forwards;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.15);box-shadow:0 4px 12px rgba(0,0,0,.3);letter-spacing:1px}@keyframes trae-browser-inspect-key-pop{0%{opacity:0;transform:translateX(-50%) translateY(10px) scale(0.9)}20%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-10px)}}.trae-browser-inspect-step-badge{position:fixed;top:12px;left:12px;padding:6px 12px;border-radius:6px;background-color:var(--vscode-icube-colorSuccessHover, #2FB287);color:#fff;font-size:12px;font-weight:600;pointer-events:none;z-index:999999;animation:trae-browser-inspect-step-slide 600ms ease-out forwards;box-shadow:0 2px 8px rgba(47,178,135,.3);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.trae-browser-inspect-step-badge.trae-step-old{opacity:.4;transform:translateY(0)}@keyframes trae-browser-inspect-step-slide{0%{opacity:0;transform:translateX(-20px)}20%{opacity:1;transform:translateX(0)}100%{opacity:1;transform:translateX(0)}}.trae-browser-inspect-drag-trail{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999998}.trae-browser-inspect-drag-trail svg{width:100%;height:100%}.trae-browser-inspect-drag-trail .trae-drag-path{fill:none;stroke:var(--vscode-icube-colorSuccessHover, #2FB287);stroke-width:2;stroke-dasharray:8 4;opacity:.6;animation:trae-browser-inspect-dash 600ms linear forwards}.trae-browser-inspect-drag-trail .trae-drag-dot{fill:var(--vscode-icube-colorSuccessHover, #2FB287);filter:drop-shadow(0 0 4px rgba(47, 178, 135, 0.6))}.trae-browser-inspect-drag-trail .trae-drag-endpoint{fill:none;stroke:var(--vscode-icube-colorSuccessHover, #2FB287);stroke-width:2;opacity:.5}@keyframes trae-browser-inspect-dash{0%{stroke-dashoffset:200}100%{stroke-dashoffset:0}}.trae-browser-inspect-drag-trail.trae-drag-fade{animation:trae-browser-inspect-trail-fade 400ms ease-out forwards}@keyframes trae-browser-inspect-trail-fade{0%{opacity:1}100%{opacity:0}}</style><script type="module">(async () => {
+  try {
+    const client = await import('/@vite/client');
+    const hmr = client.createHotContext('hmr-handler/fake.js');
+    hmr.on('vite:afterUpdate', window['__ICUBE_WEBVIEW_HMR_CALLBACK_1788173905062']);
+  } catch {}
+})();</script><style>.buttonsCard-bTXa5j {
+  padding: var(--spacer-4);
+  background: none;
+  align-items: center;
+  gap: 0;
+  display: inline-flex;
+}
+
+.actionButton-opZL8g {
+  align-items: center;
+  gap: var(--spacer-4);
+  padding: var(--spacer-4) var(--spacer-8);
+  border-radius: var(--radius-4);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  background: none;
+  border: none;
+  display: inline-flex;
+}
+
+.actionButton-opZL8g:hover {
+  background: var(--bg-bg-overlay-l2);
+}
+
+.actionButton-opZL8g:active {
+  background: var(--bg-bg-overlay-l3);
+}
+
+.actionButton-opZL8g:focus-visible {
+  outline: 2px solid var(--status-primary-default);
+  outline-offset: 1px;
+}
+
+.icon-ObJEMt {
+  width: 16px;
+  height: 16px;
+  color: var(--icon-icon-default);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.title-GptGAg {
+  font-family: var(--font-family-default);
+  color: var(--text-text-default);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.shortcut-nbwTG4 {
+  color: var(--icon-icon-secondary);
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  display: flex;
+}
+
+.shortcutKey-EE6xrE {
+  font-family: var(--font-family-default);
+  color: var(--icon-icon-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 12px;
+}
+
+.divider-cFGVKQ {
+  box-sizing: content-box;
+  background-clip: content-box;
+  background-color: var(--border-border-neutral-l2);
+  flex-shrink: 0;
+  width: 1px;
+  height: 12px;
+  padding: 0 6px;
+}
+
+</style><style>.commentEditorCard-Un4Xaa {
+  width: 320px;
+  padding: var(--spacing-sm);
+  background: none;
+  flex-direction: column;
+  display: flex;
+}
+
+.textContainer-ZISwbW {
+  padding: var(--spacing-sm);
+  background: var(--bg-bg-overlay-l1);
+  border: 1px solid var(--border-border-neutral-l3);
+  border-radius: var(--radius-sm);
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding-right: 0;
+  display: flex;
+}
+
+.textarea-ggj4j6 {
+  padding: 0 var(--spacing-sm) 0 2px;
+  font-family: var(--font-family-default);
+  color: var(--text-text-default);
+  resize: none;
+  scrollbar-width: thin;
+  scrollbar-color: #56637726 transparent;
+  background: none;
+  border: none;
+  outline: none;
+  flex: 1;
+  max-height: 140px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  overflow-y: auto;
+}
+
+.textarea-ggj4j6::-webkit-scrollbar {
+  width: 6px;
+}
+
+.textarea-ggj4j6::-webkit-scrollbar-track {
+  background: none;
+}
+
+.textarea-ggj4j6::-webkit-scrollbar-thumb {
+  background: #56637726;
+  border-radius: 3px;
+}
+
+.textarea-ggj4j6::placeholder {
+  color: var(--text-text-tertiary);
+}
+
+.actionBar-u_t8vc {
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-xs);
+  opacity: 0;
+  max-height: 0;
+  transition: max-height .2s ease-out, opacity .2s ease-out, margin-top .2s ease-out;
+  display: flex;
+  overflow: hidden;
+}
+
+.actionBarVisible-PxXsje {
+  opacity: 1;
+  max-height: 32px;
+  margin-top: var(--spacing-sm);
+}
+
+.actionBarNoExpandAnimation-FCra2J {
+  transition: opacity .2s ease-out;
+}
+
+.actionBarNoExpandAnimation-FCra2J.actionBarVisible-PxXsje {
+  max-height: 32px;
+  margin-top: var(--spacing-sm);
+}
+
+.cancelButton-Lu0me9 {
+  height: 24px;
+  padding: 0 var(--spacing-xs);
+  background: var(--bg-bg-overlay-l2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  border: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.cancelButton-Lu0me9:hover, .cancelButton-Lu0me9:active {
+  background: var(--bg-bg-overlay-l3);
+}
+
+.cancelButton-Lu0me9:focus-visible {
+  outline: 2px solid var(--status-primary-default);
+  outline-offset: 1px;
+}
+
+.cancelText-j1RS1q {
+  font-family: var(--font-family-default);
+  color: var(--text-text-default);
+  white-space: nowrap;
+  padding: 0 var(--spacing-xs);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.submitButton-BqyEd7 {
+  height: 24px;
+  padding: 0 var(--spacing-sm);
+  background: var(--bg-bg-invert);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  border: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.submitButton-BqyEd7:hover:not(:disabled) {
+  background: var(--bg-bg-invert-hover);
+}
+
+.submitButton-BqyEd7:active:not(:disabled) {
+  background: var(--bg-bg-invert-active);
+}
+
+.submitButton-BqyEd7:disabled {
+  background: var(--bg-bg-invert-disabled);
+  color: var(--text-text-disabled);
+  cursor: not-allowed;
+}
+
+.submitButton-BqyEd7:focus-visible {
+  outline: 2px solid var(--status-primary-default);
+  outline-offset: 1px;
+}
+
+.submitText-N58QRq {
+  font-family: var(--font-family-default);
+  color: var(--text-text-onaccent);
+  white-space: nowrap;
+  padding: 0 var(--spacing-xs);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.submitButton-BqyEd7:disabled .submitText-N58QRq {
+  color: var(--text-text-disabled);
+}
+
+.submitIcon-vyKSKQ {
+  width: 12px;
+  height: 12px;
+  color: var(--icon-icon-onaccent);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.submitButton-BqyEd7:disabled .submitIcon-vyKSKQ {
+  color: var(--text-text-disabled);
+}
+
+.limitWarning-Hocj0v {
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--status-warning-default);
+  user-select: none;
+  flex: 1;
+  display: flex;
+}
+
+.limitText-hBXEaq {
+  font-family: var(--font-family-default);
+  color: var(--status-warning-default);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+</style><style>.previewCommentCardContainer-HEkpU8 {
+  border-radius: var(--radius-8);
+  background: var(--bg-bg-menu);
+  border: 1px solid var(--border-border-neutral-l1);
+  transition: width .25s cubic-bezier(.4, 0, .2, 1), height .25s cubic-bezier(.4, 0, .2, 1);
+  display: inline-block;
+  overflow: hidden;
+  box-shadow: 0 2px 6px #0003, 0 .5px #ffffff0f, inset 0 .5px #ffffff0f;
+}
+
+.previewCommentCardContent-ELaLah {
+  width: max-content;
+  position: relative;
+}
+
+.previewCommentCardFadeEnter-OMhMD9 {
+  opacity: 0;
+}
+
+.previewCommentCardFadeEnterActive-Eacuvn {
+  opacity: 1;
+  transition: opacity .2s ease-in;
+}
+
+.previewCommentCardFadeExit-ms9vgc {
+  opacity: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.previewCommentCardFadeExitActive-vyQTsd {
+  opacity: 0;
+  transition: opacity .15s ease-out;
+}
+
+.previewCommentCardSuccessCard-PWnm2o {
+  white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  display: flex;
+}
+
+.previewCommentCardSuccessIcon-Oht9Ir {
+  width: 16px;
+  height: 16px;
+  color: var(--status-success-default);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.previewCommentCardSuccessText-s40BWG {
+  font-family: var(--font-family-default);
+  color: var(--text-text-default);
+  user-select: none;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+</style><style id="icube-theme-variables">:root {--vscode-foreground: #31353a;--vscode-disabledForeground: #8a9096;--vscode-errorForeground: #cc4b53;--vscode-descriptionForeground: #5b6066;--vscode-icon-foreground: #5b6066;--vscode-focusBorder: rgba(0, 0, 0, 0);--vscode-textLink-foreground: #006ab1;--vscode-textLink-activeForeground: #387bff;--vscode-textSeparator-foreground: rgba(0, 0, 0, 0.18);--vscode-textPreformat-foreground: #a31515;--vscode-textPreformat-background: rgba(0, 0, 0, 0.1);--vscode-textBlockQuote-background: #f2f2f2;--vscode-textBlockQuote-border: rgba(0, 122, 204, 0.5);--vscode-textCodeBlock-background: rgba(220, 220, 220, 0.4);--vscode-sash-hoverBorder: #0fdc78;--vscode-badge-background: #c4c4c4;--vscode-badge-foreground: #333333;--vscode-activityWarningBadge-foreground: #ffffff;--vscode-activityWarningBadge-background: #b27c00;--vscode-activityErrorBadge-foreground: #ffffff;--vscode-activityErrorBadge-background: #e51400;--vscode-scrollbar-shadow: #dddddd;--vscode-scrollbarSlider-background: rgba(100, 100, 100, 0.4);--vscode-scrollbarSlider-hoverBackground: rgba(100, 100, 100, 0.7);--vscode-scrollbarSlider-activeBackground: rgba(0, 0, 0, 0.6);--vscode-progressBar-background: #2f74ff;--vscode-chart-line: #236b8e;--vscode-chart-axis: rgba(0, 0, 0, 0.6);--vscode-chart-guide: rgba(0, 0, 0, 0.2);--vscode-editor-background: #ffffff;--vscode-editor-foreground: #31353a;--vscode-editorStickyScroll-background: #ffffff;--vscode-editorStickyScrollGutter-background: #ffffff;--vscode-editorStickyScrollHover-background: rgba(91, 146, 255, 0.08);--vscode-editorStickyScroll-shadow: #dddddd;--vscode-editorWidget-background: #f3f3f3;--vscode-editorWidget-foreground: #31353a;--vscode-editorWidget-border: #c8c8c8;--vscode-editorError-foreground: #e51400;--vscode-editorWarning-foreground: #bf8803;--vscode-editorInfo-foreground: #0063d3;--vscode-editorHint-foreground: #6c6c6c;--vscode-editorLink-activeForeground: #36393d;--vscode-editor-selectionBackground: rgba(47, 116, 255, 0.18);--vscode-editor-inactiveSelectionBackground: #e5ebf1;--vscode-editor-selectionHighlightBackground: rgba(173, 214, 255, 0.5);--vscode-editor-compositionBorder: #000000;--vscode-editor-findMatchBackground: #a8ac94;--vscode-editor-findMatchHighlightBackground: rgba(234, 92, 0, 0.33);--vscode-editor-findRangeHighlightBackground: rgba(180, 180, 180, 0.3);--vscode-editor-hoverHighlightBackground: rgba(173, 214, 255, 0.15);--vscode-editorHoverWidget-background: #ffffff;--vscode-editorHoverWidget-foreground: #31353a;--vscode-editorHoverWidget-border: rgba(77, 107, 153, 0.09);--vscode-editorHoverWidget-statusBarBackground: #f2f2f2;--vscode-editorInlayHint-foreground: #969696;--vscode-editorInlayHint-background: rgba(196, 196, 196, 0.1);--vscode-editorInlayHint-typeForeground: #969696;--vscode-editorInlayHint-typeBackground: rgba(196, 196, 196, 0.1);--vscode-editorInlayHint-parameterForeground: #969696;--vscode-editorInlayHint-parameterBackground: rgba(196, 196, 196, 0.1);--vscode-editorLightBulb-foreground: #ddb100;--vscode-editorLightBulbAutoFix-foreground: #007acc;--vscode-editorLightBulbAi-foreground: #ddb100;--vscode-editor-snippetTabstopHighlightBackground: rgba(10, 50, 100, 0.2);--vscode-editor-snippetFinalTabstopHighlightBorder: rgba(10, 50, 100, 0.5);--vscode-diffEditor-insertedTextBackground: rgba(64, 176, 139, 0.18);--vscode-diffEditor-removedTextBackground: rgba(232, 70, 58, 0.16);--vscode-diffEditor-insertedLineBackground: rgba(64, 176, 139, 0.12);--vscode-diffEditor-removedLineBackground: rgba(232, 70, 58, 0.12);--vscode-diffEditorOverview-insertedForeground: rgba(64, 176, 139, 0.18);--vscode-diffEditorOverview-removedForeground: rgba(232, 70, 58, 0.16);--vscode-diffEditor-diagonalFill: rgba(34, 34, 34, 0.2);--vscode-diffEditor-unchangedRegionBackground: #ffffff;--vscode-diffEditor-unchangedRegionForeground: #31353a;--vscode-diffEditor-unchangedCodeBackground: rgba(184, 184, 184, 0.16);--vscode-widget-shadow: rgba(0, 0, 0, 0.08);--vscode-widget-border: rgba(77, 107, 153, 0.09);--vscode-toolbar-hoverBackground: rgba(86, 99, 119, 0.11);--vscode-toolbar-activeBackground: rgba(86, 99, 119, 0.15);--vscode-breadcrumb-foreground: rgba(49, 53, 58, 0.8);--vscode-breadcrumb-background: #ffffff;--vscode-breadcrumb-focusForeground: #272a2e;--vscode-breadcrumb-activeSelectionForeground: #272a2e;--vscode-breadcrumbPicker-background: #ffffff;--vscode-merge-currentHeaderBackground: rgba(64, 200, 174, 0.5);--vscode-merge-currentContentBackground: rgba(64, 200, 174, 0.2);--vscode-merge-incomingHeaderBackground: rgba(64, 166, 255, 0.5);--vscode-merge-incomingContentBackground: rgba(64, 166, 255, 0.2);--vscode-merge-commonHeaderBackground: rgba(96, 96, 96, 0.4);--vscode-merge-commonContentBackground: rgba(96, 96, 96, 0.16);--vscode-editorOverviewRuler-currentContentForeground: rgba(64, 200, 174, 0.5);--vscode-editorOverviewRuler-incomingContentForeground: rgba(64, 166, 255, 0.5);--vscode-editorOverviewRuler-commonContentForeground: rgba(96, 96, 96, 0.4);--vscode-editorOverviewRuler-findMatchForeground: rgba(209, 134, 22, 0.49);--vscode-editorOverviewRuler-selectionHighlightForeground: rgba(160, 160, 160, 0.8);--vscode-problemsErrorIcon-foreground: #e51400;--vscode-problemsWarningIcon-foreground: #bf8803;--vscode-problemsInfoIcon-foreground: #0063d3;--vscode-minimap-findMatchHighlight: #d18616;--vscode-minimap-selectionOccurrenceHighlight: #c9c9c9;--vscode-minimap-selectionHighlight: #add6ff;--vscode-minimap-infoHighlight: #0063d3;--vscode-minimap-warningHighlight: #bf8803;--vscode-minimap-errorHighlight: rgba(255, 18, 18, 0.7);--vscode-minimap-foregroundOpacity: #000000;--vscode-minimapSlider-background: rgba(100, 100, 100, 0.2);--vscode-minimapSlider-hoverBackground: rgba(100, 100, 100, 0.35);--vscode-minimapSlider-activeBackground: rgba(0, 0, 0, 0.3);--vscode-charts-foreground: #31353a;--vscode-charts-lines: rgba(49, 53, 58, 0.5);--vscode-charts-red: #e51400;--vscode-charts-blue: #0063d3;--vscode-charts-yellow: #bf8803;--vscode-charts-orange: #d18616;--vscode-charts-green: #388a34;--vscode-charts-purple: #652d90;--vscode-input-background: rgba(86, 99, 119, 0.07);--vscode-input-foreground: #31353a;--vscode-inputOption-activeBorder: rgba(77, 107, 153, 0.36);--vscode-inputOption-hoverBackground: rgba(184, 184, 184, 0.31);--vscode-inputOption-activeBackground: rgba(0, 0, 0, 0);--vscode-inputOption-activeForeground: #000000;--vscode-input-placeholderForeground: #5b6066;--vscode-inputValidation-infoBackground: #d6ecf2;--vscode-inputValidation-infoBorder: #007acc;--vscode-inputValidation-warningBackground: #f6f5d2;--vscode-inputValidation-warningBorder: #b89500;--vscode-inputValidation-errorBackground: #f2dede;--vscode-inputValidation-errorBorder: #e8463a;--vscode-dropdown-background: #ffffff;--vscode-dropdown-foreground: #31353a;--vscode-dropdown-border: #cecece;--vscode-button-foreground: #ffffff;--vscode-button-separator: rgba(193, 195, 205, 0.12);--vscode-button-background: #31353a;--vscode-button-hoverBackground: #72767b;--vscode-button-secondaryForeground: #ffffff;--vscode-button-secondaryBackground: #5f6a79;--vscode-button-secondaryHoverBackground: #4c5561;--vscode-radio-activeForeground: #000000;--vscode-radio-activeBackground: rgba(0, 0, 0, 0);--vscode-radio-activeBorder: rgba(77, 107, 153, 0.36);--vscode-radio-inactiveBorder: rgba(0, 0, 0, 0.2);--vscode-radio-inactiveHoverBackground: rgba(184, 184, 184, 0.31);--vscode-checkbox-background: #ffffff;--vscode-checkbox-selectBackground: #f3f3f3;--vscode-checkbox-foreground: #31353a;--vscode-checkbox-border: #919191;--vscode-checkbox-selectBorder: #5b6066;--vscode-checkbox-disabled.background: #bbbcbd;--vscode-checkbox-disabled.foreground: #74777b;--vscode-keybindingLabel-background: rgba(221, 221, 221, 0.4);--vscode-keybindingLabel-foreground: #555555;--vscode-keybindingLabel-border: rgba(204, 204, 204, 0.4);--vscode-keybindingLabel-bottomBorder: rgba(187, 187, 187, 0.4);--vscode-list-focusOutline: rgba(0, 0, 0, 0);--vscode-list-focusAndSelectionOutline: #90c2f9;--vscode-list-activeSelectionBackground: rgba(86, 99, 119, 0.11);--vscode-list-activeSelectionForeground: #111214;--vscode-list-activeSelectionIconForeground: #5b6066;--vscode-list-inactiveSelectionBackground: rgba(86, 99, 119, 0.11);--vscode-list-inactiveSelectionForeground: #111214;--vscode-list-hoverBackground: rgba(86, 99, 119, 0.11);--vscode-list-dropBackground: rgba(86, 99, 119, 0.11);--vscode-list-dropBetweenBackground: #5b6066;--vscode-list-highlightForeground: #0066bf;--vscode-list-focusHighlightForeground: #0066bf;--vscode-list-invalidItemForeground: #b89500;--vscode-list-errorForeground: #e8463a;--vscode-list-warningForeground: #855f00;--vscode-listFilterWidget-background: #f3f3f3;--vscode-listFilterWidget-outline: rgba(0, 0, 0, 0);--vscode-listFilterWidget-noMatchesOutline: #be1100;--vscode-listFilterWidget-shadow: rgba(0, 0, 0, 0.08);--vscode-list-filterMatchBackground: rgba(234, 92, 0, 0.33);--vscode-list-deemphasizedForeground: #8e8e90;--vscode-tree-indentGuidesStroke: rgba(77, 107, 153, 0.09);--vscode-tree-inactiveIndentGuidesStroke: rgba(221, 226, 233, 0.08);--vscode-tree-tableColumnsBorder: rgba(97, 97, 97, 0.13);--vscode-tree-tableOddRowsBackground: rgba(49, 53, 58, 0.04);--vscode-editorActionList-background: #f3f3f3;--vscode-editorActionList-foreground: #31353a;--vscode-editorActionList-focusForeground: #111214;--vscode-editorActionList-focusBackground: rgba(86, 99, 119, 0.11);--vscode-menu-border: rgba(77, 107, 153, 0.09);--vscode-menu-foreground: #616161;--vscode-menu-background: #ffffff;--vscode-menu-selectionForeground: #111214;--vscode-menu-selectionBackground: rgba(86, 99, 119, 0.11);--vscode-menu-separatorBackground: rgba(77, 107, 153, 0.09);--vscode-quickInput-background: #f8f9fa;--vscode-quickInput-foreground: #31353a;--vscode-quickInputTitle-background: rgba(0, 0, 0, 0.04);--vscode-pickerGroup-foreground: #31353a;--vscode-pickerGroup-border: rgba(77, 107, 153, 0.09);--vscode-quickInputList-focusForeground: #111214;--vscode-quickInputList-focusIconForeground: #5b6066;--vscode-quickInputList-focusBackground: rgba(86, 99, 119, 0.11);--vscode-search-resultsInfoForeground: #31353a;--vscode-searchEditor-findMatchBackground: rgba(234, 92, 0, 0.22);--vscode-tab-activeBackground: rgba(86, 99, 119, 0.11);--vscode-tab-unfocusedActiveBackground: rgba(86, 99, 119, 0.11);--vscode-tab-inactiveBackground: #f8f8f9;--vscode-tab-unfocusedInactiveBackground: #f8f8f9;--vscode-tab-activeForeground: #333333;--vscode-tab-inactiveForeground: #5b6066;--vscode-tab-unfocusedActiveForeground: #31353a;--vscode-tab-unfocusedInactiveForeground: rgba(91, 96, 102, 0.5);--vscode-tab-border: rgba(77, 107, 153, 0.09);--vscode-tab-lastPinnedBorder: rgba(97, 97, 97, 0.19);--vscode-tab-activeBorder: #ffffff;--vscode-tab-unfocusedActiveBorder: rgba(255, 255, 255, 0.7);--vscode-tab-activeBorderTop: #000000;--vscode-tab-unfocusedActiveBorderTop: rgba(0, 0, 0, 0.7);--vscode-tab-selectedBorderTop: #000000;--vscode-tab-selectedBackground: rgba(86, 99, 119, 0.11);--vscode-tab-selectedForeground: #333333;--vscode-tab-dragAndDropBorder: #333333;--vscode-tab-activeModifiedBorder: #33aaee;--vscode-tab-inactiveModifiedBorder: rgba(51, 170, 238, 0.5);--vscode-tab-unfocusedActiveModifiedBorder: rgba(51, 170, 238, 0.7);--vscode-tab-unfocusedInactiveModifiedBorder: rgba(51, 170, 238, 0.25);--vscode-editorPane-background: #ffffff;--vscode-editorGroupHeader-tabsBackground: #f8f8f9;--vscode-editorGroupHeader-tabsBorder: rgba(77, 107, 153, 0.09);--vscode-editorGroupHeader-noTabsBackground: #ffffff;--vscode-editorGroup-border: #e7e7e7;--vscode-editorGroup-dropBackground: rgba(33, 97, 224, 0.16);--vscode-editorGroup-dropIntoPromptForeground: #31353a;--vscode-editorGroup-dropIntoPromptBackground: #f3f3f3;--vscode-sideBySideEditor-horizontalBorder: #e7e7e7;--vscode-sideBySideEditor-verticalBorder: #e7e7e7;--vscode-panel-background: #ffffff;--vscode-panel-border: rgba(128, 128, 128, 0.35);--vscode-panelTitle-activeForeground: #111214;--vscode-panelTitle-inactiveForeground: #5b6066;--vscode-panelTitle-activeBorder: #111214;--vscode-panelInput-border: #dddddd;--vscode-panel-dropBorder: #111214;--vscode-panelSection-dropBackground: rgba(33, 97, 224, 0.16);--vscode-panelSectionHeader-background: #ffffff;--vscode-panelSectionHeader-foreground: #111214;--vscode-panelSectionHeader-border: rgba(77, 107, 153, 0.18);--vscode-panelSection-border: rgba(128, 128, 128, 0.35);--vscode-panelStickyScroll-background: #ffffff;--vscode-panelStickyScroll-shadow: #dddddd;--vscode-banner-background: rgba(60, 69, 83, 0.11);--vscode-banner-foreground: #111214;--vscode-banner-iconForeground: #0063d3;--vscode-statusBar-foreground: #ffffff;--vscode-statusBar-noFolderForeground: #ffffff;--vscode-statusBar-background: rgba(0, 0, 0, 0);--vscode-statusBar-noFolderBackground: rgba(0, 0, 0, 0);--vscode-statusBar-focusBorder: #ffffff;--vscode-statusBarItem-activeBackground: rgba(255, 255, 255, 0.18);--vscode-statusBarItem-focusBorder: #ffffff;--vscode-statusBarItem-hoverBackground: rgba(0, 0, 0, 0.12);--vscode-statusBarItem-hoverForeground: #ffffff;--vscode-statusBarItem-compactHoverBackground: rgba(0, 0, 0, 0.12);--vscode-statusBarItem-prominentForeground: #ffffff;--vscode-statusBarItem-prominentBackground: rgba(0, 0, 0, 0.5);--vscode-statusBarItem-prominentHoverForeground: #ffffff;--vscode-statusBarItem-prominentHoverBackground: rgba(0, 0, 0, 0.12);--vscode-statusBarItem-errorBackground: #c72e0f;--vscode-statusBarItem-errorForeground: #ffffff;--vscode-statusBarItem-errorHoverForeground: #ffffff;--vscode-statusBarItem-errorHoverBackground: rgba(0, 0, 0, 0.12);--vscode-statusBarItem-warningBackground: #725102;--vscode-statusBarItem-warningForeground: #ffffff;--vscode-statusBarItem-warningHoverForeground: #ffffff;--vscode-statusBarItem-warningHoverBackground: rgba(0, 0, 0, 0.12);--vscode-activityBar-background: #edeff2;--vscode-activityBar-foreground: #111214;--vscode-activityBar-inactiveForeground: #5b6066;--vscode-activityBar-activeBorder: #111214;--vscode-activityBar-dropBorder: #111214;--vscode-activityBarBadge-background: #2f74ff;--vscode-activityBarBadge-foreground: #ffffff;--vscode-activityBarTop-foreground: #424242;--vscode-activityBarTop-activeBorder: #424242;--vscode-activityBarTop-inactiveForeground: rgba(66, 66, 66, 0.75);--vscode-activityBarTop-dropBorder: #424242;--vscode-profileBadge-background: #c4c4c4;--vscode-profileBadge-foreground: #333333;--vscode-statusBarItem-remoteBackground: #16825d;--vscode-statusBarItem-remoteForeground: #ffffff;--vscode-statusBarItem-remoteHoverForeground: #ffffff;--vscode-statusBarItem-remoteHoverBackground: rgba(0, 0, 0, 0.12);--vscode-statusBarItem-offlineBackground: #6c1717;--vscode-statusBarItem-offlineForeground: #ffffff;--vscode-statusBarItem-offlineHoverForeground: #ffffff;--vscode-statusBarItem-offlineHoverBackground: rgba(0, 0, 0, 0.12);--vscode-extensionBadge-remoteBackground: #2f74ff;--vscode-extensionBadge-remoteForeground: #ffffff;--vscode-sideBar-background: #ffffff;--vscode-sideBarTitle-background: #ffffff;--vscode-sideBarTitle-foreground: #6f6f6f;--vscode-sideBar-dropBackground: rgba(33, 97, 224, 0.16);--vscode-sideBarSectionHeader-background: #ffffff;--vscode-sideBarSectionHeader-foreground: #31353a;--vscode-sideBarSectionHeader-border: rgba(77, 107, 153, 0.18);--vscode-sideBarActivityBarTop-border: rgba(77, 107, 153, 0.18);--vscode-sideBarStickyScroll-background: #ffffff;--vscode-sideBarStickyScroll-shadow: #dddddd;--vscode-titleBar-activeForeground: #5b6066;--vscode-titleBar-inactiveForeground: rgba(91, 96, 102, 0.6);--vscode-titleBar-activeBackground: #edeff2;--vscode-titleBar-inactiveBackground: #edeff2;--vscode-menubar-selectionForeground: #5b6066;--vscode-menubar-selectionBackground: rgba(86, 99, 119, 0.11);--vscode-commandCenter-foreground: #5b6066;--vscode-commandCenter-activeForeground: #5b6066;--vscode-commandCenter-inactiveForeground: rgba(91, 96, 102, 0.6);--vscode-commandCenter-background: rgba(0, 0, 0, 0.05);--vscode-commandCenter-activeBackground: rgba(0, 0, 0, 0.08);--vscode-commandCenter-border: rgba(91, 96, 102, 0.2);--vscode-commandCenter-activeBorder: rgba(91, 96, 102, 0.3);--vscode-commandCenter-inactiveBorder: rgba(91, 96, 102, 0.15);--vscode-notificationCenter-border: rgba(77, 107, 153, 0.09);--vscode-notificationToast-border: rgba(77, 107, 153, 0.09);--vscode-notifications-foreground: #31353a;--vscode-notifications-background: #ffffff;--vscode-notificationLink-foreground: #006ab1;--vscode-notificationCenterHeader-background: #f2f2f2;--vscode-notifications-border: #f2f2f2;--vscode-notificationsErrorIcon-foreground: #e8463a;--vscode-notificationsWarningIcon-foreground: #e28a00;--vscode-notificationsInfoIcon-foreground: #2f74ff;--vscode-iCubeNotificationCenter-border: rgba(77, 107, 153, 0.09);--vscode-icube-colorSnow: #ffffff;--vscode-icube-colorBlack: #000000;--vscode-icube-colorSnowDisable: rgba(255, 255, 255, 0.3);--vscode-icube-modalOverlay: rgba(0, 0, 0, 0.4);--vscode-icube-colorBg1: #ffffff;--vscode-icube-colorBg2: #edeff2;--vscode-icube-colorBg3: #ffffff;--vscode-icube-colorBg4: #e1e1e1;--vscode-icube-diffColorBg3: rgba(225, 225, 225, 0.35);--vscode-icube-colorBgCode: #ffffff;--vscode-icube-colorBgTr0: rgba(86, 99, 119, 0.07);--vscode-icube-colorBtnHover: rgba(86, 99, 119, 0.11);--vscode-icube-colorBg5: rgba(77, 97, 128, 0.08);--vscode-icube-colorBtnHover2: rgba(86, 99, 119, 0.15);--vscode-icube-colorBtnTransparent3: rgba(86, 99, 119, 0.19);--vscode-icube-colorBlend: rgba(77, 97, 128, 0.12);--vscode-icube-colorTransparent: rgba(255, 255, 255, 0);--vscode-icube-colorWidgetShadow: rgba(0, 0, 0, 0.04);--vscode-icube-colorWidgetShadow2: rgba(0, 0, 0, 0.08);--vscode-icube-colorWidgetShadow3: rgba(0, 0, 0, 0.2);--vscode-icube-colorDefaultText: #31353a;--vscode-icube-colorHighlightText: #111214;--vscode-icube-colorGrayText: #5b6066;--vscode-icube-colorGrayText2: #617080;--vscode-icube-colorDisableText: #8a9096;--vscode-icube-colorBlackText: #111314;--vscode-icube-colorBlackText1: #ffffff;--vscode-icube-colorBlackText2: #000000;--vscode-icube-colorDefaultAvatar: #5b92ff;--vscode-icube-colorDefaultAvatarBackground: #1759dd;--vscode-icube-modalLayoutBg: rgba(0, 25, 49, 0.2);--vscode-icube-colorIcon: #939fb8;--vscode-icube-colorCodeCodeInstruction: #b15ef2;--vscode-icube-colorLine1: rgba(77, 107, 153, 0.09);--vscode-icube-colorLine2: rgba(77, 107, 153, 0.18);--vscode-icube-colorLine3: rgba(77, 107, 153, 0.36);--vscode-icube-colorBrand: #36393d;--vscode-icube-colorBrandHover: #72767b;--vscode-icube-colorBrandActive: #1a1b1d;--vscode-icube-colorBrandTransparent: rgba(86, 99, 119, 0.11);--vscode-icube-colorBrandTransparent2: rgba(86, 99, 119, 0.15);--vscode-icube-colorBrandTransparent3: rgba(86, 99, 119, 0.19);--vscode-icube-colorStatusRegular: #2f74ff;--vscode-icube-colorStatusRegularHover: #4c88ff;--vscode-icube-colorStatusRegularActive: #1759dd;--vscode-icube-colorStatusRegularTransparent: rgba(47, 116, 255, 0.12);--vscode-icube-colorStatusRegularTransparent2: rgba(47, 116, 255, 0.18);--vscode-icube-colorStatusRegularTransparent3: rgba(47, 116, 255, 0.36);--vscode-icube-colorSuccess: #26a57b;--vscode-icube-colorSuccessHover: #2ca77f;--vscode-icube-colorSuccessActive: #1e8b56;--vscode-icube-colorSuccessTransparent: rgba(64, 176, 139, 0.12);--vscode-icube-colorSuccessTransparent2: rgba(64, 176, 139, 0.18);--vscode-icube-colorSuccessTransparent3: rgba(64, 176, 139, 0.36);--vscode-icube-colorError: #e8463a;--vscode-icube-colorErrorHover: #ea574c;--vscode-icube-colorErrorActive: #c9382f;--vscode-icube-colorErrorTransparent: rgba(232, 70, 58, 0.12);--vscode-icube-colorErrorTransparent2: rgba(232, 70, 58, 0.16);--vscode-icube-colorErrorTransparent3: rgba(232, 70, 58, 0.36);--vscode-icube-colorWarning: #e28a00;--vscode-icube-colorWarningHover: #f18c13;--vscode-icube-colorWarningActive: #c46f11;--vscode-icube-colorWarningTransparent: rgba(226, 138, 0, 0.12);--vscode-icube-colorWarningTransparent2: rgba(226, 138, 0, 0.16);--vscode-icube-colorWarningTransparent3: rgba(226, 138, 0, 0.36);--vscode-icube-colorAlert: #c6a626;--vscode-icube-colorAlertHover: #dfb716;--vscode-icube-colorAlertActive: #af8d06;--vscode-icube-colorAlertTransparent: rgba(198, 166, 38, 0.14);--vscode-icube-colorAlertTransparent2: rgba(198, 166, 38, 0.2);--vscode-icube-colorAlertTransparent3: rgba(198, 166, 38, 0.36);--vscode-icube-colorErrorTm1: rgba(204, 75, 83, 0.2);--vscode-icube-colorErrorTr1: rgba(232, 70, 58, 0.12);--vscode-icube-colorSpinLoading: #2f74ff;--vscode-icube-colorC1: #00b983;--vscode-icube-colorC2: #ff6b45;--vscode-icube-colorC3: #f2a90c;--vscode-icube-colorC4: #5fbf00;--vscode-icube-colorC5: #00b8f8;--vscode-icube-colorC6: #3f85ff;--vscode-icube-colorC7: #f53cff;--vscode-icube-colorC8: #9570ff;--vscode-icube-colorC9: #747e94;--vscode-icube-colorDiffToggleBtnBg: #8d7aff;--vscode-icube-textPreformatBackground: #9d89eb;--vscode-icube-colorRed1: #dd3730;--vscode-icube-colorRed2: rgba(221, 55, 48, 0.1);--vscode-icube-colorRed3: #dd3730;--vscode-icube-colorGreen1: #00906e;--vscode-icube-colorDiffBtn1: #ffffff;--vscode-icube-diffInsertedTextBackground: rgba(38, 165, 123, 0.32);--vscode-icube-colorChatError: rgba(97, 97, 97, 0);--vscode-icube-chatIconBg1: #ff4a36;--vscode-icube-chatIconColor1: #ffffff;--vscode-icube-emptyExplorerButtonBgColor: rgba(77, 97, 128, 0.08);--vscode-icube-emptyExplorerButtonTextColor: #333940;--vscode-icube-emptyExplorerSplitTextColor: #333940;--vscode-icube-emptyExplorerSplitColor: rgba(77, 107, 153, 0.2);--vscode-icube-lite.colorBg1: #25252d;--vscode-icube-lite.colorBg2: #1d1c23;--vscode-icube-lite.colorLine1: #2e2e38;--vscode-widget-shadow1: rgba(0, 0, 0, 0.08);--vscode-widget-shadow2: rgba(0, 0, 0, 0.1);--vscode-widget-light.shadow1: rgba(0, 0, 0, 0.04);--vscode-widget-light.shadow2: rgba(0, 0, 0, 0.08);--vscode-icube-tooltipsTextColor: #ffffff;--vscode-icube-ai.disableInputBorderColor: rgba(77, 107, 153, 0.4);--vscode-icube-scrollbarBgColor: rgba(100, 100, 100, 0.4);--vscode-icube-scrollbarHoverBgColor: rgba(100, 100, 100, 0.4);--vscode-icube-desktopEmptyWorkspaceIconBg: rgba(77, 97, 128, 0.08);--vscode-icube-desktopEmptyWorkspaceHoverBg: rgba(77, 107, 153, 0.12);--vscode-icube--code-code-text: #17181a;--vscode-icube-primaryButtonBackground: #31353a;--vscode-icube-primaryButtonForeground: #ffffff;--vscode-icube-primaryButtonHoverBackground: #72767b;--vscode-icube-primaryButtonHoverForeground: #ffffff;--vscode-icube-primaryButtonActivateBackground: #1a1b1d;--vscode-icube-primaryButtonActivateForeground: #ffffff;--vscode-icube-primaryButtonDisableBackground: #8a9096;--vscode-icube-primaryButtonDisableForeground: #ffffff;--vscode-icube-defaultButtonBackground: rgba(86, 99, 119, 0.11);--vscode-icube-defaultButtonForeground: #31353a;--vscode-icube-defaultButtonHoverBackground: rgba(86, 99, 119, 0.15);--vscode-icube-defaultButtonHoverForeground: #31353a;--vscode-icube-defaultButtonActivateBackground: rgba(86, 99, 119, 0.19);--vscode-icube-defaultButtonActivateForeground: #31353a;--vscode-icube-defaultButtonDisableBackground: rgba(86, 99, 119, 0.15);--vscode-icube-defaultButtonDisableForeground: #8a9096;--vscode-icube-checkboxBorder: #31353a;--vscode-icube-checkboxBackground: #31353a;--vscode-icube-checkboxDisabledBackground: #8a9096;--vscode-icube-checkboxForeground: #ffffff;--vscode-icube-checkboxUncheckedBorder: rgba(77, 107, 153, 0.18);--vscode-icube-checkboxUncheckedBackground: #ffffff;--vscode-icube-badgeBackground: #2f74ff;--vscode-icube-badgeForeground: #ffffff;--vscode-icube-colorBgTr1: rgba(86, 99, 119, 0.11);--vscode-icube-colorBgTr2: rgba(86, 99, 119, 0.15);--vscode-icube-colorBgTr3: rgba(86, 99, 119, 0.19);--vscode-icube-colorTextDefault: #31353a;--vscode-icube-colorTextHighlight: #111214;--vscode-icube-colorTextGray: #5b6066;--vscode-icube-colorTextDisable: #8a9096;--vscode-icube-colorBrandTr1: rgba(86, 99, 119, 0.11);--vscode-icube-colorBrandTr2: rgba(86, 99, 119, 0.15);--vscode-icube-colorBrandTr3: rgba(86, 99, 119, 0.19);--vscode-icube-colorSuccessTr1: rgba(64, 176, 139, 0.12);--vscode-icube-colorSuccessTr2: rgba(64, 176, 139, 0.18);--vscode-icube-colorSuccessTr3: rgba(64, 176, 139, 0.36);--vscode-icube-colorErrorTr2: rgba(232, 70, 58, 0.16);--vscode-icube-colorErrorTr3: rgba(232, 70, 58, 0.36);--vscode-icube-colorWarningTr1: rgba(226, 138, 0, 0.12);--vscode-icube-colorWarningTr2: rgba(226, 138, 0, 0.16);--vscode-icube-colorWarningTr3: rgba(226, 138, 0, 0.36);--vscode-icube-colorAlertTr1: rgba(198, 166, 38, 0.14);--vscode-icube-colorAlertTr2: rgba(198, 166, 38, 0.2);--vscode-icube-colorAlertTr3: rgba(198, 166, 38, 0.36);--vscode-icube-colorTextButtonHighlight: #111214;--vscode-icube--special-white: #ffffff;--vscode-icube--special-black: #000000;--vscode-icube--bg-bg-base-default: #ffffff;--vscode-icube--bg-bg-tooltip: #ffffff;--vscode-icube--bg-bg-base-secondary: #edeff2;--vscode-icube--bg-bg-base-tertiary: #ffffff;--vscode-icube--bg-bg-overlay-l1: rgba(86, 99, 119, 0.07);--vscode-icube--bg-bg-overlay-l2: rgba(86, 99, 119, 0.11);--vscode-icube--bg-bg-overlay-l3: rgba(86, 99, 119, 0.15);--vscode-icube--bg-bg-overlay-l4: rgba(86, 99, 119, 0.19);--vscode-icube--border-border-neutral-l1: rgba(77, 107, 153, 0.09);--vscode-icube--border-border-neutral-l2: rgba(77, 107, 153, 0.18);--vscode-icube--border-border-neutral-l3: rgba(77, 107, 153, 0.36);--vscode-icube--text-text-default-hover: #111214;--vscode-icube--text-text-default-active: #111214;--vscode-icube--icon-icon-default-hover: #111214;--vscode-icube--icon-icon-default-active: #111214;--vscode-icube--text-text-default: #31353a;--vscode-icube--text-text-secondary-hover: #31353a;--vscode-icube--text-text-secondary-active: #31353a;--vscode-icube--icon-icon-default: #31353a;--vscode-icube--icon-icon-secondary-hover: #31353a;--vscode-icube--icon-icon-secondary-active: #31353a;--vscode-icube--text-text-secondary: #5b6066;--vscode-icube--icon-icon-secondary: #5b6066;--vscode-icube--text-text-tertiary: #8a9096;--vscode-icube--text-text-disabled: #8a9096;--vscode-icube--icon-icon-tertiary: #8a9096;--vscode-icube--icon-icon-disabled: #8a9096;--vscode-icube--status-primary-default: #2f74ff;--vscode-icube--status-primary-hover: #4c88ff;--vscode-icube--status-primary-active: #1759dd;--vscode-icube--status-primary-surface-l1: rgba(47, 116, 255, 0.12);--vscode-icube--status-primary-surface-l2: rgba(47, 116, 255, 0.18);--vscode-icube--status-primary-surface-l3: rgba(47, 116, 255, 0.36);--vscode-icube--status-success-default: #26a57b;--vscode-icube--status-success-hover: #2ca77f;--vscode-icube--status-success-active: #1e8b56;--vscode-icube--status-success-surface-l1: rgba(64, 176, 139, 0.12);--vscode-icube--status-success-surface-l2: rgba(64, 176, 139, 0.18);--vscode-icube--status-success-surface-l3: rgba(64, 176, 139, 0.36);--vscode-icube--status-alert-default: #c6a626;--vscode-icube--status-alert-hover: #dfb716;--vscode-icube--status-alert-active: #af8d06;--vscode-icube--status-alert-surface-l1: rgba(198, 166, 38, 0.14);--vscode-icube--status-alert-surface-l2: rgba(198, 166, 38, 0.2);--vscode-icube--status-alert-surface-l3: rgba(198, 166, 38, 0.36);--vscode-icube--status-warning-default: #e28a00;--vscode-icube--status-warning-hover: #f18c13;--vscode-icube--status-warning-active: #c46f11;--vscode-icube--status-warning-surface-l1: rgba(226, 138, 0, 0.12);--vscode-icube--status-warning-surface-l2: rgba(226, 138, 0, 0.16);--vscode-icube--status-warning-surface-l3: rgba(226, 138, 0, 0.36);--vscode-icube--status-error-default: #e8463a;--vscode-icube--status-error-hover: #ea574c;--vscode-icube--status-error-active: #c9382f;--vscode-icube--status-error-surface-l1: rgba(232, 70, 58, 0.12);--vscode-icube--status-error-surface-l2: rgba(232, 70, 58, 0.16);--vscode-icube--status-error-surface-l3: rgba(232, 70, 58, 0.36);--vscode-icube--bg-bg-invert: #36393d;--vscode-icube--bg-bg-invert-hover: #72767b;--vscode-icube--bg-bg-invert-active: #1a1b1d;--vscode-icube--bg-bg-invert-disabled: rgba(86, 99, 119, 0.19);--vscode-icube--accent-accent-teal: #00b983;--vscode-icube--accent-accent-coral: #ff6b45;--vscode-icube--accent-accent-amber: #f2a90c;--vscode-icube--accent-accent-lime: #5fbf00;--vscode-icube--accent-accent-cyan: #00b8f8;--vscode-icube--accent-accent-blue: #3f85ff;--vscode-icube--accent-accent-magenta: #f53cff;--vscode-icube--accent-accent-violet: #9570ff;--vscode-icube--accent-accent-slate: #747e94;--vscode-icube--bg-bg-menu: #f8f9fa;--vscode-icube--bg-bg-menu-tr0: rgba(255, 255, 255, 0);--vscode-icube--bg-bg-brand: #0fdc78;--vscode-icube--bg-bg-brand-hover: #0ab861;--vscode-icube--bg-bg-brand-disabled: rgba(10, 184, 97, 0.2);--vscode-icube--border-border-contrast: #000000;--vscode-icube--border-border-brand: #0fdc78;--vscode-icube--text-text-brand: #0ab861;--vscode-icube--icon-icon-brand: #0ab861;--vscode-icube--text-text-brand-hover: #0fdc78;--vscode-icube--icon-icon-brand-hover: #0fdc78;--vscode-icube--text-text-onbrand: #0c0c0d;--vscode-icube--icon-icon-onbrand: #0c0c0d;--vscode-icube--text-text-onaccent: #ffffff;--vscode-icube--icon-icon-onaccent: #ffffff;--vscode-icube--special-bgtabsoverlay: rgba(193, 195, 205, 0.12);--vscode-icube--code-code-tag: #e24864;--vscode-icube--code-code-instruction: #b15ef2;--vscode-icube--code-code-doc: #8393a3;--vscode-icube--code-code-parameter: #4da621;--vscode-icube--cue: #0ab861;--vscode-icube--cue-tr0: rgba(10, 184, 97, 0);--vscode-icube--cue-tr1: rgba(10, 184, 97, 0.16);--vscode-icube--cue-tr2: rgba(10, 184, 97, 0.32);--vscode-icube--cue-diff-add: #00a56e;--vscode-icube--cue-diff-add-inline: rgba(0, 165, 110, 0.12);--vscode-icube--cue-diff-add-popup: rgba(0, 165, 110, 0.18);--vscode-icube--cue-diff-remove: rgba(232, 70, 58, 0.14);--vscode-icube--cue-diff-line: rgba(0, 0, 0, 0.32);--vscode-solo-lite-root-background: #edeff2;--vscode-icube-memoryRiskBackground: #fef3e2;--vscode-icube-memoryRiskBorder: #e8a838;--vscode-icube-memoryRiskIcon: #c87a1c;--vscode-icube-blendColor.btnHover.bg2: #e0e3e9;--vscode-icube-blendColor.btnTransparent3.bg2: #d3d8df;--vscode-editor-lineHighlightBackground: rgba(114, 118, 123, 0.08);--vscode-editor-inactiveLineHighlightBackground: rgba(114, 118, 123, 0.08);--vscode-editor-lineHighlightBorder: #eeeeee;--vscode-editor-rangeHighlightBackground: rgba(253, 255, 0, 0.2);--vscode-editor-symbolHighlightBackground: rgba(234, 92, 0, 0.33);--vscode-editorCursor-foreground: #000000;--vscode-editorMultiCursor-primary.foreground: #000000;--vscode-editorMultiCursor-secondary.foreground: #000000;--vscode-editorWhitespace-foreground: rgba(51, 51, 51, 0.2);--vscode-editorLineNumber-foreground: #72767b;--vscode-editorIndentGuide-background: rgba(77, 107, 153, 0.09);--vscode-editorIndentGuide-activeBackground: rgba(77, 107, 153, 0.36);--vscode-editorIndentGuide-background1: rgba(77, 107, 153, 0.09);--vscode-editorIndentGuide-background2: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-background3: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-background4: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-background5: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-background6: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-activeBackground1: rgba(77, 107, 153, 0.36);--vscode-editorIndentGuide-activeBackground2: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-activeBackground3: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-activeBackground4: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-activeBackground5: rgba(0, 0, 0, 0);--vscode-editorIndentGuide-activeBackground6: rgba(0, 0, 0, 0);--vscode-editorActiveLineNumber-foreground: #0b216f;--vscode-editorLineNumber-activeForeground: #111214;--vscode-editorRuler-foreground: #d3d3d3;--vscode-editorCodeLens-foreground: #919191;--vscode-editorBracketMatch-background: rgba(114, 118, 123, 0.24);--vscode-editorBracketMatch-border: #b9b9b9;--vscode-editorOverviewRuler-border: rgba(127, 127, 127, 0.3);--vscode-editorGutter-background: #ffffff;--vscode-editorUnnecessaryCode-opacity: rgba(0, 0, 0, 0.5);--vscode-editorGhostText-foreground: rgba(0, 0, 0, 0.47);--vscode-editorOverviewRuler-rangeHighlightForeground: rgba(0, 122, 204, 0.6);--vscode-editorOverviewRuler-errorForeground: rgba(255, 18, 18, 0.7);--vscode-editorOverviewRuler-warningForeground: #bf8803;--vscode-editorOverviewRuler-infoForeground: #0063d3;--vscode-editorBracketHighlight-foreground1: #0431fa;--vscode-editorBracketHighlight-foreground2: #319331;--vscode-editorBracketHighlight-foreground3: #7b3814;--vscode-editorBracketHighlight-foreground4: rgba(0, 0, 0, 0);--vscode-editorBracketHighlight-foreground5: rgba(0, 0, 0, 0);--vscode-editorBracketHighlight-foreground6: rgba(0, 0, 0, 0);--vscode-editorBracketHighlight-unexpectedBracket.foreground: rgba(255, 18, 18, 0.8);--vscode-editorBracketPairGuide-background1: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-background2: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-background3: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-background4: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-background5: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-background6: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-activeBackground1: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-activeBackground2: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-activeBackground3: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-activeBackground4: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-activeBackground5: rgba(0, 0, 0, 0);--vscode-editorBracketPairGuide-activeBackground6: rgba(0, 0, 0, 0);--vscode-editorUnicodeHighlight-border: #bf8803;--vscode-diffEditor-move.border: rgba(139, 139, 139, 0.61);--vscode-diffEditor-moveActive.border: #ffa500;--vscode-diffEditor-unchangedRegionShadow: rgba(115, 115, 115, 0.75);--vscode-settings-headerForeground: #111214;--vscode-settings-settingsHeaderHoverForeground: rgba(17, 18, 20, 0.7);--vscode-settings-modifiedItemIndicator: #36393d;--vscode-settings-headerBorder: rgba(77, 107, 153, 0.18);--vscode-settings-sashBorder: rgba(128, 128, 128, 0.35);--vscode-settings-dropdownBackground: #ffffff;--vscode-settings-dropdownForeground: #31353a;--vscode-settings-dropdownBorder: rgba(77, 107, 153, 0.09);--vscode-settings-dropdownListBorder: #c8c8c8;--vscode-settings-checkboxBackground: #ffffff;--vscode-settings-checkboxForeground: #31353a;--vscode-settings-checkboxBorder: #919191;--vscode-settings-textInputBackground: rgba(86, 99, 119, 0.07);--vscode-settings-textInputForeground: #31353a;--vscode-settings-textInputBorder: #cecece;--vscode-settings-numberInputBackground: rgba(86, 99, 119, 0.07);--vscode-settings-numberInputForeground: #31353a;--vscode-settings-numberInputBorder: #cecece;--vscode-settings-focusedRowBackground: rgba(86, 99, 119, 0.07);--vscode-settings-rowHoverBackground: rgba(86, 99, 119, 0.03);--vscode-settings-focusedRowBorder: rgba(0, 0, 0, 0);--vscode-editorOverviewRuler-bracketMatchForeground: #a0a0a0;--vscode-actionBar-toggledBackground: #dddddd;--vscode-symbolIcon-arrayForeground: #31353a;--vscode-symbolIcon-booleanForeground: #31353a;--vscode-symbolIcon-classForeground: #d67e00;--vscode-symbolIcon-colorForeground: #31353a;--vscode-symbolIcon-constantForeground: #31353a;--vscode-symbolIcon-constructorForeground: #652d90;--vscode-symbolIcon-enumeratorForeground: #d67e00;--vscode-symbolIcon-enumeratorMemberForeground: #007acc;--vscode-symbolIcon-eventForeground: #d67e00;--vscode-symbolIcon-fieldForeground: #007acc;--vscode-symbolIcon-fileForeground: #31353a;--vscode-symbolIcon-folderForeground: #31353a;--vscode-symbolIcon-functionForeground: #652d90;--vscode-symbolIcon-interfaceForeground: #007acc;--vscode-symbolIcon-keyForeground: #31353a;--vscode-symbolIcon-keywordForeground: #31353a;--vscode-symbolIcon-methodForeground: #b180d7;--vscode-symbolIcon-moduleForeground: #31353a;--vscode-symbolIcon-namespaceForeground: #31353a;--vscode-symbolIcon-nullForeground: #31353a;--vscode-symbolIcon-numberForeground: #31353a;--vscode-symbolIcon-objectForeground: #31353a;--vscode-symbolIcon-operatorForeground: #31353a;--vscode-symbolIcon-packageForeground: #31353a;--vscode-symbolIcon-propertyForeground: #31353a;--vscode-symbolIcon-referenceForeground: #31353a;--vscode-symbolIcon-snippetForeground: #31353a;--vscode-symbolIcon-stringForeground: #31353a;--vscode-symbolIcon-structForeground: #31353a;--vscode-symbolIcon-textForeground: #31353a;--vscode-symbolIcon-typeParameterForeground: #31353a;--vscode-symbolIcon-unitForeground: #31353a;--vscode-symbolIcon-variableForeground: #007acc;--vscode-peekViewTitle-background: #f3f3f3;--vscode-peekViewTitleLabel-foreground: #000000;--vscode-peekViewTitleDescription-foreground: #616161;--vscode-peekView-border: #0063d3;--vscode-peekViewResult-background: #f3f3f3;--vscode-peekViewResult-lineForeground: #646465;--vscode-peekViewResult-fileForeground: #1e1e1e;--vscode-peekViewResult-selectionBackground: rgba(51, 153, 255, 0.2);--vscode-peekViewResult-selectionForeground: #6c6c6c;--vscode-peekViewEditor-background: #f2f8fc;--vscode-peekViewEditorGutter-background: #f2f8fc;--vscode-peekViewEditorStickyScroll-background: #f2f8fc;--vscode-peekViewEditorStickyScrollGutter-background: #f2f8fc;--vscode-peekViewResult-matchHighlightBackground: rgba(234, 92, 0, 0.3);--vscode-peekViewEditor-matchHighlightBackground: rgba(245, 216, 2, 0.87);--vscode-editorMarkerNavigationError-background: #e51400;--vscode-editorMarkerNavigationError-headerBackground: rgba(229, 20, 0, 0.1);--vscode-editorMarkerNavigationWarning-background: #bf8803;--vscode-editorMarkerNavigationWarning-headerBackground: rgba(191, 136, 3, 0.1);--vscode-editorMarkerNavigationInfo-background: #0063d3;--vscode-editorMarkerNavigationInfo-headerBackground: rgba(0, 99, 211, 0.1);--vscode-editorMarkerNavigation-background: #ffffff;--vscode-editor-foldBackground: rgba(47, 116, 255, 0.05);--vscode-editor-foldPlaceholderForeground: #808080;--vscode-editorGutter-foldingControlForeground: #5b6066;--vscode-editorSuggestWidget-background: #f3f3f3;--vscode-editorSuggestWidget-border: #c8c8c8;--vscode-editorSuggestWidget-foreground: #31353a;--vscode-editorSuggestWidget-selectedForeground: #111214;--vscode-editorSuggestWidget-selectedIconForeground: #5b6066;--vscode-editorSuggestWidget-selectedBackground: rgba(86, 99, 119, 0.11);--vscode-editorSuggestWidget-highlightForeground: #0066bf;--vscode-editorSuggestWidget-focusHighlightForeground: #0066bf;--vscode-editorSuggestWidgetStatus-foreground: rgba(49, 53, 58, 0.5);--vscode-inlineEdit-originalBackground: rgba(232, 70, 58, 0.03);--vscode-inlineEdit-modifiedBackground: rgba(64, 176, 139, 0.05);--vscode-inlineEdit-originalChangedLineBackground: rgba(232, 70, 58, 0.13);--vscode-inlineEdit-originalChangedTextBackground: rgba(232, 70, 58, 0.13);--vscode-inlineEdit-modifiedChangedLineBackground: rgba(64, 176, 139, 0.09);--vscode-inlineEdit-modifiedChangedTextBackground: rgba(64, 176, 139, 0.13);--vscode-inlineEdit-gutterIndicator.primaryForeground: #ffffff;--vscode-inlineEdit-gutterIndicator.primaryBorder: #31353a;--vscode-inlineEdit-gutterIndicator.primaryBackground: rgba(49, 53, 58, 0.5);--vscode-inlineEdit-gutterIndicator.secondaryForeground: #ffffff;--vscode-inlineEdit-gutterIndicator.secondaryBorder: #5f6a79;--vscode-inlineEdit-gutterIndicator.secondaryBackground: #5f6a79;--vscode-inlineEdit-gutterIndicator.successfulForeground: #ffffff;--vscode-inlineEdit-gutterIndicator.successfulBorder: #31353a;--vscode-inlineEdit-gutterIndicator.successfulBackground: #31353a;--vscode-inlineEdit-gutterIndicator.background: rgba(95, 95, 95, 0.09);--vscode-inlineEdit-originalBorder: rgba(232, 70, 58, 0.16);--vscode-inlineEdit-modifiedBorder: rgba(26, 70, 55, 0.18);--vscode-inlineEdit-tabWillAcceptModifiedBorder: rgba(26, 70, 55, 0.18);--vscode-inlineEdit-tabWillAcceptOriginalBorder: rgba(232, 70, 58, 0.16);--vscode-editor-linkedEditingBackground: rgba(255, 0, 0, 0.3);--vscode-editor-wordHighlightBackground: rgba(114, 118, 123, 0.24);--vscode-editor-wordHighlightStrongBackground: rgba(14, 99, 156, 0.25);--vscode-editor-wordHighlightTextBackground: rgba(114, 118, 123, 0.24);--vscode-editorOverviewRuler-wordHighlightForeground: rgba(160, 160, 160, 0.8);--vscode-editorOverviewRuler-wordHighlightStrongForeground: rgba(192, 160, 192, 0.8);--vscode-editorOverviewRuler-wordHighlightTextForeground: rgba(160, 160, 160, 0.8);--vscode-editorHoverWidget-highlightForeground: #0066bf;--vscode-editor-placeholder.foreground: rgba(0, 0, 0, 0.47);--vscode-editorGutter-modifiedBackground: #2090d3;--vscode-editorGutter-modifiedSecondaryBackground: #aad8f2;--vscode-editorGutter-addedBackground: #48985d;--vscode-editorGutter-addedSecondaryBackground: #a7d5b3;--vscode-editorGutter-deletedBackground: #e51400;--vscode-editorGutter-deletedSecondaryBackground: #ff3d2b;--vscode-minimapGutter-modifiedBackground: #2090d3;--vscode-minimapGutter-addedBackground: #48985d;--vscode-minimapGutter-deletedBackground: #e51400;--vscode-editorOverviewRuler-modifiedForeground: rgba(32, 144, 211, 0.6);--vscode-editorOverviewRuler-addedForeground: rgba(72, 152, 93, 0.6);--vscode-editorOverviewRuler-deletedForeground: rgba(229, 20, 0, 0.6);--vscode-editorGutter-itemGlyphForeground: #31353a;--vscode-editorGutter-itemBackground: #dee0e5;--vscode-scmGraph-historyItemRefColor: #0063d3;--vscode-scmGraph-historyItemRemoteRefColor: #652d90;--vscode-scmGraph-historyItemBaseRefColor: #ea5c00;--vscode-scmGraph-historyItemHoverDefaultLabelForeground: #31353a;--vscode-scmGraph-historyItemHoverDefaultLabelBackground: #c4c4c4;--vscode-scmGraph-historyItemHoverLabelForeground: #ffffff;--vscode-scmGraph-historyItemHoverAdditionsForeground: #587c0c;--vscode-scmGraph-historyItemHoverDeletionsForeground: #ad0707;--vscode-scmGraph-foreground1: #ffb000;--vscode-scmGraph-foreground2: #dc267f;--vscode-scmGraph-foreground3: #994f00;--vscode-scmGraph-foreground4: #40b0a6;--vscode-scmGraph-foreground5: #b66dff;--vscode-terminal-foreground: #333333;--vscode-terminal-selectionBackground: rgba(47, 116, 255, 0.18);--vscode-terminal-inactiveSelectionBackground: #e5ebf1;--vscode-terminalCommandDecoration-defaultBackground: rgba(0, 0, 0, 0.25);--vscode-terminalCommandDecoration-successBackground: #2090d3;--vscode-terminalCommandDecoration-errorBackground: #e51400;--vscode-terminalOverviewRuler-cursorForeground: rgba(160, 160, 160, 0.8);--vscode-terminal-border: rgba(128, 128, 128, 0.35);--vscode-terminalOverviewRuler-border: rgba(127, 127, 127, 0.3);--vscode-terminal-findMatchBackground: #a8ac94;--vscode-terminal-hoverHighlightBackground: rgba(173, 214, 255, 0.07);--vscode-terminal-findMatchHighlightBackground: rgba(234, 92, 0, 0.33);--vscode-terminalOverviewRuler-findMatchForeground: rgba(209, 134, 22, 0.49);--vscode-terminal-dropBackground: rgba(33, 97, 224, 0.16);--vscode-terminal-tab.activeBorder: #ffffff;--vscode-terminal-initialHintForeground: rgba(0, 0, 0, 0.47);--vscode-welcomePage-tileBackground: #f3f3f3;--vscode-welcomePage-tileHoverBackground: #dbdbdb;--vscode-welcomePage-tileBorder: rgba(0, 0, 0, 0.1);--vscode-welcomePage-progress.background: rgba(86, 99, 119, 0.07);--vscode-welcomePage-progress.foreground: #006ab1;--vscode-walkthrough-stepTitle.foreground: #000000;--vscode-extensionIcon-verifiedForeground: #006ab1;--vscode-agentSessionReadIndicator-foreground: rgba(49, 53, 58, 0.15);--vscode-extensionButton-background: #31353a;--vscode-extensionButton-foreground: #ffffff;--vscode-extensionButton-hoverBackground: #72767b;--vscode-extensionButton-separator: rgba(193, 195, 205, 0.12);--vscode-extensionButton-prominentBackground: #31353a;--vscode-extensionButton-prominentForeground: #ffffff;--vscode-extensionButton-prominentHoverBackground: #72767b;--vscode-debugToolBar-background: #edeff2;--vscode-debugIcon-startForeground: #388a34;--vscode-notebook-cellBorderColor: #e8e8e8;--vscode-notebook-focusedEditorBorder: rgba(0, 0, 0, 0);--vscode-notebookStatusSuccessIcon-foreground: #388a34;--vscode-notebookEditorOverviewRuler-runningCellForeground: #388a34;--vscode-notebookStatusErrorIcon-foreground: #cc4b53;--vscode-notebookStatusRunningIcon-foreground: #31353a;--vscode-notebook-cellToolbarSeparator: rgba(128, 128, 128, 0.35);--vscode-notebook-selectedCellBackground: rgba(200, 221, 241, 0.31);--vscode-notebook-selectedCellBorder: #e8e8e8;--vscode-notebook-focusedCellBorder: rgba(0, 0, 0, 0);--vscode-notebook-inactiveFocusedCellBorder: #e8e8e8;--vscode-notebook-cellStatusBarItemHoverBackground: rgba(0, 0, 0, 0.08);--vscode-notebook-cellInsertionIndicator: rgba(0, 0, 0, 0);--vscode-notebookScrollbarSlider-background: rgba(100, 100, 100, 0.4);--vscode-notebookScrollbarSlider-hoverBackground: rgba(100, 100, 100, 0.7);--vscode-notebookScrollbarSlider-activeBackground: rgba(0, 0, 0, 0.6);--vscode-notebook-symbolHighlightBackground: rgba(253, 255, 0, 0.2);--vscode-notebook-cellEditorBackground: #ffffff;--vscode-notebook-editorBackground: #ffffff;--vscode-terminal-ansiBlack: #000000;--vscode-terminal-ansiRed: #cd3131;--vscode-terminal-ansiGreen: #107c10;--vscode-terminal-ansiYellow: #949800;--vscode-terminal-ansiBlue: #0451a5;--vscode-terminal-ansiMagenta: #bc05bc;--vscode-terminal-ansiCyan: #0598bc;--vscode-terminal-ansiWhite: #555555;--vscode-terminal-ansiBrightBlack: #666666;--vscode-terminal-ansiBrightRed: #cd3131;--vscode-terminal-ansiBrightGreen: #14ce14;--vscode-terminal-ansiBrightYellow: #b5ba00;--vscode-terminal-ansiBrightBlue: #0451a5;--vscode-terminal-ansiBrightMagenta: #bc05bc;--vscode-terminal-ansiBrightCyan: #0598bc;--vscode-terminal-ansiBrightWhite: #a5a5a5;--vscode-simpleFindWidget-sashBorder: #c8c8c8;--vscode-inlineChat-foreground: #31353a;--vscode-inlineChat-background: #f3f3f3;--vscode-inlineChat-border: #c8c8c8;--vscode-inlineChat-shadow: rgba(0, 0, 0, 0.08);--vscode-inlineChatInput-border: #c8c8c8;--vscode-inlineChatInput-focusBorder: rgba(0, 0, 0, 0);--vscode-inlineChatInput-placeholderForeground: #5b6066;--vscode-inlineChatInput-background: rgba(86, 99, 119, 0.07);--vscode-inlineChatDiff-inserted: rgba(64, 176, 139, 0.09);--vscode-editorOverviewRuler-inlineChatInserted: rgba(64, 176, 139, 0.14);--vscode-editorMinimap-inlineChatInserted: rgba(64, 176, 139, 0.14);--vscode-inlineChatDiff-removed: rgba(232, 70, 58, 0.08);--vscode-editorOverviewRuler-inlineChatRemoved: rgba(232, 70, 58, 0.13);--vscode-chat-requestBorder: rgba(0, 0, 0, 0.1);--vscode-chat-requestBackground: rgba(255, 255, 255, 0.62);--vscode-chat-slashCommandBackground: rgba(173, 206, 255, 0.48);--vscode-chat-slashCommandForeground: #26569e;--vscode-chat-avatarBackground: #f2f2f2;--vscode-chat-avatarForeground: #31353a;--vscode-chat-editedFileForeground: #895503;--vscode-chat-requestCodeBorder: rgba(14, 99, 156, 0.25);--vscode-chat-requestBubbleBackground: rgba(47, 116, 255, 0.05);--vscode-chat-requestBubbleHoverBackground: rgba(47, 116, 255, 0.11);--vscode-chat-checkpointSeparator: #a9a9a9;--vscode-chat-linesAddedForeground: #107c10;--vscode-chat-linesRemovedForeground: #bc2f32;--vscode-extensionIcon-starForeground: #df6100;--vscode-extensionIcon-preReleaseForeground: #1d9271;--vscode-extensionIcon-sponsorForeground: #b51e78;--vscode-extensionIcon-privateForeground: rgba(0, 0, 0, 0.38);--vscode-terminalStickyScrollHover-background: #f0f0f0;--vscode-terminalCommandGuide-foreground: rgba(86, 99, 119, 0.11);--vscode-terminalSymbolIcon-flagForeground: #d67e00;--vscode-terminalSymbolIcon-aliasForeground: #b180d7;--vscode-terminalSymbolIcon-optionValueForeground: #007acc;--vscode-terminalSymbolIcon-methodForeground: #b180d7;--vscode-terminalSymbolIcon-argumentForeground: #007acc;--vscode-terminalSymbolIcon-optionForeground: #d67e00;--vscode-terminalSymbolIcon-fileForeground: #31353a;--vscode-terminalSymbolIcon-folderForeground: #31353a;--vscode-terminalSymbolIcon-commitForeground: #31353a;--vscode-terminalSymbolIcon-branchForeground: #31353a;--vscode-terminalSymbolIcon-tagForeground: #31353a;--vscode-terminalSymbolIcon-stashForeground: #31353a;--vscode-terminalSymbolIcon-remoteForeground: #31353a;--vscode-terminalSymbolIcon-pullRequestForeground: #31353a;--vscode-terminalSymbolIcon-pullRequestDoneForeground: #31353a;--vscode-terminalSymbolIcon-symbolicLinkFileForeground: #31353a;--vscode-terminalSymbolIcon-symbolicLinkFolderForeground: #31353a;--vscode-terminalSymbolIcon-symbolText: #31353a;--vscode-ports-iconRunningProcessForeground: #369432;--vscode-icube-inlineChat.regionHighlight: rgba(225, 225, 225, 0.2);--vscode-icube-inlineChatDiff.inserted: rgba(64, 176, 139, 0.09);--vscode-icube-inlineChatDiff.removed: rgba(232, 70, 58, 0.08);--vscode-icube-simpleInlineChat.regionHighlight: rgba(225, 225, 225, 0.2);--vscode-icube-simpleInlineChatDiff.inserted: rgba(64, 176, 139, 0.12);--vscode-icube-simpleInlineChatDiff.removed: rgba(232, 70, 58, 0.12);--vscode-multiDiffEditor-headerBackground: #f8f8f9;--vscode-multiDiffEditor-background: #ffffff;--vscode-multiDiffEditor-border: #cccccc;--vscode-mergeEditor-change.background: rgba(155, 185, 85, 0.2);--vscode-mergeEditor-change.word.background: rgba(156, 204, 44, 0.4);--vscode-mergeEditor-changeBase.background: #ffcccc;--vscode-mergeEditor-changeBase.word.background: #ffa3a3;--vscode-mergeEditor-conflict.unhandledUnfocused.border: #ffa600;--vscode-mergeEditor-conflict.unhandledFocused.border: #ffa600;--vscode-mergeEditor-conflict.handledUnfocused.border: rgba(134, 134, 134, 0.29);--vscode-mergeEditor-conflict.handledFocused.border: rgba(193, 193, 193, 0.8);--vscode-mergeEditor-conflict.handled.minimapOverViewRuler: rgba(173, 172, 168, 0.93);--vscode-mergeEditor-conflict.unhandled.minimapOverViewRuler: #fcba03;--vscode-mergeEditor-conflictingLines.background: rgba(255, 234, 0, 0.28);--vscode-mergeEditor-conflict.input1.background: rgba(64, 200, 174, 0.2);--vscode-mergeEditor-conflict.input2.background: rgba(64, 166, 255, 0.2);--vscode-gitDecoration-addedResourceForeground: #587c0c;--vscode-gitDecoration-modifiedResourceForeground: #f0a50f;--vscode-gitDecoration-deletedResourceForeground: #ad0707;--vscode-gitDecoration-renamedResourceForeground: #00aa62;--vscode-gitDecoration-untrackedResourceForeground: #00aa62;--vscode-gitDecoration-ignoredResourceForeground: #8e8e90;--vscode-gitDecoration-stageModifiedResourceForeground: #f0a50f;--vscode-gitDecoration-stageDeletedResourceForeground: #ad0707;--vscode-gitDecoration-conflictingResourceForeground: #ad0707;--vscode-gitDecoration-submoduleResourceForeground: #1258a7;--vscode-git-blame.editorDecorationForeground: #969696;}</style><style id="solo-lite-theme-variables">:root {
+  --workspace-gap-width: 4px;
+  --header-height: 48px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+  --radius-2: 2px;
+  --radius-4: 4px;
+  --radius-6: 6px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-32: 32px;
+  --radius-radius-2xs-4: 4px;
+  --radius-radius-xs-6: 6px;
+  --radius-radius-sm-8: 8px;
+  --radius-radius-md-12: 12px;
+  --radius-radius-lg-16: 16px;
+  --radius-radius-xl-20: 20px;
+  --radius-radius-2xl-24: 24px;
+  --radius-radius-3xl-32: 32px;
+  --radius-radius-full: 9999px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+
+  --spacer-0: 0px;
+  --spacer-2: 2px;
+  --spacer-4: 4px;
+  --spacer-6: 6px;
+  --spacer-8: 8px;
+  --spacer-12: 12px;
+  --spacer-16: 16px;
+  --spacer-20: 20px;
+  --spacer-24: 24px;
+  --spacer-32: 32px;
+  --spacer-40: 40px;
+  --spacer-48: 48px;
+  --spacer-64: 64px;
+
+  --font-size-xs: 10px;
+  --font-size-sm: 11px;
+  --font-size-md: 12px;
+  --font-size-regular: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+
+  --font-family-default:
+    'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, 'PingFang SC', 'Microsoft YaHei',
+    'Hiragino Sans GB', Roboto, sans-serif;
+  --font-family-heading:
+    'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, 'PingFang SC', 'Microsoft YaHei',
+    'Hiragino Sans GB', Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+  --font-weight-default: 400;
+  --font-weight-code: 450;
+  --font-weight-medium: 500;
+  --font-weight-strong: 600;
+
+  --chat-body-md: 13px/20px var(--font-family-default);
+  --chat-body-md-strong: 500 13px/20px var(--font-family-default);
+  --chat-body-base: 14px/22px var(--font-family-default);
+  --chat-body-base-strong: 500 14px/22px var(--font-family-default);
+  --chat-spacer-2xs: 2px;
+  --chat-spacer-xs: 4px;
+  --chat-spacer-sm: 8px;
+  --chat-spacer-md: 12px;
+  --chat-spacer-lg: 16px;
+  --chat-spacer-xl: 20px;
+  --chat-radius-xs: 4px;
+  --chat-radius-sm: 8px;
+  --chat-radius-md: 12px;
+  --chat-radius-lg: 16px;
+  --chat-list-item-height: 28px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* ===== Z-Index Layer System ===== */
+  --z-base: 0;
+  --z-above: 1;
+  --z-above-2: 2;
+
+  --z-sticky: 10;
+  --z-local-overlay: 100;
+
+  --z-dropdown: 1000;
+  --z-popover: 1010;
+
+  --z-modal-backdrop: 1090;
+  --z-modal: 1100;
+  --z-drawer: 1120;
+  --z-confirm: 1150;
+
+  --z-notification: 1200;
+  --z-tooltip: 1300;
+
+  --z-fullscreen: 1400;
+
+  /* 仅限基础设施 / 调试工具，业务组件禁止直接使用 */
+  --z-max: 9999;
+  /* GTM 是全窗口阻塞式系统弹窗，必须覆盖 IDE / Solo Lite 内所有业务浮层 */
+  --z-gtm-modal: 2147483647;
+
+  /* ===== Permission Mode Select ===== */
+  --permission-trigger-height: 32px;
+  --permission-trigger-radius: 8px;
+  --permission-trigger-padding: 2px 8px;
+  --permission-trigger-font-size: 14px;
+  --permission-trigger-bg: transparent;
+  --permission-trigger-gap: 4px;
+  --permission-trigger-icon-size: 16px;
+  --permission-settings-card-radius: 8px;
+  --permission-settings-icon-radius: 6px;
+  --permission-settings-action-radius: 8px;
+  --permission-settings-mode-desc-font-size: 11px;
+  --permission-settings-mode-desc-line-height: 16px;
+  --permission-settings-card-title-font-weight: var(--font-weight-default);
+}
+
+[data-theme='light'], .vs.solo-lite {
+  --shadow-elevation-50: 0 1px 2px -1px rgba(24, 24, 24, 0.08);
+  --shadow-elevation-100: 0 3px 9px 0 rgba(24, 24, 24, 0.06);
+  --shadow-elevation-100-float: 0 -3px 9px 0 rgba(24, 24, 24, 0.06);
+  --shadow-elevation-200: 0 6px 24px -1px rgba(24, 24, 24, 0.06);
+  --shadow-elevation-200-reverse: 0 -6px 24px -1px rgba(24, 24, 24, 0.06);
+  --shadow-elevation-300: 0 2px 8px -1px rgba(24, 24, 24, 0.02), 0 10px 24px -1px rgba(24, 24, 24, 0.06);
+
+  --shadow-elevation-100-tooltip: var(--shadow-elevation-100);
+  --shadow-elevation-200-menu-panel: var(--shadow-elevation-200);
+  --shadow-elevation-300-modal-panel: var(--shadow-elevation-300);
+
+  /* 输入框阴影颜色 */
+  --shadow-chat-input: 0 3px 8px 0 rgba(24, 24, 24, 0.04), 0 6px 24px -1px rgba(24, 24, 24, 0.06);
+  --shadow-chat-input-focused: 0 4px 12px 0 rgba(24, 24, 24, 0.04), 0 6px 32px -1px rgba(24, 24, 24, 0.06);
+
+  --bg-bg-base-default: #ffffff;
+  --bg-bg-base-secondary: #f5f5f5;
+  --bg-bg-base-tertiary: #e5e5e5;
+  --bg-bg-menu: #ffffff;
+  --bg-bg-tooltip: #fafafa;
+  --bg-bg-input: #ffffff;
+  --bg-bg-overlay-l1: rgba(115, 115, 115, 0.08);
+  --bg-bg-overlay-l2: rgba(115, 115, 115, 0.12);
+  --bg-bg-overlay-l3: rgba(115, 115, 115, 0.16);
+  --bg-bg-overlay-l4: rgba(115, 115, 115, 0.20);
+  --bg-bg-white: #ffffff;
+  --bg-bg-brand: #4b3fe3;
+  --bg-bg-brand-hover: #6a6fff;
+  --bg-bg-brand-active: #3f31c6;
+  --bg-bg-brand-disabled: rgba(75, 63, 227, 0.22);
+  --bg-bg-brand-popup: rgba(170, 183, 255, 0.36);
+  /* brand-sub 兼容（品牌色已统一，sub 映射为主品牌色） */
+  --bg-bg-brand-sub: var(--bg-bg-brand);
+  --bg-bg-brand-hover-sub: var(--bg-bg-brand-hover);
+  --bg-bg-brand-disabled-sub: var(--bg-bg-brand-disabled);
+  --bg-bg-brand-popup-sub: var(--bg-bg-brand-popup);
+  --bg-bg-invert: #262626;
+  --bg-bg-invert-hover: #404040;
+  --bg-bg-invert-active: #171717;
+  --bg-bg-invert-disabled: rgba(115, 115, 115, 0.20);
+  --bg-bg-marketplace-banner-overlay-start: rgba(82, 130, 193, 0);
+  --bg-bg-marketplace-banner-overlay-end: rgba(82, 130, 193, 0.8);
+  --bg-bg-marketplace-banner-control: rgba(0, 0, 0, 0.25);
+  --bg-bg-card: #fafafa;
+  --bg-bg-card-hover: #ffffff;
+  --bg-bg-marketplace-banner-plugin-tag: #e5f3ff;
+  --bg-bg-marketplace-banner-preview-mask-start: rgba(255, 255, 255, 0.9);
+  --bg-bg-marketplace-banner-preview-mask-end: rgba(255, 255, 255, 0.54);
+  --shadow-marketplace-banner-preview-card: 0px 6px 12px -1px rgba(0, 0, 0, 0.18), 0px 10px 24px -1px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-card-small: 0px 2.8023247718811035px 5.604649543762207px -0.4670540988445282px rgba(0, 0, 0, 0.18), 0px 4.670541763305664px 11.209299087524414px -0.4670540988445282px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-card-large: 0px 4.55377721786499px 9.10755443572998px -0.758962869644165px rgba(0, 0, 0, 0.18), 0px 7.589629650115967px 18.21510887145996px -0.758962869644165px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-input: 0px 0px 24px -1px rgba(24, 24, 24, 0.06), 0px -12px 8px -1px rgba(24, 24, 24, 0.02);
+  --chat-bg-card: var(--bg-bg-card);
+  --chat-bg-card-hover: var(--bg-bg-base-default);
+  --special-bgtabsoverlay: rgba(255, 255, 255, 0.12);
+  --special-tabsoverlay: rgba(193, 195, 205, 0.12);
+  --text-text-default: #171717;
+  --text-text-default-hover: #262626;
+  --text-text-default-active: #262626;
+  --text-text-secondary: #404040;
+  --text-text-secondary-hover: #171717;
+  --text-text-secondary-active: #171717;
+  --text-text-tertiary: #737373;
+  --text-text-disabled: #a1a1a1;
+  --text-text-brand: #4b3fe3;
+  --text-text-brand-hover: #6a6fff;
+  --text-text-brand-sub: var(--text-text-brand);
+  --text-text-brand-hover-sub: var(--text-text-brand-hover);
+  --text-text-onbrand: #171717;
+  --text-text-onaccent: #ffffff;
+  --text-text-marketplace-banner-on-light: #0a0a0a;
+  --text-text-marketplace-banner-plugin-tag: #054c8f;
+  --icon-icon-default: #262626;
+  --icon-icon-default-hover: #171717;
+  --icon-icon-default-active: #171717;
+  --icon-icon-secondary: #404040;
+  --icon-icon-secondary-hover: #262626;
+  --icon-icon-secondary-active: #262626;
+  --icon-icon-tertiary: #737373;
+  --icon-icon-disabled: #a1a1a1;
+  --icon-icon-brand: #4b3fe3;
+  --icon-icon-brand-hover: #6a6fff;
+  --icon-icon-brand-sub: var(--icon-icon-brand);
+  --icon-icon-brand-hover-sub: var(--icon-icon-brand-hover);
+  --icon-icon-onbrand: #0a0a0a;
+  --icon-icon-onaccent: #ffffff;
+  --icon-icon-white: #ffffff;
+  --border-border-neutral-l1: rgba(115, 115, 115, 0.12);
+  --border-border-neutral-l2: rgba(115, 115, 115, 0.18);
+  --border-border-neutral-l3: rgba(115, 115, 115, 0.36);
+  --border-border-brand: #4b3fe3;
+  --border-border-brand-sub: var(--border-border-brand);
+  --border-border-contrast: #000000;
+  --status-primary-default: #2f74ff;
+  --status-primary-hover: #4c88ff;
+  --status-primary-active: #1759dd;
+  --status-primary-surface-l1: rgba(47, 116, 255, 0.12);
+  --status-primary-surface-l2: rgba(47, 116, 255, 0.18);
+  --status-primary-surface-l3: rgba(47, 116, 255, 0.36);
+  --status-success-default: #15a877;
+  --status-success-hover: #2fb287;
+  --status-success-active: #1e8b56;
+  --status-success-surface-l1: rgba(64, 176, 139, 0.12);
+  --status-success-surface-l2: rgba(64, 176, 139, 0.18);
+  --status-success-surface-l3: rgba(64, 176, 139, 0.36);
+  --status-alert-default: #fea900;
+  --status-alert-hover: #ffb700;
+  --status-alert-active: #e59100;
+  --status-alert-surface-l1: rgba(254, 169, 0, 0.14);
+  --status-alert-surface-l2: rgba(254, 169, 0, 0.20);
+  --status-alert-surface-l3: rgba(254, 169, 0, 0.36);
+  --status-warning-default: #e27900;
+  --status-warning-hover: #f39a35;
+  --status-warning-active: #c46f11;
+  --status-warning-surface-l1: rgba(226, 121, 0, 0.12);
+  --status-warning-surface-l2: rgba(226, 121, 0, 0.16);
+  --status-warning-surface-l3: rgba(226, 121, 0, 0.36);
+  --status-error-default: #e8463a;
+  --status-error-hover: #ea574c;
+  --status-error-active: #c9382f;
+  --status-error-surface-l1: rgba(232, 70, 58, 0.12);
+  --status-error-surface-l2: rgba(232, 70, 58, 0.16);
+  --status-error-surface-l3: rgba(232, 70, 58, 0.36);
+  --accent-accent-teal: #00b983;
+  --accent-accent-coral: #ff6b45;
+  --accent-accent-amber: #f2a90c;
+  --accent-accent-lime: #5fc000;
+  --accent-accent-cyan: #00b6f5;
+  --accent-accent-blue: #3f85ff;
+  --accent-accent-magenta: #f53cff;
+  --accent-accent-violet: #9570ff;
+  --accent-accent-slate: #747e94;
+  --code-code-text: #17181a;
+  --code-code-doc: #8393a3;
+  --code-code-link: #2f74ff;
+  --code-code-number: #e54595;
+  --code-code-action: #5f36b2;
+  --code-code-instruction: #b15ef2;
+  --code-code-function: #ff5d4d;
+  --code-code-constant: #175ce6;
+  --code-code-parameter: #4da621;
+  --code-code-attribute: #c99100;
+  --code-code-tag: #e24864;
+  --code-code-terminal: #17181a;
+  --code-code-contrast: #17181a;
+  --code-code-editor: #17181a;
+  --special-white: #ffffff;
+  --special-black: #000000;
+  --viz-viz-series-amber: #edaa45;
+  --viz-viz-series-coral: #f87454;
+  --viz-viz-series-indigo: #b6a3ff;
+  --viz-viz-series-lime: #a6ea39;
+  --viz-viz-series-magenta: #fb9dd7;
+  --viz-viz-series-mint: #1dc981;
+  --viz-viz-series-sky: #22a5f7;
+  --viz-viz-series-slate: #859ead;
+  --viz-viz-series-teal: #59e8e8;
+  --viz-viz-series-violet: #b655fc;
+  --viz-viz-ui-bg-chart: #ffffff;
+  --viz-viz-ui-bg-tooltip: #fafafa;
+  --viz-viz-ui-chart-axis: rgba(115, 115, 115, 0.18);
+  --viz-viz-ui-chart-subtitle: #404040;
+  --viz-viz-ui-chart-tick: #404040;
+  --viz-viz-ui-chart-title: #171717;
+  --viz-viz-ui-legend-label: #404040;
+  --viz-viz-ui-legend-value: #171717;
+  --brand-blue-100: #e5f3ff;
+  --brand-blue-200: #cce6ff;
+  --brand-blue-300: #b2daff;
+  --brand-blue-400: #99ceff;
+  --brand-blue-500: #80c1ff;
+  --brand-blue-600: #64b4ff;
+  --brand-blue-700: #3792e6;
+  --brand-blue-800: #1071cb;
+  --brand-blue-900: #054c8f;
+  --brand-blue-1000: #00284d;
+  --brand-blue-grey-100: #f1eff4;
+  --brand-blue-grey-200: #e0e1e6;
+  --brand-blue-grey-300: #cfd3d8;
+  --brand-blue-grey-400: #bfc5ca;
+  --brand-blue-grey-500: #b0b5ba;
+  --brand-blue-grey-600: #a0a6ab;
+  --brand-blue-grey-700: #80898e;
+  --brand-blue-grey-800: #5e696e;
+  --brand-blue-grey-900: #404a4f;
+  --brand-blue-grey-1000: #21262b;
+  --brand-green-grey-100: #f1f4f4;
+  --brand-green-grey-200: #e0e6e6;
+  --brand-green-grey-300: #cfd8d8;
+  --brand-green-grey-400: #bfcaca;
+  --brand-green-grey-500: #b0baba;
+  --brand-green-grey-600: #a0abab;
+  --brand-green-grey-700: #808e8e;
+  --brand-green-grey-800: #5e6e6e;
+  --brand-green-grey-900: #404f4f;
+  --brand-green-grey-1000: #212b2b;
+  --brand-purple-100: #e8e5ff;
+  --brand-purple-200: #d2ccff;
+  --brand-purple-300: #bbb2ff;
+  --brand-purple-400: #a599ff;
+  --brand-purple-500: #8e80ff;
+  --brand-purple-600: #7864ff;
+  --brand-purple-700: #4c37e6;
+  --brand-purple-800: #2610cb;
+  --brand-purple-900: #15058f;
+  --brand-purple-1000: #09004d;
+  --brand-red-100: #ffe5e5;
+  --brand-red-200: #ffcccc;
+  --brand-red-300: #ffb2b2;
+  --brand-red-400: #ff9999;
+  --brand-red-500: #ff8080;
+  --brand-red-600: #ff6464;
+  --brand-red-700: #e63737;
+  --brand-red-800: #cb1010;
+  --brand-red-900: #8f0505;
+  --brand-red-1000: #4d0000;
+  --brand-yellow-100: #fff6e5;
+  --brand-yellow-200: #ffeccc;
+  --brand-yellow-300: #ffe3b2;
+  --brand-yellow-400: #ffda99;
+  --brand-yellow-500: #ffd080;
+  --brand-yellow-600: #ffc864;
+  --brand-yellow-700: #e6a637;
+  --brand-yellow-800: #cb8710;
+  --brand-yellow-900: #8f5c05;
+  --brand-yellow-1000: #4d3000;
+  --brand-blue-grey-100: #f1eff4;
+  --brand-blue-grey-200: #e0e1e6;
+  --brand-blue-grey-300: #cfd3d8;
+  --brand-blue-grey-400: #bfc5ca;
+  --brand-blue-grey-500: #b0b5ba;
+  --brand-blue-grey-600: #a0a6ab;
+  --brand-blue-grey-700: #80898e;
+  --brand-blue-grey-800: #5e696e;
+  --brand-blue-grey-900: #404a4f;
+  --brand-blue-grey-1000: #21262b;
+  --brand-green-grey-100: #f1f4f4;
+  --brand-green-grey-200: #e0e6e6;
+  --brand-green-grey-300: #cfd8d8;
+  --brand-green-grey-400: #bfcaca;
+  --brand-green-grey-500: #b0baba;
+  --brand-green-grey-600: #a0abab;
+  --brand-green-grey-700: #808e8e;
+  --brand-green-grey-800: #5e6e6e;
+  --brand-green-grey-900: #404f4f;
+  --brand-green-grey-1000: #212b2b;
+  --brand-neutral-grey-100: #f2f2f2;
+  --brand-neutral-grey-200: #e3e3e3;
+  --brand-neutral-grey-300: #d6d6d6;
+  --brand-neutral-grey-400: #c7c7c7;
+  --brand-neutral-grey-500: #bababa;
+  --brand-neutral-grey-600: #ababab;
+  --brand-neutral-grey-700: #8a8a8a;
+  --brand-neutral-grey-800: #686868;
+  --brand-neutral-grey-900: #474747;
+  --brand-neutral-grey-1000: #262626;
+  --brand-brand-50: #f2f7ff;
+  --brand-brand-100: #e5eaff;
+  --brand-brand-200: #cfd8ff;
+  --brand-brand-300: #aab7ff;
+  --brand-brand-400: #8894ff;
+  --brand-brand-500: #6a6fff;
+  --brand-brand-600: #4b3fe3;
+  --brand-brand-700: #3f31c6;
+  --brand-brand-800: #2c2290;
+  --brand-brand-900: #1a1759;
+  --brand-brand-950: #010109;
+  --brand-brand-grey-50: #fafafa;
+  --brand-brand-grey-100: #f5f5f5;
+  --brand-brand-grey-200: #e5e5e5;
+  --brand-brand-grey-300: #d4d4d4;
+  --brand-brand-grey-400: #a1a1a1;
+  --brand-brand-grey-500: #737373;
+  --brand-brand-grey-600: #525252;
+  --brand-brand-grey-700: #404040;
+  --brand-brand-grey-800: #262626;
+  --brand-brand-grey-900: #171717;
+  --brand-brand-grey-950: #0a0a0a;
+  --brand-brand-grey-50: #fafafa;
+  --brand-brand-grey-100: #f5f5f5;
+  --brand-brand-grey-200: #e5e5e5;
+  --brand-brand-grey-300: #d4d4d4;
+  --brand-brand-grey-400: #a1a1a1;
+  --brand-brand-grey-500: #737373;
+  --brand-brand-grey-600: #525252;
+  --brand-brand-grey-700: #404040;
+  --brand-brand-grey-800: #262626;
+  --brand-brand-grey-900: #171717;
+  --brand-brand-grey-950: #0a0a0a;
+
+  --body-body-xs: 10px/1.5 var(--font-family-default);
+  --body-body-sm: 11px/1.5 var(--font-family-default);
+  --body-body-sm-strong: 600 11px/1.5 var(--font-family-default);
+  --body-body-md: 12px/1.5 var(--font-family-default);
+  --body-body-md-strong: 600 12px/1.5 var(--font-family-default);
+  --body-body-base: 14px/1.5 var(--font-family-default);
+  --body-body-base-strong: 600 14px/1.5 var(--font-family-default);
+  --heading-heading-3xs: 600 10px/1.4 var(--font-family-heading);
+  --heading-heading-2xs: 600 11px/1.4 var(--font-family-heading);
+  --heading-heading-xs: 600 12px/1.4 var(--font-family-heading);
+  --heading-heading-sm: 600 13px/1.4 var(--font-family-heading);
+  --heading-heading-md: 600 14px/1.4 var(--font-family-heading);
+  --heading-heading-lg: 600 16px/1.4 var(--font-family-heading);
+  --heading-heading-xl: 600 20px/1.4 var(--font-family-heading);
+  --heading-heading-2xl: 600 24px/1.4 var(--font-family-heading);
+  --heading-heading-3xl: 600 32px/1.4 var(--font-family-heading);
+
+  --bg-bg-overlay-l0: rgba(86, 99, 119, 0.03);
+  --bg-primary-item: rgba(86, 99, 119, 0.15);
+  --bg-primary-item-hover: rgba(86, 99, 119, 0.22);
+  --border-primary-item: rgba(77, 107, 153, 0.09);
+  --border-primary-item-hover: rgba(77, 107, 153, 0.15);
+  --bg-bg-menu-old: #f8f9fa;
+  /* 首页输入框边框颜色（纯色，用于内凹圆弧等需要精确边框的场景） */
+  --homepage-input-border-color: #dfe3eb;
+
+  --welcome-logo-bg: var(--bg-bg-brand, #0fdc78);
+  --welcome-logo-color: #000000;
+
+  --user-message-bg-solid: #E3F8ED;
+  --user-message-bg-solid-transparent: rgba(227, 248, 237, 0);
+  --user-message-bg-solid-sub: #E9E6FF;
+  --user-message-bg-solid-sub-transparent: rgba(233, 230, 255, 0);
+  --sheet-text-color: #000000;
+  --slash-mention-bg: rgba(63, 133, 255, 0.15);
+  --builtin-slash-mention-bg: rgba(149, 112, 255, 0.15);
+
+  --gradient-golden: linear-gradient(180deg, #c0a115 0%, #dfbd27 100%);
+  --special-bggoldoverlay: rgba(210, 181, 19, 0.12);
+  --query-tag-bg-grey: var(--bg-bg-overlay-l2);
+  --query-tag-text-grey: var(--text-text-default);
+  --query-tag-height: 20px;
+  --query-tag-padding: 0px 4px;
+  --query-tag-gap: 2px;
+  --query-tag-radius: 0px;
+  --query-tag-icon-slot-size: 20px;
+  --query-tag-icon-size: 16px;
+  --query-tag-font-size: 14px;
+  --query-tag-font-weight: 500;
+  --query-tag-letter-spacing: -0.02em;
+  --query-tag-bg-neutral: transparent;
+  --query-tag-text-neutral: var(--text-text-secondary);
+  --query-tag-bg-brand: transparent;
+  --query-tag-text-brand: var(--status-primary-default);
+  --query-tag-text-command: var(--text-text-brand);
+  --query-tag-text-design: var(--brand-brand-800);
+  --query-tag-text-lark-sheet: #26c914;
+  --query-tag-text-lark-bitable: var(--accent-accent-violet);
+  --query-tag-icon-pdf: #cb1010;
+  --query-tag-icon-zip: var(--icon-icon-default);
+  --query-tag-icon-json: #cb8710;
+  --query-tag-icon-html: #c63b18;
+  --query-tag-icon-video: #3f85ff;
+  --query-tag-bg-blue: rgba(128, 193, 255, 0.18);
+
+  --bg-bg-brand-old: #0fdc78;
+  --gradient-brand: linear-gradient(90deg, #0ac27b 0%, #0ecd70 36%, #06c179 72%, #63c5b1 100%);
+  --text-text-preformat-foreground: #a31515;
+}
+
+[data-theme='dark'], .vs-dark.solo-lite {
+  --shadow-elevation-50: 0 1px 2px -1px rgba(0, 0, 0, 0.45);
+  --shadow-elevation-100: 0 3px 9px 0 rgba(0, 0, 0, 0.25);
+  --shadow-elevation-100-float: 0 -3px 9px 0 rgba(0, 0, 0, 0.25);
+  --shadow-elevation-200: 0 6px 24px -1px rgba(0, 0, 0, 0.25);
+  --shadow-elevation-200-reverse: 0 -6px 24px -1px rgba(0, 0, 0, 0.25);
+  --shadow-elevation-300: 0 2px 8px -1px rgba(0, 0, 0, 0.18), 0 10px 24px -1px rgba(0, 0, 0, 0.30);
+  --shadow-elevation-100-tooltip: var(--shadow-elevation-100);
+  --shadow-elevation-200-menu-panel: var(--shadow-elevation-200);
+  --shadow-elevation-300-modal-panel: var(--shadow-elevation-300);
+
+  /* 输入框阴影颜色 */
+  --shadow-chat-input: 0 3px 8px 0 rgba(24, 24, 24, 0.08), 0 6px 24px -1px rgba(24, 24, 24, 0.12);
+  --shadow-chat-input-focused: 0 4px 12px 0 rgba(24, 24, 24, 0.08), 0 6px 32px -1px rgba(24, 24, 24, 0.12);
+
+  --bg-bg-base-default: #171717;
+  --bg-bg-base-secondary: #262626;
+  --bg-bg-base-tertiary: #404040;
+  --bg-bg-menu: #171717;
+  --bg-bg-tooltip: #171717;
+  --bg-bg-input: #171717;
+  --bg-bg-overlay-l1: rgba(212, 212, 212, 0.04);
+  --bg-bg-overlay-l2: rgba(212, 212, 212, 0.06);
+  --bg-bg-overlay-l3: rgba(212, 212, 212, 0.08);
+  --bg-bg-overlay-l4: rgba(212, 212, 212, 0.12);
+  --bg-bg-white: #ffffff;
+  --bg-bg-brand: #4b3fe3;
+  --bg-bg-brand-hover: #6a6fff;
+  --bg-bg-brand-active: #3f31c6;
+  --bg-bg-brand-disabled: rgba(75, 63, 227, 0.35);
+  --bg-bg-brand-popup: rgba(106, 111, 255, 0.15);
+  --bg-bg-brand-sub: var(--bg-bg-brand);
+  --bg-bg-brand-hover-sub: var(--bg-bg-brand-hover);
+  --bg-bg-brand-disabled-sub: var(--bg-bg-brand-disabled);
+  --bg-bg-brand-popup-sub: var(--bg-bg-brand-popup);
+  --bg-bg-invert: #e5e5e5;
+  --bg-bg-invert-hover: #f5f5f5;
+  --bg-bg-invert-active: #e5e5e5;
+  --bg-bg-invert-disabled: rgba(212, 212, 212, 0.06);
+  --bg-bg-marketplace-banner-overlay-start: rgba(82, 130, 193, 0);
+  --bg-bg-marketplace-banner-overlay-end: rgba(82, 130, 193, 0.8);
+  --bg-bg-marketplace-banner-control: rgba(0, 0, 0, 0.25);
+  --bg-bg-card: #202020;
+  --bg-bg-card-hover: #171717;
+  --bg-bg-marketplace-banner-plugin-tag: #e5f3ff;
+  --bg-bg-marketplace-banner-preview-mask-start: rgba(255, 255, 255, 0.9);
+  --bg-bg-marketplace-banner-preview-mask-end: rgba(255, 255, 255, 0.54);
+  --shadow-marketplace-banner-preview-card: 0px 6px 12px -1px rgba(0, 0, 0, 0.18), 0px 10px 24px -1px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-card-small: 0px 2.8023247718811035px 5.604649543762207px -0.4670540988445282px rgba(0, 0, 0, 0.18), 0px 4.670541763305664px 11.209299087524414px -0.4670540988445282px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-card-large: 0px 4.55377721786499px 9.10755443572998px -0.758962869644165px rgba(0, 0, 0, 0.18), 0px 7.589629650115967px 18.21510887145996px -0.758962869644165px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-input: 0px 0px 24px -1px rgba(24, 24, 24, 0.06), 0px -12px 8px -1px rgba(24, 24, 24, 0.02);
+  --chat-bg-card: #202020;
+  --chat-bg-card-hover: var(--bg-bg-base-default);
+  --special-bgtabsoverlay: rgba(0, 0, 0, 0.20);
+  --special-tabsoverlay: rgba(13, 14, 15, 0.18);
+  --text-text-default: #e5e5e5;
+  --text-text-default-hover: #fafafa;
+  --text-text-default-active: #fafafa;
+  --text-text-secondary: #a1a1a1;
+  --text-text-secondary-hover: #e5e5e5;
+  --text-text-secondary-active: #e5e5e5;
+  --text-text-tertiary: #737373;
+  --text-text-disabled: #525252;
+  --text-text-brand: #6a6fff;
+  --text-text-brand-hover: #4b3fe3;
+  --text-text-brand-sub: var(--text-text-brand);
+  --text-text-brand-hover-sub: var(--text-text-brand-hover);
+  --text-text-onbrand: #171717;
+  --text-text-onaccent: #171717;
+  --text-text-marketplace-banner-on-light: #0a0a0a;
+  --text-text-marketplace-banner-plugin-tag: #054c8f;
+  --icon-icon-default: #e5e5e5;
+  --icon-icon-default-hover: #fafafa;
+  --icon-icon-default-active: #fafafa;
+  --icon-icon-secondary: #a1a1a1;
+  --icon-icon-secondary-hover: #e5e5e5;
+  --icon-icon-secondary-active: #e5e5e5;
+  --icon-icon-tertiary: #737373;
+  --icon-icon-disabled: #525252;
+  --icon-icon-brand: #6a6fff;
+  --icon-icon-brand-hover: #4b3fe3;
+  --icon-icon-brand-sub: var(--icon-icon-brand);
+  --icon-icon-brand-hover-sub: var(--icon-icon-brand-hover);
+  --icon-icon-onbrand: #0a0a0a;
+  --icon-icon-onaccent: #0A0A0A;
+  --icon-icon-white: #ffffff;
+  --border-border-neutral-l1: rgba(229, 229, 229, 0.10);
+  --border-border-neutral-l2: rgba(229, 229, 229, 0.16);
+  --border-border-neutral-l3: rgba(229, 229, 229, 0.20);
+  --border-border-brand: #6a6fff;
+  --border-border-brand-sub: var(--border-border-brand);
+  --border-border-contrast: #ffffff;
+  --status-primary-default: #387bff;
+  --status-primary-hover: #4c88ff;
+  --status-primary-active: #1759dd;
+  --status-primary-surface-l1: rgba(53, 121, 255, 0.18);
+  --status-primary-surface-l2: rgba(53, 121, 255, 0.28);
+  --status-primary-surface-l3: rgba(53, 121, 255, 0.36);
+  --status-success-default: #33c192;
+  --status-success-hover: #5ed4ad;
+  --status-success-active: #27b082;
+  --status-success-surface-l1: rgba(0, 165, 110, 0.18);
+  --status-success-surface-l2: rgba(0, 165, 110, 0.28);
+  --status-success-surface-l3: rgba(0, 165, 110, 0.36);
+  --status-alert-default: #d29d00;
+  --status-alert-hover: #dfb949;
+  --status-alert-active: #ab8820;
+  --status-alert-surface-l1: rgba(210, 157, 0, 0.16);
+  --status-alert-surface-l2: rgba(210, 157, 0, 0.28);
+  --status-alert-surface-l3: rgba(210, 157, 0, 0.36);
+  --status-warning-default: #d27e24;
+  --status-warning-hover: #d78b28;
+  --status-warning-active: #b46510;
+  --status-warning-surface-l1: rgba(210, 126, 36, 0.16);
+  --status-warning-surface-l2: rgba(210, 126, 36, 0.28);
+  --status-warning-surface-l3: rgba(210, 126, 36, 0.36);
+  --status-error-default: #f65a5a;
+  --status-error-hover: #f86262;
+  --status-error-active: #b33636;
+  --status-error-surface-l1: rgba(246, 70, 70, 0.18);
+  --status-error-surface-l2: rgba(246, 70, 70, 0.28);
+  --status-error-surface-l3: rgba(246, 70, 70, 0.36);
+  --accent-accent-teal: #2dd288;
+  --accent-accent-coral: #ff9392;
+  --accent-accent-amber: #dcb364;
+  --accent-accent-lime: #8acb3a;
+  --accent-accent-cyan: #04cbe5;
+  --accent-accent-blue: #7bb8ff;
+  --accent-accent-magenta: #ec93ff;
+  --accent-accent-violet: #bfa5ff;
+  --accent-accent-slate: #afb9cf;
+  --code-code-text: #e0e3ee;
+  --code-code-doc: #7f838c;
+  --code-code-link: #3c7eff;
+  --code-code-number: #f48cca;
+  --code-code-action: #b38cff;
+  --code-code-instruction: #f0d8ff;
+  --code-code-function: #f29d79;
+  --code-code-constant: #80bbff;
+  --code-code-parameter: #82d99f;
+  --code-code-attribute: #ded47e;
+  --code-code-tag: #f2858c;
+  --code-code-terminal: #e0e3ee;
+  --code-code-contrast: #e0e3ee;
+  --code-code-editor: #e0e3ee;
+  --special-white: #ffffff;
+  --special-black: #000000;
+  --viz-viz-series-amber: #edaa45;
+  --viz-viz-series-coral: #f87454;
+  --viz-viz-series-indigo: #b6a3ff;
+  --viz-viz-series-lime: #a6ea39;
+  --viz-viz-series-magenta: #fb9dd7;
+  --viz-viz-series-mint: #1dc981;
+  --viz-viz-series-sky: #22a5f7;
+  --viz-viz-series-slate: #859ead;
+  --viz-viz-series-teal: #78f2f2;
+  --viz-viz-series-violet: #b655fc;
+  --viz-viz-ui-bg-chart: #171717;
+  --viz-viz-ui-bg-tooltip: #0a0a0a;
+  --viz-viz-ui-chart-axis: rgba(229, 229, 229, 0.16);
+  --viz-viz-ui-chart-subtitle: #737373;
+  --viz-viz-ui-chart-tick: #737373;
+  --viz-viz-ui-chart-title: #e5e5e5;
+  --viz-viz-ui-legend-label: #737373;
+  --viz-viz-ui-legend-value: #e5e5e5;
+  --brand-blue-100: #e5f3ff;
+  --brand-blue-200: #cce6ff;
+  --brand-blue-300: #b2daff;
+  --brand-blue-400: #99ceff;
+  --brand-blue-500: #80c1ff;
+  --brand-blue-600: #64b4ff;
+  --brand-blue-700: #3792e6;
+  --brand-blue-800: #1071cb;
+  --brand-blue-900: #054c8f;
+  --brand-blue-1000: #00284d;
+  --brand-blue-grey-100: #f1eff4;
+  --brand-blue-grey-200: #e0e1e6;
+  --brand-blue-grey-300: #cfd3d8;
+  --brand-blue-grey-400: #bfc5ca;
+  --brand-blue-grey-500: #b0b5ba;
+  --brand-blue-grey-600: #a0a6ab;
+  --brand-blue-grey-700: #80898e;
+  --brand-blue-grey-800: #5e696e;
+  --brand-blue-grey-900: #404a4f;
+  --brand-blue-grey-1000: #21262b;
+  --brand-green-grey-100: #f1f4f4;
+  --brand-green-grey-200: #e0e6e6;
+  --brand-green-grey-300: #cfd8d8;
+  --brand-green-grey-400: #bfcaca;
+  --brand-green-grey-500: #b0baba;
+  --brand-green-grey-600: #a0abab;
+  --brand-green-grey-700: #808e8e;
+  --brand-green-grey-800: #5e6e6e;
+  --brand-green-grey-900: #404f4f;
+  --brand-green-grey-1000: #212b2b;
+  --brand-purple-100: #e8e5ff;
+  --brand-purple-200: #d2ccff;
+  --brand-purple-300: #bbb2ff;
+  --brand-purple-400: #a599ff;
+  --brand-purple-500: #8e80ff;
+  --brand-purple-600: #7864ff;
+  --brand-purple-700: #4c37e6;
+  --brand-purple-800: #2610cb;
+  --brand-purple-900: #15058f;
+  --brand-purple-1000: #09004d;
+  --brand-red-100: #ffe5e5;
+  --brand-red-200: #ffcccc;
+  --brand-red-300: #ffb2b2;
+  --brand-red-400: #ff9999;
+  --brand-red-500: #ff8080;
+  --brand-red-600: #ff6464;
+  --brand-red-700: #e63737;
+  --brand-red-800: #cb1010;
+  --brand-red-900: #8f0505;
+  --brand-red-1000: #4d0000;
+  --brand-yellow-100: #fff6e5;
+  --brand-yellow-200: #ffeccc;
+  --brand-yellow-300: #ffe3b2;
+  --brand-yellow-400: #ffda99;
+  --brand-yellow-500: #ffd080;
+  --brand-yellow-600: #ffc864;
+  --brand-yellow-700: #e6a637;
+  --brand-yellow-800: #cb8710;
+  --brand-yellow-900: #8f5c05;
+  --brand-yellow-1000: #4d3000;
+  --brand-blue-grey-100: #f1eff4;
+  --brand-blue-grey-200: #e0e1e6;
+  --brand-blue-grey-300: #cfd3d8;
+  --brand-blue-grey-400: #bfc5ca;
+  --brand-blue-grey-500: #b0b5ba;
+  --brand-blue-grey-600: #a0a6ab;
+  --brand-blue-grey-700: #80898e;
+  --brand-blue-grey-800: #5e696e;
+  --brand-blue-grey-900: #404a4f;
+  --brand-blue-grey-1000: #21262b;
+  --brand-green-grey-100: #f1f4f4;
+  --brand-green-grey-200: #e0e6e6;
+  --brand-green-grey-300: #cfd8d8;
+  --brand-green-grey-400: #bfcaca;
+  --brand-green-grey-500: #b0baba;
+  --brand-green-grey-600: #a0abab;
+  --brand-green-grey-700: #808e8e;
+  --brand-green-grey-800: #5e6e6e;
+  --brand-green-grey-900: #404f4f;
+  --brand-green-grey-1000: #212b2b;
+  --brand-neutral-grey-100: #f2f2f2;
+  --brand-neutral-grey-200: #e3e3e3;
+  --brand-neutral-grey-300: #d6d6d6;
+  --brand-neutral-grey-400: #c7c7c7;
+  --brand-neutral-grey-500: #bababa;
+  --brand-neutral-grey-600: #ababab;
+  --brand-neutral-grey-700: #8a8a8a;
+  --brand-neutral-grey-800: #686868;
+  --brand-neutral-grey-900: #474747;
+  --brand-neutral-grey-1000: #262626;
+  --brand-brand-50: #f2f7ff;
+  --brand-brand-100: #e5eaff;
+  --brand-brand-200: #cfd8ff;
+  --brand-brand-300: #aab7ff;
+  --brand-brand-400: #8894ff;
+  --brand-brand-500: #6a6fff;
+  --brand-brand-600: #4b3fe3;
+  --brand-brand-700: #3f31c6;
+  --brand-brand-800: #2c2290;
+  --brand-brand-900: #1a1759;
+  --brand-brand-950: #010109;
+  --brand-brand-grey-50: #fafafa;
+  --brand-brand-grey-100: #f5f5f5;
+  --brand-brand-grey-200: #e5e5e5;
+  --brand-brand-grey-300: #d4d4d4;
+  --brand-brand-grey-400: #a1a1a1;
+  --brand-brand-grey-500: #737373;
+  --brand-brand-grey-600: #525252;
+  --brand-brand-grey-700: #404040;
+  --brand-brand-grey-800: #262626;
+  --brand-brand-grey-900: #171717;
+  --brand-brand-grey-950: #0a0a0a;
+  --brand-brand-grey-50: #fafafa;
+  --brand-brand-grey-100: #f5f5f5;
+  --brand-brand-grey-200: #e5e5e5;
+  --brand-brand-grey-300: #d4d4d4;
+  --brand-brand-grey-400: #a1a1a1;
+  --brand-brand-grey-500: #737373;
+  --brand-brand-grey-600: #525252;
+  --brand-brand-grey-700: #404040;
+  --brand-brand-grey-800: #262626;
+  --brand-brand-grey-900: #171717;
+  --brand-brand-grey-950: #0a0a0a;
+
+  --body-body-xs: 10px/1.5 var(--font-family-default);
+  --body-body-sm: 11px/1.5 var(--font-family-default);
+  --body-body-sm-strong: 600 11px/1.5 var(--font-family-default);
+  --body-body-md: 12px/1.5 var(--font-family-default);
+  --body-body-md-strong: 600 12px/1.5 var(--font-family-default);
+  --body-body-base: 14px/1.5 var(--font-family-default);
+  --body-body-base-strong: 600 14px/1.5 var(--font-family-default);
+  --heading-heading-3xs: 600 10px/1.4 var(--font-family-heading);
+  --heading-heading-2xs: 600 11px/1.4 var(--font-family-heading);
+  --heading-heading-xs: 600 12px/1.4 var(--font-family-heading);
+  --heading-heading-sm: 600 13px/1.4 var(--font-family-heading);
+  --heading-heading-md: 600 14px/1.4 var(--font-family-heading);
+  --heading-heading-lg: 600 16px/1.4 var(--font-family-heading);
+  --heading-heading-xl: 600 20px/1.4 var(--font-family-heading);
+  --heading-heading-2xl: 600 24px/1.4 var(--font-family-heading);
+  --heading-heading-3xl: 600 32px/1.4 var(--font-family-heading);
+
+  --bg-bg-overlay-l0: rgba(224, 226, 242, 0.03);
+  --bg-primary-item: rgba(224, 226, 242, 0.08);
+  --bg-primary-item-hover: rgba(224, 226, 242, 0.12);
+  --border-primary-item: rgba(224, 226, 242, 0.06);
+  --border-primary-item-hover: rgba(224, 226, 242, 0.1);
+  /* 首页输入框边框颜色（纯色，用于内凹圆弧等需要精确边框的场景） */
+  --homepage-input-border-color: #343538;
+
+  --welcome-logo-bg: #000000;
+  --welcome-logo-color: var(--bg-bg-brand, #0fdc78);
+
+  --user-message-bg-solid: #1D352A;
+  --user-message-bg-solid-transparent: rgba(29, 53, 42, 0);
+  --user-message-bg-solid-sub: #2B2A38;
+  --user-message-bg-solid-sub-transparent: rgba(43, 42, 56, 0);
+  --sheet-text-color: #ffffff;
+  --slash-mention-bg: rgba(63, 133, 255, 0.15);
+  --builtin-slash-mention-bg: rgba(149, 112, 255, 0.15);
+
+  --gradient-golden: linear-gradient(180deg, #DAB444 0%, #FFEA8E 100%);
+  --special-bggoldoverlay: rgba(139, 128, 65, 0.12);
+  --query-tag-bg-grey: var(--bg-bg-overlay-l2);
+  --query-tag-text-grey: var(--text-text-default);
+  --query-tag-height: 20px;
+  --query-tag-padding: 0px 4px;
+  --query-tag-gap: 2px;
+  --query-tag-radius: 0px;
+  --query-tag-icon-slot-size: 20px;
+  --query-tag-icon-size: 16px;
+  --query-tag-font-size: 14px;
+  --query-tag-font-weight: 500;
+  --query-tag-letter-spacing: -0.02em;
+  --query-tag-bg-neutral: transparent;
+  --query-tag-text-neutral: var(--text-text-secondary);
+  --query-tag-bg-brand: transparent;
+  --query-tag-text-brand: var(--status-primary-default);
+  --query-tag-text-command: var(--text-text-brand);
+  --query-tag-text-design: var(--text-text-brand);
+  --query-tag-text-lark-sheet: #26c914;
+  --query-tag-text-lark-bitable: var(--accent-accent-violet);
+  --query-tag-icon-pdf: #cb1010;
+  --query-tag-icon-zip: var(--icon-icon-default);
+  --query-tag-icon-json: #cb8710;
+  --query-tag-icon-html: #c63b18;
+  --query-tag-icon-video: #3f85ff;
+  --query-tag-bg-blue: rgba(128, 193, 255, 0.14);
+
+  --bg-bg-brand-old: #32f08c;
+  --gradient-brand: linear-gradient(90deg, #3ee1a3 0%, #32f08c 36%, #60f2bd 71.63%, #a0fde7 100%);
+  --text-text-preformat-foreground: #d7ba7d;
+}
+
+[data-theme='dark-blue'], .vs-dark.solo-lite {
+  --shadow-elevation-50: 0 1px 2px -1px rgba(0, 0, 0, 0.45);
+  --shadow-elevation-100: 0 3px 9px 0 rgba(0, 0, 0, 0.25);
+  --shadow-elevation-100-float: 0 -3px 9px 0 rgba(0, 0, 0, 0.25);
+  --shadow-elevation-200: 0 6px 24px -1px rgba(0, 0, 0, 0.25);
+  --shadow-elevation-200-reverse: 0 -6px 24px -1px rgba(0, 0, 0, 0.25);
+  --shadow-elevation-300: 0 2px 8px -1px rgba(0, 0, 0, 0.18), 0 10px 24px -1px rgba(0, 0, 0, 0.30);
+  --shadow-elevation-100-tooltip: var(--shadow-elevation-100);
+  --shadow-elevation-200-menu-panel: var(--shadow-elevation-200);
+  --shadow-elevation-300-modal-panel: var(--shadow-elevation-300);
+
+  /* 输入框阴影颜色 */
+  --shadow-chat-input: 0 3px 8px 0 rgba(24, 24, 24, 0.08), 0 6px 24px -1px rgba(24, 24, 24, 0.12);
+  --shadow-chat-input-focused: 0 4px 12px 0 rgba(24, 24, 24, 0.08), 0 6px 32px -1px rgba(24, 24, 24, 0.12);
+
+  --bg-bg-base-default: #171717;
+  --bg-bg-base-secondary: #262626;
+  --bg-bg-base-tertiary: #404040;
+  --bg-bg-menu: #171717;
+  --bg-bg-tooltip: #171717;
+  --bg-bg-input: #171717;
+  --bg-bg-overlay-l1: rgba(212, 212, 212, 0.04);
+  --bg-bg-overlay-l2: rgba(212, 212, 212, 0.06);
+  --bg-bg-overlay-l3: rgba(212, 212, 212, 0.08);
+  --bg-bg-overlay-l4: rgba(212, 212, 212, 0.12);
+  --bg-bg-white: #ffffff;
+  --bg-bg-brand: #4b3fe3;
+  --bg-bg-brand-hover: #6a6fff;
+  --bg-bg-brand-active: #3f31c6;
+  --bg-bg-brand-disabled: rgba(75, 63, 227, 0.35);
+  --bg-bg-brand-popup: rgba(106, 111, 255, 0.15);
+  --bg-bg-brand-sub: var(--bg-bg-brand);
+  --bg-bg-brand-hover-sub: var(--bg-bg-brand-hover);
+  --bg-bg-brand-disabled-sub: var(--bg-bg-brand-disabled);
+  --bg-bg-brand-popup-sub: var(--bg-bg-brand-popup);
+  --bg-bg-invert: #e5e5e5;
+  --bg-bg-invert-hover: #f5f5f5;
+  --bg-bg-invert-active: #e5e5e5;
+  --bg-bg-invert-disabled: rgba(212, 212, 212, 0.06);
+  --bg-bg-marketplace-banner-overlay-start: rgba(82, 130, 193, 0);
+  --bg-bg-marketplace-banner-overlay-end: rgba(82, 130, 193, 0.8);
+  --bg-bg-marketplace-banner-control: rgba(0, 0, 0, 0.25);
+  --bg-bg-card: #202020;
+  --bg-bg-card-hover: #171717;
+  --bg-bg-marketplace-banner-plugin-tag: #e5f3ff;
+  --bg-bg-marketplace-banner-preview-mask-start: rgba(255, 255, 255, 0.9);
+  --bg-bg-marketplace-banner-preview-mask-end: rgba(255, 255, 255, 0.54);
+  --shadow-marketplace-banner-preview-card: 0px 6px 12px -1px rgba(0, 0, 0, 0.18), 0px 10px 24px -1px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-card-small: 0px 2.8023247718811035px 5.604649543762207px -0.4670540988445282px rgba(0, 0, 0, 0.18), 0px 4.670541763305664px 11.209299087524414px -0.4670540988445282px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-card-large: 0px 4.55377721786499px 9.10755443572998px -0.758962869644165px rgba(0, 0, 0, 0.18), 0px 7.589629650115967px 18.21510887145996px -0.758962869644165px rgba(0, 0, 0, 0.2);
+  --shadow-marketplace-banner-preview-input: 0px 0px 24px -1px rgba(24, 24, 24, 0.06), 0px -12px 8px -1px rgba(24, 24, 24, 0.02);
+  --chat-bg-card: var(--bg-bg-card);
+  --chat-bg-card-hover: var(--bg-bg-base-default);
+  --special-bgtabsoverlay: rgba(0, 0, 0, 0.20);
+  --special-tabsoverlay: rgba(13, 14, 15, 0.18);
+  --text-text-default: #e5e5e5;
+  --text-text-default-hover: #fafafa;
+  --text-text-default-active: #fafafa;
+  --text-text-secondary: #a1a1a1;
+  --text-text-secondary-hover: #e5e5e5;
+  --text-text-secondary-active: #e5e5e5;
+  --text-text-tertiary: #737373;
+  --text-text-disabled: #525252;
+  --text-text-brand: #6a6fff;
+  --text-text-brand-hover: #4b3fe3;
+  --text-text-brand-sub: var(--text-text-brand);
+  --text-text-brand-hover-sub: var(--text-text-brand-hover);
+  --text-text-onbrand: #171717;
+  --text-text-onaccent: #171717;
+  --text-text-marketplace-banner-on-light: #0a0a0a;
+  --text-text-marketplace-banner-plugin-tag: #054c8f;
+  --icon-icon-default: #e5e5e5;
+  --icon-icon-default-hover: #fafafa;
+  --icon-icon-default-active: #fafafa;
+  --icon-icon-secondary: #a1a1a1;
+  --icon-icon-secondary-hover: #e5e5e5;
+  --icon-icon-secondary-active: #e5e5e5;
+  --icon-icon-tertiary: #737373;
+  --icon-icon-disabled: #525252;
+  --icon-icon-brand: #6a6fff;
+  --icon-icon-brand-hover: #4b3fe3;
+  --icon-icon-brand-sub: var(--icon-icon-brand);
+  --icon-icon-brand-hover-sub: var(--icon-icon-brand-hover);
+  --icon-icon-onbrand: #0a0a0a;
+  --icon-icon-onaccent: #0A0A0A;
+  --icon-icon-white: #ffffff;
+  --border-border-neutral-l1: rgba(229, 229, 229, 0.10);
+  --border-border-neutral-l2: rgba(229, 229, 229, 0.16);
+  --border-border-neutral-l3: rgba(229, 229, 229, 0.20);
+  --border-border-brand: #6a6fff;
+  --border-border-brand-sub: var(--border-border-brand);
+  --border-border-contrast: #ffffff;
+  --status-primary-default: #387bff;
+  --status-primary-hover: #4c88ff;
+  --status-primary-active: #1759dd;
+  --status-primary-surface-l1: rgba(53, 121, 255, 0.18);
+  --status-primary-surface-l2: rgba(53, 121, 255, 0.28);
+  --status-primary-surface-l3: rgba(53, 121, 255, 0.36);
+  --status-success-default: #33c192;
+  --status-success-hover: #5ed4ad;
+  --status-success-active: #27b082;
+  --status-success-surface-l1: rgba(0, 165, 110, 0.18);
+  --status-success-surface-l2: rgba(0, 165, 110, 0.28);
+  --status-success-surface-l3: rgba(0, 165, 110, 0.36);
+  --status-alert-default: #d29d00;
+  --status-alert-hover: #dfb949;
+  --status-alert-active: #ab8820;
+  --status-alert-surface-l1: rgba(210, 157, 0, 0.16);
+  --status-alert-surface-l2: rgba(210, 157, 0, 0.28);
+  --status-alert-surface-l3: rgba(210, 157, 0, 0.36);
+  --status-warning-default: #d27e24;
+  --status-warning-hover: #d78b28;
+  --status-warning-active: #b46510;
+  --status-warning-surface-l1: rgba(210, 126, 36, 0.16);
+  --status-warning-surface-l2: rgba(210, 126, 36, 0.28);
+  --status-warning-surface-l3: rgba(210, 126, 36, 0.36);
+  --status-error-default: #f65a5a;
+  --status-error-hover: #f86262;
+  --status-error-active: #b33636;
+  --status-error-surface-l1: rgba(246, 70, 70, 0.18);
+  --status-error-surface-l2: rgba(246, 70, 70, 0.28);
+  --status-error-surface-l3: rgba(246, 70, 70, 0.36);
+  --accent-accent-teal: #2dd288;
+  --accent-accent-coral: #ff9392;
+  --accent-accent-amber: #dcb364;
+  --accent-accent-lime: #8acb3a;
+  --accent-accent-cyan: #04cbe5;
+  --accent-accent-blue: #7bb8ff;
+  --accent-accent-magenta: #ec93ff;
+  --accent-accent-violet: #bfa5ff;
+  --accent-accent-slate: #afb9cf;
+  --code-code-text: #e0e3ee;
+  --code-code-doc: #7f838c;
+  --code-code-link: #3c7eff;
+  --code-code-number: #f48cca;
+  --code-code-action: #b38cff;
+  --code-code-instruction: #f0d8ff;
+  --code-code-function: #f29d79;
+  --code-code-constant: #80bbff;
+  --code-code-parameter: #82d99f;
+  --code-code-attribute: #ded47e;
+  --code-code-tag: #f2858c;
+  --code-code-terminal: #e0e3ee;
+  --code-code-contrast: #e0e3ee;
+  --code-code-editor: #e0e3ee;
+  --special-white: #ffffff;
+  --special-black: #000000;
+  --viz-viz-series-amber: #edaa45;
+  --viz-viz-series-coral: #f87454;
+  --viz-viz-series-indigo: #b6a3ff;
+  --viz-viz-series-lime: #a6ea39;
+  --viz-viz-series-magenta: #fb9dd7;
+  --viz-viz-series-mint: #1dc981;
+  --viz-viz-series-sky: #22a5f7;
+  --viz-viz-series-slate: #859ead;
+  --viz-viz-series-teal: #78f2f2;
+  --viz-viz-series-violet: #b655fc;
+  --viz-viz-ui-bg-chart: #171717;
+  --viz-viz-ui-bg-tooltip: #0a0a0a;
+  --viz-viz-ui-chart-axis: rgba(229, 229, 229, 0.16);
+  --viz-viz-ui-chart-subtitle: #737373;
+  --viz-viz-ui-chart-tick: #737373;
+  --viz-viz-ui-chart-title: #e5e5e5;
+  --viz-viz-ui-legend-label: #737373;
+  --viz-viz-ui-legend-value: #e5e5e5;
+  --brand-blue-100: #e5f3ff;
+  --brand-blue-200: #cce6ff;
+  --brand-blue-300: #b2daff;
+  --brand-blue-400: #99ceff;
+  --brand-blue-500: #80c1ff;
+  --brand-blue-600: #64b4ff;
+  --brand-blue-700: #3792e6;
+  --brand-blue-800: #1071cb;
+  --brand-blue-900: #054c8f;
+  --brand-blue-1000: #00284d;
+  --brand-blue-grey-100: #f1eff4;
+  --brand-blue-grey-200: #e0e1e6;
+  --brand-blue-grey-300: #cfd3d8;
+  --brand-blue-grey-400: #bfc5ca;
+  --brand-blue-grey-500: #b0b5ba;
+  --brand-blue-grey-600: #a0a6ab;
+  --brand-blue-grey-700: #80898e;
+  --brand-blue-grey-800: #5e696e;
+  --brand-blue-grey-900: #404a4f;
+  --brand-blue-grey-1000: #21262b;
+  --brand-green-grey-100: #f1f4f4;
+  --brand-green-grey-200: #e0e6e6;
+  --brand-green-grey-300: #cfd8d8;
+  --brand-green-grey-400: #bfcaca;
+  --brand-green-grey-500: #b0baba;
+  --brand-green-grey-600: #a0abab;
+  --brand-green-grey-700: #808e8e;
+  --brand-green-grey-800: #5e6e6e;
+  --brand-green-grey-900: #404f4f;
+  --brand-green-grey-1000: #212b2b;
+  --brand-purple-100: #e8e5ff;
+  --brand-purple-200: #d2ccff;
+  --brand-purple-300: #bbb2ff;
+  --brand-purple-400: #a599ff;
+  --brand-purple-500: #8e80ff;
+  --brand-purple-600: #7864ff;
+  --brand-purple-700: #4c37e6;
+  --brand-purple-800: #2610cb;
+  --brand-purple-900: #15058f;
+  --brand-purple-1000: #09004d;
+  --brand-red-100: #ffe5e5;
+  --brand-red-200: #ffcccc;
+  --brand-red-300: #ffb2b2;
+  --brand-red-400: #ff9999;
+  --brand-red-500: #ff8080;
+  --brand-red-600: #ff6464;
+  --brand-red-700: #e63737;
+  --brand-red-800: #cb1010;
+  --brand-red-900: #8f0505;
+  --brand-red-1000: #4d0000;
+  --brand-yellow-100: #fff6e5;
+  --brand-yellow-200: #ffeccc;
+  --brand-yellow-300: #ffe3b2;
+  --brand-yellow-400: #ffda99;
+  --brand-yellow-500: #ffd080;
+  --brand-yellow-600: #ffc864;
+  --brand-yellow-700: #e6a637;
+  --brand-yellow-800: #cb8710;
+  --brand-yellow-900: #8f5c05;
+  --brand-yellow-1000: #4d3000;
+  --brand-blue-grey-100: #f1eff4;
+  --brand-blue-grey-200: #e0e1e6;
+  --brand-blue-grey-300: #cfd3d8;
+  --brand-blue-grey-400: #bfc5ca;
+  --brand-blue-grey-500: #b0b5ba;
+  --brand-blue-grey-600: #a0a6ab;
+  --brand-blue-grey-700: #80898e;
+  --brand-blue-grey-800: #5e696e;
+  --brand-blue-grey-900: #404a4f;
+  --brand-blue-grey-1000: #21262b;
+  --brand-green-grey-100: #f1f4f4;
+  --brand-green-grey-200: #e0e6e6;
+  --brand-green-grey-300: #cfd8d8;
+  --brand-green-grey-400: #bfcaca;
+  --brand-green-grey-500: #b0baba;
+  --brand-green-grey-600: #a0abab;
+  --brand-green-grey-700: #808e8e;
+  --brand-green-grey-800: #5e6e6e;
+  --brand-green-grey-900: #404f4f;
+  --brand-green-grey-1000: #212b2b;
+  --brand-neutral-grey-100: #f2f2f2;
+  --brand-neutral-grey-200: #e3e3e3;
+  --brand-neutral-grey-300: #d6d6d6;
+  --brand-neutral-grey-400: #c7c7c7;
+  --brand-neutral-grey-500: #bababa;
+  --brand-neutral-grey-600: #ababab;
+  --brand-neutral-grey-700: #8a8a8a;
+  --brand-neutral-grey-800: #686868;
+  --brand-neutral-grey-900: #474747;
+  --brand-neutral-grey-1000: #262626;
+  --brand-brand-50: #f2f7ff;
+  --brand-brand-100: #e5eaff;
+  --brand-brand-200: #cfd8ff;
+  --brand-brand-300: #aab7ff;
+  --brand-brand-400: #8894ff;
+  --brand-brand-500: #6a6fff;
+  --brand-brand-600: #4b3fe3;
+  --brand-brand-700: #3f31c6;
+  --brand-brand-800: #2c2290;
+  --brand-brand-900: #1a1759;
+  --brand-brand-950: #010109;
+  --brand-brand-grey-50: #fafafa;
+  --brand-brand-grey-100: #f5f5f5;
+  --brand-brand-grey-200: #e5e5e5;
+  --brand-brand-grey-300: #d4d4d4;
+  --brand-brand-grey-400: #a1a1a1;
+  --brand-brand-grey-500: #737373;
+  --brand-brand-grey-600: #525252;
+  --brand-brand-grey-700: #404040;
+  --brand-brand-grey-800: #262626;
+  --brand-brand-grey-900: #171717;
+  --brand-brand-grey-950: #0a0a0a;
+  --brand-brand-grey-50: #fafafa;
+  --brand-brand-grey-100: #f5f5f5;
+  --brand-brand-grey-200: #e5e5e5;
+  --brand-brand-grey-300: #d4d4d4;
+  --brand-brand-grey-400: #a1a1a1;
+  --brand-brand-grey-500: #737373;
+  --brand-brand-grey-600: #525252;
+  --brand-brand-grey-700: #404040;
+  --brand-brand-grey-800: #262626;
+  --brand-brand-grey-900: #171717;
+  --brand-brand-grey-950: #0a0a0a;
+
+  --body-body-xs: 10px/1.5 var(--font-family-default);
+  --body-body-sm: 11px/1.5 var(--font-family-default);
+  --body-body-sm-strong: 600 11px/1.5 var(--font-family-default);
+  --body-body-md: 12px/1.5 var(--font-family-default);
+  --body-body-md-strong: 600 12px/1.5 var(--font-family-default);
+  --body-body-base: 14px/1.5 var(--font-family-default);
+  --body-body-base-strong: 600 14px/1.5 var(--font-family-default);
+  --heading-heading-3xs: 600 10px/1.4 var(--font-family-heading);
+  --heading-heading-2xs: 600 11px/1.4 var(--font-family-heading);
+  --heading-heading-xs: 600 12px/1.4 var(--font-family-heading);
+  --heading-heading-sm: 600 13px/1.4 var(--font-family-heading);
+  --heading-heading-md: 600 14px/1.4 var(--font-family-heading);
+  --heading-heading-lg: 600 16px/1.4 var(--font-family-heading);
+  --heading-heading-xl: 600 20px/1.4 var(--font-family-heading);
+  --heading-heading-2xl: 600 24px/1.4 var(--font-family-heading);
+  --heading-heading-3xl: 600 32px/1.4 var(--font-family-heading);
+
+  --bg-bg-overlay-l0: rgba(176, 192, 244, 0.03);
+  --bg-primary-item: rgba(176, 192, 244, 0.09);
+  --bg-primary-item-hover: rgba(176, 192, 244, 0.13);
+  --border-primary-item: rgba(176, 192, 244, 0.06);
+  --border-primary-item-hover: rgba(176, 192, 244, 0.1);
+  /* 首页输入框边框颜色（纯色，用于内凹圆弧等需要精确边框的场景） */
+  --homepage-input-border-color: #343538;
+
+  --user-message-bg-solid: #1D352A;
+  --user-message-bg-solid-transparent: rgba(29, 53, 42, 0);
+  --user-message-bg-solid-sub: #2B2A38;
+  --user-message-bg-solid-sub-transparent: rgba(43, 42, 56, 0);
+  --sheet-text-color: #ffffff;
+  --slash-mention-bg: rgba(63, 133, 255, 0.15);
+  --builtin-slash-mention-bg: rgba(149, 112, 255, 0.15);
+
+  --gradient-golden: linear-gradient(180deg, #DAB444 0%, #FFEA8E 100%);
+  --special-bggoldoverlay: rgba(139, 128, 65, 0.12);
+  --query-tag-bg-grey: var(--bg-bg-overlay-l2);
+  --query-tag-text-grey: var(--text-text-default);
+  --query-tag-height: 20px;
+  --query-tag-padding: 0px 4px;
+  --query-tag-gap: 2px;
+  --query-tag-radius: 0px;
+  --query-tag-icon-slot-size: 20px;
+  --query-tag-icon-size: 16px;
+  --query-tag-font-size: 14px;
+  --query-tag-font-weight: 500;
+  --query-tag-letter-spacing: -0.02em;
+  --query-tag-bg-neutral: transparent;
+  --query-tag-text-neutral: var(--text-text-secondary);
+  --query-tag-bg-brand: transparent;
+  --query-tag-text-brand: var(--status-primary-default);
+  --query-tag-text-command: var(--text-text-brand);
+  --query-tag-text-design: var(--text-text-brand);
+  --query-tag-text-lark-sheet: #26c914;
+  --query-tag-text-lark-bitable: var(--accent-accent-violet);
+  --query-tag-icon-pdf: #cb1010;
+  --query-tag-icon-zip: var(--icon-icon-default);
+  --query-tag-icon-json: #cb8710;
+  --query-tag-icon-html: #c63b18;
+  --query-tag-icon-video: #3f85ff;
+  --query-tag-bg-blue: rgba(128, 193, 255, 0.14);
+
+  --bg-bg-brand-old: #32f08c;
+  --gradient-brand: linear-gradient(90deg, #3ee1a3 0%, #32f08c 36%, #60f2bd 71.63%, #a0fde7 100%);
+}
+</style><style id="trae-panel-enter-style">
+        @keyframes trae-panel-enter {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      </style></head>
+<body>
+  <div class="doc-container">
+
+    <!-- 文档头部 -->
+    <div class="doc-header">
+      <h1>系统设置 - 页面逻辑说明文档</h1>
+      <p class="subtitle">柏星龙业务数字化中台 · 角色管理 &amp; 应用系统管理</p>
+      <div class="meta">
+        <span>📅 2026-08-31</span>
+        <span>👤 产品经理</span>
+        <span>📦 v1.0</span>
+      </div>
+    </div>
+
+    <!-- 目录 -->
+    
+
+    <!-- ============ 角色管理 ============ -->
+    <div class="doc-section" id="sec1">
+      <h2><span class="icon">🔑</span>角色管理模块</h2>
+      <p>角色管理是中台权限体系的核心入口。角色是权限的载体，岗位绑定角色，用户通过岗位继承角色权限，形成"岗位 → 角色 → 权限"的单向链路。</p>
+
+      <div class="flow-diagram">
+        <div class="flow-row">
+          <div class="flow-node main">角色管理<br><span class="flow-label">role-list.html</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node sub">权限配置<br><span class="flow-label">permission-config.html</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node leaf">菜单权限<br>按钮权限<br>字段权限<br>部门数据权限<br>个人数据权限<br>日期管控</div>
+        </div>
+        <div style="margin-top:12px;text-align:center;font-size:12px;color:var(--text-muted);">
+          角色列表 → 点击"关联用户数" → 用户管理页 &nbsp;|&nbsp; 点击"关联岗位数" → 岗位管理页 &nbsp;|&nbsp; 点击"配置权限" → 权限配置页
+        </div>
+      </div>
+
+      <!-- 1.1 角色列表页 -->
+      <h3 id="sec1-1"><span class="num">1</span>角色列表页（role-list.html）</h3>
+
+      <h4>页面结构</h4>
+      <ul>
+        <li><strong>顶部统计卡片</strong>：5个卡片展示角色总数、启用中、禁用、超级管理员、关联用户总数</li>
+        <li><strong>筛选栏</strong>：支持按角色名称/编码搜索 + 状态下拉筛选（全部/启用/禁用）</li>
+        <li><strong>角色列表表格</strong>：以卡片形式包裹，含分页组件</li>
+      </ul>
+
+      <h4>表格字段</h4>
+      <table class="doc-table">
+        <thead>
+          <tr><th>列名</th><th>宽度</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>角色名称</td><td>自适应</td><td>显示角色图标+名称，如 👑 超级管理员</td></tr>
+          <tr><td>角色编码</td><td>170px</td><td>系统编码，如 ROLE_SUPER_ADMIN</td></tr>
+          <tr><td>描述</td><td>自适应</td><td>角色功能简述</td></tr>
+          <tr><td>关联岗位数</td><td>90px</td><td>蓝色链接，点击跳转岗位管理页并按角色筛选</td></tr>
+          <tr><td>关联用户数</td><td>90px</td><td>蓝色链接，点击跳转用户管理页并按角色筛选</td></tr>
+          <tr><td>状态</td><td>90px</td><td>绿色"启用" / 灰色"禁用"标签</td></tr>
+          <tr><td>创建时间</td><td>120px</td><td>格式 YYYY-MM-DD</td></tr>
+          <tr><td>操作</td><td>210px</td><td>配置权限 / 编辑 / 禁用（或启用）</td></tr>
+        </tbody>
+      </table>
+
+      <h4>操作功能</h4>
+      <table class="doc-table">
+        <thead><tr><th>操作</th><th>触发方式</th><th>行为</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">配置权限</span></td>
+            <td>点击链接</td>
+            <td>跳转 <code>permission-config.html?role=角色名称</code>，进入权限配置页</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">编辑</span></td>
+            <td>点击链接</td>
+            <td>打开编辑弹窗，可修改角色名称、描述、可访问据点（组织架构树选择）、排序、状态</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">禁用/启用</span></td>
+            <td>点击链接</td>
+            <td>切换角色状态，禁用后角色权限不生效</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">新增角色</span></td>
+            <td>点击页面右上角按钮</td>
+            <td>打开新增弹窗，填写角色名称、编码、描述、可访问据点、排序、状态</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-card highlight">
+        <h4>跳转逻辑（URL参数传递）</h4>
+        <ul>
+          <li><strong>关联用户数</strong>：<code>user-role.html?role=超级管理员</code></li>
+          <li><strong>关联岗位数</strong>：<code>position-manage.html?role=超级管理员</code></li>
+          <li><strong>配置权限</strong>：<code>permission-config.html?role=超级管理员</code></li>
+          <li>目标页面接收 <code>role</code> 参数后，自动筛选该角色关联的数据</li>
+        </ul>
+      </div>
+
+      <!-- 1.2 用户管理页 -->
+      <h3 id="sec1-2"><span class="num">2</span>用户管理页（user-role.html）</h3>
+      <div class="info-card">
+        <h4>定位</h4>
+        <p>角色管理的二级页面。从角色列表点击"关联用户数"进入，展示该角色关联的用户列表。侧边栏"角色管理"保持高亮。</p>
+      </div>
+
+      <h4>页面结构</h4>
+      <ul>
+        <li><strong>页面头部</strong>：面包屑导航 + 标题 + 刷新按钮 + 导出列表按钮</li>
+        <li><strong>返回按钮</strong>：点击返回角色管理列表页</li>
+        <li><strong>筛选栏</strong>：支持用户姓名、工号搜索</li>
+        <li><strong>用户列表表格</strong></li>
+      </ul>
+
+      <h4>表格字段</h4>
+      <table class="doc-table">
+        <thead><tr><th>列名</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>序号</td><td>自增序号</td></tr>
+          <tr><td>用户姓名</td><td>用户真实姓名</td></tr>
+          <tr><td>工号</td><td>员工工号</td></tr>
+          <tr><td>部门</td><td>所属部门</td></tr>
+          <tr><td>岗位</td><td>关联岗位名称</td></tr>
+          <tr><td>状态</td><td>启用/禁用标签</td></tr>
+          <tr><td>操作</td><td>查看详情（弹窗显示完整用户信息，含关联角色）</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-card warning">
+        <h4>设计约束</h4>
+        <ul>
+          <li>不展示"关联角色"列 — 因从角色列表跳转进入，角色已明确，展示该列属冗余信息</li>
+          <li>用户数据为<strong>只读引用</strong>，不可新增/编辑/删除，维护入口仅在中台</li>
+          <li>支持导出列表（CSV格式，含序号、用户姓名、工号、部门、岗位、状态）</li>
+        </ul>
+      </div>
+
+      <!-- 1.3 岗位管理页 -->
+      <h3 id="sec1-3"><span class="num">3</span>岗位管理页（position-manage.html）</h3>
+      <div class="info-card">
+        <h4>定位</h4>
+        <p>角色管理的二级页面。从角色列表点击"关联岗位数"进入，展示该角色绑定的岗位列表。侧边栏"角色管理"保持高亮。</p>
+      </div>
+
+      <h4>页面结构</h4>
+      <ul>
+        <li><strong>页面头部</strong>：面包屑导航 + 标题 + 导出列表按钮 + 刷新按钮</li>
+        <li><strong>返回按钮</strong>：点击返回角色管理列表页</li>
+        <li><strong>筛选栏</strong>：岗位名称、岗位代码输入 + 状态下拉</li>
+        <li><strong>岗位列表表格</strong></li>
+      </ul>
+
+      <h4>表格字段</h4>
+      <table class="doc-table">
+        <thead><tr><th>列名</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>序号</td><td>自增序号</td></tr>
+          <tr><td>岗位名称</td><td>岗位全称</td></tr>
+          <tr><td>岗位代码</td><td>系统编码</td></tr>
+          <tr><td>岗位分类</td><td>如：管理类、技术类、业务类</td></tr>
+          <tr><td>状态</td><td>启用/禁用标签</td></tr>
+          <tr><td>更新时间</td><td>最后修改时间</td></tr>
+          <tr><td>备注信息</td><td>补充说明</td></tr>
+          <tr><td>操作</td><td>查看详情（弹窗显示岗位关联的角色信息）</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-card warning">
+        <h4>设计约束</h4>
+        <ul>
+          <li>岗位数据为<strong>只读引用</strong>，不可新增/编辑/删除，维护入口仅在中台</li>
+          <li>支持导出列表（CSV格式，含序号、岗位名称、岗位代码、岗位分类、状态、更新时间、备注信息）</li>
+          <li>岗位管理使用三级树形选择器同步组织架构数据</li>
+        </ul>
+      </div>
+
+      <!-- 1.4 权限配置页 -->
+      <h3 id="sec1-4"><span class="num">4</span>权限配置页（permission-config.html）</h3>
+      <div class="info-card">
+        <h4>定位</h4>
+        <p>角色管理的二级页面。从角色列表点击"配置权限"进入，为指定角色配置各维度权限。角色信息只读展示，不显示"选择角色"下拉。</p>
+      </div>
+
+      <h4>权限模型（6维度）</h4>
+      <table class="doc-table">
+        <thead><tr><th>权限维度</th><th>关联对象</th><th>管控内容</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-blue">菜单权限</span></td><td>菜单</td><td>控制角色可访问的菜单页面</td></tr>
+          <tr><td><span class="tag tag-blue">按钮权限</span></td><td>按钮</td><td>控制页面内操作按钮的可见性</td></tr>
+          <tr><td><span class="tag tag-blue">字段权限</span></td><td>字段</td><td>3种：不可见、不可更改、部门可见（数据脱敏）</td></tr>
+          <tr><td><span class="tag tag-green">部门数据权限</span></td><td>菜单</td><td>9级（0-8），按部门间管控查改删权限</td></tr>
+          <tr><td><span class="tag tag-green">个人数据权限</span></td><td>菜单</td><td>5级（0-4），控制他人资料的查改删权限</td></tr>
+          <tr><td><span class="tag tag-orange">日期管控</span></td><td>菜单</td><td>单据日期/扣账日期是否可修改</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-card highlight">
+        <h4>页面结构</h4>
+        <ul>
+          <li>顶部显示当前角色名称（只读）</li>
+          <li>业务系统下拉：角色"可访问的系统"为指定系统时禁用切换，为"全部系统"时允许切换</li>
+          <li>Tab页切换：菜单权限 / 按钮权限 / 字段权限 / 部门数据权限 / 个人数据权限 / 日期管控</li>
+          <li>底部统计：不可视字段数、部分加密字段数、不可修改字段数</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ============ 应用系统管理 ============ -->
+    <div class="doc-section" id="sec2">
+      <h2><span class="icon">🖥️</span>应用系统管理模块</h2>
+      <p>管理接入中台的业务系统，为每个系统配置菜单层级和字段资源权限。该模块面向系统管理员，定义业务系统侧的权限维度。</p>
+
+      <div class="flow-diagram">
+        <div class="flow-row">
+          <div class="flow-node main">系统列表<br><span class="flow-label">system-manage.html</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node sub">菜单配置<br><span class="flow-label">5级菜单树</span></div>
+          <span class="flow-arrow">+</span>
+          <div class="flow-node sub">其他资源配置<br><span class="flow-label">4个Tab</span></div>
+        </div>
+      </div>
+
+      <!-- 2.1 系统列表页 -->
+      <h3 id="sec2-1"><span class="num">1</span>系统列表页（system-manage.html）</h3>
+
+      <h4>页面结构</h4>
+      <ul>
+        <li><strong>页面头部</strong>：面包屑导航 + 标题 + 刷新按钮 + 新增系统按钮</li>
+        <li><strong>筛选栏</strong>：系统名称输入 + 状态下拉 + 查询/重置按钮</li>
+        <li><strong>系统列表表格</strong>：含分页组件</li>
+      </ul>
+
+      <h4>表格字段</h4>
+      <table class="doc-table">
+        <thead><tr><th>列名</th><th>宽度</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>序号</td><td>50px</td><td>自增序号</td></tr>
+          <tr><td>系统名称</td><td>自适应</td><td>系统显示名称，加粗</td></tr>
+          <tr><td>系统编码</td><td>自适应</td><td>如 SYS_T100，等宽字体显示</td></tr>
+          <tr><td>系统描述</td><td>自适应</td><td>系统功能简述</td></tr>
+          <tr><td>状态</td><td>80px</td><td>正常/停用标签</td></tr>
+          <tr><td>更新时间</td><td>140px</td><td>最后修改时间</td></tr>
+          <tr><td>操作</td><td>260px</td><td>编辑 / 菜单配置 / 其他资源配置 / 停用（或启用）</td></tr>
+        </tbody>
+      </table>
+
+      <h4>操作功能</h4>
+      <table class="doc-table">
+        <thead><tr><th>操作</th><th>行为</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">编辑</span></td>
+            <td>打开编辑弹窗，系统编码保存后锁定不可修改</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">菜单配置</span></td>
+            <td>进入菜单配置页面，管理该系统的菜单层级结构</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">其他资源配置</span></td>
+            <td>打开弹窗，配置部门数据权限、个人数据权限、日期管控、单身明细</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">停用/启用</span></td>
+            <td>切换系统状态</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">新增系统</span></td>
+            <td>打开弹窗，填写系统名称、编码（保存后锁定）、描述、排序、状态</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 2.2 菜单配置 -->
+      <h3 id="sec2-2"><span class="num">2</span>菜单配置功能</h3>
+
+      <div class="info-card highlight">
+        <h4>布局结构</h4>
+        <ul>
+          <li><strong>左侧菜单树</strong>：树状导航，支持5级层级展开/折叠</li>
+          <li><strong>右侧扁平化表格</strong>：以表格形式展示所有菜单，带 L1/L2/L3/L4/L5 标签和层级缩进</li>
+          <li><strong>顶部操作</strong>："新增菜单"按钮</li>
+        </ul>
+      </div>
+
+      <h4>新增菜单弹窗</h4>
+      <table class="doc-table">
+        <thead><tr><th>字段</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>菜单名称</td><td><span class="tag tag-red">必填</span></td><td>菜单显示名称</td></tr>
+          <tr><td>权限码</td><td>选填</td><td>菜单权限标识，如 01、axmt500</td></tr>
+          <tr><td>上级菜单</td><td><span class="tag tag-red">必填</span></td><td>下拉选择，首项为"（根）"新增一级菜单；其余选项展示现有菜单带层级缩进和 L1/L2/L3 标签</td></tr>
+          <tr><td>排序</td><td>选填</td><td>默认值 10</td></tr>
+          <tr><td>状态</td><td>选填</td><td>启用/停用，默认启用</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-card danger">
+        <h4>层级约束</h4>
+        <ul>
+          <li>菜单最多支持 <strong>5级</strong> 层级</li>
+          <li>当上级菜单为 L5 时，该行的"添加子菜单"按钮禁用，并提示"最多支持5级菜单"</li>
+          <li>选择父级后，新菜单自动设为其子级（level + 1）</li>
+        </ul>
+      </div>
+
+      <!-- 2.3 其他资源配置 -->
+      <h3 id="sec2-3"><span class="num">3</span>其他资源配置功能</h3>
+
+      <div class="info-card">
+        <h4>布局结构</h4>
+        <ul>
+          <li>弹窗形式，标题显示"其他资源配置 · 系统名称"</li>
+          <li>4个Tab页切换：部门数据权限 / 个人数据权限 / 日期管控 / 单身明细</li>
+          <li>每个Tab包含：表格列表 + "+ 新增"按钮</li>
+          <li>表格操作列：查看 / 编辑 / 删除</li>
+        </ul>
+      </div>
+
+      <h4>4个Tab的表格列与新增表单</h4>
+      <table class="doc-table">
+        <thead><tr><th>Tab</th><th>表格列</th><th>新增表单字段</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">部门数据权限</span></td>
+            <td>序号 · 代码 · 权限名称 · 管控范围 · 查询 · 修改 · 删除 · 操作</td>
+            <td>基本信息（权限代码*、权限名称*）→ 管控范围（下拉：不同部门间/仅相关部门群组间/所有部门）→ 操作权限（3个开关：允许查询/允许修改/允许删除）→ 说明</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">个人数据权限</span></td>
+            <td>序号 · 代码 · 权限名称 · 查询他人 · 修改他人 · 删除他人 · 说明 · 操作</td>
+            <td>基本信息（权限代码*、权限名称*）→ 他人操作权限（3个开关：查询他人/修改他人/删除他人）→ 说明</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">日期管控</span></td>
+            <td>序号 · 代码 · 权限名称 · 单据日期可改 · 扣账日期可改 · 说明 · 操作</td>
+            <td>基本信息（权限代码*、权限名称*）→ 日期控管（2个开关：单据日期可改/扣账日期可改）→ 说明</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">单身明细</span></td>
+            <td>序号 · 代码 · 权限名称 · 新增明细 · 删除明细 · 修改明细 · 说明 · 操作</td>
+            <td>基本信息（权限代码*、权限名称*）→ 明细操作权限（3个开关：新增明细/删除明细/修改明细）→ 说明</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-card success">
+        <h4>新增表单设计特点</h4>
+        <ul>
+          <li><strong>分区式布局</strong>：基本信息 → Tab专属权限区 → 说明，每区带图标标题</li>
+          <li><strong>开关控件</strong>：所有 Y/N 权限使用蓝色动画开关（Toggle Switch），替代传统下拉/复选框</li>
+          <li>每个开关包含图标 + 标签 + 描述说明，清晰展示权限含义</li>
+          <li>查看模式下开关为禁用状态（灰色不可点击）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ============ 两套权限关系 ============ -->
+    <div class="doc-section" id="sec3">
+      
+
+      
+
+      <div class="info-card highlight">
+        <h4>联动机制</h4>
+        <ul>
+          <li><strong>单向权限链路</strong>：岗位管理选择角色 → 用户通过岗位继承角色权限</li>
+          <li><strong>角色管理</strong>（中台权限）：定义角色可访问哪些系统、菜单、按钮、字段</li>
+          <li><strong>应用系统管理</strong>（业务系统权限）：为每个系统定义更细粒度的数据权限维度</li>
+          <li><strong>数据一致性</strong>：业务系统中的用户、角色、岗位均为只读引用，维护入口仅在中台，确保单一数据源</li>
+          <li><strong>权限配置页</strong>：从角色管理进入时，业务系统下拉根据角色"可访问的系统"动态控制——指定系统时禁用切换，全部系统时允许切换</li>
+        </ul>
+      </div>
+
+      <div class="info-card warning">
+        <h4>设计约束汇总</h4>
+        <table class="doc-table">
+          <thead><tr><th>约束项</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>用户/角色/岗位只读</td><td>业务系统侧不可编辑，维护入口仅在中台</td></tr>
+            <tr><td>权限配置不单独展示</td><td>仅从角色管理列表页跳转进入</td></tr>
+            <tr><td>角色信息只读展示</td><td>权限配置页不显示"选择角色"下拉</td></tr>
+            <tr><td>菜单最多5级</td><td>L5级菜单禁用"添加子菜单"</td></tr>
+            <tr><td>系统编码锁定</td><td>新增系统保存后编码不可修改</td></tr>
+            <tr><td>组织架构三级</td><td>集团 → 部门 → 子部门，支持多选和父子联动</td></tr>
+            <tr><td>字段权限三类</td><td>不可见、不可更改、部门可见（对应数据脱敏）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="doc-footer">
+      <p>柏星龙业务数字化中台 · 系统设置模块页面逻辑说明文档</p>
+      <p style="margin-top:4px;">涉及文件：role-list.html · user-role.html · position-manage.html · permission-config.html · system-manage.html</p>
+    </div>
+
+  </div>
+
+
+<div class="light"><div class="trae-browser-inspect-highlight-tag"></div><div class="trae-browser-inspect-highlight-tag"></div><div class="trae-browser-inspect-highlight-box"></div><div class="trae-browser-inspect-highlight-box trae-browser-inspect-select-highlight-box" style="cursor: grab; pointer-events: auto;"></div><div class="trae-browser-inspect-overlay" style="display: none;"></div><div class="trae-browser-inspect-comment-card-container"></div><div class="trae-browser-inspect-drop-indicator" style="position: fixed; pointer-events: none; z-index: 999999; display: none; background: linear-gradient(90deg, rgb(0, 102, 255), rgb(0, 170, 255)); box-shadow: rgba(0, 102, 255, 0.4) 0px 0px 4px 1px, rgba(0, 102, 255, 0.3) 0px 0px 8px 2px, rgba(0, 102, 255, 0.2) 0px 0px 12px 3px; transition: transform 0.15s, width 0.15s, height 0.15s;"></div></div><div class="trae-browser-inspect-text-selection-container light"><div class="trae-browser-inspect-comment-card-container"></div></div><div class="trae-browser-inspect-operation light"></div></body></html>

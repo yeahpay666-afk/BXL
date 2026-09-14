@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公告通知 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>2025-01-15 周三 晴 18°</span>
+        </div>
+        <div class="header-bell">
+          🔔
+          <span class="badge">5</span>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <div class="sub-nav-item active">首页概览</div>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">首页导航</div>
+    <div class="sidebar-subtitle">快速访问常用功能</div>
+    <div class="sidebar-menu">
+      <a href="index.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🏠</span>
+        <span>首页概览</span>
+      </a>
+      <a href="todo-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📋</span>
+        <span>我的待办</span>
+      </a>
+      <a href="news-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📰</span>
+        <span>集团新闻</span>
+      </a>
+      <div class="sidebar-menu-item active">
+        <span class="sidebar-menu-icon">📢</span>
+        <span>公告通知</span>
+      </div>
+      <a href="study.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📚</span>
+        <span>柏家学堂</span>
+      </a>
+      <div class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📄</span>
+        <span>最新文档</span>
+      </div>
+      <a href="ai-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🤖</span>
+        <span>AI智能体</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 刷新按钮 -->
+    <button class="refresh-btn" onclick="location.reload()">
+      <span>🔄</span>
+      <span>刷新</span>
+    </button>
+
+    <!-- 面包屑 -->
+    <div class="breadcrumb">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span class="current">公告通知</span>
+    </div>
+
+    <!-- 页面标题 -->
+    <h1 class="page-title">公告通知</h1>
+    <p class="page-desc">浏览公司最新公告、通知及重要信息</p>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <span class="icon">🔍</span>
+        <input type="text" placeholder="搜索公告标题...">
+      </div>
+      <select class="filter-select">
+        <option>全部分类</option>
+        <option>置顶</option>
+        <option>重要</option>
+        <option>普通</option>
+      </select>
+      <select class="filter-select">
+        <option>全部时间</option>
+        <option>今天</option>
+        <option>本周</option>
+        <option>本月</option>
+        <option>今年</option>
+      </select>
+      <div class="filter-status">
+        <div class="filter-status-item">
+          <span class="dot" style="background: #ef4444;"></span>
+          <span>置顶</span>
+          <span class="count">2</span>
+        </div>
+        <div class="filter-status-item">
+          <span class="dot" style="background: #f59e0b;"></span>
+          <span>重要</span>
+          <span class="count">5</span>
+        </div>
+        <div class="filter-status-item">
+          <span class="dot" style="background: #10b981;"></span>
+          <span>普通</span>
+          <span class="count">18</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 公告列表卡片 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          公告列表
+          <span class="count-badge" style="background: #dcfce7; color: #16a34a;">25条</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- 公告1 - 置顶绿底 -->
+        <div class="notice-item important">
+          <div class="notice-icon">📌</div>
+          <div class="notice-content">
+            <div class="notice-title">
+              关于春节放假安排的通知
+              <span class="new-dot" title="置顶"></span>
+              <span class="tag tag-orange">重要</span>
+            </div>
+            <div class="notice-desc">2025年春节放假时间为2月10日至2月17日，共8天，请各部门提前做好工作安排。</div>
+            <div class="notice-meta">
+              <span>01-12</span>
+              <span>总经办</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 公告2 - 置顶黄底 -->
+        <div class="notice-item warning">
+          <div class="notice-icon">📌</div>
+          <div class="notice-content">
+            <div class="notice-title">
+              新OA系统上线培训安排
+              <span class="new-dot" title="置顶"></span>
+              <span class="tag tag-orange">重要</span>
+            </div>
+            <div class="notice-desc">1月16日下午14:00在一号会议室开展新OA系统操作培训，请各部门安排相关人员参加。</div>
+            <div class="notice-meta">
+              <span>01-10</span>
+              <span>信息部</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 公告3 -->
+        <div class="notice-item">
+          <div class="notice-icon" style="background: #ffedd5; color: #ea580c;">⚠️</div>
+          <div class="notice-content">
+            <div class="notice-title">
+              关于2025年第一季度安全生产大检查的通知
+              <span class="tag tag-orange">重要</span>
+            </div>
+            <div class="notice-desc">定于1月20日起开展第一季度安全生产全面检查，请各部门积极配合自查整改工作。</div>
+            <div class="notice-meta">
+              <span>01-09</span>
+              <span>安环部</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 公告4 -->
+        <div class="notice-item">
+          <div class="notice-icon" style="background: #e0e7ff; color: #4f46e5;">🛗</div>
+          <div class="notice-content">
+            <div class="notice-title">办公楼电梯维护通知</div>
+            <div class="notice-desc">1月18日22:00-次日6:00对1号电梯进行维护，请走2号电梯。</div>
+            <div class="notice-meta">
+              <span>01-08</span>
+              <span>行政部</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 公告5 -->
+        <div class="notice-item">
+          <div class="notice-icon" style="background: #fce7f3; color: #db2777;">🎂</div>
+          <div class="notice-content">
+            <div class="notice-title">1月员工生日会报名通知</div>
+            <div class="notice-desc">1月20日下午15:00在一楼大厅举办1月员工生日会，请大家积极参与。</div>
+            <div class="notice-meta">
+              <span>01-05</span>
+              <span>人力资源部</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 公告6 -->
+        <div class="notice-item">
+          <div class="notice-icon" style="background: #dbeafe; color: #2563eb;">🅿️</div>
+          <div class="notice-content">
+            <div class="notice-title">停车场临时管制通知</div>
+            <div class="notice-desc">1月16日因重要接待活动，停车场A区临时封闭，请停到B区。</div>
+            <div class="notice-meta">
+              <span>01-04</span>
+              <span>行政部</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 公告7 -->
+        <div class="notice-item">
+          <div class="notice-icon" style="background: #dcfce7; color: #16a34a;">🏆</div>
+          <div class="notice-content">
+            <div class="notice-title">关于2024年度优秀员工评选结果公示</div>
+            <div class="notice-desc">经各部门推荐及评审委员会审核，现将2024年度优秀员工名单予以公示。</div>
+            <div class="notice-meta">
+              <span>01-03</span>
+              <span>人力资源部</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 公告8 -->
+        <div class="notice-item">
+          <div class="notice-icon" style="background: #fef3c7; color: #d97706;">💰</div>
+          <div class="notice-content">
+            <div class="notice-title">关于启用新版差旅费报销流程的通知</div>
+            <div class="notice-desc">自1月15日起正式启用新版差旅费报销流程，旧版流程同步停用。</div>
+            <div class="notice-meta">
+              <span>01-02</span>
+              <span>财务部</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination" style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
+        <div class="pagination-info">共25条记录</div>
+        <button class="page-btn disabled">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <span style="color: var(--text-muted); padding: 0 4px;">...</span>
+        <button class="page-btn">4</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

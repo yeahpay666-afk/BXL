@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户列表 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    .stat-card-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.2s;
+    }
+    .stat-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .stat-card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .stat-card-icon.blue { background: #dbeafe; color: #2563eb; }
+    .stat-card-icon.green { background: #dcfce7; color: #16a34a; }
+    .stat-card-icon.orange { background: #ffedd5; color: #ea580c; }
+    .stat-card-icon.purple { background: #f3e8ff; color: #9333ea; }
+    .stat-card-icon.gray { background: #f1f5f9; color: #64748b; }
+    .stat-card-info { flex: 1; min-width: 0; }
+    .stat-card-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.2; margin-bottom: 4px; }
+    .stat-card-label { font-size: 13px; color: var(--text-muted); }
+
+    .page-header-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-header-left { flex: 1; }
+    .page-header-actions { display: flex; gap: 12px; flex-shrink: 0; }
+
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 500; color: #fff; flex-shrink: 0;
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    }
+    .user-name-cell { display: flex; align-items: center; gap: 10px; }
+    .user-name-text { font-weight: 500; color: var(--text-primary); }
+    .role-tag {
+      display: inline-block; padding: 2px 10px; border-radius: 6px;
+      font-size: 12px; font-weight: 500; background: #dbeafe; color: #2563eb;
+      margin: 2px 4px 2px 0;
+    }
+    .no-role-text { color: var(--text-muted); font-size: 13px; font-style: italic; }
+    .role-count-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 28px; height: 24px; border-radius: 6px;
+      background: #eff6ff; color: var(--primary-color); font-size: 13px; font-weight: 600; padding: 0 8px;
+    }
+    .role-count-badge.zero { background: #f1f5f9; color: var(--text-muted); }
+    .status-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+    .status-dot::before { content: ''; width: 8px; height: 8px; border-radius: 50%; }
+    .status-active::before { background: #10b981; }
+    .status-disabled::before { background: #cbd5e1; }
+    .status-active { color: #16a34a; }
+    .status-disabled { color: var(--text-muted); }
+
+    .table-container { overflow-x: auto; }
+    .count-badge-blue { background: #dbeafe; color: #2563eb; font-size: 12px; padding: 2px 10px; border-radius: 10px; font-weight: 500; }
+    .checkbox-cell { width: 40px; text-align: center; }
+    .custom-checkbox {
+      width: 16px; height: 16px; border: 1.5px solid #cbd5e1; border-radius: 4px;
+      cursor: pointer; appearance: none; -webkit-appearance: none; position: relative; background: #fff; transition: all 0.2s;
+    }
+    .custom-checkbox:checked { background: var(--primary-color); border-color: var(--primary-color); }
+    .custom-checkbox:checked::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 11px; font-weight: bold; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px); z-index: 2000;
+      display: none; align-items: center; justify-content: center; animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal {
+      width: 760px; max-width: 90vw; max-height: 85vh; background: #fff;
+      border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;
+      animation: slideUp 0.25s ease; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .modal-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .modal-close { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 18px; transition: all 0.2s; border: none; background: transparent; }
+    .modal-close:hover { background: #f1f5f9; color: var(--text-primary); }
+    .modal-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-shrink: 0; }
+
+    .modal-user-info {
+      display: flex; align-items: center; gap: 16px; padding: 20px;
+      background: #f8fafc; border-radius: 12px; margin-bottom: 24px;
+    }
+    .modal-user-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; color: #fff; background: linear-gradient(135deg, #60a5fa, #3b82f6); flex-shrink: 0; }
+    .modal-user-details { flex: 1; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; }
+    .modal-user-name { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-right: 8px; }
+    .modal-user-meta { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+    .modal-user-meta::before { content: ''; width: 1px; height: 12px; background: var(--border-color); margin-right: 6px; }
+    .modal-user-meta:first-child::before { display: none; }
+
+    .toast {
+      position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px);
+      background: #16a34a; color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500;
+      z-index: 3000; opacity: 0; pointer-events: none; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 1200px) { .stat-card-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) { .stat-card-row { grid-template-columns: repeat(2, 1fr); } .page-header-row { flex-direction: column; align-items: flex-start; gap: 16px; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div>
+        <div class="header-bell">🔔<span class="badge">5</span></div>
+        <div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <div class="sub-nav-item active">系统设置</div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-title">系统设置</div>
+    <div class="sidebar-subtitle">系统配置管理</div>
+    <div class="sidebar-menu">
+      <a href="role-list.html" class="sidebar-menu-item active">
+  <span class="sidebar-menu-icon">🔑</span>
+  <span>角色管理</span>
+</a>
+      <a href="system-manage.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🖥️</span>
+        <span>应用系统管理</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <main class="main-content" style="position: relative;">
+
+    <div class="breadcrumb" style="margin-bottom:4px;">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span>系统设置</span>
+      <span class="separator">/</span>
+      <a href="role-list.html">角色管理</a>
+      <span class="separator">/</span>
+      <span class="current">用户列表</span>
+    </div>
+
+    <div class="page-header-row">
+      <div class="page-header-left">
+        <h1 class="page-title">用户列表</h1>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-outline" onclick="location.reload()">🔄 刷新</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-search">
+        <span class="icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索用户姓名/工号..." oninput="filterTable()">
+      </div>
+      <select class="filter-select" id="deptFilter" onchange="filterTable()">
+        <option>全部部门</option>
+        <option>信息部</option>
+        <option>生产部</option>
+        <option>人力资源部</option>
+        <option>财务部</option>
+        <option>市场部</option>
+        <option>采购部</option>
+      </select>
+      <select class="filter-select" id="positionFilter" onchange="filterTable()">
+        <option>全部岗位</option>
+        <option>产品经理</option>
+        <option>生产主管</option>
+        <option>HR专员</option>
+        <option>销售经理</option>
+        <option>销售代表</option>
+        <option>采购主管</option>
+        <option>质检员</option>
+        <option>会计</option>
+        <option>后端工程师</option>
+      </select>
+      <select class="filter-select" id="statusFilter" onchange="filterTable()">
+        <option>全部状态</option>
+        <option>启用</option>
+        <option>禁用</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          用户列表
+          <span class="count-badge-blue">246人</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <button class="btn btn-outline btn-sm" onclick="exportUserList()">导出列表</button>
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="table" id="userTable">
+          <thead>
+            <tr>
+              <th>序号</th><th>用户姓名</th>
+              <th>工号</th>
+              <th>部门</th>
+              <th>岗位</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr data-name="张建国" data-emp="EMP001" data-dept="信息部" data-roles="超级管理员" data-status="启用">
+              <td style="text-align:center; color:var(--text-muted);">1</td>
+              <td>张建国</td>
+              <td>EMP001</td>
+              <td>信息部</td>
+              <td>产品经理</td>
+              <td><span class="status-dot status-active"></span>启用</td>
+            </tr>
+            <tr data-name="李明辉" data-emp="EMP002" data-dept="生产部" data-roles="T100生产主管、OA审批人" data-status="启用">
+              <td style="text-align:center; color:var(--text-muted);">2</td>
+              <td>李明辉</td>
+              <td>EMP002</td>
+              <td>生产部</td>
+              <td>生产主管</td>
+              <td><span class="status-dot status-active"></span>启用</td>
+            </tr>
+            <tr data-name="刘志远" data-emp="EMP004" data-dept="市场部" data-roles="CRM销售经理、BI报表查看者" data-status="启用">
+              <td style="text-align:center; color:var(--text-muted);">3</td>
+              <td>刘志远</td>
+              <td>EMP004</td>
+              <td>市场部</td>
+              <td>销售经理</td>
+              <td><span class="status-dot status-active"></span>启用</td>
+            </tr>
+            <tr data-name="赵伟强" data-emp="EMP005" data-dept="市场部" data-roles="CRM销售经理" data-status="启用">
+              <td style="text-align:center; color:var(--text-muted);">4</td>
+              <td>赵伟强</td>
+              <td>EMP005</td>
+              <td>市场部</td>
+              <td>销售代表</td>
+              <td><span class="status-dot status-active"></span>启用</td>
+            </tr>
+            <tr data-name="周明华" data-emp="EMP006" data-dept="采购部" data-roles="SRM采购员" data-status="启用">
+              <td style="text-align:center; color:var(--text-muted);">5</td>
+              <td>周明华</td>
+              <td>EMP006</td>
+              <td>采购部</td>
+              <td>采购主管</td>
+              <td><span class="status-dot status-active"></span>启用</td>
+            </tr>
+            <tr data-name="吴刚毅" data-emp="EMP007" data-dept="生产部" data-roles="T100生产主管" data-status="启用">
+              <td style="text-align:center; color:var(--text-muted);">6</td>
+              <td>吴刚毅</td>
+              <td>EMP007</td>
+              <td>生产部</td>
+              <td>质检员</td>
+              <td><span class="status-dot status-active"></span>启用</td>
+            </tr>
+            <tr data-name="孙丽萍" data-emp="EMP008" data-dept="财务部" data-roles="OA审批人" data-status="启用">
+              <td style="text-align:center; color:var(--text-muted);">7</td>
+              <td>孙丽萍</td>
+              <td>EMP008</td>
+              <td>财务部</td>
+              <td>会计</td>
+              <td><span class="status-dot status-active"></span>启用</td>
+            </tr>
+            <tr data-name="王磊" data-emp="EMP009" data-dept="信息部" data-roles="BI报表查看者" data-status="启用">
+              <td style="text-align:center; color:var(--text-muted);">8</td>
+              <td>王磊</td>
+              <td>EMP009</td>
+              <td>信息部</td>
+              <td>后端工程师</td>
+              <td><span class="status-dot status-active"></span>启用</td>
+            </tr>
+            <tr data-name="郑大海" data-emp="EMP010" data-dept="市场部" data-roles="—" data-status="禁用">
+              <td style="text-align:center; color:var(--text-muted);">9</td>
+              <td>郑大海</td>
+              <td>EMP010</td>
+              <td>市场部</td>
+              <td>销售代表</td>
+              <td><span class="status-dot status-disabled"></span>禁用</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 16px; border-top:1px solid var(--border-color);">
+        <div style="font-size:12px; color:var(--text-muted);">共 10 条记录，第 1/1 页</div>
+        <div style="display:flex; align-items:center; gap:4px;">
+          <button class="btn btn-outline" style="padding:3px 10px; font-size:12px;" disabled>‹ 上一页</button>
+          <button class="btn" style="padding:3px 10px; font-size:12px; background:var(--primary-color); color:#fff;">1</button>
+          <button class="btn btn-outline" style="padding:3px 10px; font-size:12px;" disabled>下一页 ›</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 查看用户详情弹窗 -->
+  <div class="modal-overlay" id="viewModal" onclick="onOverlayClick(event)">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:520px;">
+      <div class="modal-header">
+        <div class="modal-title">查看用户详情 - <span id="viewUserName">张建国</span></div>
+        <button class="modal-close" onclick="closeViewModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-user-info">
+          <div class="modal-user-avatar" id="viewUserAvatar">张</div>
+          <div class="modal-user-details">
+            <span class="modal-user-name" id="viewUserNameDisplay">张建国</span>
+            <span class="modal-user-meta" id="viewUserEmp">工号：EMP001</span>
+            <span class="modal-user-meta" id="viewUserDept">信息部</span>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">岗位</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">用户通过岗位继承角色权限，岗位由中台统一维护</div>
+          <div id="viewPositionDisplay" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:8px; background:#f8fafc; font-size:14px; color:var(--text-primary);">
+            -
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">关联角色 <span style="font-size:12px; font-weight:400; color:var(--text-muted);">（由岗位自动继承，只读展示）</span></div>
+          <div id="viewRoleDisplay" style="padding:12px; border:1px solid var(--border-color); border-radius:8px; background:#f8fafc; min-height:48px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+            <span style="color:var(--text-muted); font-size:13px;">-</span>
+          </div>
+        </div>
+
+        <div style="margin-top:16px; padding:10px 12px; background:#eff6ff; border-radius:6px; border-left:3px solid var(--primary-color); font-size:12px; color:var(--text-secondary); line-height:1.6;">
+          💡 角色由岗位绑定关系决定，仅可查看。如需调整，请前往中台<a href="position-manage.html" style="color:var(--primary-color);">岗位管理</a>维护。
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="closeViewModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="successToast">
+    <span>✅</span>
+    <span>操作成功</span>
+  </div>
+
+  <script>
+    var userDataMap = {
+      '张建国': { emp: 'EMP001', dept: '信息部', position: '产品经理', roles: ['超级管理员'] },
+      '李明辉': { emp: 'EMP002', dept: '生产部', position: '生产主管', roles: ['T100生产主管', 'OA审批人'] },
+      '陈晓燕': { emp: 'EMP003', dept: '人力资源部', position: 'HR专员', roles: ['HR管理员'] },
+      '刘志远': { emp: 'EMP004', dept: '市场部', position: '销售经理', roles: ['CRM销售经理', 'BI报表查看者'] },
+      '赵伟强': { emp: 'EMP005', dept: '市场部', position: '销售代表', roles: ['CRM销售经理'] },
+      '周明华': { emp: 'EMP006', dept: '采购部', position: '采购主管', roles: ['SRM采购员'] },
+      '吴刚毅': { emp: 'EMP007', dept: '生产部', position: '质检员', roles: ['T100生产主管'] },
+      '孙丽萍': { emp: 'EMP008', dept: '财务部', position: '会计', roles: ['OA审批人'] },
+      '王磊': { emp: 'EMP009', dept: '信息部', position: '后端工程师', roles: ['BI报表查看者'] },
+      '郑大海': { emp: 'EMP010', dept: '市场部', position: '销售代表', roles: [] }
+    };
+
+    var positionRoleMap = {
+      '产品经理': ['超级管理员', '基础用户'],
+      '生产主管': ['T100生产主管', 'OA审批人', '基础用户'],
+      'HR专员': ['HR管理员', '基础用户'],
+      '销售经理': ['CRM销售经理', 'BI报表查看者', '基础用户'],
+      '销售代表': ['CRM销售经理', '基础用户'],
+      '采购主管': ['SRM采购员', '基础用户'],
+      '质检员': ['T100生产主管', '基础用户'],
+      '会计': ['OA审批人', '基础用户'],
+      '后端工程师': ['BI报表查看者', '基础用户'],
+      '系统管理员': ['超级管理员', '基础用户']
+    };
+
+    function openViewModal(userName) {
+      var data = userDataMap[userName] || { emp: '', dept: '', position: '', roles: [] };
+      document.getElementById('viewUserName').textContent = userName;
+      document.getElementById('viewUserNameDisplay').textContent = userName;
+      document.getElementById('viewUserAvatar').textContent = userName.charAt(0);
+      document.getElementById('viewUserEmp').textContent = '工号：' + data.emp;
+      document.getElementById('viewUserDept').textContent = data.dept;
+
+      document.getElementById('viewPositionDisplay').textContent = data.position || '未分配';
+
+      var display = document.getElementById('viewRoleDisplay');
+      if (!data.position || data.roles.length === 0) {
+        display.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">未分配角色</span>';
+      } else {
+        var roles = positionRoleMap[data.position] || data.roles;
+        var html = roles.map(function(r) {
+          var isDefault = r === '基础用户';
+          var style = isDefault
+            ? 'background:#dcfce7; color:#16a34a; border:1px solid #86efac;'
+            : 'background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc;';
+          var label = isDefault ? r + ' (默认)' : r;
+          return '<span style="padding:4px 10px; border-radius:6px; font-size:13px; ' + style + '">' + label + '</span>';
+        }).join('');
+        display.innerHTML = html;
+      }
+
+      document.getElementById('viewModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeViewModal() {
+      document.getElementById('viewModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    function onOverlayClick(event) {
+      if (event.target === event.currentTarget) {
+        closeViewModal();
+      }
+    }
+
+    function filterTable() {
+      var keyword = document.getElementById('searchInput').value.toLowerCase();
+      var deptFilter = document.getElementById('deptFilter').value;
+      var posFilter = document.getElementById('positionFilter').value;
+      var statusFilter = document.getElementById('statusFilter').value;
+      var rows = document.querySelectorAll('#userTableBody tr');
+      rows.forEach(function(row) {
+        var name = row.getAttribute('data-name') || '';
+        var emp = row.getAttribute('data-emp') || '';
+        var dept = row.getAttribute('data-dept') || '';
+        var roles = row.getAttribute('data-roles') || '';
+        var status = row.getAttribute('data-status') || '';
+        var match = true;
+        if (keyword && name.toLowerCase().indexOf(keyword) === -1 && emp.toLowerCase().indexOf(keyword) === -1) match = false;
+        if (deptFilter && deptFilter !== '全部部门' && dept !== deptFilter) match = false;
+        if (posFilter && posFilter !== '全部岗位') {
+          var posCell = row.children[4].textContent;
+          if (posCell !== posFilter) match = false;
+        }
+        if (statusFilter && statusFilter !== '全部状态' && status !== statusFilter) match = false;
+        row.style.display = match ? '' : 'none';
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeViewModal();
+      }
+    });
+
+    function exportUserList() {
+      var rows = document.querySelectorAll('#userTable tbody tr');
+      var headers = ['序号', '用户姓名', '工号', '部门', '岗位', '状态'];
+      var csv = '\uFEFF' + headers.join(',') + '\n';
+      rows.forEach(function(tr) {
+        var cells = tr.querySelectorAll('td');
+        if (cells.length < 6) return;
+        var status = tr.getAttribute('data-status') || '';
+        var row = [
+          cells[0].textContent.trim(),
+          cells[1].textContent.trim(),
+          cells[2].textContent.trim(),
+          cells[3].textContent.trim(),
+          cells[4].textContent.trim(),
+          status
+        ];
+        csv += row.map(function(v) { return '"' + v.replace(/"/g, '""') + '"'; }).join(',') + '\n';
+      });
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '用户列表.csv';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      showToast('导出成功');
+    }
+  </script>
+</body>
+</html>

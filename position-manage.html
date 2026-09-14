@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>岗位列表 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stat-card-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .stat-card-num { font-size: 22px; font-weight: 600; line-height: 1.2; }
+    .stat-card-label { font-size: 12px; color: var(--text-muted); }
+
+    .status-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px;
+    }
+    .role-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin: 2px 3px 2px 0;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #dbeafe;
+    }
+    .role-tag.more {
+      background: #f5f5f5;
+      color: var(--text-muted);
+      border-color: #e5e7eb;
+    }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45); z-index: 2000;
+      display: none; align-items: flex-start; justify-content: center;
+      padding: 40px 20px; overflow-y: auto;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff; border-radius: 12px; width: 100%; max-width: 560px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid var(--border-color);
+    }
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-close {
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border-radius: 6px; color: var(--text-muted); font-size: 20px;
+    }
+    .modal-close:hover { background: #f1f5f9; color: var(--text-primary); }
+    .modal-body { padding: 24px; max-height: calc(100vh - 200px); overflow-y: auto; }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 12px;
+      padding: 16px 24px; border-top: 1px solid var(--border-color);
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block; font-size: 14px; font-weight: 500; color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .form-required { color: #ef4444; margin-left: 2px; }
+    .form-input {
+      width: 100%; padding: 9px 14px; border: 1px solid var(--border-color);
+      border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .form-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(26,95,180,0.1); }
+    textarea.form-input { resize: vertical; min-height: 72px; }
+    .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+    .position-roles-box {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .position-role-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 13px;
+    }
+    .position-role-item:hover { background: #f8fafc; }
+    .position-role-item input { accent-color: var(--primary-color); }
+    .position-role-item .role-code { color: var(--text-muted); font-size: 11px; margin-left: auto; }
+
+    .table-action {
+      padding: 4px 10px; border-radius: 4px; font-size: 12px;
+      cursor: pointer; border: none; transition: all 0.2s; margin-right: 4px;
+    }
+    .table-action.edit { background: #dbeafe; color: #2563eb; }
+    .table-action.edit:hover { background: #bfdbfe; }
+    .table-action.del { background: #fee2e2; color: #dc2626; }
+
+
+    /* 角色标签 */
+    .role-tag-sm {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+      margin: 1px 3px 1px 0;
+      background: #ecf5ff;
+      color: #409eff;
+      border: 1px solid #d9ecff;
+    }
+    .role-tag-sm.more { background: #f4f4f5; color: #909399; border-color: #e9e9eb; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div>
+        <div class="header-bell">🔔<span class="badge">5</span></div>
+        <div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <div class="sub-nav-item active">系统设置</div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-title">系统设置</div>
+    <div class="sidebar-subtitle">系统配置管理</div>
+    <div class="sidebar-menu">
+      <a href="role-list.html" class="sidebar-menu-item active">
+  <span class="sidebar-menu-icon">🔑</span>
+  <span>角色管理</span>
+</a>
+      <a href="system-manage.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🖥️</span>
+        <span>应用系统管理</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <main class="main-content" style="position: relative; padding: 16px 20px;">
+        <div class="breadcrumb" style="margin-bottom:4px;">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span>系统设置</span>
+      <span class="separator">/</span>
+      <a href="role-list.html">角色管理</a>
+      <span class="separator">/</span>
+      <span class="current">岗位列表</span>
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <div>
+        <h1 class="page-title" style="margin-bottom:2px;">岗位列表</h1>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="exportPositionList()">导出列表</button>
+        <button class="refresh-btn" style="position:static;" onclick="location.reload()">
+          <span>🔄</span><span>刷新</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:0;">
+      <div style="padding:16px 20px; border-bottom:1px solid var(--border-color);">
+        <div style="display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:13px; color:var(--text-secondary); font-weight:500;">岗位名称</label>
+            <input type="text" id="filterName" class="form-input" placeholder="请输入" style="width:180px; padding:6px 12px; font-size:13px;" oninput="filterTable()">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:13px; color:var(--text-secondary); font-weight:500;">岗位代码</label>
+            <input type="text" id="filterCode" class="form-input" placeholder="请输入" style="width:180px; padding:6px 12px; font-size:13px;" oninput="filterTable()">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:13px; color:var(--text-secondary); font-weight:500;">状态</label>
+            <select id="filterStatus" class="form-input" style="width:120px; padding:6px 12px; font-size:13px;" onchange="filterTable()">
+              <option value="">请选择</option>
+              <option value="active">正常</option>
+              <option value="inactive">停用</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px; margin-bottom:1px;">
+            <button class="btn btn-primary" style="padding:6px 16px; font-size:13px; display:flex; align-items:center; gap:4px;" onclick="filterTable()">
+              <span>🔍</span><span>查询</span>
+            </button>
+            <button class="btn btn-outline" style="padding:6px 16px; font-size:13px; display:flex; align-items:center; gap:4px;" onclick="resetFilter()">
+              <span>↻</span><span>重置</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table" id="positionTable">
+          <thead>
+            <tr>
+              <th style="width:50px;">序号</th>
+              <th>岗位名称 <span style="font-size:10px; color:var(--text-muted);">▼▲</span></th>
+              <th>岗位代码 <span style="font-size:10px; color:var(--text-muted);">▼▲</span></th>
+              <th>岗位分类 <span style="font-size:10px; color:var(--text-muted);">▼▲</span></th>
+              <th style="width:80px;">状态</th>
+              <th style="width:140px;">更新时间</th>
+              <th style="width:120px;">备注信息</th>
+            </tr>
+          </thead>
+          <tbody id="positionTbody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 16px; font-size:12px; color:var(--text-muted);">
+        <span>共 13 条记录，第 1/1 页</span>
+        <div style="display:flex; align-items:center; gap:4px;">
+          <button class="btn btn-outline" style="padding:3px 10px; font-size:12px;" disabled>‹ 上一页</button>
+          <button class="btn" style="padding:3px 10px; font-size:12px; background:var(--primary-color); color:#fff;">1</button>
+          <button class="btn btn-outline" style="padding:3px 10px; font-size:12px;" disabled>下一页 ›</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 新建/编辑岗位弹窗 -->
+  <div class="modal-overlay" id="positionModal" onclick="onOverlayClick(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">岗位详情</div>
+        <button class="modal-close" onclick="closePositionModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">岗位名称<span class="form-required">*</span></label>
+          <input type="text" class="form-input" id="posName" placeholder="-" disabled style="background:#f8fafc;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">岗位编码<span class="form-required">*</span></label>
+          <input type="text" class="form-input" id="posCode" placeholder="-" disabled style="background:#f8fafc;">
+          <div class="form-hint">岗位编码（只读）</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">所属部门<span class="form-required">*</span></label>
+          <div class="dept-tree-selector" id="deptTreeSelector" style="position:relative;">
+            <div class="dept-tree-display" id="deptTreeDisplay" style="width:100%; padding:9px 14px; border:1px solid var(--border-color); border-radius:8px; font-size:14px; cursor:default; display:flex; align-items:center; justify-content:space-between; box-sizing:border-box; background:#f8fafc;">
+              <span id="deptTreeLabel" style="color:var(--text-muted);">请选择部门</span>
+              <span style="font-size:12px; color:var(--text-muted);">▾</span>
+            </div>
+            <div class="dept-tree-dropdown" id="deptTreeDropdown" style="position:absolute; top:100%; left:0; right:0; z-index:100; background:#fff; border:1px solid var(--border-color); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.12); max-height:280px; overflow-y:auto; display:none; padding:4px 0;">
+              <div class="dept-tree-node" style="padding:6px 12px; display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:13px;" onclick="event.stopPropagation(); toggleDeptNode(this)">
+                <span class="dept-arrow" style="font-size:10px; transition:transform 0.2s; width:12px;">▶</span>
+                <span>📁</span>
+                <span>柏星龙集团</span>
+              </div>
+              <div class="dept-tree-children" style="display:none;">
+                <div class="dept-tree-node" style="padding:5px 12px 5px 34px; display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; font-size:13px;" onclick="event.stopPropagation(); toggleDeptNode(this)">
+                  <span class="dept-arrow" style="font-size:10px; transition:transform 0.2s; width:12px;">▶</span>
+                  <span>🏢</span>
+                  <span>深圳总部</span>
+                </div>
+                <div class="dept-tree-children" style="display:none;">
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('深圳总部 - 行政部')">行政部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('深圳总部 - 财务部')">财务部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('深圳总部 - 人力资源部')">人力资源部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('深圳总部 - 市场部')">市场部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('深圳总部 - 技术部')">技术部</div>
+                </div>
+                <div class="dept-tree-node" style="padding:5px 12px 5px 34px; display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; font-size:13px;" onclick="event.stopPropagation(); toggleDeptNode(this)">
+                  <span class="dept-arrow" style="font-size:10px; transition:transform 0.2s; width:12px;">▶</span>
+                  <span>🏢</span>
+                  <span>上海分公司</span>
+                </div>
+                <div class="dept-tree-children" style="display:none;">
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('上海分公司 - 销售部')">销售部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('上海分公司 - 物流部')">物流部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('上海分公司 - 客服部')">客服部</div>
+                </div>
+                <div class="dept-tree-node" style="padding:5px 12px 5px 34px; display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; font-size:13px;" onclick="event.stopPropagation(); toggleDeptNode(this)">
+                  <span class="dept-arrow" style="font-size:10px; transition:transform 0.2s; width:12px;">▶</span>
+                  <span>🏭</span>
+                  <span>包装事业部</span>
+                </div>
+                <div class="dept-tree-children" style="display:none;">
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('包装事业部 - 设计部')">设计部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('包装事业部 - 生产部')">生产部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('包装事业部 - 质检部')">质检部</div>
+                </div>
+                <div class="dept-tree-node" style="padding:5px 12px 5px 34px; display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; font-size:13px;" onclick="event.stopPropagation(); toggleDeptNode(this)">
+                  <span class="dept-arrow" style="font-size:10px; transition:transform 0.2s; width:12px;">▶</span>
+                  <span>🛒</span>
+                  <span>电商事业部</span>
+                </div>
+                <div class="dept-tree-children" style="display:none;">
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('电商事业部 - 运营部')">运营部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('电商事业部 - 电商一部')">电商一部</div>
+                  <div class="dept-tree-leaf" style="padding:4px 12px 4px 66px; font-size:13px; color:var(--text-secondary); cursor:pointer;" onclick="event.stopPropagation(); selectDept('电商事业部 - 电商二部')">电商二部</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">岗位描述</label>
+          <textarea class="form-input" id="posDesc" placeholder="-" disabled style="background:#f8fafc; resize:none;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">关联角色<span class="form-required">*</span></label>
+          <div class="form-hint" style="margin-bottom:8px;">该岗位包含的角色（只读展示）</div>
+          <div class="position-roles-box" id="posRolesBox">
+            <div style="padding:8px 10px; margin-bottom:6px; background:#f0fdf4; border-radius:6px; border:1px solid #bbf7d0;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" class="pos-check" value="基础用户" checked disabled style="accent-color:#10b981;">
+                <span style="font-size:14px;">👤 基础用户</span>
+                <span class="role-code">ROLE_BASE_USER</span>
+                <span style="margin-left:auto; font-size:11px; color:#16a34a; font-weight:500;">默认角色（不可取消）</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px; padding-left:26px;">最基础权限：门户首页访问、集团新闻/公告查看、个人信息维护，所有岗位自动包含</div>
+            </div>
+            <label class="position-role-item">
+              <input type="checkbox" value="超级管理员">
+              <span>👑 超级管理员</span>
+              <span class="role-code">ROLE_SUPER_ADMIN</span>
+            </label>
+            <label class="position-role-item">
+              <input type="checkbox" value="HR管理员">
+              <span>👤 HR管理员</span>
+              <span class="role-code">ROLE_HR_ADMIN</span>
+            </label>
+            <label class="position-role-item">
+              <input type="checkbox" value="OA审批人">
+              <span>✍️ OA审批人</span>
+              <span class="role-code">ROLE_OA_APPROVER</span>
+            </label>
+            <label class="position-role-item">
+              <input type="checkbox" value="CRM销售经理">
+              <span>📊 CRM销售经理</span>
+              <span class="role-code">ROLE_CRM_SALES_MGR</span>
+            </label>
+            <label class="position-role-item">
+              <input type="checkbox" value="SRM采购员">
+              <span>🛒 SRM采购员</span>
+              <span class="role-code">ROLE_SRM_BUYER</span>
+            </label>
+            <label class="position-role-item">
+              <input type="checkbox" value="T100生产主管">
+              <span>🏭 T100生产主管</span>
+              <span class="role-code">ROLE_T100_PROD_MGR</span>
+            </label>
+            <label class="position-role-item">
+              <input type="checkbox" value="BI报表查看者">
+              <span>📈 BI报表查看者</span>
+              <span class="role-code">ROLE_BI_VIEWER</span>
+            </label>
+            <label class="position-role-item">
+              <input type="checkbox" value="财务审核员">
+              <span>💰 财务审核员</span>
+              <span class="role-code">ROLE_FIN_AUDITOR</span>
+            </label>
+            <label class="position-role-item">
+              <input type="checkbox" value="临时访客">
+              <span>🎫 临时访客</span>
+              <span class="role-code">ROLE_TEMP_GUEST</span>
+            </label>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">排序</label>
+            <input type="number" class="form-input" id="posSort" value="1" min="1" disabled style="background:#f8fafc;">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">状态</label>
+            <select class="form-input" id="posStatus" disabled style="background:#f8fafc;">
+              <option value="active">启用</option>
+              <option value="inactive">停用</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="closePositionModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var positionData = [
+      { name: '总经理', code: 'ceo', category: '高管', sort: 10, status: 'active', updateTime: '2026-07-23 13:41', remark: '' },
+      { name: '财务经理', code: 'cfo', category: '中层', sort: 20, status: 'active', updateTime: '2026-07-23 13:41', remark: '' },
+      { name: '人力经理', code: 'hrm', category: '中层', sort: 30, status: 'active', updateTime: '2026-07-23 13:41', remark: '' },
+      { name: '部门经理', code: 'dept', category: '中层', sort: 40, status: 'active', updateTime: '2026-07-23 13:41', remark: '' },
+      { name: '普通员工', code: 'user', category: '基层', sort: 50, status: 'active', updateTime: '2026-07-23 13:41', remark: '' },
+      { name: '规划二组项目经理', code: 'ADP2085572486045904', category: '未知', sort: 90, status: 'active', updateTime: '2026-08-07 11:43', remark: '' },
+      { name: '大客户营销顾问', code: 'ADP2085572483915198', category: '未知', sort: 90, status: 'active', updateTime: '2026-08-07 11:43', remark: '' },
+      { name: '采购主管', code: 'ADP2085572481847406', category: '未知', sort: 90, status: 'active', updateTime: '2026-08-07 11:43', remark: '' },
+      { name: '行政部经理', code: 'ADP2085572479775420', category: '未知', sort: 90, status: 'active', updateTime: '2026-08-07 11:43', remark: '' },
+      { name: '销售服务专员', code: 'ADP2085572477741829', category: '未知', sort: 90, status: 'active', updateTime: '2026-08-07 11:43', remark: '' },
+      { name: '大客户经理', code: 'ADP2085572475665002', category: '未知', sort: 90, status: 'active', updateTime: '2026-08-07 11:43', remark: '' },
+      { name: '国际事业部总经理', code: 'ADP2085572473584627', category: '未知', sort: 90, status: 'active', updateTime: '2026-08-07 11:43', remark: '' },
+      { name: '销售运营经理', code: 'ADP2085572471500058', category: '未知', sort: 90, status: 'active', updateTime: '2026-08-07 11:43', remark: '' }
+    ];
+
+    function renderPositions(data) {
+      var tb = document.getElementById('positionTbody');
+      tb.innerHTML = data.map(function(p, i) {
+        var statusBadge = p.status === 'active'
+          ? '<span style="display:inline-block; padding:2px 8px; border-radius:4px; background:#e6f7ff; color:#1890ff; font-size:12px;">正常</span>'
+          : '<span style="display:inline-block; padding:2px 8px; border-radius:4px; background:#f1f5f9; color:#64748b; font-size:12px;">停用</span>';
+        return '<tr>' +
+          '<td style="text-align:center; color:var(--text-muted);">' + (i + 1) + '</td>' +
+          '<td style="font-weight:500;">' + p.name + '</td>' +
+          '<td><code style="font-size:12px; color:var(--text-secondary);">' + p.code + '</code></td>' +
+          '<td>' + p.category + '</td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td style="font-size:12px; color:var(--text-secondary);">' + p.updateTime + '</td>' +
+          '<td style="font-size:12px; color:var(--text-muted);">' + (p.remark || '-') + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+    renderPositions(positionData);
+
+    function filterTable() {
+      var kwName = document.getElementById('filterName').value.toLowerCase();
+      var kwCode = document.getElementById('filterCode').value.toLowerCase();
+      var st = document.getElementById('filterStatus').value;
+      var filtered = positionData.filter(function(p) {
+        var matchName = !kwName || p.name.toLowerCase().indexOf(kwName) !== -1;
+        var matchCode = !kwCode || p.code.toLowerCase().indexOf(kwCode) !== -1;
+        var matchStatus = !st || p.status === st;
+        return matchName && matchCode && matchStatus;
+      });
+      renderPositions(filtered);
+    }
+
+    function resetFilter() {
+      document.getElementById('filterName').value = '';
+      document.getElementById('filterCode').value = '';
+      document.getElementById('filterStatus').value = '';
+      renderPositions(positionData);
+    }
+
+    function viewPosition(code) {
+      var p = positionData.find(function(x) { return x.code === code; });
+      if (!p) return;
+      document.getElementById('modalTitle').textContent = '岗位详情 - ' + p.name;
+      document.getElementById('posName').value = p.name;
+      document.getElementById('posCode').value = p.code;
+      document.getElementById('posDesc').value = p.name + '岗位';
+      document.getElementById('posSort').value = p.sort;
+      document.getElementById('posStatus').value = p.status;
+      document.getElementById('positionModal').classList.add('show');
+    }
+
+    function closePositionModal() {
+      document.getElementById('positionModal').classList.remove('show');
+    }
+    function onOverlayClick(e) {
+      if (e.target === e.currentTarget) closePositionModal();
+    }
+
+    // 部门树选择器
+    function toggleDeptTree() {
+      var dd = document.getElementById('deptTreeDropdown');
+      dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    }
+    function toggleDeptNode(el) {
+      var arrow = el.querySelector('.dept-arrow');
+      var next = el.nextElementSibling;
+      if (next && next.classList.contains('dept-tree-children')) {
+        var isHidden = next.style.display === 'none';
+        next.style.display = isHidden ? 'block' : 'none';
+        if (arrow) arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+      }
+    }
+    function selectDept(deptName) {
+      document.getElementById('deptTreeLabel').textContent = deptName;
+      document.getElementById('deptTreeLabel').style.color = 'var(--text-primary)';
+      document.getElementById('deptTreeDropdown').style.display = 'none';
+    }
+    // 点击外部关闭下拉
+    document.addEventListener('click', function(e) {
+      var selector = document.getElementById('deptTreeSelector');
+      var dd = document.getElementById('deptTreeDropdown');
+      if (selector && dd && !selector.contains(e.target)) {
+        dd.style.display = 'none';
+      }
+    });
+
+    function exportPositionList() {
+      var rows = document.querySelectorAll('#positionTable tbody tr');
+      var headers = ['序号', '岗位名称', '岗位代码', '岗位分类', '状态', '更新时间', '备注信息'];
+      var csv = '\uFEFF' + headers.join(',') + '\n';
+      rows.forEach(function(tr) {
+        var cells = tr.querySelectorAll('td');
+        if (cells.length < 7) return;
+        var row = [];
+        for (var i = 0; i < 7; i++) {
+          var text = cells[i] ? cells[i].textContent.trim() : '';
+          if (text === '-') text = '';
+          row.push(text);
+        }
+        csv += row.map(function(v) { return '"' + v.replace(/"/g, '""') + '"'; }).join(',') + '\n';
+      });
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '岗位管理列表.csv';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      if (typeof showToast === 'function') { showToast('导出成功'); } else { alert('导出成功'); }
+    }
+  </script>
+</body>
+</html>

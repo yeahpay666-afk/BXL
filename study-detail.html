@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课程学习 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    .main-content { position: relative; }
+
+    /* 课程头部 */
+    .course-hero {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+    .course-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .course-hero-left { flex: 1; }
+    .course-hero-tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; letter-spacing: 0.5px; background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+    .course-hero-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+    .course-hero-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; max-width: 600px; }
+    .course-hero-meta { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; margin-top: 8px; }
+    .course-hero-meta span { display: flex; align-items: center; gap: 3px; }
+
+    /* 进度条 */
+    .course-progress-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+    .course-progress-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: 11px; }
+    .course-progress-top .label { color: var(--text-muted); }
+    .course-progress-top .value { color: var(--primary-color); font-weight: 600; }
+    .course-hero-bar { width: 100%; height: 4px; background: #f1f5f9; border-radius: 2px; overflow: hidden; }
+    .course-hero-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #4ade80); border-radius: 2px; transition: width 0.5s; }
+    .course-hero-btn { padding: 7px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+    .course-hero-btn.primary { background: var(--primary-color); color: #fff; }
+    .course-hero-btn.primary:hover { background: var(--primary-dark); }
+    .course-hero-btn.outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+    .course-hero-btn.outline:hover { background: #f8fafc; }
+
+    /* 主体布局 — 左右双栏，顶部对齐 */
+    .detail-layout { display: grid; grid-template-columns: 1fr 280px; gap: 12px; align-items: flex-start; }
+
+    /* 学习内容区 */
+    .learn-section { margin-bottom: 10px; }
+    .learn-section-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+    /* 视频占位区 */
+    .video-placeholder {
+      background: #f1f5f9; border: 1px solid var(--border-color); border-radius: 10px 10px 0 0; aspect-ratio: 16/7;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 40px; margin-bottom: 0;
+      position: relative; overflow: hidden;
+    }
+    .video-placeholder .play-icon { font-size: 48px; opacity: 0.3; }
+    .video-placeholder .video-label { position: absolute; bottom: 12px; left: 16px; font-size: 12px; color: var(--text-muted); }
+    .video-controls { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f8fafc; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 10px 10px; margin-bottom: 12px; }
+    .video-progress { flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px; position: relative; }
+    .video-progress-fill { width: 35%; height: 100%; background: var(--primary-color); border-radius: 2px; }
+    .video-time { font-size: 12px; color: var(--text-muted); font-family: Menlo, monospace; }
+
+    /* 章节列表 */
+    .chapter-list { border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; }
+    .chapter-item { border-bottom: 1px solid var(--border-color); }
+    .chapter-item:last-child { border-bottom: none; }
+    .chapter-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; background: #f8fafc; cursor: pointer; transition: background 0.15s;
+    }
+    .chapter-header:hover { background: #f1f5f9; }
+    .chapter-header.active { background: #eff6ff; }
+    .chapter-header-left { display: flex; align-items: center; gap: 8px; }
+    .chapter-num { width: 22px; height: 22px; border-radius: 5px; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .chapter-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+    .chapter-meta { font-size: 10px; color: var(--text-muted); }
+    .chapter-toggle { color: var(--text-muted); font-size: 10px; transition: transform 0.2s; }
+    .chapter-item.expanded .chapter-toggle { transform: rotate(90deg); }
+
+    .lesson-list { display: none; padding: 2px 0; background: #fcfdff; }
+    .chapter-item.expanded .lesson-list { display: block; }
+    .lesson-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 12px 5px 40px; cursor: pointer; transition: background 0.15s;
+    }
+    .lesson-item:hover { background: #f0f7ff; }
+    .lesson-item.current { background: #eff6ff; border-left: 3px solid var(--primary-color); padding-left: 49px; }
+    .lesson-icon { font-size: 14px; flex-shrink: 0; }
+    .lesson-name { flex: 1; font-size: 12px; color: var(--text-secondary); }
+    .lesson-item.current .lesson-name { color: var(--primary-color); font-weight: 500; }
+    .lesson-duration { font-size: 10px; color: var(--text-muted); font-family: Menlo, monospace; }
+    .lesson-status { font-size: 12px; flex-shrink: 0; }
+    .lesson-status.done { color: #16a34a; }
+    .lesson-status.current { color: var(--primary-color); }
+    .lesson-status.locked { color: #cbd5e1; }
+
+    /* 右侧栏 */
+    .sidebar-card { background: #fff; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+    .sidebar-card-header { padding: 8px 12px; border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .sidebar-card-body { padding: 10px 12px; }
+
+    /* 讲师信息 */
+    .instructor-info { display: flex; align-items: center; gap: 10px; }
+    .instructor-avatar { width: 34px; height: 34px; border-radius: 50%; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+    .instructor-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .instructor-title { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* 课程统计 */
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 11px; }
+    .stat-row:not(:last-child) { border-bottom: 1px solid #f1f5f9; }
+    .stat-row .label { color: var(--text-muted); }
+    .stat-row .value { color: var(--text-primary); font-weight: 500; }
+
+    /* 学习记录 */
+    .record-item { display: flex; gap: 8px; padding: 4px 0; font-size: 11px; }
+    .record-item:not(:last-child) { border-bottom: 1px solid #f1f5f9; }
+    .record-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+    .record-dot.green { background: #16a34a; }
+    .record-dot.blue { background: #3b82f6; }
+    .record-dot.gray { background: #cbd5e1; }
+    .record-text { flex: 1; color: var(--text-secondary); line-height: 1.5; }
+    .record-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* 笔记区 */
+    .note-input { width: 100%; min-height: 50px; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; resize: vertical; outline: none; box-sizing: border-box; transition: border-color 0.2s; }
+    .note-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(26,95,180,0.1); }
+    .note-list { margin-top: 6px; max-height: 120px; overflow-y: auto; }
+    .note-item { padding: 6px 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 4px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+    .note-item-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+    /* 底部操作栏 */
+    .learn-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px; background: #fff; border: 1px solid var(--border-color);
+      border-radius: 10px; margin-top: 8px;
+    }
+    .footer-left { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+    .footer-btns { display: flex; gap: 8px; }
+    .footer-btn { padding: 5px 16px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border-color); background: #fff; color: var(--text-secondary); transition: all 0.2s; }
+    .footer-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .footer-btn.primary { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+    .footer-btn.primary:hover { background: var(--primary-dark); }
+    .footer-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-20px);
+      background: rgba(15, 23, 42, 0.9); color: #fff;
+      padding: 10px 20px; border-radius: 8px; font-size: 14px;
+      z-index: 9999; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: rgba(22, 163, 74, 0.92); }
+
+    /* ===== 课后考试弹窗 ===== */
+    .exam-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.5);
+      display: none; align-items: center; justify-content: center; z-index: 2000;
+    }
+    .exam-overlay.show { display: flex; }
+    .exam-modal {
+      background: #fff; border-radius: 12px; width: 700px; max-width: 92vw;
+      max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    .exam-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+    }
+    .exam-modal-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .exam-timer {
+      display: flex; align-items: center; gap: 5px; font-size: 13px;
+      color: #ef4444; font-weight: 600; font-family: Menlo, monospace;
+      background: #fef2f2; padding: 4px 12px; border-radius: 6px;
+    }
+    .exam-close { cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px; }
+    .exam-close:hover { color: var(--text-primary); }
+    .exam-modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+    .exam-meta-bar {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+      padding: 10px 14px; background: #f8fafc; border-radius: 8px; font-size: 12px; color: var(--text-secondary);
+    }
+    .exam-meta-bar b { color: var(--text-primary); }
+    .exam-q-card {
+      border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 14px 16px; margin-bottom: 12px; background: #fff;
+    }
+    .exam-q-title {
+      font-size: 14px; font-weight: 500; margin-bottom: 10px; display: flex; gap: 8px; line-height: 1.6;
+    }
+    .exam-q-num {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 5px;
+      background: var(--primary-color); color: #fff; font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .exam-q-type-tag {
+      font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; flex-shrink: 0; margin-top: 2px;
+    }
+    .exam-q-type-tag.single { background: #dbeafe; color: #2563eb; }
+    .exam-q-type-tag.multi { background: #f3e8ff; color: #9333ea; }
+    .exam-q-type-tag.judge { background: #dcfce7; color: #16a34a; }
+    .exam-q-type-tag.essay { background: #fef3c7; color: #d97706; }
+    .exam-essay-textarea {
+      width: 100%; min-height: 100px; padding: 10px 12px;
+      border: 1px solid var(--border-color); border-radius: 8px;
+      font-size: 13px; font-family: inherit; resize: vertical;
+      box-sizing: border-box; outline: none; transition: border-color 0.2s;
+    }
+    .exam-essay-textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(26,95,180,0.1); }
+    .exam-essay-textarea:disabled { background: #f8fafc; color: var(--text-secondary); }
+    .exam-essay-ref {
+      margin-top: 10px; padding: 10px 14px; background: #f0fdf4;
+      border: 1px solid #86efac; border-radius: 8px; font-size: 13px; color: #15803d;
+      line-height: 1.6;
+    }
+    .exam-essay-ref-label { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .exam-essay-pending {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 11px;
+      padding: 2px 8px; border-radius: 4px; background: #fef3c7; color: #d97706; font-weight: 500;
+    }
+    .exam-q-score { font-size: 11px; color: var(--text-muted); margin-top: 3px; flex-shrink: 0; }
+    .exam-q-options { display: flex; flex-direction: column; gap: 6px; }
+    .exam-option {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer;
+      transition: all 0.15s; font-size: 13px;
+    }
+    .exam-option:hover { background: #f0f7ff; border-color: #93c5fd; }
+    .exam-option.selected {
+      background: #eff6ff; border-color: var(--primary-color);
+      box-shadow: 0 0 0 1px var(--primary-color);
+    }
+    .exam-option.correct-answer {
+      background: #f0fdf4; border-color: #16a34a;
+      box-shadow: 0 0 0 1px #16a34a;
+    }
+    .exam-option.wrong-answer {
+      background: #fef2f2; border-color: #ef4444;
+    }
+    .exam-option-letter {
+      width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; background: #e2e8f0; color: var(--text-secondary); flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .exam-option.selected .exam-option-letter { background: var(--primary-color); color: #fff; }
+    .exam-option.correct-answer .exam-option-letter { background: #16a34a; color: #fff; }
+    .exam-option.wrong-answer .exam-option-letter { background: #ef4444; color: #fff; }
+    .exam-option-text { flex: 1; }
+    .exam-option-mark { font-size: 14px; flex-shrink: 0; }
+    .exam-modal-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-top: 1px solid var(--border-color); flex-shrink: 0;
+    }
+    .exam-footer-info { font-size: 12px; color: var(--text-muted); }
+    .exam-footer-info b { color: var(--primary-color); }
+    .exam-btn {
+      padding: 8px 24px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .exam-btn.primary { background: var(--primary-color); color: #fff; }
+    .exam-btn.primary:hover { background: var(--primary-dark); }
+    .exam-btn.outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+    .exam-btn.outline:hover { background: #f8fafc; }
+    .exam-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* 考试结果页 */
+    .exam-result {
+      display: flex; flex-direction: column; align-items: center; padding: 30px 20px; text-align: center;
+    }
+    .exam-result-icon { font-size: 56px; margin-bottom: 12px; }
+    .exam-result-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .exam-result-score { font-size: 36px; font-weight: 700; margin-bottom: 4px; }
+    .exam-result-pass { color: #16a34a; }
+    .exam-result-fail { color: #ef4444; }
+    .exam-result-detail { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+    .exam-result-actions { display: flex; gap: 10px; }
+
+    @media (max-width: 1024px) {
+      .detail-layout { grid-template-columns: 1fr; }
+      .exam-modal { width: 95vw; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div>
+        <div class="header-bell">🔔<span class="badge">5</span></div>
+        <div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <div class="sub-nav-item">系统设置</div>
+    </div>
+  </div>
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">学习中心</div>
+    <div class="sidebar-subtitle">企业学习平台</div>
+    <div class="sidebar-menu">
+      <a href="index.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🏠</span>
+        <span>返回首页</span>
+      </a>
+      <a href="study.html" class="sidebar-menu-item active">
+        <span class="sidebar-menu-icon">📚</span>
+        <span>柏家学堂</span>
+      </a>
+      <a href="todo-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📋</span>
+        <span>待办事项</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 面包屑 -->
+    <div class="breadcrumb" style="margin-bottom: 4px;">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <a href="study.html">柏家学堂</a>
+      <span class="separator">/</span>
+      <span class="current">课程详情</span>
+    </div>
+
+    <!-- 课程头部 -->
+    <div class="course-hero">
+      <div class="course-hero-top">
+        <div class="course-hero-left">
+          <span class="course-hero-tag" id="heroCategory">系统操作</span>
+          <div class="course-hero-title" id="heroTitle">ERP系统操作指南</div>
+          <div class="course-hero-desc" id="heroDesc">T100 ERP系统全面操作教程，包含采购、生产、库存、财务等模块实操。</div>
+          <div class="course-hero-meta">
+            <span>📅 <span id="heroLessons">18</span>课时</span>
+            <span>👤 讲师：<span id="heroInstructor">刘洋</span></span>
+            <span>🏢 <span id="heroDept">信息部</span></span>
+            <span>👥 <span id="heroLearners">156</span>人学习</span>
+            <span>🕐 更新：<span id="heroDate">2024-11-15</span></span>
+          </div>
+        </div>
+        <button class="course-hero-btn primary" id="heroBtn" onclick="continueLearn()">继续学习</button>
+      </div>
+      <div class="course-progress-section">
+        <div class="course-progress-top">
+          <span class="label">学习进度：<span id="heroProgressText">35%</span>（已完成 <span id="heroDoneLessons">6</span>/<span id="heroTotalLessons">18</span> 课时）</span>
+          <span class="value" id="heroProgressBadge">学习中</span>
+        </div>
+        <div class="course-hero-bar">
+          <div class="course-hero-bar-fill" id="heroProgressBar" style="width: 35%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主体内容 -->
+    <div class="detail-layout">
+      <!-- 左侧：学习内容 -->
+      <div>
+        <!-- 视频播放区 -->
+        <div class="learn-section">
+          <div class="learn-section-title">🎬 当前课时</div>
+          <div class="video-placeholder" id="videoArea">
+            <span class="play-icon">▶</span>
+            <span class="video-label" id="videoLabel">请选择章节开始学习</span>
+          </div>
+          <div class="video-controls">
+            <span style="font-size:14px;cursor:pointer;color:var(--text-muted);">⏮</span>
+            <span style="font-size:16px;cursor:pointer;color:var(--primary-color);" onclick="togglePlay(this)">▶</span>
+            <span style="font-size:14px;cursor:pointer;color:var(--text-muted);">⏭</span>
+            <div class="video-progress">
+              <div class="video-progress-fill" id="videoProgressFill"></div>
+            </div>
+            <span class="video-time" id="videoTime">00:00 / 00:00</span>
+            <span style="font-size:12px;cursor:pointer;color:var(--text-muted);">🔊</span>
+            <span style="font-size:12px;cursor:pointer;color:var(--text-muted);">⛶</span>
+          </div>
+        </div>
+
+        <!-- 章节列表 -->
+        <div class="learn-section">
+          <div class="learn-section-title">📖 课程章节</div>
+          <div class="chapter-list" id="chapterList">
+            <!-- 由JS动态渲染 -->
+          </div>
+        </div>
+
+        <!-- 底部操作栏 -->
+        <div class="learn-footer">
+          <div class="footer-left">
+            <span>📱 支持PC/移动端学习</span>
+            <span>·</span>
+            <span>⏱ 已学习：<b id="totalLearnTime">3小时28分</b></span>
+          </div>
+          <div class="footer-btns">
+            <button class="footer-btn" onclick="openExam()">📝 课后考试</button>
+            <button class="footer-btn primary" onclick="completeCurrentLesson()">✓ 完成本课时</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧栏 -->
+      <div>
+        <!-- 讲师信息 -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-header">👤 讲师信息</div>
+          <div class="sidebar-card-body">
+            <div class="instructor-info">
+              <div class="instructor-avatar">刘</div>
+              <div>
+                <div class="instructor-name">刘洋</div>
+                <div class="instructor-title">信息部 · ERP实施顾问</div>
+              </div>
+            </div>
+            <div style="margin-top: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+              10年ERP实施经验，主导柏星龙T100系统上线，擅长采购、生产、财务模块培训。
+            </div>
+          </div>
+        </div>
+
+        <!-- 课程统计 -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-header">📊 课程数据</div>
+          <div class="sidebar-card-body">
+            <div class="stat-row"><span class="label">总课时</span><span class="value">18课时</span></div>
+            <div class="stat-row"><span class="label">已完成</span><span class="value" style="color:#16a34a;">6课时</span></div>
+            <div class="stat-row"><span class="label">学习进度</span><span class="value">35%</span></div>
+            <div class="stat-row"><span class="label">学习时长</span><span class="value">3小时28分</span></div>
+            <div class="stat-row"><span class="label">参与人数</span><span class="value">156人</span></div>
+          </div>
+        </div>
+
+        <!-- 学习记录 -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-header">📝 学习记录</div>
+          <div class="sidebar-card-body">
+            <div class="record-item">
+              <div class="record-dot green"></div>
+              <div class="record-text">
+                完成「1-3 基础数据与编码规则」
+                <div class="record-time">2025-01-14 15:30</div>
+              </div>
+            </div>
+            <div class="record-item">
+              <div class="record-dot green"></div>
+              <div class="record-text">
+                完成「2-2 询价比价与采购申请」
+                <div class="record-time">2025-01-14 16:45</div>
+              </div>
+            </div>
+            <div class="record-item">
+              <div class="record-dot blue"></div>
+              <div class="record-text">
+                开始学习「2-3 采购订单创建流程」
+                <div class="record-time">2025-01-14 17:00</div>
+              </div>
+            </div>
+            <div class="record-item">
+              <div class="record-dot gray"></div>
+              <div class="record-text">
+                加入课程
+                <div class="record-time">2025-01-10 09:15</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 学习笔记 -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-header">✏️ 学习笔记</div>
+          <div class="sidebar-card-body">
+            <textarea class="note-input" id="noteInput" placeholder="记录本课时的学习笔记..." oninput="updateNoteBtn(this)"></textarea>
+            <button class="footer-btn primary" style="width: 100%; margin-top: 8px; opacity: 0.5;" id="saveNoteBtn" onclick="saveNote()">保存笔记</button>
+            <div class="note-list" id="noteList">
+              <div class="note-item">
+                采购订单需先维护供应商档案，编码规则：PO+年月+流水号
+                <div class="note-item-time">2025-01-14 16:50 · 课时 2-2</div>
+              </div>
+              <div class="note-item">
+                BOM表需要注意替代料件的优先级设置
+                <div class="note-item-time">2025-01-14 15:20 · 课时 1-3</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 课后考试弹窗 -->
+  <div class="exam-overlay" id="examOverlay">
+    <div class="exam-modal">
+      <div class="exam-modal-header">
+        <div class="exam-modal-title">📝 课后考试 — <span id="examCourseName"></span></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="exam-timer" id="examTimer">⏱ 30:00</div>
+          <span class="exam-close" onclick="closeExam()">✕</span>
+        </div>
+      </div>
+      <div class="exam-modal-body" id="examBody">
+        <!-- 由JS动态渲染 -->
+      </div>
+      <div class="exam-modal-footer" id="examFooter">
+        <div class="exam-footer-info">已答 <b id="examAnsweredCount">0</b>/<b id="examTotalCount">0</b> 题</div>
+        <div style="display:flex;gap:8px;">
+          <button class="exam-btn outline" onclick="closeExam()">放弃考试</button>
+          <button class="exam-btn primary" id="examSubmitBtn" onclick="submitExam()">提交考试</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 从URL读取课程参数
+    var urlParams = new URLSearchParams(window.location.search);
+    var courseTitle = urlParams.get('title') || 'ERP系统操作指南';
+
+    // 课程数据
+    var courseData = {
+      '公司制度全集': { category: '制度规范', desc: '涵盖考勤、请假、报销、采购等全部公司管理制度，新员工必修课程。', lessons: 12, instructor: '李芳', dept: '人力资源部', learners: 320, date: '2024-12-20', progress: 100, done: 12 },
+      '产品知识大全': { category: '产品知识', desc: '全面介绍柏星龙核心产品线、包装材料特性、工艺流程及质量标准。', lessons: 24, instructor: '王磊', dept: '产品部', learners: 215, date: '2025-01-08', progress: 50, done: 12 },
+      'OA系统操作培训': { category: '系统操作', desc: '新OA系统功能介绍与操作实操，涵盖流程发起、审批、文档管理等核心模块。', lessons: 6, instructor: '陈明', dept: '信息部', learners: 180, date: '2025-01-10', progress: 0, done: 0 },
+      'ERP系统操作指南': { category: '系统操作', desc: 'T100 ERP系统全面操作教程，包含采购、生产、库存、财务等模块实操。', lessons: 18, instructor: '刘洋', dept: '信息部', learners: 156, date: '2024-11-15', progress: 35, done: 6 },
+      '职场沟通技巧': { category: '职业技能', desc: '高效沟通方法论，涵盖向上汇报、跨部门协作、冲突处理等实战场景。', lessons: 8, instructor: '张玲', dept: '人力资源部', learners: 289, date: '2024-10-20', progress: 100, done: 8 },
+      '安全生产规范': { category: '制度规范', desc: '工厂安全生产标准操作规程，消防安全、设备操作及应急处置。', lessons: 10, instructor: '赵刚', dept: '安环部', learners: 412, date: '2024-12-05', progress: 60, done: 6 },
+      '商务礼仪培训': { category: '职业技能', desc: '商务场合着装、接待、会议、宴请等礼仪规范与实操演练。', lessons: 6, instructor: '林萍', dept: '人力资源部', learners: 198, date: '2024-11-20', progress: 0, done: 0 },
+      '项目管理实战': { category: '职业技能', desc: 'PMBOK项目管理框架，项目立项、计划制定、风险管控及收尾全流程实战。', lessons: 20, instructor: '孙伟', dept: '项目管理办', learners: 134, date: '2024-12-15', progress: 25, done: 5 },
+      '每刻报销流程规范': { category: '制度规范', desc: '差旅费、招待费、办公费等各项费用报销标准及线上审批流程操作指南。', lessons: 4, instructor: '钱敏', dept: '财务部', learners: 356, date: '2024-09-15', progress: 100, done: 4 },
+      'CRM客户管理系统操作': { category: '系统操作', desc: 'CRM系统客户档案管理、商机跟进、合同管理及销售数据分析模块操作。', lessons: 10, instructor: '刘洋', dept: '信息部', learners: 112, date: '2025-01-05', progress: 40, done: 4 },
+      '商务谈判与客户关系': { category: '职业技能', desc: '商务谈判策略与技巧，客户关系维护方法论，大客户管理最佳实践案例。', lessons: 14, instructor: '吴昊', dept: '市场部', learners: 76, date: '2025-01-14', progress: 0, done: 0 },
+      '包装材料与工艺知识': { category: '产品知识', desc: '纸制品、塑料、金属、玻璃等包装材料特性对比，印刷及后道工艺详解。', lessons: 15, instructor: '王磊', dept: '产品部', learners: 203, date: '2024-10-08', progress: 100, done: 15 }
+    };
+
+    // 课程章节数据（每个课程的课时列表）
+    var courseChapters = {
+      '公司制度全集': [
+        { name: '考勤与请假制度', duration: '15:30' },
+        { name: '报销与费用标准', duration: '18:20' },
+        { name: '采购审批流程', duration: '20:15' },
+        { name: '人事管理制度', duration: '16:40' },
+        { name: '信息安全规范', duration: '12:30' },
+        { name: '办公行为准则', duration: '14:10' },
+        { name: '出差与外派管理', duration: '17:25' },
+        { name: '绩效考核制度', duration: '19:50' },
+        { name: '奖惩管理办法', duration: '13:15' },
+        { name: '保密协议与竞业', duration: '15:45' },
+        { name: '行政后勤管理', duration: '11:20' },
+        { name: '制度考核测试', duration: '22:00' }
+      ],
+      '产品知识大全': [
+        { name: '纸制品包装概览', duration: '20:30' },
+        { name: '塑料包装材料', duration: '18:45' },
+        { name: '金属包装工艺', duration: '22:10' },
+        { name: '玻璃容器特性', duration: '16:20' },
+        { name: '复合材料的优势', duration: '19:35' },
+        { name: '环保降解材料', duration: '17:50' },
+        { name: '印刷工艺：胶印', duration: '24:15' },
+        { name: '印刷工艺：凹凸印', duration: '21:40' },
+        { name: '烫金与UV工艺', duration: '18:30' },
+        { name: '模切与压痕技术', duration: '16:15' },
+        { name: '覆膜与上光工艺', duration: '14:50' },
+        { name: '质量标准与检验', duration: '20:00' },
+        { name: '客户定制流程', duration: '23:30' },
+        { name: '成本核算基础', duration: '17:40' },
+        { name: '新产品研发流程', duration: '19:20' },
+        { name: '包装设计原则', duration: '21:10' },
+        { name: '环保认证体系', duration: '15:35' },
+        { name: '供应商评估标准', duration: '18:00' },
+        { name: '库存与仓储管理', duration: '16:45' },
+        { name: '运输与防护方案', duration: '14:25' },
+        { name: '行业趋势分析', duration: '22:30' },
+        { name: '竞品对比研究', duration: '20:15' },
+        { name: '案例：食品包装', duration: '18:50' },
+        { name: '案例：日化包装', duration: '17:10' }
+      ],
+      'OA系统操作培训': [
+        { name: 'OA系统登录与首页', duration: '08:30' },
+        { name: '流程发起操作', duration: '15:20' },
+        { name: '审批与驳回流程', duration: '12:45' },
+        { name: '文档管理功能', duration: '10:15' },
+        { name: '公告与通知发布', duration: '07:50' },
+        { name: '个人设置与权限', duration: '09:30' }
+      ],
+      'ERP系统操作指南': [
+        { name: 'ERP系统发展历程与概念', duration: '15:20' },
+        { name: 'T100系统架构与模块总览', duration: '18:45' },
+        { name: '基础数据与编码规则', duration: '12:10' },
+        { name: '供应商档案管理', duration: '20:30' },
+        { name: '询价比价与采购申请', duration: '22:15' },
+        { name: '采购订单创建流程', duration: '25:40' },
+        { name: '到货验收与入库', duration: '18:20' },
+        { name: '采购退货与折让', duration: '15:05' },
+        { name: 'BOM与工艺路线', duration: '20:00' },
+        { name: '工单创建与排产', duration: '24:30' },
+        { name: '生产报工与进度跟踪', duration: '18:45' },
+        { name: '质量检验与入库', duration: '16:20' },
+        { name: '仓库与库位管理', duration: '14:30' },
+        { name: '调拨与盘点', duration: '19:15' },
+        { name: '库存预警与报表', duration: '12:50' },
+        { name: '应付应收管理', duration: '22:00' },
+        { name: '凭证与总账', duration: '25:30' },
+        { name: '财务报表与期末结账', duration: '20:45' }
+      ],
+      '职场沟通技巧': [
+        { name: '沟通基础与模型', duration: '15:30' },
+        { name: '向上汇报技巧', duration: '18:20' },
+        { name: '跨部门协作方法', duration: '20:15' },
+        { name: '冲突处理策略', duration: '16:40' },
+        { name: '会议主持与发言', duration: '14:10' },
+        { name: '邮件与书面沟通', duration: '12:30' },
+        { name: '情绪管理实战', duration: '17:25' },
+        { name: '沟通能力测评', duration: '13:15' }
+      ],
+      '安全生产规范': [
+        { name: '安全意识与法规', duration: '15:30' },
+        { name: '消防器材使用', duration: '12:20' },
+        { name: '设备安全操作', duration: '18:15' },
+        { name: '危险品管理', duration: '16:40' },
+        { name: '应急处置流程', duration: '20:10' },
+        { name: '事故案例分析', duration: '14:50' },
+        { name: 'PPE防护用品', duration: '11:30' },
+        { name: '隐患排查方法', duration: '13:25' },
+        { name: '安全标识认知', duration: '10:15' },
+        { name: '安全考核测试', duration: '17:40' }
+      ],
+      '商务礼仪培训': [
+        { name: '着装礼仪规范', duration: '12:30' },
+        { name: '接待与介绍礼仪', duration: '15:20' },
+        { name: '会议礼仪', duration: '10:45' },
+        { name: '宴请礼仪', duration: '14:15' },
+        { name: '电话与邮件礼仪', duration: '08:50' },
+        { name: '涉外礼仪基础', duration: '11:30' }
+      ],
+      '项目管理实战': [
+        { name: 'PMBOK框架概述', duration: '20:30' },
+        { name: '项目立项流程', duration: '18:15' },
+        { name: 'WBS分解方法', duration: '22:40' },
+        { name: '甘特图与排期', duration: '16:20' },
+        { name: '资源分配策略', duration: '19:35' },
+        { name: '风险识别矩阵', duration: '21:10' },
+        { name: '进度跟踪方法', duration: '17:50' },
+        { name: '变更管理流程', duration: '15:30' },
+        { name: '质量管理计划', duration: '18:45' },
+        { name: '沟通管理计划', duration: '14:20' },
+        { name: '成本控制方法', duration: '20:15' },
+        { name: '采购管理流程', duration: '16:30' },
+        { name: '团队建设与激励', duration: '19:00' },
+        { name: '冲突解决技巧', duration: '17:25' },
+        { name: '项目收尾流程', duration: '15:40' },
+        { name: '经验教训总结', duration: '13:20' },
+        { name: '敏捷与瀑布对比', duration: '21:30' },
+        { name: 'Scrum框架实践', duration: '18:50' },
+        { name: '项目复盘方法', duration: '16:10' },
+        { name: 'PMP认证指南', duration: '22:15' }
+      ],
+      '每刻报销流程规范': [
+        { name: '报销制度概览', duration: '08:30' },
+        { name: '差旅费报销标准', duration: '12:15' },
+        { name: '线上审批操作', duration: '10:20' },
+        { name: '报销常见问题', duration: '07:45' }
+      ],
+      'CRM客户管理系统操作': [
+        { name: 'CRM系统登录与概览', duration: '12:30' },
+        { name: '客户档案管理', duration: '18:20' },
+        { name: '商机跟进操作', duration: '15:45' },
+        { name: '合同管理模块', duration: '16:30' },
+        { name: '销售数据分析', duration: '20:10' },
+        { name: '客户分级管理', duration: '14:20' },
+        { name: '跟进记录与提醒', duration: '13:15' },
+        { name: '报价单制作', duration: '11:50' },
+        { name: '销售漏斗分析', duration: '17:30' },
+        { name: 'CRM考核测试', duration: '15:40' }
+      ],
+      '商务谈判与客户关系': [
+        { name: '谈判基本概念', duration: '15:30' },
+        { name: '谈判准备清单', duration: '18:20' },
+        { name: '开场与破冰技巧', duration: '14:15' },
+        { name: '报价与让步策略', duration: '20:40' },
+        { name: '僵局突破方法', duration: '16:50' },
+        { name: '双赢谈判思维', duration: '18:35' },
+        { name: '客户分类与画像', duration: '15:20' },
+        { name: '大客户管理策略', duration: '21:10' },
+        { name: '客户满意度提升', duration: '17:45' },
+        { name: '客户流失预警', duration: '14:30' },
+        { name: 'CRM数据驱动', duration: '19:20' },
+        { name: '客户关系维护案例', duration: '16:15' },
+        { name: '商务谈判模拟', duration: '22:00' },
+        { name: '能力评估测试', duration: '18:50' }
+      ],
+      '包装材料与工艺知识': [
+        { name: '纸制品特性概览', duration: '18:30' },
+        { name: '瓦楞纸板结构', duration: '15:20' },
+        { name: '白卡纸与铜版纸', duration: '14:15' },
+        { name: '塑料薄膜材料', duration: '16:40' },
+        { name: 'PET与PP对比', duration: '12:30' },
+        { name: '金属包装：马口铁', duration: '19:50' },
+        { name: '铝罐成型工艺', duration: '17:25' },
+        { name: '玻璃容器特性', duration: '15:10' },
+        { name: '复合材料结构', duration: '18:45' },
+        { name: '环保降解材料', duration: '16:20' },
+        { name: '胶印工艺详解', duration: '21:30' },
+        { name: '凹印与凸印', duration: '18:15' },
+        { name: '丝网印刷工艺', duration: '15:40' },
+        { name: '烫金与击凸', duration: '17:20' },
+        { name: 'UV局部上光', duration: '14:50' }
+      ]
+    };
+
+    // 初始化页面
+    (function init() {
+      var data = courseData[courseTitle] || courseData['ERP系统操作指南'];
+      document.getElementById('heroTitle').textContent = courseTitle;
+      document.getElementById('heroCategory').textContent = data.category;
+      document.getElementById('heroDesc').textContent = data.desc;
+      document.getElementById('heroLessons').textContent = data.lessons;
+      document.getElementById('heroInstructor').textContent = data.instructor;
+      document.getElementById('heroDept').textContent = data.dept;
+      document.getElementById('heroLearners').textContent = data.learners;
+      document.getElementById('heroDate').textContent = data.date;
+      document.getElementById('heroProgressText').textContent = data.progress + '%';
+      document.getElementById('heroDoneLessons').textContent = data.done;
+      document.getElementById('heroTotalLessons').textContent = data.lessons;
+      document.getElementById('heroProgressBar').style.width = data.progress + '%';
+
+      // 头部按钮文字
+      var heroBtn = document.getElementById('heroBtn');
+      var heroBadge = document.getElementById('heroProgressBadge');
+      if (data.progress === 100) {
+        heroBtn.textContent = '复习课程';
+        heroBadge.textContent = '已完成';
+      } else if (data.progress === 0) {
+        heroBtn.textContent = '开始学习';
+        heroBadge.textContent = '未开始';
+      } else {
+        heroBtn.textContent = '继续学习';
+        heroBadge.textContent = '学习中';
+      }
+
+      // 动态渲染章节列表
+      renderChapters(data);
+    })();
+
+    // 渲染章节列表
+    function renderChapters(data) {
+      var chapters = courseChapters[courseTitle] || courseChapters['ERP系统操作指南'];
+      var container = document.getElementById('chapterList');
+      var done = data.done;
+      var html = '';
+      for (var i = 0; i < chapters.length; i++) {
+        var lessonNo = i + 1;
+        var ch = chapters[i];
+        var status, icon, statusClass;
+        if (i < done) {
+          status = '✓'; icon = '✅'; statusClass = 'done';
+        } else if (i === done) {
+          status = '●'; icon = '▶️'; statusClass = 'current';
+        } else {
+          status = '🔒'; icon = '🔒'; statusClass = 'locked';
+        }
+        var isExpanded = (i <= done) ? ' expanded' : '';
+        var isActive = (i <= done) ? ' active' : '';
+        var isCurrent = (i === done) ? ' current' : '';
+        html += '<div class="chapter-item' + isExpanded + '">' +
+          '<div class="chapter-header' + isActive + '" onclick="toggleChapter(this)">' +
+            '<div class="chapter-header-left">' +
+              '<div class="chapter-num">' + lessonNo + '</div>' +
+              '<div>' +
+                '<div class="chapter-name">' + ch.name + '</div>' +
+                '<div class="chapter-meta">' + ch.duration + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<span class="chapter-toggle">▶</span>' +
+          '</div>' +
+          '<div class="lesson-list">' +
+            '<div class="lesson-item' + isCurrent + '" onclick="selectLesson(this, \'' + lessonNo + '\')">' +
+              '<span class="lesson-icon">' + icon + '</span>' +
+              '<span class="lesson-name">' + lessonNo + ' ' + ch.name + '</span>' +
+              '<span class="lesson-duration">' + ch.duration + '</span>' +
+              '<span class="lesson-status ' + statusClass + '">' + status + '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    // Toast
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + (type || '');
+      clearTimeout(t._tid);
+      t._tid = setTimeout(function () { t.className = 'toast'; }, 2200);
+    }
+
+    // 展开/折叠章节
+    function toggleChapter(header) {
+      var item = header.closest('.chapter-item');
+      item.classList.toggle('expanded');
+      header.classList.toggle('active');
+    }
+
+    // 选择课时
+    function selectLesson(el, lessonId) {
+      var status = el.querySelector('.lesson-status');
+      if (status && status.classList.contains('locked')) {
+        showToast('请先完成前置课时');
+        return;
+      }
+      // 移除其他课时的高亮
+      document.querySelectorAll('.lesson-item').forEach(function(item) {
+        item.classList.remove('current');
+        var icon = item.querySelector('.lesson-icon');
+        if (icon && icon.textContent === '▶️') icon.textContent = '✅';
+        var st = item.querySelector('.lesson-status');
+        if (st && st.classList.contains('current')) {
+          st.classList.remove('current');
+          st.classList.add('done');
+          st.textContent = '✓';
+        }
+      });
+      // 高亮当前
+      el.classList.add('current');
+      el.querySelector('.lesson-icon').textContent = '▶️';
+      var stEl = el.querySelector('.lesson-status');
+      stEl.classList.remove('done');
+      stEl.classList.add('current');
+      stEl.textContent = '●';
+
+      // 更新视频标签
+      var lessonName = el.querySelector('.lesson-name').textContent;
+      document.getElementById('videoLabel').textContent = lessonName;
+      var duration = el.querySelector('.lesson-duration').textContent;
+      document.getElementById('videoTime').textContent = '00:00 / ' + duration;
+      document.getElementById('videoProgressFill').style.width = '0%';
+
+      showToast('已切换到：' + lessonName);
+    }
+
+    // 完成当前课时
+    function completeCurrentLesson() {
+      var current = document.querySelector('.lesson-item.current');
+      if (!current) {
+        showToast('请先选择一个课时');
+        return;
+      }
+      var icon = current.querySelector('.lesson-icon');
+      var status = current.querySelector('.lesson-status');
+      icon.textContent = '✅';
+      status.classList.remove('current', 'locked');
+      status.classList.add('done');
+      status.textContent = '✓';
+      current.classList.remove('current');
+
+      // 解锁下一课时
+      var next = findNextLesson(current);
+      if (next) {
+        var nextIcon = next.querySelector('.lesson-icon');
+        var nextStatus = next.querySelector('.lesson-status');
+        if (nextIcon.textContent === '🔒') nextIcon.textContent = '▶️';
+        if (nextStatus.classList.contains('locked')) {
+          nextStatus.classList.remove('locked');
+          nextStatus.classList.add('current');
+          nextStatus.textContent = '●';
+          next.classList.add('current');
+        }
+        showToast('课时已完成，已解锁下一课时', 'success');
+      } else {
+        showToast('全部课时已完成，恭喜完成课程！', 'success');
+      }
+    }
+
+    function findNextLesson(current) {
+      var allLessons = Array.from(document.querySelectorAll('.lesson-item'));
+      var idx = allLessons.indexOf(current);
+      if (idx >= 0 && idx < allLessons.length - 1) {
+        return allLessons[idx + 1];
+      }
+      return null;
+    }
+
+    // 继续学习
+    function continueLearn() {
+      var current = document.querySelector('.lesson-item.current');
+      if (current) {
+        var name = current.querySelector('.lesson-name').textContent;
+        showToast('继续学习：' + name);
+        document.querySelector('.video-placeholder').scrollIntoView({ behavior: 'smooth' });
+      } else {
+        // 找到第一个未完成的
+        var firstUndone = document.querySelector('.lesson-item:not(.current) .lesson-status:not(.done):not(.locked)');
+        if (firstUndone) {
+          var lesson = firstUndone.closest('.lesson-item');
+          selectLesson(lesson, '');
+        }
+      }
+    }
+
+    // 播放按钮切换
+    function togglePlay(el) {
+      if (el.textContent === '▶') {
+        el.textContent = '⏸';
+        showToast('开始播放');
+      } else {
+        el.textContent = '▶';
+        showToast('已暂停');
+      }
+    }
+
+    // 笔记功能
+    function updateNoteBtn(input) {
+      var btn = document.getElementById('saveNoteBtn');
+      if (input.value.trim()) {
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+      } else {
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      }
+    }
+
+    function saveNote() {
+      var input = document.getElementById('noteInput');
+      if (!input.value.trim()) return;
+      var list = document.getElementById('noteList');
+      var note = document.createElement('div');
+      note.className = 'note-item';
+      var now = new Date();
+      var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+      note.innerHTML = input.value + '<div class="note-item-time">' + timeStr + '</div>';
+      list.insertBefore(note, list.firstChild);
+      input.value = '';
+      updateNoteBtn(input);
+      showToast('笔记已保存', 'success');
+    }
+
+    /* ===== 课后考试 ===== */
+    var examQuestionsData = [
+      {
+        type: 'single', text: 'T100 ERP系统中，采购订单创建后下一步标准操作是？',
+        score: 10, options: [
+          { text: '直接入库，不需要验收' },
+          { text: '到货验收与入库', correct: true },
+          { text: '直接付款' },
+          { text: '通知供应商取消订单' }
+        ]
+      },
+      {
+        type: 'single', text: 'BOM的中文含义是？',
+        score: 10, options: [
+          { text: '物料清单', correct: true },
+          { text: '采购订单' },
+          { text: '工艺路线' },
+          { text: '库存台账' }
+        ]
+      },
+      {
+        type: 'multi', text: '以下属于T100 ERP核心模块的有（多选）？',
+        score: 15, options: [
+          { text: '采购管理', correct: true },
+          { text: '生产制造', correct: true },
+          { text: '库存管理', correct: true },
+          { text: '员工考勤', correct: false }
+        ]
+      },
+      {
+        type: 'judge', text: '生产报工后系统会自动更新库存数量。',
+        score: 10, options: [
+          { text: '正确', correct: true },
+          { text: '错误', correct: false }
+        ]
+      },
+      {
+        type: 'single', text: '财务期末结账前必须完成以下哪项操作？',
+        score: 10, options: [
+          { text: '删除所有凭证' },
+          { text: '确认所有凭证已审核过账', correct: true },
+          { text: '关闭采购模块' },
+          { text: '导出员工名单' }
+        ]
+      },
+      {
+        type: 'judge', text: '调拨单可以跨仓库转移物料。',
+        score: 10, options: [
+          { text: '正确', correct: true },
+          { text: '错误', correct: false }
+        ]
+      },
+      {
+        type: 'multi', text: '库存预警可通过以下哪些方式触发？（多选）',
+        score: 15, options: [
+          { text: '最低库存阈值', correct: true },
+          { text: '安全库存阈值', correct: true },
+          { text: '最大库存阈值', correct: true },
+          { text: '员工生日提醒', correct: false }
+        ]
+      },
+      {
+        type: 'essay', text: '请简述T100 ERP系统中采购到付款（P2P）的完整流程。',
+        score: 20, referenceAnswer: '采购申请→采购订单→到货验收→入库→发票校验→付款。各环节需在T100系统中按顺序操作，确保单据流转完整、库存与财务数据同步。'
+      }
+    ];
+
+    var examPassScore = 60;
+    var examDuration = 1800;
+    var examUserAnswers = {};
+    var examTimerInterval = null;
+    var examTimeLeft = 0;
+    var examMode = 'exam';
+
+    function openExam() {
+      examMode = 'exam';
+      examUserAnswers = {};
+      examTimeLeft = examDuration;
+      document.getElementById('examCourseName').textContent = courseTitle;
+      document.getElementById('examOverlay').classList.add('show');
+      document.getElementById('examFooter').style.display = 'flex';
+      renderExamQuestions();
+      startExamTimer();
+    }
+
+    function closeExam() {
+      document.getElementById('examOverlay').classList.remove('show');
+      if (examTimerInterval) { clearInterval(examTimerInterval); examTimerInterval = null; }
+    }
+
+    function startExamTimer() {
+      if (examTimerInterval) clearInterval(examTimerInterval);
+      updateExamTimerDisplay();
+      examTimerInterval = setInterval(function() {
+        examTimeLeft--;
+        if (examTimeLeft <= 0) {
+          examTimeLeft = 0;
+          clearInterval(examTimerInterval);
+          examTimerInterval = null;
+          showToast('考试时间到，自动提交');
+          submitExam();
+        }
+        updateExamTimerDisplay();
+      }, 1000);
+    }
+
+    function updateExamTimerDisplay() {
+      var m = Math.floor(examTimeLeft / 60);
+      var s = examTimeLeft % 60;
+      var timer = document.getElementById('examTimer');
+      if (timer) timer.textContent = '⏱ ' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+
+    function renderExamQuestions() {
+      var body = document.getElementById('examBody');
+      var isReview = examMode === 'review';
+      var totalScore = examQuestionsData.reduce(function(s, q) { return s + q.score; }, 0);
+      var html = '<div class="exam-meta-bar">';
+      html += '<span>共 <b>' + examQuestionsData.length + '</b> 题</span>';
+      html += '<span>总分 <b>' + totalScore + '</b> 分</span>';
+      html += '<span>及格 <b>' + examPassScore + '</b> 分</span>';
+      if (!isReview) html += '<span>考试时长 <b>30</b> 分钟</span>';
+      html += '</div>';
+
+      examQuestionsData.forEach(function(q, qi) {
+        var letters = 'ABCDEFGHIJ';
+        var typeLabel = q.type === 'single' ? '单选题' : q.type === 'multi' ? '多选题' : q.type === 'judge' ? '判断题' : '问答题';
+        var typeClass = q.type === 'single' ? 'single' : q.type === 'multi' ? 'multi' : q.type === 'judge' ? 'judge' : 'essay';
+        var userAns = examUserAnswers[qi] || (q.type === 'essay' ? '' : []);
+        html += '<div class="exam-q-card">';
+        html += '<div class="exam-q-title">';
+        html += '<div class="exam-q-num">' + (qi + 1) + '</div>';
+        html += '<span class="exam-q-type-tag ' + typeClass + '">' + typeLabel + '</span>';
+        html += '<span style="flex:1;">' + q.text + '</span>';
+        html += '<span class="exam-q-score">(' + q.score + '分)</span>';
+        html += '</div>';
+        if (q.type === 'essay') {
+          html += '<div class="exam-q-options">';
+          if (isReview) {
+            html += '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">你的回答：</div>';
+            html += '<textarea class="exam-essay-textarea" disabled>' + (userAns || '（未作答）') + '</textarea>';
+            html += '<div class="exam-essay-ref">';
+            html += '<div class="exam-essay-ref-label">📖 参考答案</div>';
+            html += '<div>' + q.referenceAnswer + '</div>';
+            html += '</div>';
+            html += '<div style="margin-top:8px;"><span class="exam-essay-pending">⏳ 问答题待人工评分</span></div>';
+          } else {
+            html += '<textarea class="exam-essay-textarea" placeholder="请在此处输入你的回答..." oninput="examUserAnswers[' + qi + '] = this.value">' + (userAns || '') + '</textarea>';
+          }
+          html += '</div>';
+        } else {
+          html += '<div class="exam-q-options">';
+          q.options.forEach(function(opt, oi) {
+            var letter = letters[oi] || (oi + 1);
+            var isSelected = userAns.indexOf(oi) > -1;
+            var classes = 'exam-option';
+            if (isSelected) classes += ' selected';
+            if (isReview) {
+              if (opt.correct) classes += ' correct-answer';
+              else if (isSelected && !opt.correct) classes += ' wrong-answer';
+            }
+            var onclick = isReview ? '' : ' onclick="selectExamAnswer(' + qi + ', ' + oi + ', \'' + q.type + '\')"';
+            html += '<div class="' + classes + '"' + onclick + '>';
+            html += '<div class="exam-option-letter">' + letter + '</div>';
+            html += '<span class="exam-option-text">' + opt.text + '</span>';
+            if (isReview && opt.correct) html += '<span class="exam-option-mark">✓</span>';
+            if (isReview && isSelected && !opt.correct) html += '<span class="exam-option-mark">✕</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+
+      body.innerHTML = html;
+      document.getElementById('examTotalCount').textContent = examQuestionsData.length;
+      updateExamAnsweredCount();
+    }
+
+    function selectExamAnswer(qIdx, optIdx, type) {
+      if (examMode !== 'exam') return;
+      if (!examUserAnswers[qIdx]) examUserAnswers[qIdx] = [];
+      var arr = examUserAnswers[qIdx];
+      if (type === 'single' || type === 'judge') {
+        arr = [optIdx];
+      } else {
+        var pos = arr.indexOf(optIdx);
+        if (pos > -1) arr.splice(pos, 1);
+        else arr.push(optIdx);
+      }
+      examUserAnswers[qIdx] = arr;
+      renderExamQuestions();
+    }
+
+    function updateExamAnsweredCount() {
+      var answered = 0;
+      examQuestionsData.forEach(function(q, qi) {
+        var ans = examUserAnswers[qi];
+        if (q.type === 'essay') {
+          if (ans && ans.trim()) answered++;
+        } else {
+          if (ans && ans.length > 0) answered++;
+        }
+      });
+      var el = document.getElementById('examAnsweredCount');
+      if (el) el.textContent = answered;
+    }
+
+    function submitExam() {
+      if (examTimerInterval) { clearInterval(examTimerInterval); examTimerInterval = null; }
+
+      var totalScore = 0;
+      var maxScore = examQuestionsData.reduce(function(s, q) { return s + q.score; }, 0);
+      var essayCount = 0;
+      var essayScore = 0;
+      var autoCorrectCount = 0;
+      var autoTotalCount = 0;
+
+      examQuestionsData.forEach(function(q, qi) {
+        if (q.type === 'essay') {
+          essayCount++;
+          essayScore += q.score;
+        } else {
+          autoTotalCount++;
+          var userAns = (examUserAnswers[qi] || []).slice().sort();
+          var correctAns = q.options.map(function(opt, oi) { return opt.correct ? oi : -1; })
+            .filter(function(i) { return i >= 0; }).sort();
+          var isCorrect = JSON.stringify(userAns) === JSON.stringify(correctAns);
+          if (isCorrect) { totalScore += q.score; autoCorrectCount++; }
+        }
+      });
+
+      var hasEssay = essayCount > 0;
+      var autoMaxScore = maxScore - essayScore;
+      var passed = totalScore >= examPassScore;
+      examMode = 'result';
+
+      var body = document.getElementById('examBody');
+      var html = '<div class="exam-result">';
+      html += '<div class="exam-result-icon">' + (passed ? '🎉' : '📋') + '</div>';
+      html += '<div class="exam-result-title">' + (passed ? '恭喜通过考试！' : '未通过考试') + '</div>';
+      html += '<div class="exam-result-score ' + (passed ? 'exam-result-pass' : 'exam-result-fail') + '">' + totalScore + ' 分</div>';
+      if (hasEssay) {
+        html += '<div class="exam-result-detail">客观题满分 ' + autoMaxScore + ' 分 · 及格线 ' + examPassScore + ' 分 · 答对 ' + autoCorrectCount + '/' + autoTotalCount + ' 道客观题</div>';
+        html += '<div style="margin-top:8px;"><span class="exam-essay-pending">⏳ ' + essayCount + ' 道问答题待人工评分（' + essayScore + '分）</span></div>';
+      } else {
+        html += '<div class="exam-result-detail">满分 ' + maxScore + ' 分 · 及格线 ' + examPassScore + ' 分 · 共答对 ' + autoCorrectCount + '/' + examQuestionsData.length + ' 题</div>';
+      }
+      html += '<div class="exam-result-actions">';
+      html += '<button class="exam-btn outline" onclick="reviewExam()">查看解析</button>';
+      html += '<button class="exam-btn primary" onclick="retakeExam()">重新考试</button>';
+      html += '</div>';
+      html += '</div>';
+      body.innerHTML = html;
+      document.getElementById('examFooter').style.display = 'none';
+    }
+
+    function reviewExam() {
+      examMode = 'review';
+      renderExamQuestions();
+      document.getElementById('examFooter').style.display = 'flex';
+      document.getElementById('examFooter').innerHTML = '<div class="exam-footer-info">绿色为正确答案，红色为你的错误选择</div><div style="display:flex;gap:8px;"><button class="exam-btn primary" onclick="retakeExam()">重新考试</button></div>';
+    }
+
+    function retakeExam() {
+      examUserAnswers = {};
+      examMode = 'exam';
+      examTimeLeft = examDuration;
+      document.getElementById('examFooter').innerHTML = '<div class="exam-footer-info">已答 <b id="examAnsweredCount">0</b>/<b id="examTotalCount">0</b> 题</div><div style="display:flex;gap:8px;"><button class="exam-btn outline" onclick="closeExam()">放弃考试</button><button class="exam-btn primary" id="examSubmitBtn" onclick="submitExam()">提交考试</button></div>';
+      document.getElementById('examFooter').style.display = 'flex';
+      renderExamQuestions();
+      startExamTimer();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>角色管理 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    /* 页面标题行 */
+    .page-header-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-header-row .page-title { margin-bottom: 4px; }
+    .page-header-actions { display: flex; gap: 12px; }
+
+    /* 统计卡片 */
+    .role-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .role-stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .role-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .role-stat-value {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .role-stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* 蓝色数量徽章 */
+    .count-badge-blue {
+      background: #dbeafe;
+      color: #2563eb;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    /* 状态标签 */
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .status-on { background: #dcfce7; color: #16a34a; }
+    .status-on::before { background: #16a34a; }
+    .status-off { background: #f1f5f9; color: #64748b; }
+    .status-off::before { background: #94a3b8; }
+
+    /* 关联岗位数 */
+    .user-count {
+      color: var(--primary-color);
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .user-count:hover { text-decoration: underline; }
+
+    /* 操作链接 */
+    .action-cell { display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+    .action-link { color: var(--primary-color); cursor: pointer; font-size: 13px; }
+    .action-link:hover { text-decoration: underline; }
+    .action-warn { color: #ef4444; }
+    .action-success { color: #16a34a; }
+
+    /* Toast 提示 */
+    .toast {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-20px);
+      background: rgba(15, 23, 42, 0.9); color: #fff;
+      padding: 10px 20px; border-radius: 8px; font-size: 14px;
+      z-index: 9999; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: rgba(22, 163, 74, 0.92); }
+    .toast.error { background: rgba(239, 68, 68, 0.92); }
+
+    /* 表头复选框对齐 */
+    .table th.center, .table td.center { text-align: center; }
+    .row-check { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary-color); }
+
+    .table-container { overflow-x: auto; }
+    .role-name-cell { font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+    .role-code-cell { font-family: 'SF Mono', 'Menlo', monospace; font-size: 13px; color: var(--text-secondary); }
+    .role-desc-cell { color: var(--text-secondary); font-size: 13px; }
+    .page-ellipsis {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 14px;
+    }
+
+    /* ===== 弹窗 ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 12px;
+      width: 560px;
+      max-width: 92vw;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .modal-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .modal-close {
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: #f1f5f9; color: var(--text-secondary); }
+    .modal-body { padding: 24px; overflow-y: auto; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* 角色编码前缀 */
+    .code-input-wrapper { display: flex; align-items: stretch; }
+    .code-prefix {
+      padding: 10px 12px;
+      background: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      font-family: 'SF Mono', 'Menlo', monospace;
+    }
+
+    /* 所属系统多选 */
+    .sys-multi-select { position: relative; }
+    .sys-select-display {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 14px; border: 1px solid var(--border-color); border-radius: 8px;
+      cursor: pointer; font-size: 14px; transition: border-color 0.2s; background: #fff;
+    }
+    .sys-select-display:hover { border-color: var(--primary-color); }
+    .sys-select-arrow { color: var(--text-muted); font-size: 12px; transition: transform 0.2s; }
+    .sys-multi-select.open .sys-select-arrow { transform: rotate(180deg); }
+    .sys-select-dropdown {
+      display: none; position: absolute; top: 100%; left: 0; right: 0;
+      background: #fff; border: 1px solid var(--border-color); border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 100; padding: 4px 0; margin-top: 4px;
+    }
+    .sys-multi-select.open .sys-select-dropdown { display: block; }
+    .sys-select-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+      cursor: pointer; font-size: 14px; color: var(--text-primary); transition: background 0.15s;
+    }
+    .sys-select-item:hover { background: #f0f7ff; }
+    .sys-select-item input { accent-color: var(--primary-color); width: 16px; height: 16px; }
+    .sys-selected-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .sys-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; background: #eff6ff; color: #2563eb;
+      border: 1px solid #dbeafe; border-radius: 6px; font-size: 12px; font-weight: 500;
+    }
+    .code-input-wrapper .form-input { border-radius: 0 8px 8px 0; }
+
+    /* textarea */
+    textarea.form-input {
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+
+    /* 数据权限单选 */
+    .radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    .radio-item input { width: 16px; height: 16px; accent-color: var(--primary-color); cursor: pointer; }
+
+    /* 状态开关 */
+    .status-toggle { display: flex; align-items: center; gap: 10px; }
+    .toggle-switch {
+      width: 40px;
+      height: 22px;
+      background: #e2e8f0;
+      border-radius: 11px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-switch.active { background: var(--primary-color); }
+    .toggle-switch.active::after { transform: translateX(18px); }
+    .toggle-label { font-size: 14px; color: var(--text-secondary); }
+
+    .form-required { color: #ef4444; margin-left: 2px; }
+
+    /* 据点系统Tab */
+    .site-sys-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .site-sys-tab {
+      padding: 8px 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+    .site-sys-tab:hover { color: var(--primary-color); }
+    .site-sys-tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    /* 可访问据点 - 组织架构树 */
+    .site-tree-box {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .site-tree-node {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; cursor: pointer; font-size: 13px;
+      color: var(--text-secondary); user-select: none;
+    }
+    .site-tree-node:hover { background: #f8fafc; }
+    .site-tree-node.root-node { font-weight: 600; color: var(--text-primary); }
+    .site-tree-arrow { width: 12px; display: inline-block; text-align: center; font-size: 10px; color: var(--text-muted); transition: transform 0.2s; }
+    .site-tree-arrow.expanded { transform: rotate(90deg); }
+    .site-tree-children { display: none; }
+    .site-tree-children.show { display: block; }
+    .site-tree-node input[type="checkbox"] { accent-color: var(--primary-color); margin: 0; }
+    .site-selected-tags {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 28px;
+    }
+    .site-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 4px; font-size: 12px;
+      background: #dbeafe; color: #2563eb;
+    }
+    .site-tag .remove { cursor: pointer; opacity: 0.6; }
+    .site-tag .remove:hover { opacity: 1; }
+
+    @media (max-width: 1200px) {
+      .role-stats { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .role-stats { grid-template-columns: repeat(2, 1fr); }
+      .page-header-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+    }
+
+
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div>
+        <div class="header-bell">🔔<span class="badge">5</span></div>
+        <div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <div class="sub-nav-item active">系统设置</div>
+    </div>
+  </div>
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">系统设置</div>
+    <div class="sidebar-subtitle">系统配置管理</div>
+    <div class="sidebar-menu">
+      <a href="role-list.html" class="sidebar-menu-item active">
+  <span class="sidebar-menu-icon">🔑</span>
+  <span>角色管理</span>
+</a>
+      <a href="system-manage.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🖥️</span>
+        <span>应用系统管理</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content" style="position: relative;">
+    <!-- 面包屑 -->
+        <div class="breadcrumb" style="margin-bottom:4px;">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span>系统设置</span>
+      <span class="separator">/</span>
+      <span class="current">角色管理</span>
+    </div>
+
+    <!-- 页面标题区 -->
+    <div class="page-header-row">
+      <div>
+        <h1 class="page-title">角色管理</h1>
+        <p class="page-desc">管理各业务系统角色，配置角色权限范围</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="refresh-btn" style="position:static;" onclick="location.reload()">
+          <span>🔄</span><span>刷新</span>
+        </button>
+        <button class="btn btn-primary" onclick="openModal()">+ 新建角色</button>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="role-stats">
+      <div class="role-stat-card">
+        <div class="role-stat-icon icon-blue">👥</div>
+        <div>
+          <div class="role-stat-value">17</div>
+          <div class="role-stat-label">角色总数</div>
+        </div>
+      </div>
+      <div class="role-stat-card">
+        <div class="role-stat-icon icon-green">✅</div>
+        <div>
+          <div class="role-stat-value">14</div>
+          <div class="role-stat-label">启用中</div>
+        </div>
+      </div>
+      <div class="role-stat-card">
+        <div class="role-stat-icon icon-gray">⏸️</div>
+        <div>
+          <div class="role-stat-value">3</div>
+          <div class="role-stat-label">禁用</div>
+        </div>
+      </div>
+      <div class="role-stat-card">
+        <div class="role-stat-icon icon-purple">👑</div>
+        <div>
+          <div class="role-stat-value">1</div>
+          <div class="role-stat-label">超级管理员</div>
+        </div>
+      </div>
+      <div class="role-stat-card">
+        <div class="role-stat-icon icon-orange">👤</div>
+        <div>
+          <div class="role-stat-value">247</div>
+          <div class="role-stat-label">关联岗位</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <span class="icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索角色名称/编码..." oninput="filterTable()">
+      </div>
+      <select class="filter-select" id="statusFilter" onchange="filterTable()">
+        <option>全部状态</option>
+        <option>启用</option>
+        <option>禁用</option>
+      </select>
+    </div>
+
+    <!-- 角色列表卡片 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          角色列表
+          <span class="count-badge-blue" id="roleCountBadge">17个角色</span>
+        </div>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+          <table class="table" id="roleTable">
+            <thead>
+              <tr>
+                <th>角色名称</th>
+                <th style="width: 170px;">角色编码</th>
+                <th>描述</th>
+                <th style="width: 90px;">关联岗位数</th>
+                <th style="width: 90px;">关联用户数</th>
+                <th style="width: 90px;">状态</th>
+                <th style="width: 120px;">创建时间</th>
+                <th style="width: 280px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-name="超级管理员" data-code="ROLE_SUPER_ADMIN" data-status="启用">
+
+                <td><div class="role-name-cell">👑 超级管理员</div></td>
+                <td class="role-code-cell">ROLE_SUPER_ADMIN</td>
+                <td class="role-desc-cell">拥有所有系统全部权限</td>
+                <td><a href="position-manage.html?role=超级管理员" class="user-count">3个</a></td>
+                <td><a href="user-role.html?role=超级管理员" class="user-count">1人</a></td>
+                <td><span class="status-tag status-on">启用</span></td>
+                <td>2024-01-01</td>
+                <td class="action-cell">
+                  <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
+                  <span class="action-link" onclick="openPositionModal('超级管理员')">关联岗位</span>
+                  <span class="action-link" onclick="openModal('超级管理员')">编辑</span>
+                  <span class="action-link action-warn">禁用</span>
+                </td>
+              </tr>
+              <tr data-name="HR管理员" data-code="ROLE_HR_ADMIN" data-status="启用">
+
+                <td><div class="role-name-cell">HR管理员</div></td>
+                <td class="role-code-cell">ROLE_HR_ADMIN</td>
+                <td class="role-desc-cell">管理HR模块全部功能</td>
+                <td><a href="position-manage.html?role=HR管理员" class="user-count">5个</a></td>
+                <td><a href="user-role.html?role=HR管理员" class="user-count">3人</a></td>
+                <td><span class="status-tag status-on">启用</span></td>
+                <td>2024-03-15</td>
+                <td class="action-cell">
+                  <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
+                  <span class="action-link" onclick="openPositionModal('HR管理员')">关联岗位</span>
+                  <span class="action-link" onclick="openModal('HR管理员')">编辑</span>
+                  <span class="action-link action-warn">禁用</span>
+                </td>
+              </tr>
+              <tr data-name="OA审批人" data-code="ROLE_OA_APPROVER" data-status="启用">
+
+                <td><div class="role-name-cell">OA审批人</div></td>
+                <td class="role-code-cell">ROLE_OA_APPROVER</td>
+                <td class="role-desc-cell">OA流程审批、发文管理</td>
+                <td><a href="position-manage.html?role=OA审批人" class="user-count">8个</a></td>
+                <td><a href="user-role.html?role=OA审批人" class="user-count">12人</a></td>
+                <td><span class="status-tag status-on">启用</span></td>
+                <td>2024-05-20</td>
+                <td class="action-cell">
+                  <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
+                  <span class="action-link" onclick="openPositionModal('OA审批人')">关联岗位</span>
+                  <span class="action-link" onclick="openModal('OA审批人')">编辑</span>
+                  <span class="action-link action-warn">禁用</span>
+                </td>
+              </tr>
+              <tr data-name="CRM销售经理" data-code="ROLE_CRM_MANAGER" data-status="启用">
+
+                <td><div class="role-name-cell">CRM销售经理</div></td>
+                <td class="role-code-cell">ROLE_CRM_MANAGER</td>
+                <td class="role-desc-cell">客户管理、合同审批、商机管理</td>
+                <td><a href="position-manage.html?role=CRM销售经理" class="user-count">4个</a></td>
+                <td><a href="user-role.html?role=CRM销售经理" class="user-count">8人</a></td>
+                <td><span class="status-tag status-on">启用</span></td>
+                <td>2024-06-10</td>
+                <td class="action-cell">
+                  <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
+                  <span class="action-link" onclick="openPositionModal('CRM销售经理')">关联岗位</span>
+                  <span class="action-link" onclick="openModal('CRM销售经理')">编辑</span>
+                  <span class="action-link action-warn">禁用</span>
+                </td>
+              </tr>
+              <tr data-name="SRM采购员" data-code="ROLE_SRM_BUYER" data-status="启用">
+
+                <td><div class="role-name-cell">SRM采购员</div></td>
+                <td class="role-code-cell">ROLE_SRM_BUYER</td>
+                <td class="role-desc-cell">供应商管理、采购订单创建</td>
+                <td><a href="position-manage.html?role=SRM采购员" class="user-count">3个</a></td>
+                <td><a href="user-role.html" class="user-count">6人</a></td>
+                <td><span class="status-tag status-on">启用</span></td>
+                <td>2024-07-01</td>
+                <td class="action-cell">
+                  <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
+                  <span class="action-link" onclick="openPositionModal('SRM采购员')">关联岗位</span>
+                  <span class="action-link" onclick="openModal('SRM采购员')">编辑</span>
+                  <span class="action-link action-warn">禁用</span>
+                </td>
+              </tr>
+              <tr data-name="T100生产主管" data-code="ROLE_T100_PROD" data-status="启用">
+
+                <td><div class="role-name-cell">T100生产主管</div></td>
+                <td class="role-code-cell">ROLE_T100_PROD</td>
+                <td class="role-desc-cell">生产工单管理、报工确认</td>
+                <td><a href="position-manage.html?role=T100生产主管" class="user-count">6个</a></td>
+                <td><a href="user-role.html" class="user-count">5人</a></td>
+                <td><span class="status-tag status-on">启用</span></td>
+                <td>2024-08-15</td>
+                <td class="action-cell">
+                  <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
+                  <span class="action-link" onclick="openPositionModal('T100生产主管')">关联岗位</span>
+                  <span class="action-link" onclick="openModal('T100生产主管')">编辑</span>
+                  <span class="action-link action-warn">禁用</span>
+                </td>
+              </tr>
+              <tr data-name="BI报表查看者" data-code="ROLE_BI_VIEWER" data-status="启用">
+
+                <td><div class="role-name-cell">BI报表查看者</div></td>
+                <td class="role-code-cell">ROLE_BI_VIEWER</td>
+                <td class="role-desc-cell">仅查看报表数据，不可编辑</td>
+                <td><a href="position-manage.html?role=BI报表查看者" class="user-count">10个</a></td>
+                <td><a href="user-role.html" class="user-count">15人</a></td>
+                <td><span class="status-tag status-on">启用</span></td>
+                <td>2024-09-20</td>
+                <td class="action-cell">
+                  <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
+                  <span class="action-link" onclick="openPositionModal('BI报表查看者')">关联岗位</span>
+                  <span class="action-link" onclick="openModal('BI报表查看者')">编辑</span>
+                  <span class="action-link action-warn">禁用</span>
+                </td>
+              </tr>
+              <tr data-name="临时访客" data-code="ROLE_GUEST" data-status="禁用">
+
+                <td><div class="role-name-cell">临时访客</div></td>
+                <td class="role-code-cell">ROLE_GUEST</td>
+                <td class="role-desc-cell">只读权限，仅查看首页</td>
+                <td><a href="position-manage.html?role=临时访客" class="user-count">0个</a></td>
+                <td><a href="user-role.html" class="user-count">4人</a></td>
+                <td><span class="status-tag status-off">禁用</span></td>
+                <td>2024-10-05</td>
+                <td class="action-cell">
+                  <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
+                  <span class="action-link" onclick="openPositionModal('临时访客')">关联岗位</span>
+                  <span class="action-link" onclick="openModal('临时访客')">编辑</span>
+                  <span class="action-link action-success">启用</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- 分页 -->
+      <div style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
+        <div class="pagination" style="padding: 0;">
+          <div class="pagination-info">共17条记录</div>
+          <button class="page-btn disabled">‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 关联岗位弹窗 -->
+    <div class="modal-overlay" id="positionModal">
+      <div class="modal-box" style="max-width: 760px;">
+        <div class="modal-header">
+          <div class="modal-title">关联岗位 — <span id="positionModalRoleName">超级管理员</span></div>
+          <div class="modal-close" onclick="closePositionModal()">✕</div>
+        </div>
+        <div class="modal-body">
+          <!-- 搜索栏 -->
+          <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+            <input type="text" class="form-input" id="positionSearchInput" placeholder="搜索岗位名称、岗位代码" style="flex: 1;" oninput="searchPosition()">
+            <button class="btn btn-primary" onclick="showPositionSelector()">+ 添加岗位</button>
+          </div>
+          <!-- 已关联岗位列表 -->
+          <div style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+            <table class="table" style="margin: 0; border: 0;">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">序号</th>
+                  <th>岗位名称</th>
+                  <th style="width: 140px;">岗位代码</th>
+                  <th>部门</th>
+                  <th style="width: 90px;">关联用户数</th>
+                  <th style="width: 70px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="associatedPositionTbody">
+                <!-- 动态渲染 -->
+              </tbody>
+            </table>
+            <div id="emptyPositionTip" style="display:none; padding: 40px; text-align: center; color: var(--text-muted); font-size: 13px;">
+              暂无关联岗位，点击右上角"+ 添加岗位"进行添加
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closePositionModal()">关闭</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选择岗位弹窗（二级弹窗） -->
+    <div class="modal-overlay" id="positionSelectorModal" style="z-index: 2100;">
+      <div class="modal-box" style="max-width: 560px;">
+        <div class="modal-header">
+          <div class="modal-title">选择岗位</div>
+          <div class="modal-close" onclick="closePositionSelector()">✕</div>
+        </div>
+        <div class="modal-body">
+          <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+            <input type="text" class="form-input" id="posSelectorSearchInput" placeholder="输入岗位名称或代码搜索" style="flex:1;" oninput="filterPositionList()">
+            <button class="btn btn-primary" onclick="filterPositionList()">搜索</button>
+          </div>
+          <!-- 岗位列表 -->
+          <div id="positionSelectorList" style="max-height: 360px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+            <!-- 动态渲染 -->
+          </div>
+          <!-- 未找到提示 -->
+          <div id="noPositionTip" style="display:none; margin-top: 12px; padding: 14px; background: #fef2f2; border-radius: 8px; border-left: 3px solid #ef4444; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            <div style="font-weight: 600; color: #ef4444; margin-bottom: 4px;">岗位不存在</div>
+            请联系管理员在中台岗位管理中添加
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closePositionSelector()">取消</button>
+          <button class="btn btn-primary" id="confirmAddPositionBtn" disabled onclick="confirmAddPosition()" style="opacity: 0.5; cursor: not-allowed;">确认添加</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新建/编辑角色弹窗 -->
+    <div class="modal-overlay" id="roleModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title" id="modalTitle">新建角色</div>
+          <div class="modal-close" onclick="closeModal()">✕</div>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">角色名称<span class="form-required">*</span></label>
+            <input type="text" class="form-input" id="roleNameInput" placeholder="请输入角色名称">
+          </div>
+          <div class="form-group">
+            <label class="form-label">角色编码<span class="form-required">*</span></label>
+            <div class="code-input-wrapper">
+              <span class="code-prefix">ROLE_</span>
+              <input type="text" class="form-input" id="roleCodeInput" placeholder="自动生成前缀 ROLE_">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">角色描述</label>
+            <textarea class="form-input" id="roleDesc" placeholder="请输入角色描述"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">所属系统<span class="form-required">*</span></label>
+            <div class="sys-multi-select" id="sysMultiSelect">
+              <div class="sys-select-display" onclick="toggleSysDropdown()">
+                <span id="sysSelectText" style="color: var(--text-muted);">请选择所属系统</span>
+                <span class="sys-select-arrow">▾</span>
+              </div>
+              <div class="sys-select-dropdown" id="sysDropdown">
+                <label class="sys-select-item"><input type="checkbox" value="T100" onchange="updateSysSelection()"> <span>T100</span></label>
+                <label class="sys-select-item"><input type="checkbox" value="HR" onchange="updateSysSelection()"> <span>HR</span></label>
+                <label class="sys-select-item"><input type="checkbox" value="OA" onchange="updateSysSelection()"> <span>OA</span></label>
+                <label class="sys-select-item"><input type="checkbox" value="CRM" onchange="updateSysSelection()"> <span>CRM</span></label>
+                <label class="sys-select-item"><input type="checkbox" value="SRM" onchange="updateSysSelection()"> <span>SRM</span></label>
+                <label class="sys-select-item"><input type="checkbox" value="BI" onchange="updateSysSelection()"> <span>BI</span></label>
+              </div>
+            </div>
+            <div class="sys-selected-tags" id="sysSelectedTags"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">可访问的据点</label>
+            <div class="site-sys-tabs" id="siteSysTabs" style="display:none;">
+            </div>
+            <div class="site-tree-box" id="siteTreeBox">
+              <div class="site-tree-node root-node" onclick="toggleSiteNode(this)">
+                <input type="checkbox" onclick="event.stopPropagation(); siteCheckAll(this)">
+                <span>📁</span>
+                <span>柏星龙集团</span>
+              </div>
+              <div class="site-tree-children show" id="siteRootChildren"></div>
+            </div>
+            <div class="site-selected-tags" id="siteTags"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">生效日期</label>
+            <input type="date" class="form-input" id="effectiveDate" style="color: var(--text-primary);">
+          </div>
+          <div class="form-group">
+            <label class="form-label">失效日期</label>
+            <input type="date" class="form-input" id="expireDate" style="color: var(--text-primary);">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">状态</label>
+            <div class="status-toggle">
+              <div class="toggle-switch active" id="statusToggle" onclick="toggleStatus(this)"></div>
+              <span class="toggle-label" id="toggleText">启用</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal()">取消</button>
+          <button class="btn btn-primary" onclick="closeModal()">保存</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // 角色编码映射（用于编辑回填）
+    var roleCodeMap = {
+      '超级管理员': 'SUPER_ADMIN',
+      'HR管理员': 'HR_ADMIN',
+      'OA审批人': 'OA_APPROVER',
+      'CRM销售经理': 'CRM_MANAGER',
+      'SRM采购员': 'SRM_BUYER',
+      'T100生产主管': 'T100_PROD',
+      'BI报表查看者': 'BI_VIEWER',
+      '临时访客': 'GUEST'
+    };
+
+    // 角色关联的系统（用于权限配置Tab联动）
+    var roleSystemsMap = {
+      '超级管理员': ['T100', 'HR', 'OA', 'CRM', 'SRM', 'BI'],
+      'HR管理员': ['HR'],
+      'OA审批人': ['OA'],
+      'CRM销售经理': ['CRM'],
+      'SRM采购员': ['SRM'],
+      'T100生产主管': ['T100'],
+      'BI报表查看者': ['BI'],
+      '临时访客': []
+    };
+
+    // Toast 提示
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + (type || '');
+      clearTimeout(t._tid);
+      t._tid = setTimeout(function () { t.className = 'toast ' + (type || ''); }, 2200);
+    }
+
+    /* ===== 所属系统多选 ===== */
+    function toggleSysDropdown() {
+      document.getElementById('sysMultiSelect').classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(e) {
+      var box = document.getElementById('sysMultiSelect');
+      if (box && !box.contains(e.target)) box.classList.remove('open');
+    });
+
+    function updateSysSelection() {
+      var checkboxes = document.querySelectorAll('#sysDropdown input[type="checkbox"]');
+      var selected = [];
+      checkboxes.forEach(function(cb) {
+        if (cb.checked) selected.push(cb.value);
+      });
+
+      var textEl = document.getElementById('sysSelectText');
+      var tagsEl = document.getElementById('sysSelectedTags');
+
+      if (selected.length === 0) {
+        textEl.textContent = '请选择所属系统';
+        textEl.style.color = 'var(--text-muted)';
+        tagsEl.innerHTML = '';
+      } else {
+        textEl.textContent = '已选 ' + selected.length + ' 个系统';
+        textEl.style.color = 'var(--text-primary)';
+        tagsEl.innerHTML = selected.map(function(s) {
+          return '<span class="sys-tag">' + s + '</span>';
+        }).join('');
+      }
+      refreshSiteSysTabs(selected);
+    }
+
+    function setSysSelection(systems) {
+      var checkboxes = document.querySelectorAll('#sysDropdown input[type="checkbox"]');
+      checkboxes.forEach(function(cb) {
+        cb.checked = systems.indexOf(cb.value) > -1;
+      });
+      updateSysSelection();
+    }
+
+    function getSysSelection() {
+      var selected = [];
+      document.querySelectorAll('#sysDropdown input[type="checkbox"]:checked').forEach(function(cb) {
+        selected.push(cb.value);
+      });
+      return selected;
+    }
+
+    function openModal(roleName) {
+      var modal = document.getElementById('roleModal');
+      var title = document.getElementById('modalTitle');
+      var nameInput = document.getElementById('roleNameInput');
+      var codeInput = document.getElementById('roleCodeInput');
+      var desc = document.getElementById('roleDesc');
+      var toggle = document.getElementById('statusToggle');
+
+      if (roleName) {
+        title.textContent = '编辑角色';
+        nameInput.value = roleName;
+        codeInput.value = roleCodeMap[roleName] || '';
+        desc.value = '';
+        setSysSelection(roleSystemsMap[roleName] || []);
+      } else {
+        title.textContent = '新建角色';
+        nameInput.value = '';
+        codeInput.value = '';
+        desc.value = '';
+        setSysSelection([]);
+      }
+
+      // 默认状态启用
+      toggle.classList.add('active');
+      document.getElementById('toggleText').textContent = '启用';
+
+      // 初始化据点树
+      initSiteTree();
+
+      modal.classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('roleModal').classList.remove('show');
+    }
+
+    // 点击遮罩关闭弹窗
+    document.getElementById('roleModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // 状态开关切换
+    function toggleStatus(el) {
+      el.classList.toggle('active');
+      document.getElementById('toggleText').textContent = el.classList.contains('active') ? '启用' : '禁用';
+    }
+
+    /* ===== 可访问据点 - 组织架构树 ===== */
+    var siteOrgData = [
+      { name: '深圳总部', children: ['行政部', '财务部', '人力资源部', '市场部', '技术部'] },
+      { name: '上海分公司', children: ['销售部', '物流部', '客服部'] },
+      { name: '包装事业部', children: ['设计部', '生产部', '质检部'] },
+      { name: '电商事业部', children: ['运营部', '电商一部', '电商二部'] }
+    ];
+    // 每个系统的据点选择（独立存储）
+    var siteSelectedBySys = {};
+    var currentSiteSys = '';
+
+    function refreshSiteSysTabs(selectedSystems) {
+      var tabsContainer = document.getElementById('siteSysTabs');
+      if (selectedSystems.length === 0) {
+        tabsContainer.style.display = 'none';
+        tabsContainer.innerHTML = '';
+        document.getElementById('siteRootChildren').innerHTML = '';
+        document.getElementById('siteTags').innerHTML = '<span style="font-size:12px;color:var(--text-muted);">未选择据点</span>';
+        currentSiteSys = '';
+        return;
+      }
+      tabsContainer.style.display = 'flex';
+      var html = selectedSystems.map(function(sys, idx) {
+        return '<div class="site-sys-tab' + (idx === 0 ? ' active' : '') + '" onclick="switchSiteSysTab(\'' + sys + '\')">' + sys + '</div>';
+      }).join('');
+      tabsContainer.innerHTML = html;
+      currentSiteSys = selectedSystems[0];
+      renderSiteTree();
+    }
+
+    function switchSiteSysTab(sys) {
+      currentSiteSys = sys;
+      document.querySelectorAll('#siteSysTabs .site-sys-tab').forEach(function(tab) {
+        tab.classList.toggle('active', tab.textContent.trim() === sys);
+      });
+      renderSiteTree();
+    }
+
+    function renderSiteTree() {
+      var container = document.getElementById('siteRootChildren');
+      var isT100 = currentSiteSys === 'T100';
+      var html = '';
+      if (isT100) {
+        siteOrgData.forEach(function (branch, bi) {
+          html += '<label class="site-tree-node" style="padding-left:32px; cursor:pointer;" onclick="event.stopPropagation();">' +
+            '<span style="width:12px;"></span>' +
+            '<input type="checkbox" data-site-key="' + branch.name + '" onclick="siteToggleItem(\'' + branch.name + '\', this)">' +
+            '<span>🏢</span><span>' + branch.name + '</span></label>';
+        });
+      } else {
+        siteOrgData.forEach(function (branch, bi) {
+          html += '<div class="site-tree-node" style="padding-left:32px;" onclick="toggleSiteNode(this)">' +
+            '<span class="site-tree-arrow">▶</span>' +
+            '<input type="checkbox" data-site-key="branch-' + bi + '" onclick="event.stopPropagation(); siteCheckBranch(' + bi + ', this)">' +
+            '<span>🏢</span><span>' + branch.name + '</span></div>';
+          html += '<div class="site-tree-children" id="site-branch-' + bi + '">';
+          branch.children.forEach(function (dept) {
+            html += '<label class="site-tree-node" style="padding-left:56px; cursor:pointer;" onclick="event.stopPropagation();">' +
+              '<span style="width:12px;"></span>' +
+              '<input type="checkbox" data-site-key="' + branch.name + '|' + dept + '" onclick="siteToggleItem(\'' + branch.name + '|' + dept + '\', this)">' +
+              '<span>' + dept + '</span></label>';
+          });
+          html += '</div>';
+        });
+      }
+      container.innerHTML = html;
+      var selected = siteSelectedBySys[currentSiteSys] || [];
+      selected.forEach(function(key) {
+        container.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+          if (cb.getAttribute('data-site-key') === key) cb.checked = true;
+        });
+      });
+      syncSiteCheckboxes(isT100);
+      updateSiteTags();
+    }
+
+    function syncSiteCheckboxes(isT100) {
+      var rootCb = document.querySelector('#siteTreeBox > .site-tree-node.root-node > input[type="checkbox"]');
+      if (!rootCb) return;
+      if (!isT100) {
+        siteOrgData.forEach(function(branch, bi) {
+          var branchCb = document.querySelector('#siteRootChildren input[data-site-key="branch-' + bi + '"]');
+          if (!branchCb) return;
+          var childCbs = [];
+          branch.children.forEach(function(dept) {
+            var cb = document.querySelector('#siteRootChildren input[data-site-key="' + branch.name + '|' + dept + '"]');
+            if (cb) childCbs.push(cb);
+          });
+          branchCb.checked = childCbs.length > 0 && childCbs.every(function(cb) { return cb.checked; });
+        });
+      }
+      var itemCbs = [];
+      document.querySelectorAll('#siteRootChildren input[type="checkbox"]').forEach(function(cb) {
+        var key = cb.getAttribute('data-site-key') || '';
+        if (key.indexOf('branch-') !== 0) itemCbs.push(cb);
+      });
+      rootCb.checked = itemCbs.length > 0 && itemCbs.every(function(cb) { return cb.checked; });
+    }
+
+    function initSiteTree() {
+      siteSelectedBySys = {};
+      currentSiteSys = '';
+      var selected = getSysSelection();
+      if (selected.length > 0) {
+        refreshSiteSysTabs(selected);
+      } else {
+        document.getElementById('siteRootChildren').innerHTML = '';
+        document.getElementById('siteTags').innerHTML = '<span style="font-size:12px;color:var(--text-muted);">未选择据点</span>';
+      }
+    }
+
+    function toggleSiteNode(el) {
+      var next = el.nextElementSibling;
+      if (next && next.classList.contains('site-tree-children')) {
+        next.classList.toggle('show');
+        var arrow = el.querySelector('.site-tree-arrow');
+        if (arrow) arrow.classList.toggle('expanded');
+      }
+    }
+
+    function siteCheckAll(el) {
+      var tree = document.getElementById('siteTreeBox');
+      var isT100 = currentSiteSys === 'T100';
+      tree.querySelectorAll('#siteRootChildren input[type="checkbox"]').forEach(function (cb) {
+        if (cb !== el) cb.checked = el.checked;
+      });
+      if (!currentSiteSys) return;
+      if (el.checked) {
+        var arr = [];
+        if (isT100) {
+          siteOrgData.forEach(function (branch) { arr.push(branch.name); });
+        } else {
+          siteOrgData.forEach(function (branch) {
+            branch.children.forEach(function (dept) { arr.push(branch.name + '|' + dept); });
+          });
+        }
+        siteSelectedBySys[currentSiteSys] = arr;
+      } else {
+        siteSelectedBySys[currentSiteSys] = [];
+      }
+      syncSiteCheckboxes(isT100);
+      updateSiteTags();
+    }
+
+    function siteCheckBranch(bi, el) {
+      var branchDiv = document.getElementById('site-branch-' + bi);
+      var branchName = siteOrgData[bi].name;
+      branchDiv.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+        cb.checked = el.checked;
+      });
+      if (!currentSiteSys) return;
+      var arr = siteSelectedBySys[currentSiteSys] || [];
+      if (el.checked) {
+        siteOrgData[bi].children.forEach(function (dept) {
+          var key = branchName + '|' + dept;
+          if (arr.indexOf(key) === -1) arr.push(key);
+        });
+      } else {
+        arr = arr.filter(function (s) { return s.indexOf(branchName + '|') !== 0; });
+      }
+      siteSelectedBySys[currentSiteSys] = arr;
+      syncSiteCheckboxes(false);
+      updateSiteTags();
+    }
+
+    function siteToggleItem(key, el) {
+      if (!currentSiteSys) return;
+      var arr = siteSelectedBySys[currentSiteSys] || [];
+      if (el.checked) {
+        if (arr.indexOf(key) === -1) arr.push(key);
+      } else {
+        arr = arr.filter(function (s) { return s !== key; });
+      }
+      siteSelectedBySys[currentSiteSys] = arr;
+      syncSiteCheckboxes(currentSiteSys === 'T100');
+      updateSiteTags();
+    }
+
+    function updateSiteTags() {
+      var container = document.getElementById('siteTags');
+      if (!currentSiteSys || !siteSelectedBySys[currentSiteSys] || siteSelectedBySys[currentSiteSys].length === 0) {
+        container.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">未选择据点</span>';
+        return;
+      }
+      var arr = siteSelectedBySys[currentSiteSys];
+      container.innerHTML = arr.map(function (s) {
+        var label = s.indexOf('|') > -1 ? s.split('|')[1] : s;
+        return '<span class="site-tag">' + label + ' <span class="remove" onclick="removeSite(\'' + s + '\')">✕</span></span>';
+      }).join('');
+    }
+
+    function removeSite(key) {
+      if (!currentSiteSys) return;
+      var arr = siteSelectedBySys[currentSiteSys] || [];
+      arr = arr.filter(function (s) { return s !== key; });
+      siteSelectedBySys[currentSiteSys] = arr;
+      document.querySelectorAll('#siteRootChildren input[type="checkbox"]').forEach(function (cb) {
+        if (cb.getAttribute('data-site-key') === key) cb.checked = false;
+      });
+      syncSiteCheckboxes(currentSiteSys === 'T100');
+      updateSiteTags();
+    }
+
+    // 表格筛选
+    function filterTable() {
+      var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      var status = document.getElementById('statusFilter').value;
+      var rows = document.querySelectorAll('#roleTable tbody tr');
+      var visibleCount = 0;
+
+      rows.forEach(function(row){
+        var name = (row.dataset.name || '').toLowerCase();
+        var code = (row.dataset.code || '').toLowerCase();
+        var st = row.dataset.status;
+
+        var matchKeyword = !keyword || name.indexOf(keyword) > -1 || code.indexOf(keyword) > -1;
+        var matchStatus = status === '全部状态' || st === status;
+
+        if (matchKeyword && matchStatus) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+          var cb = row.querySelector('.row-check');
+          if (cb) cb.checked = false;
+        }
+      });
+
+      document.getElementById('roleCountBadge').textContent = visibleCount + '个角色';
+    }
+
+    // 全选/取消全选
+    function toggleAll(el) {
+      document.querySelectorAll('#roleTable tbody tr').forEach(function(row){
+        if (row.style.display !== 'none') {
+          var cb = row.querySelector('.row-check');
+          if (cb) cb.checked = el.checked;
+        }
+      });
+    }
+
+    /* ===== 关联岗位功能（方案A：关联岗位带出用户） ===== */
+    // 全量岗位池（中台岗位数据，只读引用）
+    var allPositions = [
+      { name: '行政总监', code: 'POS_ADMIN_DIR', dept: '行政部', users: [{ name: '张建国', empNo: 'BXL001', status: '在职' }] },
+      { name: '总经理助理', code: 'POS_GM_ASST', dept: '行政部', users: [{ name: '张建国', empNo: 'BXL001', status: '在职' }] },
+      { name: 'HR经理', code: 'POS_HR_MANAGER', dept: '人力资源部', users: [{ name: '李明华', empNo: 'BXL002', status: '在职' }] },
+      { name: '招聘主管', code: 'POS_RECRUIT_LEAD', dept: '人力资源部', users: [{ name: '李明华', empNo: 'BXL002', status: '在职' }] },
+      { name: 'HR专员', code: 'POS_HR_SPEC', dept: '人力资源部', users: [{ name: '王晓芳', empNo: 'BXL003', status: '在职' }] },
+      { name: '财务总监', code: 'POS_FIN_DIR', dept: '财务部', users: [{ name: '陈伟强', empNo: 'BXL004', status: '在职' }] },
+      { name: '市场经理', code: 'POS_MKT_MANAGER', dept: '市场部', users: [{ name: '刘美玲', empNo: 'BXL005', status: '在职' }] },
+      { name: '技术总监', code: 'POS_TECH_DIR', dept: '技术部', users: [{ name: '赵文博', empNo: 'BXL006', status: '在职' }] },
+      { name: '架构师', code: 'POS_ARCHITECT', dept: '技术部', users: [{ name: '赵文博', empNo: 'BXL006', status: '在职' }] },
+      { name: '销售经理', code: 'POS_SALES_MANAGER', dept: '销售部', users: [{ name: '孙晓燕', empNo: 'BXL007', status: '在职' }] },
+      { name: '大客户经理', code: 'POS_KEY_ACCOUNT', dept: '销售部', users: [{ name: '孙晓燕', empNo: 'BXL007', status: '在职' }] },
+      { name: '销售代表', code: 'POS_SALES_REP', dept: '上海分公司-销售部', users: [{ name: '周志强', empNo: 'BXL008', status: '在职' }] },
+      { name: '物流主管', code: 'POS_LOGISTICS_LEAD', dept: '物流部', users: [{ name: '吴丽娟', empNo: 'BXL009', status: '在职' }] },
+      { name: '客服主管', code: 'POS_CS_LEAD', dept: '客服部', users: [{ name: '郑海涛', empNo: 'BXL010', status: '在职' }] },
+      { name: '设计总监', code: 'POS_DESIGN_DIR', dept: '设计部', users: [{ name: '冯雪梅', empNo: 'BXL011', status: '在职' }] },
+      { name: '生产主管', code: 'POS_PROD_LEAD', dept: '生产部', users: [{ name: '钱志刚', empNo: 'BXL012', status: '在职' }] },
+    ];
+
+    // 各角色已关联的岗位代码
+    var rolePositionsMap = {
+      '超级管理员': ['POS_ADMIN_DIR', 'POS_GM_ASST', 'POS_TECH_DIR'],
+      'HR管理员': ['POS_HR_MANAGER', 'POS_RECRUIT_LEAD', 'POS_HR_SPEC', 'POS_FIN_DIR', 'POS_MKT_MANAGER'],
+      'OA审批人': ['POS_ADMIN_DIR', 'POS_HR_MANAGER', 'POS_FIN_DIR', 'POS_MKT_MANAGER', 'POS_TECH_DIR', 'POS_SALES_MANAGER'],
+      'CRM销售经理': ['POS_SALES_MANAGER', 'POS_SALES_REP', 'POS_KEY_ACCOUNT'],
+      'SRM采购员': ['POS_LOGISTICS_LEAD', 'POS_PROD_LEAD'],
+      'T100生产主管': ['POS_PROD_LEAD', 'POS_TECH_DIR', 'POS_LOGISTICS_LEAD'],
+      'BI报表查看者': ['POS_FIN_DIR', 'POS_MKT_MANAGER', 'POS_SALES_MANAGER', 'POS_PROD_LEAD', 'POS_HR_MANAGER', 'POS_ADMIN_DIR', 'POS_TECH_DIR', 'POS_DESIGN_DIR', 'POS_CS_LEAD', 'POS_LOGISTICS_LEAD'],
+      '临时访客': []
+    };
+
+    var currentRoleForPosition = '';
+    var selectedPositionObj = null;
+    var selectedPositionCodes = [];
+
+    // 打开关联岗位弹窗
+    function openPositionModal(roleName) {
+      currentRoleForPosition = roleName;
+      document.getElementById('positionModalRoleName').textContent = roleName;
+      document.getElementById('positionSearchInput').value = '';
+      renderAssociatedPositions('');
+      document.getElementById('positionModal').classList.add('show');
+    }
+
+    function closePositionModal() {
+      document.getElementById('positionModal').classList.remove('show');
+    }
+
+    // 渲染已关联岗位列表
+    function renderAssociatedPositions(keyword) {
+      var tbody = document.getElementById('associatedPositionTbody');
+      var codes = rolePositionsMap[currentRoleForPosition] || [];
+      var list = codes.map(function(code) {
+        return allPositions.find(function(p) { return p.code === code; });
+      }).filter(function(p) { return p; });
+
+      if (keyword) {
+        keyword = keyword.toLowerCase();
+        list = list.filter(function(p) {
+          return p.name.toLowerCase().indexOf(keyword) > -1 || p.code.toLowerCase().indexOf(keyword) > -1;
+        });
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = '';
+        document.getElementById('emptyPositionTip').style.display = 'block';
+        return;
+      }
+      document.getElementById('emptyPositionTip').style.display = 'none';
+      var html = '';
+      list.forEach(function(p, i) {
+        html += '<tr>' +
+          '<td>' + (i + 1) + '</td>' +
+          '<td><b>' + p.name + '</b></td>' +
+          '<td style="font-family:Menlo,monospace;font-size:12px;">' + p.code + '</td>' +
+          '<td>' + p.dept + '</td>' +
+          '<td><span style="color:var(--primary-color);font-weight:500;">' + p.users.length + '人</span></td>' +
+          '<td><span class="action-link action-warn" onclick="removeAssociatedPosition(\'' + p.code + '\')">移除</span></td>' +
+        '</tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    // 搜索已关联岗位
+    function searchPosition() {
+      var kw = document.getElementById('positionSearchInput').value;
+      renderAssociatedPositions(kw);
+    }
+
+    // 移除关联岗位
+    function removeAssociatedPosition(code) {
+      if (!confirm('确认移除该岗位与角色的关联？移除后该岗位下用户将不再继承此角色权限。')) return;
+      rolePositionsMap[currentRoleForPosition] = rolePositionsMap[currentRoleForPosition].filter(function(c) { return c !== code; });
+      renderAssociatedPositions(document.getElementById('positionSearchInput').value);
+      showToast('已移除岗位关联', 'success');
+    }
+
+    // 打开岗位选择器
+    function showPositionSelector() {
+      selectedPositionObj = null;
+      selectedPositionCodes = [];
+      document.getElementById('posSelectorSearchInput').value = '';
+      document.getElementById('noPositionTip').style.display = 'none';
+      document.getElementById('confirmAddPositionBtn').disabled = true;
+      document.getElementById('confirmAddPositionBtn').style.opacity = '0.5';
+      document.getElementById('confirmAddPositionBtn').style.cursor = 'not-allowed';
+      document.getElementById('confirmAddPositionBtn').textContent = '确认添加';
+      renderPositionSelectorList(allPositions);
+      document.getElementById('positionSelectorModal').classList.add('show');
+    }
+
+    function closePositionSelector() {
+      document.getElementById('positionSelectorModal').classList.remove('show');
+    }
+
+    // 渲染选择器岗位列表（复选框多选）
+    function renderPositionSelectorList(list) {
+      var container = document.getElementById('positionSelectorList');
+      if (list.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      var html = '';
+      list.forEach(function(p) {
+        var alreadyAssoc = isPositionAssociated(p.code);
+        var checked = alreadyAssoc || selectedPositionCodes.indexOf(p.code) > -1;
+        html += '<div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border-color);cursor:' + (alreadyAssoc ? 'not-allowed' : 'pointer') + ';opacity:' + (alreadyAssoc ? '0.5' : '1') + ';"' +
+          (alreadyAssoc ? '' : ' onclick="togglePosition(\'' + p.code + '\')"') + '>' +
+          '<input type="checkbox" ' + (checked ? 'checked' : '') + ' ' + (alreadyAssoc ? 'disabled' : '') + ' style="margin-right:10px;width:16px;height:16px;accent-color:var(--primary-color);cursor:pointer;" onclick="event.stopPropagation(); if(!this.checked){togglePosition(\'' + p.code + '\')}"' + (alreadyAssoc ? '' : ' onchange="togglePosition(\'' + p.code + '\', this.checked)"') + '>' +
+          '<div style="flex:1;">' +
+            '<div style="font-weight:500;color:var(--text-primary);font-size:14px;">' + p.name +
+              ' <span style="font-family:Menlo,monospace;font-size:11px;color:var(--text-muted);margin-left:6px;">' + p.code + '</span>' +
+            '</div>' +
+            '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + p.dept + ' · ' + p.users.length + '人</div>' +
+          '</div>' +
+          (alreadyAssoc ? '<span style="font-size:12px;color:var(--text-muted);">已关联</span>' : '') +
+        '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    // 检查岗位是否已关联
+    function isPositionAssociated(code) {
+      var codes = rolePositionsMap[currentRoleForPosition] || [];
+      return codes.indexOf(code) > -1;
+    }
+
+    // 搜索过滤岗位列表
+    function filterPositionList() {
+      var kw = document.getElementById('posSelectorSearchInput').value.trim().toLowerCase();
+      var filtered = allPositions.filter(function(p) {
+        return !kw || p.name.toLowerCase().indexOf(kw) > -1 || p.code.toLowerCase().indexOf(kw) > -1;
+      });
+      renderPositionSelectorList(filtered);
+      document.getElementById('noPositionTip').style.display = filtered.length === 0 ? 'block' : 'none';
+      if (filtered.length === 0) {
+        document.getElementById('selectedPositionCard').style.display = 'none';
+      }
+    }
+
+    // 切换岗位选中状态（多选）
+    function togglePosition(code, checked) {
+      var pos = allPositions.find(function(p) { return p.code === code; });
+      if (!pos) return;
+      if (isPositionAssociated(code)) return;
+
+      if (checked === undefined) {
+        var idx = selectedPositionCodes.indexOf(code);
+        if (idx > -1) {
+          selectedPositionCodes.splice(idx, 1);
+        } else {
+          selectedPositionCodes.push(code);
+        }
+      } else {
+        if (checked) {
+          if (selectedPositionCodes.indexOf(code) === -1) selectedPositionCodes.push(code);
+        } else {
+          var idx2 = selectedPositionCodes.indexOf(code);
+          if (idx2 > -1) selectedPositionCodes.splice(idx2, 1);
+        }
+      }
+
+      updateSelectedPositionsCard();
+      renderPositionSelectorList(getCurrentFilteredPositions());
+    }
+
+    function getCurrentFilteredPositions() {
+      var kw = document.getElementById('posSelectorSearchInput').value.trim().toLowerCase();
+      return allPositions.filter(function(p) {
+        return !kw || p.name.toLowerCase().indexOf(kw) > -1 || p.code.toLowerCase().indexOf(kw) > -1;
+      });
+    }
+
+    // 更新已选岗位按钮状态
+    function updateSelectedPositionsCard() {
+      var btn = document.getElementById('confirmAddPositionBtn');
+
+      if (selectedPositionCodes.length === 0) {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+        btn.textContent = '确认添加';
+      } else {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.textContent = '确认添加（' + selectedPositionCodes.length + '）';
+      }
+    }
+
+    // 确认添加岗位（批量）
+    function confirmAddPosition() {
+      if (selectedPositionCodes.length === 0) return;
+      var list = rolePositionsMap[currentRoleForPosition] || [];
+      selectedPositionCodes.forEach(function(code) {
+        if (list.indexOf(code) === -1) list.push(code);
+      });
+      rolePositionsMap[currentRoleForPosition] = list;
+
+      renderAssociatedPositions(document.getElementById('positionSearchInput').value);
+      closePositionSelector();
+      showToast('已添加 ' + selectedPositionCodes.length + ' 个岗位，岗位下用户已自动继承角色权限', 'success');
+    }
+
+    // 点击遮罩关闭
+    document.getElementById('positionModal').addEventListener('click', function(e) {
+      if (e.target === this) closePositionModal();
+    });
+    document.getElementById('positionSelectorModal').addEventListener('click', function(e) {
+      if (e.target === this) closePositionSelector();
+    });
+
+    // ESC 关闭弹窗
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') {
+        if (document.getElementById('positionSelectorModal').classList.contains('show')) closePositionSelector();
+        else if (document.getElementById('positionModal').classList.contains('show')) closePositionModal();
+        else closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

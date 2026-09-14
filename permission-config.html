@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>权限配置 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    .main-content { position: relative; }
+
+    /* 页面标题区 */
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .page-head-left .page-title { margin-bottom: 6px; }
+    .page-head-actions { display: flex; gap: 10px; align-items: center; }
+
+    /* 配置选择栏 */
+    .config-bar { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .config-field { display: flex; align-items: center; gap: 10px; }
+    .config-field .label { font-size: 13px; color: var(--text-secondary); font-weight: 500; white-space: nowrap; }
+    .config-select { min-width: 190px; }
+    .config-role-info { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 13px; color: var(--text-secondary); flex-wrap: wrap; }
+    .role-info-item { display: flex; align-items: center; gap: 6px; }
+    .role-info-item b { color: var(--text-primary); font-weight: 600; }
+
+    /* 权限主体布局：左30% 右70% */
+    .perm-layout { display: grid; grid-template-columns: 3fr 7fr; gap: 16px; align-items: flex-start; }
+
+    /* 权限树 */
+    .tree-toolbar-links { display: flex; align-items: center; gap: 8px; }
+    .tree-link { font-size: 13px; color: var(--primary-color); cursor: pointer; user-select: none; }
+    .tree-link:hover { text-decoration: underline; }
+    .tree-link-sep { color: var(--border-color); }
+    .perm-tree { font-size: 14px; }
+    .tree-row { display: flex; align-items: center; gap: 8px; padding: 7px 6px; border-radius: 6px; }
+    .tree-row:hover { background: var(--bg-light); }
+    .tree-row.lvl1 .tree-label { font-weight: 600; font-size: 15px; }
+    .tree-toggle { width: 16px; text-align: center; color: var(--text-muted); cursor: pointer; font-size: 12px; user-select: none; flex-shrink: 0; }
+    .tree-toggle.leaf { visibility: hidden; cursor: default; }
+    .tree-children { padding-left: 20px; }
+    .tree-children.collapsed { display: none; }
+    /* 自定义三态复选框 */
+    .tree-check {
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 1.5px solid #cbd5e1; background: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; transition: all .15s;
+    }
+    .tree-check:hover { border-color: var(--primary-color); }
+    .tree-check.checked { background: var(--primary-color); border-color: var(--primary-color); }
+    .tree-check.checked::after { content: '✓'; color: #fff; font-size: 11px; line-height: 1; font-weight: bold; }
+    /* 半选：蓝色填充方块（白色横条表示部分选中） */
+    .tree-check.half { background: var(--primary-color); border-color: var(--primary-color); }
+    .tree-check.half::after { content: ''; width: 8px; height: 2px; background: #fff; border-radius: 1px; }
+    .tree-icon { font-size: 15px; }
+    .tree-label { cursor: pointer; user-select: none; color: var(--text-primary); }
+    .tree-label:hover { color: var(--primary-color); }
+    .tree-row .leaf-label { cursor: default; }
+    .tree-row .leaf-label:hover { color: var(--text-primary); }
+
+    /* Tab 面板 */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .panel-desc {
+      font-size: 13px; color: var(--text-secondary);
+      margin-bottom: 16px; background: var(--bg-light);
+      padding: 10px 14px; border-radius: 8px; line-height: 1.6;
+    }
+    .panel-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+
+    /* 权限表格 */
+    .perm-table input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-color); cursor: pointer; vertical-align: middle; }
+    .perm-table code { font-family: Menlo, Consolas, monospace; font-size: 12px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; }
+    .table-footer { padding: 12px 16px; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--border-color); background: #f8fafc; }
+    .table-footer b { color: var(--primary-color); font-weight: 600; }
+
+    /* 数据范围卡片单选 */
+    .scope-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .scope-card { border: 1.5px solid var(--border-color); border-radius: 10px; padding: 14px; cursor: pointer; transition: all .2s; background: #fff; }
+    .scope-card:hover { border-color: #bfdbfe; background: #fcfdff; }
+    .scope-card.active { border-color: var(--primary-color); background: #eff6ff; box-shadow: 0 0 0 1px var(--primary-color) inset; }
+    .scope-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .scope-card.active .scope-card-title { color: var(--primary-color); }
+    .scope-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .scope-radio { width: 16px; height: 16px; border: 2px solid #cbd5e1; border-radius: 50%; flex-shrink: 0; position: relative; transition: all .15s; }
+    .scope-card.active .scope-radio { border-color: var(--primary-color); }
+    .scope-card.active .scope-radio::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color); }
+
+    /* 自定义规则 */
+    .rule-config { margin-top: 16px; padding: 16px; background: var(--bg-light); border-radius: 10px; display: none; }
+    .rule-config.show { display: block; }
+    .rule-config-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+    .rule-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .rule-row .rule-op { font-size: 12px; color: var(--text-muted); width: 40px; text-align: center; font-weight: 600; }
+    .rule-condition { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .rule-input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #fff; color: var(--text-primary); }
+    .rule-input.flex1 { flex: 1; }
+    .rule-input:focus { border-color: var(--primary-color); outline: none; }
+    .rule-del { color: var(--text-muted); cursor: pointer; padding: 6px; font-size: 14px; }
+    .rule-del:hover { color: var(--danger-color); }
+    .rule-actions { margin-top: 6px; }
+
+    /* Toast 提示 */
+    .toast {
+      position: fixed; top: 80px; left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1a202c; color: #fff;
+      padding: 12px 24px; border-radius: 8px; font-size: 14px;
+      opacity: 0; pointer-events: none; transition: all .25s; z-index: 2000;
+      box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--success-color); }
+    .toast.info { background: var(--primary-color); }
+
+
+    /* 业务系统Tab */
+    .sys-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border-color); margin-bottom: 12px; }
+    .sys-tab {
+      padding: 8px 16px; font-size: 13px; color: var(--text-secondary);
+      cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s;
+      user-select: none; white-space: nowrap;
+    }
+    .sys-tab:hover { color: var(--primary-color); }
+    .sys-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
+
+    /* 数据权限范围卡片 */
+    .data-scope-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .data-scope-card {
+      border: 1.5px solid var(--border-color); border-radius: 10px; padding: 16px;
+      cursor: pointer; transition: all .2s; background: #fff; position: relative;
+    }
+    .data-scope-card:hover { border-color: #bfdbfe; background: #fcfdff; }
+    .data-scope-card.active {
+      border-color: var(--primary-color); background: #eff6ff;
+      box-shadow: 0 0 0 1px var(--primary-color) inset;
+    }
+    .data-scope-card-title {
+      font-size: 14px; font-weight: 600; color: var(--text-primary);
+      margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+    }
+    .data-scope-card.active .data-scope-card-title { color: var(--primary-color); }
+    .data-scope-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .data-scope-radio {
+      width: 16px; height: 16px; border: 2px solid #cbd5e1; border-radius: 50%;
+      flex-shrink: 0; position: relative; transition: all .15s;
+    }
+    .data-scope-card.active .data-scope-radio { border-color: var(--primary-color); }
+    .data-scope-card.active .data-scope-radio::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%); width: 8px; height: 8px;
+      border-radius: 50%; background: var(--primary-color);
+    }
+
+    /* 组织架构树 */
+    .org-tree-container {
+      border: 1px solid var(--border-color); border-radius: 8px;
+      max-height: 300px; overflow-y: auto; padding: 8px 0; display: none;
+    }
+    .org-tree-container.show { display: block; }
+    .org-tree-node {
+      padding: 6px 16px; display: flex; align-items: center; gap: 6px;
+      cursor: pointer; font-size: 14px;
+    }
+    .org-tree-node:hover { background: var(--bg-light); }
+    .org-tree-node.root { background: #f0f7ff; font-weight: 600; }
+    .org-tree-children { display: none; }
+    .org-tree-children.show { display: block; }
+    .org-arrow { font-size: 10px; transition: transform .2s; color: var(--text-muted); }
+    .org-arrow.expanded { transform: rotate(90deg); }
+    .org-check { width: 16px; height: 16px; accent-color: var(--primary-color); cursor: pointer; }
+
+    /* 脱敏规则下拉 */
+    .mask-select {
+      padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px;
+      font-size: 12px; background: #fff; color: var(--text-primary); cursor: pointer;
+      outline: none;
+    }
+    .mask-select:focus { border-color: var(--primary-color); }
+    .mask-select:disabled { background: #f1f5f9; color: var(--text-muted); cursor: not-allowed; }
+
+    /* 字段权限下拉 */
+    .col-select {
+      padding: 4px 6px; border: 1px solid var(--border-color); border-radius: 4px;
+      font-size: 12px; background: #fff; color: var(--text-primary); cursor: pointer;
+      outline: none; max-width: 100%;
+    }
+    .col-select:focus { border-color: var(--primary-color); }
+    .col-select:disabled { background: #f1f5f9; color: var(--text-muted); cursor: not-allowed; }
+    .mini-switch {
+      width: 36px; height: 18px; border-radius: 9px; background: #ccc;
+      position: relative; cursor: pointer; border: 0; display: inline-block;
+    }
+    .mini-switch.on { background: var(--primary-color); }
+    .mini-switch i {
+      position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
+      background: #fff; border-radius: 50%; transition: left 0.2s;
+    }
+    .mini-switch.on i { left: 20px; }
+
+
+    @media (max-width: 1100px) {
+      .perm-layout { grid-template-columns: 1fr; }
+      .scope-grid { grid-template-columns: repeat(2, 1fr); }
+      .config-role-info { margin-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div>
+        <div class="header-bell">🔔<span class="badge">5</span></div>
+        <div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <div class="sub-nav-item active">系统设置</div>
+    </div>
+  </div>
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">系统设置</div>
+    <div class="sidebar-subtitle">系统配置管理</div>
+    <div class="sidebar-menu">
+      <a href="role-list.html" class="sidebar-menu-item active">
+  <span class="sidebar-menu-icon">🔑</span>
+  <span>角色管理</span>
+</a>
+      <a href="system-manage.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🖥️</span>
+        <span>应用系统管理</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 刷新按钮 -->
+    <button class="refresh-btn" onclick="refreshPage()">⟳ 刷新</button>
+
+    <!-- 面包屑 -->
+        <div class="breadcrumb" style="margin-bottom:4px;">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span>系统设置</span>
+      <span class="separator">/</span>
+      <a href="role-list.html">角色管理</a>
+      <span class="separator">/</span>
+      <span class="current">权限配置</span>
+    </div>
+
+    <!-- 页面标题区 -->
+    <div class="page-head">
+      <div class="page-head-left">
+        <h1 class="page-title">权限配置</h1>
+        <div class="page-desc">为角色配置各业务系统的菜单、按钮、字段权限、部门数据权限、个人数据权限及日期控管</div>
+      </div>
+      <div class="page-head-actions">
+        <button class="btn btn-secondary" onclick="resetConfig()">↺ 重置</button>
+        <button class="btn btn-primary" onclick="saveConfig()">💾 保存配置</button>
+      </div>
+    </div>
+
+    <!-- 配置选择栏 -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="card-body config-bar">
+        <div class="config-field">
+          <span class="label">当前角色</span>
+          <span style="font-size:15px; font-weight:600; color:var(--text-primary);" id="roleDisplay">OA审批人</span>
+        </div>
+        <div class="config-role-info">
+          <span class="role-info-item">角色编码：<span class="tag tag-blue" id="roleCode">ROLE_OA_APPROVER</span></span>
+          <span class="role-info-item">👥 关联用户：<b id="roleUsers">12</b> 人</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 权限配置主体 -->
+    <div class="perm-layout">
+      <!-- 左栏：菜单权限树 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔐 菜单权限</div>
+          <div class="tree-toolbar-links">
+            <span class="tree-link" onclick="toggleSelectAll()">全选/全不选</span>
+            <span class="tree-link-sep">|</span>
+            <span class="tree-link" onclick="toggleExpandAll()">展开/折叠</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="sys-tabs" id="sysTabs">
+            <div class="sys-tab" data-sys="T100" onclick="switchSystem('T100')">T100</div>
+            <div class="sys-tab" data-sys="HR" onclick="switchSystem('HR')">HR</div>
+            <div class="sys-tab active" data-sys="OA" onclick="switchSystem('OA')">OA</div>
+            <div class="sys-tab" data-sys="CRM" onclick="switchSystem('CRM')">CRM</div>
+            <div class="sys-tab" data-sys="SRM" onclick="switchSystem('SRM')">SRM</div>
+            <div class="sys-tab" data-sys="BI" onclick="switchSystem('BI')">BI</div>
+          </div>
+          <ul class="perm-tree" id="permTree">
+            <!-- OA系统（根） -->
+            <li class="tree-node">
+              <div class="tree-row lvl1">
+                <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                <span class="tree-check" onclick="toggleCheck(this)"></span>
+                <span class="tree-icon">📂</span>
+                <span class="tree-label" id="treeRootLabel" onclick="toggleTreeNode(this)">OA系统</span>
+              </div>
+              <ul class="tree-children">
+                <!-- 首页概览 -->
+                <li class="tree-node">
+                  <div class="tree-row">
+                    <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                    <span class="tree-check" onclick="toggleCheck(this)"></span>
+                    <span class="tree-icon">🏠</span>
+                    <span class="tree-label" onclick="toggleTreeNode(this)">首页概览</span>
+                  </div>
+                  <ul class="tree-children">
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🖥️</span>
+                        <span class="tree-label leaf-label">工作台</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📌</span>
+                        <span class="tree-label leaf-label">我的待办</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">✅</span>
+                        <span class="tree-label leaf-label">我的已办</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <!-- 公文管理 -->
+                <li class="tree-node">
+                  <div class="tree-row">
+                    <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                    <span class="tree-check" onclick="toggleCheck(this)"></span>
+                    <span class="tree-icon">📄</span>
+                    <span class="tree-label" onclick="toggleTreeNode(this)">公文管理</span>
+                  </div>
+                  <ul class="tree-children">
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📝</span>
+                        <span class="tree-label leaf-label">发文管理</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📥</span>
+                        <span class="tree-label leaf-label">收文管理</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🔄</span>
+                        <span class="tree-label leaf-label">文件流转</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🗂️</span>
+                        <span class="tree-label leaf-label">档案管理</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <!-- 流程审批 -->
+                <li class="tree-node">
+                  <div class="tree-row">
+                    <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                    <span class="tree-check" onclick="toggleCheck(this)"></span>
+                    <span class="tree-icon">🔁</span>
+                    <span class="tree-label" onclick="toggleTreeNode(this)">流程审批</span>
+                  </div>
+                  <ul class="tree-children">
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📋</span>
+                        <span class="tree-label leaf-label">待办列表</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📑</span>
+                        <span class="tree-label leaf-label">已办列表</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🔍</span>
+                        <span class="tree-label leaf-label">流程跟踪</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">⚙️</span>
+                        <span class="tree-label leaf-label">流程配置</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <!-- 系统管理（整支未选） -->
+                <li class="tree-node">
+                  <div class="tree-row">
+                    <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                    <span class="tree-check" onclick="toggleCheck(this)"></span>
+                    <span class="tree-icon">🛠️</span>
+                    <span class="tree-label" onclick="toggleTreeNode(this)">系统管理</span>
+                  </div>
+                  <ul class="tree-children">
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">👥</span>
+                        <span class="tree-label leaf-label">用户管理</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🛡️</span>
+                        <span class="tree-label leaf-label">角色管理</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📑</span>
+                        <span class="tree-label leaf-label">菜单配置</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 右栏：权限详情 Tab -->
+      <div class="card">
+        <div class="card-body" style="padding: 20px;">
+          <div class="tabs">
+            <div class="tab-item active" data-tab="button" onclick="switchTab('button')">按钮权限</div>
+            <div class="tab-item" data-tab="col" onclick="switchTab('col')">字段权限</div>
+            <div class="tab-item" data-tab="dept" onclick="switchTab('dept')">部门数据权限</div>
+            <div class="tab-item" data-tab="person" onclick="switchTab('person')">个人数据权限</div>
+            <div class="tab-item" data-tab="date" onclick="switchTab('date')">单据日期管控方式</div>
+            <div class="tab-item" data-tab="accdate" onclick="switchTab('accdate')">扣账日期管控方式</div>
+            <div class="tab-item" data-tab="detail" onclick="switchTab('detail')">单身明细</div>
+          </div>
+
+          <!-- Tab1: 按钮权限 -->
+          <div class="tab-panel active" id="panel-button">
+            <div class="panel-desc">配置当前选中菜单下的按钮级权限，决定角色在该菜单中可执行的操作。</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="menuSelect" onchange="onMenuChange()" style="min-width: 180px;">
+                <option>发文管理</option>
+                <option>收文管理</option>
+                <option>文件流转</option>
+                <option>待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x: auto;">
+              <table class="table perm-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;"><input type="checkbox" id="btnSelectAll" onchange="toggleBtnSelectAll(this)" style="accent-color:var(--primary-color);"></th>
+                    <th>按钮名称</th>
+                    <th>按钮编码</th>
+                  </tr>
+                </thead>
+                <tbody id="btnTbody"></tbody>
+              </table>
+            </div>
+            <div class="table-footer" id="btnCount">已选 5/7 个按钮权限</div>
+          </div>
+
+          <!-- Tab2: 字段权限 -->
+          <div class="tab-panel" id="panel-col">
+            <div class="panel-desc">配置字段级权限：字段类型及加密方法</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="colMenuSelect" onchange="onColMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x: auto;">
+              <table class="table perm-table">
+                <thead>
+                  <tr>
+                    <th>字段名称</th>
+                    <th>字段编码</th>
+                    <th style="width:120px;">字段类型</th>
+                    <th style="width:140px;">加密方法</th>
+                  </tr>
+                </thead>
+                <tbody id="colTbody"></tbody>
+              </table>
+            </div>
+            <div class="table-footer" id="colCount"></div>
+          </div>
+
+          <!-- Tab3: 部门数据权限 -->
+          <div class="tab-panel" id="panel-dept">
+            <div class="panel-desc">按菜单配置部门数据权限（9级），管控不同部门间及相关部门群组间的查询/修改/删除权限</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="deptMenuSelect" onchange="onDeptMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="table perm-table">
+                <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">部门数据权限</th><th style="width:200px;">说明</th></tr></thead>
+                <tbody id="deptTbody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top:12px; padding:10px 12px; background:#eff6ff; border-radius:6px; border-left:3px solid var(--primary-color); font-size:12px; color:var(--text-secondary); line-height:1.6;">
+              0级=不管制 | 1~4级=不同部门间（逐步收紧查改删） | 5~8级=仅相关部门群组间
+            </div>
+          </div>
+
+          <!-- Tab4: 个人数据权限 -->
+          <div class="tab-panel" id="panel-person">
+            <div class="panel-desc">按菜单配置个人数据权限（5级），管控按资料所有者的查询/修改/删除权限</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="personMenuSelect" onchange="onPersonMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="table perm-table">
+                <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">个人数据权限</th><th style="width:200px;">说明</th></tr></thead>
+                <tbody id="personTbody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top:12px; padding:10px 12px; background:#eff6ff; border-radius:6px; border-left:3px solid var(--primary-color); font-size:12px; color:var(--text-secondary); line-height:1.6;">
+              0级=仅本人 | 1级=可查他人 | 2级=可查改他人 | 3级=可查改删他人 | 4级=仅查本人
+            </div>
+          </div>
+
+          <!-- Tab5: 单据日期管控方式 -->
+          <div class="tab-panel" id="panel-date">
+            <div class="panel-desc">按菜单配置单据日期管控方式</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="dateMenuSelect" onchange="onDateMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+            <table class="table perm-table">
+              <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">管控方式</th></tr></thead>
+              <tbody id="dateTbody"></tbody>
+            </table>
+          </div>
+          </div>
+
+          <!-- Tab5b: 扣账日期管控方式 -->
+          <div class="tab-panel" id="panel-accdate">
+            <div class="panel-desc">按菜单配置扣账日期管控方式</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="accDateMenuSelect" onchange="onAccDateMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+            <table class="table perm-table">
+              <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">管控方式</th></tr></thead>
+              <tbody id="accDateTbody"></tbody>
+            </table>
+          </div>
+          </div>
+
+          <!-- Tab6: 单身明细 -->
+          <div class="tab-panel" id="panel-detail">
+            <div class="panel-desc">按菜单配置单身明细权限，控制明细行的新增和删除操作</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="detailMenuSelect" onchange="onDetailMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="table perm-table">
+                <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:140px;">明细权限</th></tr></thead>
+                <tbody id="detailTbody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top:12px; padding:10px 12px; background:#eff6ff; border-radius:6px; border-left:3px solid var(--primary-color); font-size:12px; color:var(--text-secondary); line-height:1.6;">
+              枚举说明：0=功能不控制 | 1=允许新增，不允许删除 | 2=不允许新增，允许删除 | 3=不允许新增/删除
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function () {
+    /* ===== 角色信息映射 ===== */
+    var roleMap = {
+      '超级管理员': { code: 'ROLE_SUPER_ADMIN', users: 2, scope: '全部数据' },
+      'HR管理员': { code: 'ROLE_HR_ADMIN', users: 8, scope: '本部门及下属部门数据' },
+      'OA审批人': { code: 'ROLE_OA_APPROVER', users: 12, scope: '本部门数据' },
+      'CRM销售经理': { code: 'ROLE_CRM_SALES_MANAGER', users: 25, scope: '本部门及下属部门数据' },
+      'SRM采购员': { code: 'ROLE_SRM_BUYER', users: 6, scope: '本人数据' },
+      'T100生产主管': { code: 'ROLE_T100_PROD_MANAGER', users: 15, scope: '本部门数据' },
+      'BI报表查看者': { code: 'ROLE_BI_VIEWER', users: 40, scope: '全部数据' },
+      '临时访客': { code: 'ROLE_GUEST', users: 3, scope: '自定义规则' }
+    };
+
+    // 从 URL 参数读取角色和系统
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlRole = urlParams.get('role') || 'OA审批人';
+    var urlSystem = urlParams.get('system') || '';
+    var urlSystems = urlParams.get('systems') || '';
+
+    // 设置角色只读展示
+    document.getElementById('roleDisplay').textContent = urlRole;
+
+    // 根据所属系统参数控制Tab显示
+    if (urlSystems) {
+      var systems = urlSystems.split(',').filter(function(s) { return s; });
+      if (systems.length > 0) {
+        var tabs = document.querySelectorAll('#sysTabs .sys-tab');
+        tabs.forEach(function(tab) {
+          if (systems.indexOf(tab.dataset.sys) === -1) {
+            tab.style.display = 'none';
+          }
+        });
+        // 如果当前active的tab被隐藏，切换到第一个可见的tab
+        var activeTab = document.querySelector('#sysTabs .sys-tab.active');
+        if (!activeTab || activeTab.style.display === 'none') {
+          var firstVisible = document.querySelector('#sysTabs .sys-tab:not([style*="display: none"])');
+          if (firstVisible) {
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            firstVisible.classList.add('active');
+            if (window.switchSystem) switchSystem(firstVisible.dataset.sys);
+          }
+        }
+      }
+    }
+
+    // 更新角色信息
+    var roleInfo = roleMap[urlRole] || roleMap['OA审批人'];
+    document.getElementById('roleCode').textContent = roleInfo.code;
+    document.getElementById('roleUsers').textContent = roleInfo.users;
+
+    /* ===== Toast ===== */
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + (type || '');
+      clearTimeout(t._tid);
+      t._tid = setTimeout(function () { t.className = 'toast'; }, 2200);
+    }
+    window.showToast = showToast;
+
+    window.saveConfig = function () { showToast('权限配置保存成功', 'success'); };
+    window.refreshPage = function () { showToast('数据已刷新', 'info'); };
+
+    /* ===== Tab 切换 ===== */
+    window.switchTab = function (name) {
+      document.querySelectorAll('.tab-item[data-tab]').forEach(function (t) {
+        t.classList.toggle('active', t.getAttribute('data-tab') === name);
+      });
+      document.querySelectorAll('.tab-panel').forEach(function (p) {
+        p.classList.toggle('active', p.id === 'panel-' + name);
+      });
+      if (name === 'dept') onDeptMenuChange();
+      if (name === 'person') onPersonMenuChange();
+      if (name === 'date') onDateMenuChange();
+    };
+
+    /* ===== 权限树：三态复选框联动 ===== */
+    function getCheck(node) { return node.querySelector(':scope > .tree-row > .tree-check'); }
+    function isLeaf(node) { return !node.querySelector(':scope > .tree-children'); }
+
+    function stateOf(el) {
+      if (el.classList.contains('checked')) return 'checked';
+      if (el.classList.contains('half')) return 'half';
+      return 'unchecked';
+    }
+    function setCheck(el, st) {
+      el.classList.remove('checked', 'half');
+      if (st === 'checked') el.classList.add('checked');
+      else if (st === 'half') el.classList.add('half');
+    }
+
+    function getChildNodes(node) {
+      var container = node.querySelector(':scope > .tree-children');
+      if (!container) return [];
+      return Array.prototype.slice.call(container.querySelectorAll(':scope > .tree-node'));
+    }
+
+    // 根据子节点状态递归计算某节点应有的状态
+    function computeState(node) {
+      var children = getChildNodes(node);
+      if (children.length === 0) return stateOf(getCheck(node)); // 叶子：读自身
+      var states = children.map(function (n) { return computeState(n); });
+      if (states.every(function (s) { return s === 'checked'; })) return 'checked';
+      if (states.every(function (s) { return s === 'unchecked'; })) return 'unchecked';
+      return 'half';
+    }
+
+    function recomputeParents(node) {
+      var parent = node.parentElement.closest('.tree-node');
+      while (parent) {
+        setCheck(getCheck(parent), computeState(parent));
+        parent = parent.parentElement.closest('.tree-node');
+      }
+    }
+
+    // 点击复选框：切换并级联
+    window.toggleCheck = function (el) {
+      var node = el.closest('.tree-node');
+      var next = stateOf(el) === 'checked' ? 'unchecked' : 'checked';
+      setCheck(el, next);
+      // 级联到所有后代
+      node.querySelectorAll(':scope > .tree-children .tree-check').forEach(function (c) { setCheck(c, next); });
+      // 向上重算父节点
+      recomputeParents(node);
+    };
+
+    // 展开/折叠节点
+    window.toggleTreeNode = function (el) {
+      var node = el.closest('.tree-node');
+      var cont = node.querySelector(':scope > .tree-children');
+      if (!cont) return;
+      cont.classList.toggle('collapsed');
+      var tog = node.querySelector(':scope > .tree-row > .tree-toggle');
+      if (tog) tog.textContent = cont.classList.contains('collapsed') ? '▸' : '▾';
+    };
+
+    // 全选/全不选（切换）
+    window.selectAll = function () {
+      document.querySelectorAll('#permTree .tree-check').forEach(function (c) { setCheck(c, 'checked'); });
+    };
+    window.unselectAll = function () {
+      document.querySelectorAll('#permTree .tree-check').forEach(function (c) { setCheck(c, 'unchecked'); });
+    };
+    window.toggleSelectAll = function () {
+      var all = Array.prototype.slice.call(document.querySelectorAll('#permTree .tree-check'));
+      var allChecked = all.every(function (c) { return stateOf(c) === 'checked'; });
+      if (allChecked) unselectAll(); else selectAll();
+    };
+
+    // 展开/折叠全部（切换）
+    window.toggleExpandAll = function () {
+      var containers = Array.prototype.slice.call(document.querySelectorAll('#permTree .tree-children'));
+      var anyCollapsed = containers.some(function (c) { return c.classList.contains('collapsed'); });
+      containers.forEach(function (c) { c.classList.toggle('collapsed', !anyCollapsed); });
+      document.querySelectorAll('#permTree .tree-toggle').forEach(function (t) {
+        var node = t.closest('.tree-node');
+        var cont = node.querySelector(':scope > .tree-children');
+        t.textContent = cont && cont.classList.contains('collapsed') ? '▸' : '▾';
+      });
+    };
+
+    // 初始化：根据叶子状态计算所有父节点状态
+    function initTree() {
+      document.querySelectorAll('#permTree .tree-node').forEach(function (n) {
+        if (!isLeaf(n)) setCheck(getCheck(n), computeState(n));
+      });
+    }
+    // 重置树到初始
+    window.resetTree = function () {
+      document.querySelectorAll('#permTree .tree-check').forEach(function (c) {
+        var orig = c.getAttribute('data-orig') || 'unchecked';
+        setCheck(c, orig);
+      });
+      initTree();
+      document.querySelectorAll('#permTree .tree-children').forEach(function (c) { c.classList.remove('collapsed'); });
+      document.querySelectorAll('#permTree .tree-toggle').forEach(function (t) { t.textContent = '▾'; });
+    };
+
+    /* ===== 按钮权限表 ===== */
+    var buttonData = {
+      '发文管理': [
+        { name: '新增发文', code: 'btn:add', perm: 'oa:doc:add', desc: '允许创建新发文', checked: true },
+        { name: '编辑发文', code: 'btn:edit', perm: 'oa:doc:edit', desc: '允许编辑发文内容', checked: true },
+        { name: '删除发文', code: 'btn:delete', perm: 'oa:doc:delete', desc: '允许删除发文', checked: true },
+        { name: '提交审批', code: 'btn:submit', perm: 'oa:doc:submit', desc: '提交发文至审批流程', checked: true },
+        { name: '归档发文', code: 'btn:archive', perm: 'oa:doc:archive', desc: '将发文归入档案管理', checked: false },
+        { name: '打印发文', code: 'btn:print', perm: 'oa:doc:print', desc: '打印发文内容', checked: true },
+        { name: '导出发文', code: 'btn:export', perm: 'oa:doc:export', desc: '导出发文为PDF', checked: false }
+      ],
+      '收文管理': [
+        { name: '登记收文', code: 'btn:register', perm: 'oa:in:register', desc: '登记新收文记录', checked: true },
+        { name: '分发收文', code: 'btn:distribute', perm: 'oa:in:distribute', desc: '将收文分发给承办人', checked: true },
+        { name: '承办收文', code: 'btn:handle', perm: 'oa:in:handle', desc: '办理收文事项', checked: true },
+        { name: '归档收文', code: 'btn:archive', perm: 'oa:in:archive', desc: '将收文归入档案', checked: false },
+        { name: '打印收文', code: 'btn:print', perm: 'oa:in:print', desc: '打印收文内容', checked: true }
+      ],
+      '文件流转': [
+        { name: '发起流转', code: 'btn:start', perm: 'oa:flow:start', desc: '发起文件流转流程', checked: true },
+        { name: '流转跟踪', code: 'btn:track', perm: 'oa:flow:track', desc: '跟踪文件流转状态', checked: true },
+        { name: '催办', code: 'btn:urge', perm: 'oa:flow:urge', desc: '催促当前办理人', checked: false },
+        { name: '终交流转', code: 'btn:end', perm: 'oa:flow:end', desc: '结束文件流转', checked: true }
+      ],
+      '待办列表': [
+        { name: '查看待办', code: 'btn:view', perm: 'oa:todo:view', desc: '查看待办任务详情', checked: true },
+        { name: '办理待办', code: 'btn:handle', perm: 'oa:todo:handle', desc: '办理待办任务', checked: true },
+        { name: '转办待办', code: 'btn:transfer', perm: 'oa:todo:transfer', desc: '转办给他人办理', checked: false },
+        { name: '批量审批', code: 'btn:batch', perm: 'oa:todo:batch', desc: '批量审批多个待办', checked: false }
+      ]
+    };
+
+    function renderButtons(menu) {
+      var data = buttonData[menu] || [];
+      var tb = document.getElementById('btnTbody');
+      tb.innerHTML = data.map(function (b) {
+        return '<tr>' +
+          '<td><input type="checkbox" ' + (b.checked ? 'checked' : '') + ' onchange="updateBtnCount()"></td>' +
+          '<td>' + b.name + '</td>' +
+          '<td><code>' + b.code + '</code></td>' +
+          '</tr>';
+      }).join('');
+      updateBtnCount();
+    }
+    window.onMenuChange = function () { renderButtons(document.getElementById('menuSelect').value); };
+    window.onColMenuChange = function () { renderColumns(document.getElementById('colMenuSelect').value); };
+    window.updateBtnCount = function () {
+      var total = document.querySelectorAll('#btnTbody tr').length;
+      var sel = document.querySelectorAll('#btnTbody input:checked').length;
+      document.getElementById('btnCount').innerHTML = '已选 <b>' + sel + '/' + total + '</b> 个按钮权限';
+      var header = document.getElementById('btnSelectAll');
+      if (header) {
+        header.checked = total > 0 && sel === total;
+        header.indeterminate = sel > 0 && sel < total;
+      }
+    };
+    window.toggleBtnSelectAll = function (cb) {
+      document.querySelectorAll('#btnTbody input[type="checkbox"]').forEach(function (c) {
+        c.checked = cb.checked;
+      });
+      updateBtnCount();
+    };
+
+    /* ===== 字段权限表 ===== */
+    var deptScopes = [
+      { code: '0', name: '0-不管制' },
+      { code: '1', name: '1-不同部门间·可查改' },
+      { code: '2', name: '2-不同部门间·可查删' },
+      { code: '3', name: '3-不同部门间·仅查' },
+      { code: '4', name: '4-不同部门间·不可查改删' },
+      { code: '5', name: '5-相关部门群组·可查改' },
+      { code: '6', name: '6-相关部门群组·可查删' },
+      { code: '7', name: '7-相关部门群组·仅查' },
+      { code: '8', name: '8-相关部门群组·可查改删' }
+    ];
+    var personScopes = [
+      { code: '0', name: '0-仅本人' },
+      { code: '1', name: '1-可查他人' },
+      { code: '2', name: '2-可查改他人' },
+      { code: '3', name: '3-可查改删他人' },
+      { code: '4', name: '4-仅查本人' }
+    ];
+    var fieldTypes = [
+      { code: 'general', name: '一般作业' },
+      { code: 'report', name: '报表作业' }
+    ];
+    var maskModes = [
+      { code: '', name: '-' },
+      { code: 'LEFT', name: '左侧遮罩(留右4位)' },
+      { code: 'RIGHT', name: '右侧遮罩(留左4位)' },
+      { code: 'MIDDLE', name: '中间遮罩(留左3右4)' }
+    ];
+
+    function buildColOptions(arr, selected) {
+      return arr.map(function(o) {
+        return '<option value="' + o.code + '"' + (o.code === selected ? ' selected' : '') + '>' + o.name + '</option>';
+      }).join('');
+    }
+
+    var fieldTypes = [
+      { code: 'general', name: '一般作业' },
+      { code: 'report', name: '报表作业' }
+    ];
+
+    var columnDataMap = {
+      '发文管理': [
+        { name: '发文标题', code: 'title', fieldAuth: '3', maskMode: '' },
+        { name: '发文字号', code: 'doc_no', fieldAuth: '3', maskMode: '' },
+        { name: '发文类型', code: 'doc_type', fieldAuth: '3', maskMode: '' },
+        { name: '密级', code: 'security_level', fieldAuth: '1', maskMode: '' },
+        { name: '正文内容', code: 'content', fieldAuth: '3', maskMode: '' },
+        { name: '附件', code: 'attachments', fieldAuth: '3', maskMode: '' },
+        { name: '创建人', code: 'creator', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '创建时间', code: 'create_time', fieldAuth: '3', maskMode: '' },
+        { name: '审批意见', code: 'internal_remark', fieldAuth: '1', maskMode: '' },
+        { name: '状态', code: 'status', fieldAuth: '3', maskMode: '' }
+      ],
+      '收文管理': [
+        { name: '收文标题', code: 'recv_title', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '收文编号', code: 'recv_no', fieldAuth: '3', maskMode: '' },
+        { name: '来文单位', code: 'sender_org', fieldAuth: '2', maskMode: 'RIGHT' },
+        { name: '来文日期', code: 'recv_date', fieldAuth: '3', maskMode: '' },
+        { name: '收文类型', code: 'recv_type', fieldAuth: '3', maskMode: '' },
+        { name: '密级', code: 'security_level', fieldAuth: '1', maskMode: '' },
+        { name: '正文内容', code: 'content', fieldAuth: '3', maskMode: '' },
+        { name: '附件', code: 'attachments', fieldAuth: '3', maskMode: '' },
+        { name: '拟办意见', code: 'propose_remark', fieldAuth: '3', maskMode: '' },
+        { name: '承办部门', code: 'handle_dept', fieldAuth: '2', maskMode: 'MIDDLE' },
+        { name: '状态', code: 'status', fieldAuth: '3', maskMode: '' }
+      ],
+      '文件流转': [
+        { name: '流转标题', code: 'flow_title', fieldAuth: '3', maskMode: '' },
+        { name: '流转编号', code: 'flow_no', fieldAuth: '3', maskMode: '' },
+        { name: '流转类型', code: 'flow_type', fieldAuth: '3', maskMode: '' },
+        { name: '发起人', code: 'initiator', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '发起部门', code: 'init_dept', fieldAuth: '2', maskMode: 'MIDDLE' },
+        { name: '密级', code: 'security_level', fieldAuth: '1', maskMode: '' },
+        { name: '正文内容', code: 'content', fieldAuth: '3', maskMode: '' },
+        { name: '流转意见', code: 'flow_remark', fieldAuth: '3', maskMode: '' },
+        { name: '当前环节', code: 'current_step', fieldAuth: '3', maskMode: '' },
+        { name: '状态', code: 'status', fieldAuth: '3', maskMode: '' }
+      ],
+      '待办列表': [
+        { name: '待办标题', code: 'todo_title', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '待办类型', code: 'todo_type', fieldAuth: '3', maskMode: '' },
+        { name: '发起人', code: 'initiator', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '发起时间', code: 'init_time', fieldAuth: '3', maskMode: '' },
+        { name: '优先级', code: 'priority', fieldAuth: '3', maskMode: '' },
+        { name: '当前环节', code: 'current_step', fieldAuth: '3', maskMode: '' },
+        { name: '处理人', code: 'handler', fieldAuth: '2', maskMode: 'MIDDLE' },
+        { name: '处理时间', code: 'handle_time', fieldAuth: '3', maskMode: '' },
+        { name: '备注', code: 'remark', fieldAuth: '1', maskMode: '' },
+        { name: '状态', code: 'status', fieldAuth: '3', maskMode: '' }
+      ]
+    };
+
+    function renderColumns(menu) {
+      var columnData = columnDataMap[menu] || [];
+      var tb = document.getElementById('colTbody');
+      tb.innerHTML = columnData.map(function (c, i) {
+        return '<tr>' +
+          '<td>' + c.name + '</td>' +
+          '<td><code>' + c.code + '</code></td>' +
+          '<td><select class="col-select" onchange="onColTypeChange(' + i + ', this)">' + buildColOptions(fieldTypes, c.fieldType || 'general') + '</select></td>' +
+          '<td><select class="col-select mask-select" onchange="onMaskChange(' + i + ', this)">' + buildColOptions(maskModes, c.maskMode || '') + '</select></td>' +
+          '</tr>';
+      }).join('');
+      updateColCount();
+    }
+
+    window.onColTypeChange = function (idx, el) {
+      var menu = document.getElementById('colMenuSelect').value;
+      var data = columnDataMap[menu];
+      if (!data || !data[idx]) return;
+      data[idx].fieldType = el.value;
+    };
+
+    window.onMaskChange = function (idx, el) {
+      var menu = document.getElementById('colMenuSelect').value;
+      var data = columnDataMap[menu];
+      if (!data || !data[idx]) return;
+      data[idx].maskMode = el.value;
+      updateColCount();
+    };
+    window.updateColCount = function () {
+      var rows = document.querySelectorAll('#colTbody tr');
+      var general = 0, report = 0;
+      rows.forEach(function (row) {
+        var selects = row.querySelectorAll('select.col-select');
+        if (selects.length >= 1) {
+          var typeVal = selects[0].value;
+          if (typeVal === 'general') general++;
+          else if (typeVal === 'report') report++;
+        }
+      });
+      document.getElementById('colCount').innerHTML =
+        '一般作业 <b style="color:var(--primary-color);">' + general + '</b> 个，' +
+        '报表作业 <b style="color:#8b5cf6;">' + report + '</b> 个';
+    };
+
+    /* ===== 部门数据权限（菜单级） ===== */
+    var deptMenuData = {
+      '发文管理': [
+        { name: '发文管理', code: 't100-doc-out', deptScope: '0', desc: '不管制，所有部门均可查改删' },
+        { name: '发文审核', code: 't100-doc-audit', deptScope: '3', desc: '不同部门间仅可查询' },
+        { name: '发文归档', code: 't100-doc-archive', deptScope: '7', desc: '相关部门群组仅可查询' }
+      ],
+      '收文管理': [
+        { name: '收文管理', code: 't100-doc-in', deptScope: '1', desc: '不同部门间可查改' },
+        { name: '收文登记', code: 't100-doc-reg', deptScope: '0', desc: '不管制' },
+        { name: '收文分发', code: 't100-doc-disp', deptScope: '5', desc: '相关部门群组可查改' }
+      ],
+      '文件流转': [
+        { name: '文件流转', code: 't100-doc-flow', deptScope: '0', desc: '不管制' },
+        { name: '流转监控', code: 't100-flow-mon', deptScope: '4', desc: '不同部门间不可查改删' }
+      ],
+      '待办列表': [
+        { name: '待办列表', code: 't100-todo', deptScope: '3', desc: '不同部门间仅查询' },
+        { name: '已办列表', code: 't100-done', deptScope: '7', desc: '相关部门群组仅查询' }
+      ]
+    };
+
+    window.onDeptMenuChange = function () {
+      var menu = document.getElementById('deptMenuSelect').value;
+      var data = deptMenuData[menu] || [];
+      var tb = document.getElementById('deptTbody');
+      tb.innerHTML = data.map(function (d, i) {
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td><code>' + d.code + '</code></td>' +
+          '<td><select class="col-select" onchange="deptMenuData[\'' + menu + '\'][' + i + '].deptScope=this.value">' + buildColOptions(deptScopes, d.deptScope) + '</select></td>' +
+          '<td style="font-size:12px;color:var(--text-secondary);">' + (d.desc || '-') + '</td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    /* ===== 个人数据权限（菜单级） ===== */
+    var personMenuData = {
+      '发文管理': [
+        { name: '发文管理', code: 't100-doc-out', personScope: '0', desc: '仅本人可操作' },
+        { name: '发文审核', code: 't100-doc-audit', personScope: '1', desc: '可查询他人资料' },
+        { name: '发文归档', code: 't100-doc-archive', personScope: '3', desc: '可查改删他人资料' }
+      ],
+      '收文管理': [
+        { name: '收文管理', code: 't100-doc-in', personScope: '1', desc: '可查询他人' },
+        { name: '收文登记', code: 't100-doc-reg', personScope: '0', desc: '仅本人' },
+        { name: '收文分发', code: 't100-doc-disp', personScope: '2', desc: '可查改他人' }
+      ],
+      '文件流转': [
+        { name: '文件流转', code: 't100-doc-flow', personScope: '0', desc: '仅本人' },
+        { name: '流转监控', code: 't100-flow-mon', personScope: '4', desc: '仅查本人' }
+      ],
+      '待办列表': [
+        { name: '待办列表', code: 't100-todo', personScope: '1', desc: '可查他人' },
+        { name: '已办列表', code: 't100-done', personScope: '0', desc: '仅本人' }
+      ]
+    };
+
+    window.onPersonMenuChange = function () {
+      var menu = document.getElementById('personMenuSelect').value;
+      var data = personMenuData[menu] || [];
+      var tb = document.getElementById('personTbody');
+      tb.innerHTML = data.map(function (d, i) {
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td><code>' + d.code + '</code></td>' +
+          '<td><select class="col-select" onchange="personMenuData[\'' + menu + '\'][' + i + '].personScope=this.value">' + buildColOptions(personScopes, d.personScope) + '</select></td>' +
+          '<td style="font-size:12px;color:var(--text-secondary);">' + (d.desc || '-') + '</td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    /* ===== 单据日期管控方式（菜单级） ===== */
+    var dateMenuData = {
+      '发文管理': [
+        { name: '发文管理', code: 't100-doc-out', ctrl: '1' },
+        { name: '发文审核', code: 't100-doc-audit', ctrl: '0' },
+        { name: '发文归档', code: 't100-doc-archive', ctrl: '0' }
+      ],
+      '收文管理': [
+        { name: '收文管理', code: 't100-doc-in', ctrl: '1' },
+        { name: '收文登记', code: 't100-doc-reg', ctrl: '1' },
+        { name: '收文分发', code: 't100-doc-disp', ctrl: '0' }
+      ],
+      '文件流转': [
+        { name: '文件流转', code: 't100-doc-flow', ctrl: '1' },
+        { name: '流转监控', code: 't100-flow-mon', ctrl: '0' }
+      ],
+      '待办列表': [
+        { name: '待办列表', code: 't100-todo', ctrl: '1' },
+        { name: '已办列表', code: 't100-done', ctrl: '0' }
+      ]
+    };
+
+    /* ===== 扣账日期管控方式（菜单级） ===== */
+    var accDateMenuData = {
+      '发文管理': [
+        { name: '发文管理', code: 't100-doc-out', ctrl: '1' },
+        { name: '发文审核', code: 't100-doc-audit', ctrl: '0' },
+        { name: '发文归档', code: 't100-doc-archive', ctrl: '0' }
+      ],
+      '收文管理': [
+        { name: '收文管理', code: 't100-doc-in', ctrl: '1' },
+        { name: '收文登记', code: 't100-doc-reg', ctrl: '0' },
+        { name: '收文分发', code: 't100-doc-disp', ctrl: '0' }
+      ],
+      '文件流转': [
+        { name: '文件流转', code: 't100-doc-flow', ctrl: '1' },
+        { name: '流转监控', code: 't100-flow-mon', ctrl: '0' }
+      ],
+      '待办列表': [
+        { name: '待办列表', code: 't100-todo', ctrl: '1' },
+        { name: '已办列表', code: 't100-done', ctrl: '0' }
+      ]
+    };
+
+    var dateCtrlOpts = '<option value="0">不可修改</option><option value="1">可修改</option>';
+
+    window.onDateMenuChange = function () {
+      var menu = document.getElementById('dateMenuSelect').value;
+      var data = dateMenuData[menu] || [];
+      var tb = document.getElementById('dateTbody');
+      tb.innerHTML = data.map(function (d, i) {
+        var opts = dateCtrlOpts.replace('value="' + d.ctrl + '">', 'value="' + d.ctrl + '" selected>');
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td><code>' + d.code + '</code></td>' +
+          '<td><select class="filter-select" style="width:100%;" onchange="onDateCtrlChange(\'' + menu + '\',' + i + ', this)">' + opts + '</select></td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    window.onDateCtrlChange = function (menu, idx, sel) {
+      var data = dateMenuData[menu];
+      if (!data || !data[idx]) return;
+      data[idx].ctrl = sel.value;
+    };
+
+    window.onAccDateMenuChange = function () {
+      var menu = document.getElementById('accDateMenuSelect').value;
+      var data = accDateMenuData[menu] || [];
+      var tb = document.getElementById('accDateTbody');
+      tb.innerHTML = data.map(function (d, i) {
+        var opts = dateCtrlOpts.replace('value="' + d.ctrl + '">', 'value="' + d.ctrl + '" selected>');
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td><code>' + d.code + '</code></td>' +
+          '<td><select class="filter-select" style="width:100%;" onchange="onAccDateCtrlChange(\'' + menu + '\',' + i + ', this)">' + opts + '</select></td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    window.onAccDateCtrlChange = function (menu, idx, sel) {
+      var data = accDateMenuData[menu];
+      if (!data || !data[idx]) return;
+      data[idx].ctrl = sel.value;
+    };
+
+    /* ===== 重置全部配置 ===== */
+    window.resetConfig = function () {
+      resetTree();
+      renderButtons(document.getElementById('menuSelect').value);
+      renderColumns();
+      showToast('配置已重置为初始状态', 'info');
+    };
+
+    /* ===== 业务系统Tab切换 ===== */
+    window.switchSystem = function (sys) {
+      document.querySelectorAll('.sys-tab').forEach(function (t) {
+        t.classList.toggle('active', t.getAttribute('data-sys') === sys);
+      });
+      var root = document.getElementById('treeRootLabel');
+      if (root) root.textContent = sys + '系统';
+
+      // 只有T100系统时，单据日期管控、扣账日期管控和单身明细可编辑；其他系统置灰
+      var isT100 = (sys === 'T100');
+      var dateTab = document.querySelector('.tab-item[data-tab="date"]');
+      var accDateTab = document.querySelector('.tab-item[data-tab="accdate"]');
+      var detailTab = document.querySelector('.tab-item[data-tab="detail"]');
+      if (dateTab) {
+        dateTab.style.opacity = isT100 ? '1' : '0.4';
+        dateTab.style.pointerEvents = isT100 ? '' : 'none';
+        dateTab.title = isT100 ? '' : '仅T100系统支持';
+      }
+      if (accDateTab) {
+        accDateTab.style.opacity = isT100 ? '1' : '0.4';
+        accDateTab.style.pointerEvents = isT100 ? '' : 'none';
+        accDateTab.title = isT100 ? '' : '仅T100系统支持';
+      }
+      if (detailTab) {
+        detailTab.style.opacity = isT100 ? '1' : '0.4';
+        detailTab.style.pointerEvents = isT100 ? '' : 'none';
+        detailTab.title = isT100 ? '' : '仅T100系统支持单身明细';
+      }
+
+      // 如果当前在单据日期管控、扣账日期管控或单身明细Tab上，切到非T100时自动切回按钮权限
+      if (!isT100) {
+        var activeTab = document.querySelector('.tab-item.active');
+        if (activeTab && (activeTab.getAttribute('data-tab') === 'date' || activeTab.getAttribute('data-tab') === 'accdate' || activeTab.getAttribute('data-tab') === 'detail')) {
+          switchTab('button');
+        }
+      }
+
+      showToast('已切换至 ' + sys + ' 系统菜单', 'info');
+    };
+
+    /* ===== 单身明细数据 ===== */
+    var detailPermissionMap = {
+      '发文管理': { code: 'dt:doc_out', val: '0' },
+      '收文管理': { code: 'dt:doc_in', val: '1' },
+      '文件流转': { code: 'dt:file_flow', val: '2' },
+      '待办列表': { code: 'dt:todo', val: '0' }
+    };
+    var detailEnumOptions = [
+      { val: '0', label: '0 - 功能不控制' },
+      { val: '1', label: '1 - 允许新增，不允许删除' },
+      { val: '2', label: '2 - 不允许新增，允许删除' },
+      { val: '3', label: '3 - 不允许新增/删除' }
+    ];
+
+    function renderDetail(menuName) {
+      var data = detailPermissionMap[menuName] || { code: '-', val: '0' };
+      var tbody = document.getElementById('detailTbody');
+      var optionsHtml = detailEnumOptions.map(function(o) {
+        return '<option value="' + o.val + '"' + (o.val === data.val ? ' selected' : '') + '>' + o.label + '</option>';
+      }).join('');
+      tbody.innerHTML = '<tr><td>' + menuName + '</td><td style="font-family:Menlo,monospace;font-size:12px;color:var(--text-secondary);">' + data.code + '</td>' +
+        '<td><select class="filter-select" style="width:100%;">' + optionsHtml + '</select></td></tr>';
+    }
+
+    window.onDetailMenuChange = function () {
+      var sel = document.getElementById('detailMenuSelect');
+      if (!sel) return;
+      renderDetail(sel.value);
+    };
+
+    /* ===== 初始化 ===== */
+    initTree();
+    renderButtons('发文管理');
+    document.getElementById('menuSelect').value = '发文管理';
+    document.getElementById('colMenuSelect').value = '发文管理';
+    renderColumns('发文管理');
+    onDeptMenuChange();
+    onPersonMenuChange();
+    onDateMenuChange();
+    onAccDateMenuChange();
+    onDetailMenuChange();
+    // 初始化时非T100系统的单据日期管控、扣账日期管控和单身明细置灰
+    var dateTab0 = document.querySelector('.tab-item[data-tab="date"]');
+    var accDateTab0 = document.querySelector('.tab-item[data-tab="accdate"]');
+    var detailTab0 = document.querySelector('.tab-item[data-tab="detail"]');
+    if (dateTab0) { dateTab0.style.opacity = '0.4'; dateTab0.style.pointerEvents = 'none'; dateTab0.title = '仅T100系统支持'; }
+    if (accDateTab0) { accDateTab0.style.opacity = '0.4'; accDateTab0.style.pointerEvents = 'none'; accDateTab0.title = '仅T100系统支持'; }
+    if (detailTab0) { detailTab0.style.opacity = '0.4'; detailTab0.style.pointerEvents = 'none'; detailTab0.title = '仅T100系统支持单身明细'; }
+  })();
+  </script>
+</body>
+</html>
