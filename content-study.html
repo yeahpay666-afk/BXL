@@ -1217,15 +1217,6 @@
           <textarea class="form-textarea" id="instructorBio" placeholder="请输入讲师简介，如：从业经历、专业背景、擅长领域等（不超过200字）" style="min-height:70px;" required></textarea>
         </div>
 
-        <!-- 课程封面 -->
-        <div class="form-section-title">🖼️ 课程封面 <span style="color:#ef4444;">*</span></div>
-        <div class="upload-zone" style="padding:20px;" onclick="document.getElementById('coverInput').click()">
-          <div class="upload-zone-icon" style="font-size:28px;">🖼️</div>
-          <div class="upload-zone-text" style="font-size:13px;">点击上传课程封面图</div>
-          <div class="upload-zone-formats">建议尺寸 400×300，支持 JPG/PNG，2MB以内</div>
-          <input type="file" id="coverInput" accept="image/jpeg,image/png" style="display:none;">
-        </div>
-
         <!-- 学习目标 -->
         <div class="form-section-title">🎯 学习目标 <span style="color:#ef4444;">*</span></div>
         <div class="form-group">
@@ -1277,31 +1268,6 @@
             <input type="file" id="pdfFileInput" accept="application/pdf" multiple style="display:none;" onchange="handleFileSelect(event, 'pdf')">
           </div>
           <div id="pdfFilePreview"></div>
-
-          <!-- PDF最少浏览时长设置（针对整个文件） -->
-          <div id="pdfStayConfig" style="display:none; margin-top:14px; padding:14px 16px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; font-weight:600; color:#92400e;">
-              ⏱️ PDF最少浏览时长 <span style="color:#ef4444;">*</span>
-              <span style="font-size:11px; font-weight:400; color:#b45309;">（针对整个文件，达到该时长才算完成）</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <label style="font-size:13px; color:var(--text-secondary); white-space:nowrap;">最少浏览时长：</label>
-                <input type="number" id="pdfStaySeconds" value="30" min="30" max="3600" step="10"
-                  style="width:90px; padding:6px 10px; border:1px solid var(--border-color); border-radius:6px; font-size:13px; appearance:auto;">
-                <span style="font-size:13px; color:var(--text-secondary);">秒</span>
-              </div>
-              <div style="display:flex; gap:6px;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="setPdfStaySeconds(30)">30秒</button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="setPdfStaySeconds(60)">1分钟</button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="setPdfStaySeconds(180)">3分钟</button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="setPdfStaySeconds(300)">5分钟</button>
-              </div>
-            </div>
-            <div style="margin-top:8px; font-size:12px; color:#b45309; line-height:1.6;">
-              💡 说明：以整份PDF文件为统计单位，学员累计浏览时长达到该设置值后，系统才将该PDF课件标记为"已完成"。最少可设置为30秒，浏览时长不足则不计入学习进度。
-            </div>
-          </div>
         </div>
 
         <!-- 课时文件列表 -->
@@ -1313,9 +1279,8 @@
           <div class="form-group">
             <label class="form-label">完成条件 <span style="color:#ef4444;">*</span></label>
             <select class="form-input" id="completeCondition" style="appearance:auto;">
-              <option value="watch_all">观看全部视频</option>
-              <option value="pass_test">通过课后测试</option>
-              <option value="both">观看全部视频 + 通过测试</option>
+              <option value="watch_all">观看完视频即可</option>
+              <option value="pass_test">考试通过即可</option>
             </select>
           </div>
           <div class="form-group">
@@ -1327,10 +1292,6 @@
           <div class="form-group">
             <label class="form-label">排序权重 <span style="color:#ef4444;">*</span></label>
             <input type="number" class="form-input" id="sortWeight" placeholder="数字越大越靠前，默认10" min="0" value="10" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">课程标签（逗号分隔） <span style="color:#ef4444;">*</span></label>
-            <input type="text" class="form-input" placeholder="如：必修, 入门" required>
           </div>
         </div>
       </div>
@@ -1545,9 +1506,25 @@
       var modal = document.getElementById('publishModal');
       var title = document.getElementById('modalTitle');
       var nameInput = document.getElementById('courseName');
+      // 课时清单重置为空白
+      uploadedFiles = [];
+      fileSeq = 0;
+      renderLessonList();
       if (courseName) {
         title.textContent = '编辑课程：' + courseName;
         nameInput.value = courseName;
+        // 还原已保存的课程信息与课时清单
+        var saved = savedCourses[courseName];
+        if (saved) {
+          document.getElementById('courseCategory').value = saved.category;
+          saved.lessons.forEach(function (l) {
+            uploadedFiles.push({
+              id: ++fileSeq, name: l.name, size: l.size || 0, type: l.type,
+              lessonName: l.name, renamed: true, progress: 100, done: true
+            });
+          });
+          renderLessonList();
+        }
       } else {
         title.textContent = '发布学习内容';
         nameInput.value = '';
@@ -1912,12 +1889,132 @@
       select.selectedIndex = 0;
     }
 
+    // ===== 课程保存 =====
+    // 已保存课程：课程名称 -> 课程信息与课时清单（再次打开可还原，刷新后仍在）
+    var savedCourses = {};
+    try { savedCourses = JSON.parse(localStorage.getItem('bxl_saved_courses') || '{}') || {}; } catch (e) { savedCourses = {}; }
+
+    function persistSavedCourses() {
+      try { localStorage.setItem('bxl_saved_courses', JSON.stringify(savedCourses)); } catch (e) {}
+    }
+
+    // 汇总当前表单内容
+    function collectCourseForm() {
+      var isExternal = document.querySelector('input[name="instructorType"]:checked').value === 'external';
+      var raw = isExternal
+        ? document.getElementById('externalInstructorName').value.trim()
+        : document.getElementById('instructorNameInput').value.trim();
+      var parts = raw.split('-');
+      var activeTab = document.querySelector('.upload-tab.active');
+      return {
+        name: document.getElementById('courseName').value.trim(),
+        category: document.getElementById('courseCategory').value,
+        fileType: (activeTab && activeTab.dataset.type === 'pdf') ? 'PDF' : '视频',
+        instructor: (parts[0] || '').trim(),
+        dept: (parts[1] || '').trim() || '-',
+        lessons: uploadedFiles.map(function (f) {
+          return { name: f.lessonName, type: f.type, size: f.size };
+        })
+      };
+    }
+
+    // 查找课程列表中的已有行（新行带 data-course-name，静态行按课程名匹配）
+    function findCourseRow(name) {
+      var found = null;
+      document.getElementById('courseTableBody').querySelectorAll('tr').forEach(function (tr) {
+        var rowName = tr.dataset.courseName || (tr.cells[1] ? tr.cells[1].textContent.trim() : '');
+        if (rowName === name) found = tr;
+      });
+      return found;
+    }
+
+    // 保存课程：写入课程列表，并记录课时清单
+    function saveCourse(status) {
+      var form = collectCourseForm();
+      if (!form.name) { showToast('请输入课程名称', 'error'); return; }
+      if (!form.category) { showToast('请选择课程分类', 'error'); return; }
+      var existRow = findCourseRow(form.name);
+      if (form.lessons.length === 0 && !existRow) { showToast('请先上传课时文件', 'error'); return; }
+
+      // 未命名的课时按序号补默认名
+      form.lessons.forEach(function (l, i) {
+        if (!l.name || !l.name.trim()) l.name = '第' + (i + 1) + '课时';
+      });
+      // 本次未重新上传文件时，沿用原有课时数与课时清单
+      var lessonCount = form.lessons.length;
+      if (lessonCount === 0) {
+        var old = savedCourses[form.name];
+        if (old && old.lessons) {
+          form.lessons = old.lessons;
+          lessonCount = old.lessons.length;
+        } else if (existRow && existRow.cells[6]) {
+          lessonCount = parseInt(existRow.cells[6].textContent, 10) || 0;
+        }
+      }
+
+      savedCourses[form.name] = {
+        category: form.category,
+        fileType: form.fileType,
+        instructor: form.instructor,
+        dept: form.dept,
+        status: status,
+        lessons: form.lessons
+      };
+      persistSavedCourses();
+      renderCourseRow(form, status, lessonCount);
+      showToast('课程「' + form.name + '」已' + (status === '草稿' ? '存为草稿' : '发布') + '，共 ' + lessonCount + ' 个课时', 'success');
+      closeModal();
+    }
+
+    // 写入课程列表（同名课程更新原行，不重复新增）
+    function renderCourseRow(form, status, lessonCount) {
+      var tbody = document.getElementById('courseTableBody');
+      var existed = findCourseRow(form.name);
+      var tagClass = {
+        '制度规范': 'tag-green', '产品知识': 'tag-yellow',
+        '职业技能': 'tag-blue', '系统操作': 'tag-blue'
+      }[form.category] || 'tag-gray';
+      var d = new Date();
+      function p(n) { return String(n).padStart(2, '0'); }
+      var dateStr = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+      var statusTag = status === '草稿'
+        ? '<span class="tag tag-gray">草稿</span>'
+        : '<span class="tag tag-green">已发布</span>';
+      var html =
+        '<td><input type="checkbox" class="row-check" onchange="updateBatchButtons()"></td>' +
+        '<td><strong>' + form.name + '</strong></td>' +
+        '<td><span class="tag ' + tagClass + '">' + form.category + '</span></td>' +
+        '<td>' + form.fileType + '</td>' +
+        '<td>' + (form.instructor || '-') + '</td>' +
+        '<td>' + form.dept + '</td>' +
+        '<td>' + lessonCount + '</td>' +
+        '<td>0</td>' +
+        '<td>' + statusTag + '</td>' +
+        '<td>' + dateStr + '</td>' +
+        '<td>' +
+          '<button class="table-action edit" onclick="openModal(this.closest(\'tr\').dataset.courseName)">编辑</button>' +
+          '<button class="table-action off">下架</button>' +
+          '<button class="table-action del">删除</button>' +
+        '</td>';
+      var tr = existed || document.createElement('tr');
+      tr.dataset.courseName = form.name;
+      tr.innerHTML = html;
+      if (!existed) tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    // 重新打开页面时，还原已保存的课程
+    Object.keys(savedCourses).forEach(function (name) {
+      var s = savedCourses[name];
+      if (!s || !s.lessons) return;
+      renderCourseRow({
+        name: name, category: s.category, fileType: s.fileType,
+        instructor: s.instructor, dept: s.dept, lessons: s.lessons
+      }, s.status, s.lessons.length);
+    });
+
     // 存为草稿
     function saveCourseDraft() {
-      var name = document.getElementById('courseName').value.trim();
-      if (!name) { showToast('请输入课程名称', 'error'); return; }
-      showToast('课程已存为草稿', 'success');
-      closeModal();
+      saveCourse('草稿');
     }
 
     // 部门组织架构树
@@ -2012,77 +2109,117 @@
       document.getElementById('pdfUploadArea').style.display = type === 'pdf' ? '' : 'none';
     }
 
-    // 文件选择处理（批量多文件）
+    // ===== 课时文件列表 =====
+    // 每上传一个文件，自动生成一条课时记录，默认命名为「第1课时」「第2课时」…
     var uploadedFiles = [];
+    var fileSeq = 0;
+
     function handleFileSelect(event, type) {
       var files = event.target.files;
       if (!files || files.length === 0) return;
-      var previewContainer = document.getElementById(type + 'FilePreview');
-      var icon = type === 'video' ? '🎬' : '📄';
-      var bg = type === 'video' ? '#f3e8ff' : '#fee2e2';
-      var color = type === 'video' ? '#9333ea' : '#dc2626';
-
       for (var i = 0; i < files.length; i++) {
-        (function(file, idx) {
-          var fileObj = { name: file.name, size: file.size, type: type, lessonNo: uploadedFiles.length + 1 };
-          uploadedFiles.push(fileObj);
-          var size = formatFileSize(file.size);
-          var row = document.createElement('div');
-          row.className = 'file-preview';
-          row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;margin-top:8px;';
-          row.innerHTML =
-            '<div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:' + bg + ';color:' + color + ';">' + icon + '</div>' +
-            '<div style="flex:1;min-width:0;">' +
-              '<div style="font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + file.name + '</div>' +
-              '<div style="font-size:12px;color:var(--text-muted);">第' + fileObj.lessonNo + '课时 · ' + size + ' · <span class="upload-status">上传中...</span></div>' +
-              '<div class="upload-progress" style="height:4px;background:#f1f5f9;border-radius:2px;margin-top:4px;overflow:hidden;"><div class="upload-progress-bar" style="height:100%;width:0%;background:' + color + ';border-radius:2px;transition:width 0.3s;"></div></div>' +
-            '</div>' +
-            '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' +
-              '<input type="text" value="第' + fileObj.lessonNo + '课时" style="width:90px;padding:4px 8px;border:1px solid var(--border-color);border-radius:4px;font-size:12px;text-align:center;" title="课时名称">' +
-              '<span style="cursor:pointer;color:#ef4444;font-size:16px;padding:4px;" onclick="removeFileRow(this,' + (uploadedFiles.length - 1) + ')">✕</span>' +
-            '</div>';
-          previewContainer.appendChild(row);
-
-          var bar = row.querySelector('.upload-progress-bar');
-          var statusEl = row.querySelector('.upload-status');
-          var progress = 0;
-          var timer = setInterval(function() {
-            progress += Math.random() * 25;
-            if (progress >= 100) {
-              progress = 100;
-              clearInterval(timer);
-              bar.style.width = '100%';
-              statusEl.textContent = '上传完成 ✓';
-              statusEl.style.color = '#16a34a';
-            } else {
-              bar.style.width = progress + '%';
-              statusEl.textContent = '上传中 ' + Math.round(progress) + '%';
-            }
-          }, 300);
-        })(files[i], i);
-      }
-      // PDF文件上传后显示每屏停留设置
-      if (type === 'pdf') {
-        document.getElementById('pdfStayConfig').style.display = '';
+        uploadedFiles.push({
+          id: ++fileSeq,
+          name: files[i].name,
+          size: files[i].size,
+          type: type,
+          lessonName: '',   // 为空时按序号自动命名
+          renamed: false,   // 用户是否手动改过名称
+          progress: 0,
+          done: false
+        });
       }
       event.target.value = '';
+      renderLessonList();
+      uploadedFiles.forEach(function (f) { if (!f.done) simulateUpload(f); });
     }
 
-    function removeFileRow(el, idx) {
-      var row = el.closest('.file-preview');
-      var container = row.parentElement;
-      row.remove();
-      uploadedFiles.splice(idx, 1);
-      // 如果PDF文件全部移除，隐藏每屏停留设置
-      if (container.id === 'pdfFilePreview' && container.children.length === 0) {
-        document.getElementById('pdfStayConfig').style.display = 'none';
+    // 按类型渲染课时列表，课时序号随删除自动连续
+    function renderLessonList() {
+      ['video', 'pdf'].forEach(function (type) {
+        var box = document.getElementById(type + 'FilePreview');
+        if (!box) return;
+        var list = uploadedFiles.filter(function (f) { return f.type === type; });
+        box.innerHTML = '';
+        list.forEach(function (f, i) {
+          // 未手动改名的课时，保持「第N课时」的默认命名
+          if (!f.renamed) f.lessonName = '第' + (i + 1) + '课时';
+          box.appendChild(buildLessonRow(f));
+        });
+      });
+    }
+
+    // 单条课时记录
+    function buildLessonRow(f) {
+      var icon = f.type === 'video' ? '🎬' : '📄';
+      var bg = f.type === 'video' ? '#f3e8ff' : '#fee2e2';
+      var color = f.type === 'video' ? '#9333ea' : '#dc2626';
+      var row = document.createElement('div');
+      row.className = 'file-preview';
+      row.dataset.fileId = f.id;
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;margin-top:8px;';
+      row.innerHTML =
+        '<div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:' + bg + ';color:' + color + ';">' + icon + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + f.name + '</div>' +
+          '<div style="font-size:12px;color:var(--text-muted);">' + formatFileSize(f.size) + ' · <span class="upload-status">' + (f.done ? '上传完成 ✓' : '上传中 ' + Math.round(f.progress) + '%') + '</span></div>' +
+          '<div class="upload-progress" style="height:4px;background:#f1f5f9;border-radius:2px;margin-top:4px;overflow:hidden;"><div class="upload-progress-bar" style="height:100%;width:' + f.progress + '%;background:' + color + ';border-radius:2px;transition:width 0.3s;"></div></div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">' +
+          '<span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">课时名称</span>' +
+          '<input type="text" class="lesson-name-input" value="' + f.lessonName + '" placeholder="请输入课时名称" title="点击可直接修改课时名称" onfocus="this.select()" oninput="renameLesson(' + f.id + ', this.value)" onblur="commitLessonName(' + f.id + ', this)" onkeydown="if(event.key===\'Enter\'){this.blur();}" style="width:150px;padding:5px 8px;border:1px solid var(--border-color);border-radius:4px;font-size:12px;">' +
+          '<span style="cursor:pointer;color:#ef4444;font-size:16px;padding:4px;" title="删除该课时" onclick="removeLesson(' + f.id + ')">✕</span>' +
+        '</div>';
+      var st = row.querySelector('.upload-status');
+      if (st && f.done) st.style.color = '#16a34a';
+      return row;
+    }
+
+    // 输入即时同步课时名称
+    function renameLesson(id, val) {
+      var f = uploadedFiles.filter(function (x) { return x.id === id; })[0];
+      if (!f) return;
+      f.lessonName = val;
+      f.renamed = val.trim() !== '';
+    }
+
+    // 回车或失焦确认：名称留空则恢复「第N课时」默认名
+    function commitLessonName(id, input) {
+      var f = uploadedFiles.filter(function (x) { return x.id === id; })[0];
+      if (!f) return;
+      var val = input.value.trim();
+      if (val === '') {
+        f.renamed = false;
+        f.lessonName = '';
+        renderLessonList();
+        return;
       }
+      f.lessonName = val;
+      f.renamed = true;
+      input.value = val;
     }
 
-    // 设置PDF每屏停留秒数
-    function setPdfStaySeconds(val) {
-      var input = document.getElementById('pdfStaySeconds');
-      if (input) input.value = val;
+    // 删除课时，剩余课时自动重新编号
+    function removeLesson(id) {
+      uploadedFiles = uploadedFiles.filter(function (x) { return x.id !== id; });
+      renderLessonList();
+    }
+
+    // 上传进度模拟
+    function simulateUpload(f) {
+      var timer = setInterval(function () {
+        var row = document.querySelector('.file-preview[data-file-id="' + f.id + '"]');
+        if (!row) { clearInterval(timer); return; }
+        f.progress = Math.min(100, f.progress + Math.random() * 25);
+        if (f.progress >= 100) { f.progress = 100; f.done = true; clearInterval(timer); }
+        var bar = row.querySelector('.upload-progress-bar');
+        var st = row.querySelector('.upload-status');
+        if (bar) bar.style.width = f.progress + '%';
+        if (st) {
+          st.textContent = f.done ? '上传完成 ✓' : '上传中 ' + Math.round(f.progress) + '%';
+          st.style.color = f.done ? '#16a34a' : '';
+        }
+      }, 300);
     }
 
     function formatFileSize(bytes) {
@@ -2175,9 +2312,9 @@
       document.getElementById('adminPageInfo').textContent = '共' + visible + '条记录';
     }
 
-    // 提交
+    // 发布课程（校验通过后写入课程列表）
     function submitCourse() {
-      closeModal();
+      saveCourse('已发布');
     }
 
     // 全选/取消全选

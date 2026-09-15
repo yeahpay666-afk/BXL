@@ -123,7 +123,7 @@
       height: clamp(340px, calc(100vh - 250px), 640px);
     }
     .player-courseware {
-      width: 200px;
+      width: 260px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
@@ -156,20 +156,28 @@
 
     /* ===== PDF课件查看器 ===== */
     .pdf-slides-header {
-      padding: 10px 12px;
-      font-size: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
       background: #fff;
+    }
+    .pdf-slides-header > span:first-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .pdf-slides-count {
       font-size: 11px;
       color: var(--text-muted);
       font-weight: 400;
+      flex-shrink: 0;
     }
     .pdf-slides-list {
       flex: 1;
@@ -202,7 +210,7 @@
     }
     /* ---- 左侧：PDF 分页列表（参照 WPS 左侧栏样式） ---- */
     .pdf-doc-side {
-      width: 200px;
+      width: 260px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
@@ -212,10 +220,10 @@
     }
     .pdf-doc-bar {
       flex-shrink: 0;
-      padding: 10px 12px;
+      padding: 10px 14px;
       background: #fff;
       border-bottom: 1px solid var(--border-color);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
       white-space: nowrap;
@@ -378,35 +386,26 @@
       border-color: var(--border-color);
     }
 
-    /* 章节列表 */
-    .chapter-list { border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; }
-    .chapter-item { border-bottom: 1px solid var(--border-color); }
-    .chapter-item:last-child { border-bottom: none; }
-    .chapter-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 12px; background: #f8fafc; cursor: pointer; transition: background 0.15s;
-    }
-    .chapter-header:hover { background: #f1f5f9; }
-    .chapter-header.active { background: #eff6ff; }
-    .chapter-header-left { display: flex; align-items: center; gap: 8px; }
-    .chapter-num { width: 22px; height: 22px; border-radius: 5px; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-    .chapter-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
-    .chapter-meta { font-size: 10px; color: var(--text-muted); }
-    .chapter-toggle { color: var(--text-muted); font-size: 10px; transition: transform 0.2s; }
-    .chapter-item.expanded .chapter-toggle { transform: rotate(90deg); }
-
-    .lesson-list { display: none; padding: 2px 0; background: #fcfdff; }
-    .chapter-item.expanded .lesson-list { display: block; }
+    /* 课时列表（一级平铺，无分栏） */
+    .lesson-flat-list { display: flex; flex-direction: column; }
     .lesson-item {
       display: flex; align-items: center; gap: 8px;
-      padding: 5px 12px 5px 40px; cursor: pointer; transition: background 0.15s;
+      padding: 10px 14px; border-left: 3px solid transparent;
+      border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s;
     }
+    .lesson-item:last-child { border-bottom: none; }
     .lesson-item:hover { background: #f0f7ff; }
-    .lesson-item.current { background: #eff6ff; border-left: 3px solid var(--primary-color); padding-left: 49px; }
-    .lesson-icon { font-size: 14px; flex-shrink: 0; }
-    .lesson-name { flex: 1; font-size: 12px; color: var(--text-secondary); }
+    .lesson-item.current { background: #eff6ff; border-left-color: var(--primary-color); }
+    .lesson-num {
+      width: 24px; height: 24px; border-radius: 5px; background: #e2e8f0; color: var(--text-secondary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; flex-shrink: 0;
+    }
+    .lesson-item.current .lesson-num { background: var(--primary-color); color: #fff; }
+    .lesson-item.done .lesson-num { background: #dcfce7; color: #16a34a; }
+    .lesson-name { flex: 1; min-width: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
     .lesson-item.current .lesson-name { color: var(--primary-color); font-weight: 500; }
-    .lesson-duration { font-size: 10px; color: var(--text-muted); font-family: Menlo, monospace; }
+    .lesson-duration { font-size: 11px; color: var(--text-muted); font-family: Menlo, monospace; flex-shrink: 0; }
     .lesson-status { font-size: 12px; flex-shrink: 0; }
     .lesson-status.done { color: #16a34a; }
     .lesson-status.current { color: var(--primary-color); }
@@ -656,15 +655,15 @@
           <!-- ===== 视频模式：左侧章节 / 右侧学习浏览 ===== -->
           <div id="videoMode">
           <div class="player-layout">
-            <!-- 左侧：章节/课时列表 -->
+            <!-- 左侧：课时列表（顶部显示课程名称） -->
             <div class="player-courseware" id="coursewareAside">
               <div class="courseware-panel" id="videoCourseware">
                 <div class="pdf-slides-header">
-                  <span>📑 章节</span>
+                  <span id="videoPanelTitle">课程名称</span>
                   <span class="pdf-slides-count" id="chapterCount">0课时</span>
                 </div>
                 <div class="pdf-slides-list">
-                  <div class="chapter-list" id="chapterList" style="border:none;border-radius:0;"></div>
+                  <div class="lesson-flat-list" id="chapterList"></div>
                 </div>
               </div>
             </div>
@@ -1156,11 +1155,13 @@
       } else {
         document.getElementById('videoMode').style.display = '';
         document.getElementById('pdfMode').style.display = 'none';
+        // 左侧面板顶部展示课程名称
+        document.getElementById('videoPanelTitle').textContent = courseTitle;
         document.getElementById('chapterCount').textContent = data.lessons + '课时';
       }
     })();
 
-    // 取当前课程的课时名称（视频课取章节，PDF课取页码标题）
+    // 取当前课程的课时名称（视频课取课时，PDF课取页码标题）
     function getCourseLessonNames(title, data) {
       if (courseChapters[title]) {
         return courseChapters[title].map(function (c) { return c.name; });
@@ -1216,7 +1217,7 @@
       }).join('');
     }
 
-    // 渲染章节列表
+    // 渲染课时列表（一级平铺，无分栏）
     function renderChapters(data) {
       var chapters = courseChapters[courseTitle] || courseChapters['ERP系统操作指南'];
       var container = document.getElementById('chapterList');
@@ -1225,36 +1226,21 @@
       for (var i = 0; i < chapters.length; i++) {
         var lessonNo = i + 1;
         var ch = chapters[i];
-        var status, icon, statusClass;
+        var status, statusClass;
         if (i < done) {
-          status = '✓'; icon = '✅'; statusClass = 'done';
+          status = '✓'; statusClass = 'done';
         } else if (i === done) {
-          status = '●'; icon = '▶️'; statusClass = 'current';
+          status = '●'; statusClass = 'current';
         } else {
-          status = '🔒'; icon = '🔒'; statusClass = 'locked';
+          status = '🔒'; statusClass = 'locked';
         }
-        var isExpanded = (i <= done) ? ' expanded' : '';
-        var isActive = (i <= done) ? ' active' : '';
         var isCurrent = (i === done) ? ' current' : '';
-        html += '<div class="chapter-item' + isExpanded + '">' +
-          '<div class="chapter-header' + isActive + '" onclick="toggleChapter(this)">' +
-            '<div class="chapter-header-left">' +
-              '<div class="chapter-num">' + lessonNo + '</div>' +
-              '<div>' +
-                '<div class="chapter-name">' + ch.name + '</div>' +
-                '<div class="chapter-meta">' + ch.duration + '</div>' +
-              '</div>' +
-            '</div>' +
-            '<span class="chapter-toggle">▶</span>' +
-          '</div>' +
-          '<div class="lesson-list">' +
-            '<div class="lesson-item' + isCurrent + '" onclick="selectLesson(this, \'' + lessonNo + '\')">' +
-              '<span class="lesson-icon">' + icon + '</span>' +
-              '<span class="lesson-name">' + lessonNo + ' ' + ch.name + '</span>' +
-              '<span class="lesson-duration">' + ch.duration + '</span>' +
-              '<span class="lesson-status ' + statusClass + '">' + status + '</span>' +
-            '</div>' +
-          '</div>' +
+        var isDone = (i < done) ? ' done' : '';
+        html += '<div class="lesson-item' + isCurrent + isDone + '" onclick="selectLesson(this, \'' + lessonNo + '\')">' +
+          '<span class="lesson-num">' + lessonNo + '</span>' +
+          '<span class="lesson-name">' + ch.name + '</span>' +
+          '<span class="lesson-duration">' + ch.duration + '</span>' +
+          '<span class="lesson-status ' + statusClass + '">' + status + '</span>' +
         '</div>';
       }
       container.innerHTML = html;
@@ -1269,13 +1255,6 @@
       t._tid = setTimeout(function () { t.className = 'toast'; }, 2200);
     }
 
-    // 展开/折叠章节
-    function toggleChapter(header) {
-      var item = header.closest('.chapter-item');
-      item.classList.toggle('expanded');
-      header.classList.toggle('active');
-    }
-
     // 选择课时
     function selectLesson(el, lessonId) {
       var status = el.querySelector('.lesson-status');
@@ -1286,18 +1265,17 @@
       // 移除其他课时的高亮
       document.querySelectorAll('.lesson-item').forEach(function(item) {
         item.classList.remove('current');
-        var icon = item.querySelector('.lesson-icon');
-        if (icon && icon.textContent === '▶️') icon.textContent = '✅';
         var st = item.querySelector('.lesson-status');
         if (st && st.classList.contains('current')) {
           st.classList.remove('current');
           st.classList.add('done');
           st.textContent = '✓';
+          item.classList.add('done');
         }
       });
       // 高亮当前
       el.classList.add('current');
-      el.querySelector('.lesson-icon').textContent = '▶️';
+      el.classList.remove('done');
       var stEl = el.querySelector('.lesson-status');
       stEl.classList.remove('done');
       stEl.classList.add('current');
@@ -1327,20 +1305,17 @@
         showToast('请先选择一个课时');
         return;
       }
-      var icon = current.querySelector('.lesson-icon');
       var status = current.querySelector('.lesson-status');
-      icon.textContent = '✅';
       status.classList.remove('current', 'locked');
       status.classList.add('done');
       status.textContent = '✓';
       current.classList.remove('current');
+      current.classList.add('done');
 
       // 解锁下一课时
       var next = findNextLesson(current);
       if (next) {
-        var nextIcon = next.querySelector('.lesson-icon');
         var nextStatus = next.querySelector('.lesson-status');
-        if (nextIcon.textContent === '🔒') nextIcon.textContent = '▶️';
         if (nextStatus.classList.contains('locked')) {
           nextStatus.classList.remove('locked');
           nextStatus.classList.add('current');
@@ -1349,7 +1324,8 @@
         }
         showToast('课时已完成，已解锁下一课时', 'success');
       } else {
-        showToast('全部课时已完成，恭喜完成课程！', 'success');
+        // 完成最后一个课时，与 PDF 学习保持同一逻辑
+        showToast('恭喜您已完成全部学习，参加并通过课后考试即可结课', 'success');
       }
     }
 
@@ -1458,7 +1434,7 @@
       // ---- 点击到最后一页即判定该PDF课件已完成 ----
       if (isLast && !pdfFinished) {
         pdfFinished = true;
-        showToast('已浏览到最后一页（' + total + '/' + total + '），该PDF课件判定为已完成', 'success');
+        showToast('恭喜您已完成全部学习，参加并通过课后考试即可结课', 'success');
       }
     }
 
