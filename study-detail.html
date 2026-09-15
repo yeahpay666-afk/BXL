@@ -3,47 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>课程学习 - 柏星龙业务数字化中台</title>
+  <title>课程学习详情 - 柏星龙业务数字化中台</title>
   <link rel="stylesheet" href="assets/css/common.css">
+  <script>
+    // 嵌入模式：由「柏家学堂」列表页在右侧内容区加载（?embed=1），此时隐藏本页自身的顶部导航
+    (function () {
+      if (new URLSearchParams(location.search).get('embed') === '1') {
+        document.documentElement.className += ' embed-mode';
+      }
+    })();
+  </script>
   <style>
     .main-content { position: relative; }
+    /* 无侧边栏时，顶部需避开「顶部导航56px + 二级导航44px」，避免内容被遮挡 */
+    .main-content.no-sidebar { margin-top: 100px; padding: 12px 16px; min-height: calc(100vh - 100px); }
 
-    /* 课程头部 */
-    .course-hero {
+    /* 返回按钮 */
+    .back-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
       background: #fff;
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 14px 20px;
-      margin-bottom: 10px;
-      color: var(--text-primary);
+      color: var(--text-secondary);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.2s;
     }
-    .course-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-    .course-hero-left { flex: 1; }
-    .course-hero-tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; letter-spacing: 0.5px; background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
-    .course-hero-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
-    .course-hero-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; max-width: 600px; }
-    .course-hero-meta { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; margin-top: 8px; }
-    .course-hero-meta span { display: flex; align-items: center; gap: 3px; }
+    .back-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background: #eff6ff; }
 
-    /* 进度条 */
-    .course-progress-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); }
-    .course-progress-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: 11px; }
-    .course-progress-top .label { color: var(--text-muted); }
-    .course-progress-top .value { color: var(--primary-color); font-weight: 600; }
-    .course-hero-bar { width: 100%; height: 4px; background: #f1f5f9; border-radius: 2px; overflow: hidden; }
-    .course-hero-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #4ade80); border-radius: 2px; transition: width 0.5s; }
+    /* ===== 嵌入模式（被柏家学堂列表页在内容区加载时） ===== */
+    html.embed-mode .header,
+    html.embed-mode .sub-header { display: none !important; }
+    html.embed-mode #detailTopBar { display: none !important; }
+    html.embed-mode .main-content.no-sidebar {
+      margin-top: 0 !important;
+      padding: 0 !important;
+      min-height: auto !important;
+    }
+    html.embed-mode .player-layout,
+    html.embed-mode .pdf-layout { height: clamp(320px, calc(100vh - 90px), 640px); }
+
+    /* 顶部操作按钮 */
     .course-hero-btn { padding: 7px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
     .course-hero-btn.primary { background: var(--primary-color); color: #fff; }
     .course-hero-btn.primary:hover { background: var(--primary-dark); }
-    .course-hero-btn.outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
-    .course-hero-btn.outline:hover { background: #f8fafc; }
 
     /* 主体布局 — 左右双栏，顶部对齐 */
-    .detail-layout { display: grid; grid-template-columns: 1fr 280px; gap: 12px; align-items: flex-start; }
+    .detail-layout { display: grid; grid-template-columns: 1fr 280px; gap: 10px; align-items: flex-start; }
 
     /* 学习内容区 */
-    .learn-section { margin-bottom: 10px; }
-    .learn-section-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .learn-section { margin-bottom: 8px; }
 
     /* 视频占位区 */
     .video-placeholder {
@@ -58,6 +69,314 @@
     .video-progress { flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px; position: relative; }
     .video-progress-fill { width: 35%; height: 100%; background: var(--primary-color); border-radius: 2px; }
     .video-time { font-size: 12px; color: var(--text-muted); font-family: Menlo, monospace; }
+    /* 倍速播放 */
+    .video-speed {
+      position: relative;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 2px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: #fff;
+      user-select: none;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .video-speed:hover { border-color: var(--primary-color); color: var(--primary-color); }
+    .video-speed-menu {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      padding: 4px;
+      min-width: 80px;
+      z-index: 120;
+      cursor: default;
+    }
+    .video-speed-menu.show { display: block; }
+    .video-speed-item {
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .video-speed-item:hover { background: #f1f5f9; }
+    .video-speed-item.active { color: var(--primary-color); font-weight: 600; background: #eff6ff; }
+
+    /* ===== 播放区（左侧章节 / 右侧学习浏览） ===== */
+    .player-layout {
+      display: flex;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      /* 高度跟随视口，整页尽量一屏内展示，减少上下滚动 */
+      height: clamp(340px, calc(100vh - 250px), 640px);
+    }
+    .player-courseware {
+      width: 200px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-color);
+      background: #f8fafc;
+      min-height: 0;
+    }
+    .courseware-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .player-stage {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+    /* 播放器占满右侧「学习浏览」区域 */
+    .player-stage .video-placeholder {
+      flex: 1;
+      aspect-ratio: auto;
+      border: none;
+      border-radius: 0;
+    }
+    .player-stage .video-controls {
+      border-left: none;
+      border-right: none;
+      border-bottom: none;
+      border-radius: 0;
+      margin-bottom: 0;
+    }
+
+    /* ===== PDF课件查看器 ===== */
+    .pdf-slides-header {
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+    }
+    .pdf-slides-count {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .pdf-slides-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    /* 面板通用表头 */
+    .pdf-preview-header {
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    /* ===== PDF 左右分栏：左 PDF 文档 / 右 页面内容 ===== */
+    .pdf-layout {
+      display: flex;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      height: clamp(360px, calc(100vh - 250px), 640px);
+    }
+    /* ---- 左侧：PDF 分页列表（参照 WPS 左侧栏样式） ---- */
+    .pdf-doc-side {
+      width: 200px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-color);
+      background: #f8fafc;
+      min-height: 0;
+    }
+    .pdf-doc-bar {
+      flex-shrink: 0;
+      padding: 10px 12px;
+      background: #fff;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* 分页缩略图列表（横向页面，一行一页） */
+    .pdf-page-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pdf-page-item {
+      position: relative;
+      aspect-ratio: 297 / 210;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: all 0.15s;
+    }
+    .pdf-page-item:hover { border-color: #93c5fd; }
+    .pdf-page-item.current {
+      border-color: var(--primary-color);
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      box-shadow: 0 0 0 2px rgba(26,95,180,0.18);
+    }
+    .pdf-page-no {
+      position: absolute;
+      left: 4px;
+      bottom: 3px;
+      padding: 0 4px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-family: Menlo, monospace;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.85);
+    }
+    .pdf-page-item.current .pdf-page-no { color: var(--primary-color); font-weight: 700; }
+    /* 真实 PDF 页面比例（横向 297×210） */
+    .pdf-sheet {
+      width: 100%;
+      max-width: 520px;
+      aspect-ratio: 297 / 210;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.14);
+      display: flex;
+      flex-direction: column;
+      padding: 12px 14px 8px;
+      box-sizing: border-box;
+    }
+    .pdf-sheet-head {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--primary-color);
+      margin-bottom: 8px;
+    }
+    .pdf-sheet-body {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border-radius: 4px;
+    }
+
+    /* ---- 右侧：当前页预览区（纯预览，不滚动） ---- */
+    .pdf-info-side {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+    .pdf-info-body {
+      flex: 1;
+      min-height: 0;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #eef2f7;
+    }
+    /* 支持容器查询时，同时按容器宽高约束，页面完整贴合、不出现滚动条 */
+    @supports (width: 1cqw) {
+      .pdf-info-body { container-type: size; }
+      .pdf-sheet {
+        --sw: min(100cqw, calc(100cqh * 297 / 210));
+        width: var(--sw);
+        height: calc(var(--sw) * 210 / 297);
+        max-width: none;
+        aspect-ratio: auto;
+      }
+    }
+
+    /* ---- 底部操作栏（右下角：翻页 + 页码 + 全屏） ---- */
+    .pdf-info-footer {
+      flex-shrink: 0;
+      padding: 0 14px;
+      border-top: 1px solid var(--border-color);
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      height: 44px;
+    }
+    /* 页码（右下角，与全屏同一行） */
+    .pdf-footer-page {
+      font-family: Menlo, monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      user-select: none;
+    }
+    .pdf-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 14px;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 12px;
+      font-weight: 500;
+      user-select: none;
+      white-space: nowrap;
+      border: 1px solid var(--border-color);
+    }
+    .pdf-nav-btn:hover:not(.disabled) {
+      background: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+    }
+    .pdf-nav-btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: #f1f5f9;
+    }
+    .pdf-nav-btn.disabled:hover {
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+    }
 
     /* 章节列表 */
     .chapter-list { border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; }
@@ -94,7 +413,7 @@
     .lesson-status.locked { color: #cbd5e1; }
 
     /* 右侧栏 */
-    .sidebar-card { background: #fff; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+    .sidebar-card { background: #fff; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
     .sidebar-card-header { padding: 8px 12px; border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
     .sidebar-card-body { padding: 10px 12px; }
 
@@ -119,13 +438,6 @@
     .record-dot.gray { background: #cbd5e1; }
     .record-text { flex: 1; color: var(--text-secondary); line-height: 1.5; }
     .record-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-    /* 笔记区 */
-    .note-input { width: 100%; min-height: 50px; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; resize: vertical; outline: none; box-sizing: border-box; transition: border-color 0.2s; }
-    .note-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(26,95,180,0.1); }
-    .note-list { margin-top: 6px; max-height: 120px; overflow-y: auto; }
-    .note-item { padding: 6px 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 4px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
-    .note-item-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 
     /* 底部操作栏 */
     .learn-footer {
@@ -317,66 +629,20 @@
     </div>
   </div>
 
-  <!-- 左侧边栏 -->
-  <aside class="sidebar">
-    <div class="sidebar-title">学习中心</div>
-    <div class="sidebar-subtitle">企业学习平台</div>
-    <div class="sidebar-menu">
-      <a href="index.html" class="sidebar-menu-item">
-        <span class="sidebar-menu-icon">🏠</span>
-        <span>返回首页</span>
-      </a>
-      <a href="study.html" class="sidebar-menu-item active">
-        <span class="sidebar-menu-icon">📚</span>
-        <span>柏家学堂</span>
-      </a>
-      <a href="todo-list.html" class="sidebar-menu-item">
-        <span class="sidebar-menu-icon">📋</span>
-        <span>待办事项</span>
-      </a>
-    </div>
-    <div class="sidebar-footer">
-      <span>🏠</span>
-      <a href="index.html">返回门户首页</a>
-    </div>
-  </aside>
-
-  <!-- 主内容区 -->
-  <main class="main-content">
-    <!-- 面包屑 -->
-    <div class="breadcrumb" style="margin-bottom: 4px;">
-      <a href="index.html">首页</a>
-      <span class="separator">/</span>
-      <a href="study.html">柏家学堂</a>
-      <span class="separator">/</span>
-      <span class="current">课程详情</span>
-    </div>
-
-    <!-- 课程头部 -->
-    <div class="course-hero">
-      <div class="course-hero-top">
-        <div class="course-hero-left">
-          <span class="course-hero-tag" id="heroCategory">系统操作</span>
-          <div class="course-hero-title" id="heroTitle">ERP系统操作指南</div>
-          <div class="course-hero-desc" id="heroDesc">T100 ERP系统全面操作教程，包含采购、生产、库存、财务等模块实操。</div>
-          <div class="course-hero-meta">
-            <span>📅 <span id="heroLessons">18</span>课时</span>
-            <span>👤 讲师：<span id="heroInstructor">刘洋</span></span>
-            <span>🏢 <span id="heroDept">信息部</span></span>
-            <span>👥 <span id="heroLearners">156</span>人学习</span>
-            <span>🕐 更新：<span id="heroDate">2024-11-15</span></span>
-          </div>
-        </div>
-        <button class="course-hero-btn primary" id="heroBtn" onclick="continueLearn()">继续学习</button>
+  <!-- 主内容区（详情页不展示左侧菜单，通过面包屑返回列表） -->
+  <main class="main-content no-sidebar">
+    <!-- 返回入口 + 面包屑（嵌入模式下隐藏，由列表页提供） -->
+    <div id="detailTopBar" style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+      <div class="breadcrumb" style="margin-bottom:0;">
+        <a href="index.html">首页</a>
+        <span class="separator">/</span>
+        <a href="study.html">柏家学堂</a>
+        <span class="separator">/</span>
+        <span class="current" id="courseCrumb">课程详情</span>
       </div>
-      <div class="course-progress-section">
-        <div class="course-progress-top">
-          <span class="label">学习进度：<span id="heroProgressText">35%</span>（已完成 <span id="heroDoneLessons">6</span>/<span id="heroTotalLessons">18</span> 课时）</span>
-          <span class="value" id="heroProgressBadge">学习中</span>
-        </div>
-        <div class="course-hero-bar">
-          <div class="course-hero-bar-fill" id="heroProgressBar" style="width: 35%;"></div>
-        </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="course-hero-btn primary" id="heroBtn" onclick="continueLearn()">继续学习</button>
+        <a href="study.html" class="back-btn">← 返回柏家学堂</a>
       </div>
     </div>
 
@@ -384,39 +650,95 @@
     <div class="detail-layout">
       <!-- 左侧：学习内容 -->
       <div>
-        <!-- 视频播放区 -->
+        <!-- 学习内容播放区 -->
         <div class="learn-section">
-          <div class="learn-section-title">🎬 当前课时</div>
-          <div class="video-placeholder" id="videoArea">
-            <span class="play-icon">▶</span>
-            <span class="video-label" id="videoLabel">请选择章节开始学习</span>
-          </div>
-          <div class="video-controls">
-            <span style="font-size:14px;cursor:pointer;color:var(--text-muted);">⏮</span>
-            <span style="font-size:16px;cursor:pointer;color:var(--primary-color);" onclick="togglePlay(this)">▶</span>
-            <span style="font-size:14px;cursor:pointer;color:var(--text-muted);">⏭</span>
-            <div class="video-progress">
-              <div class="video-progress-fill" id="videoProgressFill"></div>
-            </div>
-            <span class="video-time" id="videoTime">00:00 / 00:00</span>
-            <span style="font-size:12px;cursor:pointer;color:var(--text-muted);">🔊</span>
-            <span style="font-size:12px;cursor:pointer;color:var(--text-muted);">⛶</span>
-          </div>
-        </div>
 
-        <!-- 章节列表 -->
-        <div class="learn-section">
-          <div class="learn-section-title">📖 课程章节</div>
-          <div class="chapter-list" id="chapterList">
-            <!-- 由JS动态渲染 -->
+          <!-- ===== 视频模式：左侧章节 / 右侧学习浏览 ===== -->
+          <div id="videoMode">
+          <div class="player-layout">
+            <!-- 左侧：章节/课时列表 -->
+            <div class="player-courseware" id="coursewareAside">
+              <div class="courseware-panel" id="videoCourseware">
+                <div class="pdf-slides-header">
+                  <span>📑 章节</span>
+                  <span class="pdf-slides-count" id="chapterCount">0课时</span>
+                </div>
+                <div class="pdf-slides-list">
+                  <div class="chapter-list" id="chapterList" style="border:none;border-radius:0;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：学习浏览 -->
+            <div class="player-stage">
+          <div class="pdf-preview-header">
+            <span>👁️ 学习浏览</span>
+          </div>
+          <div class="video-placeholder" id="videoArea">
+              <span class="play-icon">▶</span>
+              <span class="video-label" id="videoLabel">请选择章节开始学习</span>
+            </div>
+            <div class="video-controls">
+              <span style="font-size:14px;cursor:pointer;color:var(--text-muted);">⏮</span>
+              <span style="font-size:16px;cursor:pointer;color:var(--primary-color);" onclick="togglePlay(this)">▶</span>
+              <span style="font-size:14px;cursor:pointer;color:var(--text-muted);">⏭</span>
+              <div class="video-progress">
+                <div class="video-progress-fill" id="videoProgressFill"></div>
+              </div>
+              <span class="video-time" id="videoTime">00:00 / 00:00</span>
+              <div class="video-speed" onclick="toggleSpeedMenu(event)">
+                <span id="videoSpeedLabel">1.0x</span>
+                <div class="video-speed-menu" id="videoSpeedMenu">
+                  <div class="video-speed-item" onclick="setVideoSpeed(event, '0.5')">0.5x</div>
+                  <div class="video-speed-item" onclick="setVideoSpeed(event, '0.75')">0.75x</div>
+                  <div class="video-speed-item active" onclick="setVideoSpeed(event, '1.0')">1.0x</div>
+                  <div class="video-speed-item" onclick="setVideoSpeed(event, '1.25')">1.25x</div>
+                  <div class="video-speed-item" onclick="setVideoSpeed(event, '1.5')">1.5x</div>
+                  <div class="video-speed-item" onclick="setVideoSpeed(event, '2.0')">2.0x</div>
+                </div>
+              </div>
+              <span style="font-size:12px;cursor:pointer;color:var(--text-muted);">🔊</span>
+              <span style="font-size:12px;cursor:pointer;color:var(--text-muted);">⛶</span>
+            </div>
+            </div>
+          </div>
+          </div>
+
+          <!-- ===== PDF模式：左侧分页列表 / 右侧当前页预览 ===== -->
+          <div id="pdfMode" style="display:none;">
+            <div class="pdf-layout">
+              <!-- 左侧：PDF 分页列表（参照 WPS 左侧栏样式） -->
+              <div class="pdf-doc-side">
+                <!-- 顶部显示当前学习的课程标题 -->
+                <div class="pdf-doc-bar" id="pdfDocTitle">课程标题</div>
+                <div class="pdf-page-list" id="pdfPageList">
+                  <!-- 由JS按当前课程的页数动态渲染 -->
+                </div>
+              </div>
+
+              <!-- 右侧：当前页预览区 -->
+              <div class="pdf-info-side">
+                <div class="pdf-info-body">
+                  <div class="pdf-sheet">
+                    <div class="pdf-sheet-head" id="pdfSheetTitle">封面</div>
+                    <div class="pdf-sheet-body" id="pdfSheetBody">📊</div>
+                  </div>
+                </div>
+                <div class="pdf-info-footer">
+                  <span class="pdf-nav-btn" id="pdfFooterPrev" onclick="pdfPrevSlide()">‹ 上一页</span>
+                  <span class="pdf-nav-btn" id="pdfFooterNext" onclick="pdfNextSlide()">下一页 ›</span>
+                  <span class="pdf-footer-page" id="pdfFooterPage">1 / 0</span>
+                  <!-- 全屏（与视频模块样式保持一致） -->
+                  <span style="font-size:12px;cursor:pointer;color:var(--text-muted);">⛶</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- 底部操作栏 -->
         <div class="learn-footer">
           <div class="footer-left">
-            <span>📱 支持PC/移动端学习</span>
-            <span>·</span>
             <span>⏱ 已学习：<b id="totalLearnTime">3小时28分</b></span>
           </div>
           <div class="footer-btns">
@@ -433,81 +755,37 @@
           <div class="sidebar-card-header">👤 讲师信息</div>
           <div class="sidebar-card-body">
             <div class="instructor-info">
-              <div class="instructor-avatar">刘</div>
+              <div class="instructor-avatar" id="insAvatar">刘</div>
               <div>
-                <div class="instructor-name">刘洋</div>
-                <div class="instructor-title">信息部 · ERP实施顾问</div>
+                <div class="instructor-name" id="insName">刘洋</div>
+                <div class="instructor-title" id="insTitle">信息部 · ERP实施顾问</div>
               </div>
             </div>
-            <div style="margin-top: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            <div id="insBio" style="margin-top: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
               10年ERP实施经验，主导柏星龙T100系统上线，擅长采购、生产、财务模块培训。
             </div>
           </div>
         </div>
 
-        <!-- 课程统计 -->
+        <!-- 课程数据 -->
         <div class="sidebar-card">
           <div class="sidebar-card-header">📊 课程数据</div>
           <div class="sidebar-card-body">
-            <div class="stat-row"><span class="label">总课时</span><span class="value">18课时</span></div>
-            <div class="stat-row"><span class="label">已完成</span><span class="value" style="color:#16a34a;">6课时</span></div>
-            <div class="stat-row"><span class="label">学习进度</span><span class="value">35%</span></div>
-            <div class="stat-row"><span class="label">学习时长</span><span class="value">3小时28分</span></div>
-            <div class="stat-row"><span class="label">参与人数</span><span class="value">156人</span></div>
+            <div class="stat-row"><span class="label">课程分类</span><span class="value" id="dataCategory">系统操作</span></div>
+            <div class="stat-row"><span class="label">总课时</span><span class="value" id="dataLessons">18课时</span></div>
+            <div class="stat-row"><span class="label">已完成</span><span class="value" style="color:#16a34a;" id="dataDone">6课时</span></div>
+            <div class="stat-row"><span class="label">学习进度</span><span class="value" id="dataProgress">35%</span></div>
+            <div class="stat-row"><span class="label">学习时长</span><span class="value" id="dataDuration">3小时30分</span></div>
+            <div class="stat-row"><span class="label">参与人数</span><span class="value" id="dataLearners">156人</span></div>
+            <div class="stat-row"><span class="label">更新时间</span><span class="value" id="dataDate">2024-11-15</span></div>
           </div>
         </div>
 
         <!-- 学习记录 -->
         <div class="sidebar-card">
           <div class="sidebar-card-header">📝 学习记录</div>
-          <div class="sidebar-card-body">
-            <div class="record-item">
-              <div class="record-dot green"></div>
-              <div class="record-text">
-                完成「1-3 基础数据与编码规则」
-                <div class="record-time">2025-01-14 15:30</div>
-              </div>
-            </div>
-            <div class="record-item">
-              <div class="record-dot green"></div>
-              <div class="record-text">
-                完成「2-2 询价比价与采购申请」
-                <div class="record-time">2025-01-14 16:45</div>
-              </div>
-            </div>
-            <div class="record-item">
-              <div class="record-dot blue"></div>
-              <div class="record-text">
-                开始学习「2-3 采购订单创建流程」
-                <div class="record-time">2025-01-14 17:00</div>
-              </div>
-            </div>
-            <div class="record-item">
-              <div class="record-dot gray"></div>
-              <div class="record-text">
-                加入课程
-                <div class="record-time">2025-01-10 09:15</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 学习笔记 -->
-        <div class="sidebar-card">
-          <div class="sidebar-card-header">✏️ 学习笔记</div>
-          <div class="sidebar-card-body">
-            <textarea class="note-input" id="noteInput" placeholder="记录本课时的学习笔记..." oninput="updateNoteBtn(this)"></textarea>
-            <button class="footer-btn primary" style="width: 100%; margin-top: 8px; opacity: 0.5;" id="saveNoteBtn" onclick="saveNote()">保存笔记</button>
-            <div class="note-list" id="noteList">
-              <div class="note-item">
-                采购订单需先维护供应商档案，编码规则：PO+年月+流水号
-                <div class="note-item-time">2025-01-14 16:50 · 课时 2-2</div>
-              </div>
-              <div class="note-item">
-                BOM表需要注意替代料件的优先级设置
-                <div class="note-item-time">2025-01-14 15:20 · 课时 1-3</div>
-              </div>
-            </div>
+          <div class="sidebar-card-body" id="recordList" style="max-height:240px; overflow-y:auto;">
+            <!-- 由JS按当前课程动态渲染 -->
           </div>
         </div>
       </div>
@@ -547,18 +825,81 @@
 
     // 课程数据
     var courseData = {
-      '公司制度全集': { category: '制度规范', desc: '涵盖考勤、请假、报销、采购等全部公司管理制度，新员工必修课程。', lessons: 12, instructor: '李芳', dept: '人力资源部', learners: 320, date: '2024-12-20', progress: 100, done: 12 },
-      '产品知识大全': { category: '产品知识', desc: '全面介绍柏星龙核心产品线、包装材料特性、工艺流程及质量标准。', lessons: 24, instructor: '王磊', dept: '产品部', learners: 215, date: '2025-01-08', progress: 50, done: 12 },
-      'OA系统操作培训': { category: '系统操作', desc: '新OA系统功能介绍与操作实操，涵盖流程发起、审批、文档管理等核心模块。', lessons: 6, instructor: '陈明', dept: '信息部', learners: 180, date: '2025-01-10', progress: 0, done: 0 },
-      'ERP系统操作指南': { category: '系统操作', desc: 'T100 ERP系统全面操作教程，包含采购、生产、库存、财务等模块实操。', lessons: 18, instructor: '刘洋', dept: '信息部', learners: 156, date: '2024-11-15', progress: 35, done: 6 },
-      '职场沟通技巧': { category: '职业技能', desc: '高效沟通方法论，涵盖向上汇报、跨部门协作、冲突处理等实战场景。', lessons: 8, instructor: '张玲', dept: '人力资源部', learners: 289, date: '2024-10-20', progress: 100, done: 8 },
-      '安全生产规范': { category: '制度规范', desc: '工厂安全生产标准操作规程，消防安全、设备操作及应急处置。', lessons: 10, instructor: '赵刚', dept: '安环部', learners: 412, date: '2024-12-05', progress: 60, done: 6 },
-      '商务礼仪培训': { category: '职业技能', desc: '商务场合着装、接待、会议、宴请等礼仪规范与实操演练。', lessons: 6, instructor: '林萍', dept: '人力资源部', learners: 198, date: '2024-11-20', progress: 0, done: 0 },
-      '项目管理实战': { category: '职业技能', desc: 'PMBOK项目管理框架，项目立项、计划制定、风险管控及收尾全流程实战。', lessons: 20, instructor: '孙伟', dept: '项目管理办', learners: 134, date: '2024-12-15', progress: 25, done: 5 },
-      '每刻报销流程规范': { category: '制度规范', desc: '差旅费、招待费、办公费等各项费用报销标准及线上审批流程操作指南。', lessons: 4, instructor: '钱敏', dept: '财务部', learners: 356, date: '2024-09-15', progress: 100, done: 4 },
-      'CRM客户管理系统操作': { category: '系统操作', desc: 'CRM系统客户档案管理、商机跟进、合同管理及销售数据分析模块操作。', lessons: 10, instructor: '刘洋', dept: '信息部', learners: 112, date: '2025-01-05', progress: 40, done: 4 },
-      '商务谈判与客户关系': { category: '职业技能', desc: '商务谈判策略与技巧，客户关系维护方法论，大客户管理最佳实践案例。', lessons: 14, instructor: '吴昊', dept: '市场部', learners: 76, date: '2025-01-14', progress: 0, done: 0 },
-      '包装材料与工艺知识': { category: '产品知识', desc: '纸制品、塑料、金属、玻璃等包装材料特性对比，印刷及后道工艺详解。', lessons: 15, instructor: '王磊', dept: '产品部', learners: 203, date: '2024-10-08', progress: 100, done: 15 }
+      '公司制度全集': { category: '制度规范', desc: '涵盖考勤、请假、报销、采购等全部公司管理制度，新员工必修课程。', lessons: 12, instructor: '李芳', dept: '人力资源部', learners: 320, date: '2024-12-20', progress: 100, done: 12, type: 'video' },
+      '产品知识大全': { category: '产品知识', desc: '全面介绍柏星龙核心产品线、包装材料特性、工艺流程及质量标准。', lessons: 24, instructor: '王磊', dept: '产品部', learners: 215, date: '2025-01-08', progress: 50, done: 12, type: 'video' },
+      'OA系统操作培训': { category: '系统操作', desc: '新OA系统功能介绍与操作实操，涵盖流程发起、审批、文档管理等核心模块。', lessons: 6, instructor: '陈明', dept: '信息部', learners: 180, date: '2025-01-10', progress: 0, done: 0, type: 'video' },
+      'ERP系统操作指南': { category: '系统操作', desc: 'T100 ERP系统全面操作教程，包含采购、生产、库存、财务等模块实操。', lessons: 18, instructor: '刘洋', dept: '信息部', learners: 156, date: '2024-11-15', progress: 35, done: 6, type: 'pdf' },
+      '职场沟通技巧': { category: '职业技能', desc: '高效沟通方法论，涵盖向上汇报、跨部门协作、冲突处理等实战场景。', lessons: 8, instructor: '张玲', dept: '人力资源部', learners: 289, date: '2024-10-20', progress: 100, done: 8, type: 'video' },
+      '安全生产规范': { category: '制度规范', desc: '工厂安全生产标准操作规程，消防安全、设备操作及应急处置。', lessons: 10, instructor: '赵刚', dept: '安环部', learners: 412, date: '2024-12-05', progress: 60, done: 6, type: 'video' },
+      '商务礼仪培训': { category: '职业技能', desc: '商务场合着装、接待、会议、宴请等礼仪规范与实操演练。', lessons: 6, instructor: '林萍', dept: '人力资源部', learners: 198, date: '2024-11-20', progress: 0, done: 0, type: 'video' },
+      '项目管理实战': { category: '职业技能', desc: 'PMBOK项目管理框架，项目立项、计划制定、风险管控及收尾全流程实战。', lessons: 20, instructor: '孙伟', dept: '项目管理办', learners: 134, date: '2024-12-15', progress: 25, done: 5, type: 'video' },
+      '每刻报销流程规范': { category: '制度规范', desc: '差旅费、招待费、办公费等各项费用报销标准及线上审批流程操作指南。', lessons: 4, instructor: '钱敏', dept: '财务部', learners: 356, date: '2024-09-15', progress: 100, done: 4, type: 'video' },
+      'CRM客户管理系统操作': { category: '系统操作', desc: 'CRM系统客户档案管理、商机跟进、合同管理及销售数据分析模块操作。', lessons: 10, instructor: '刘洋', dept: '信息部', learners: 112, date: '2025-01-05', progress: 40, done: 4, type: 'video' },
+      '商务谈判与客户关系': { category: '职业技能', desc: '商务谈判策略与技巧，客户关系维护方法论，大客户管理最佳实践案例。', lessons: 14, instructor: '吴昊', dept: '市场部', learners: 76, date: '2025-01-14', progress: 0, done: 0, type: 'pdf' },
+      '包装材料与工艺知识': { category: '产品知识', desc: '纸制品、塑料、金属、玻璃等包装材料特性对比，印刷及后道工艺详解。', lessons: 15, instructor: '王磊', dept: '产品部', learners: 203, date: '2024-10-08', progress: 100, done: 15, type: 'pdf' }
+    };
+
+    // PDF课件幻灯片数据（每页标题与备注）
+    var pdfSlides = {
+      'ERP系统操作指南': [
+        { title: '封面', note: 'T100 ERP系统全面操作教程，主讲：刘洋（信息部）' },
+        { title: '目录', note: '课程目录：基础数据、采购管理、生产管理、库存管理、财务管理' },
+        { title: 'ERP系统发展历程与概念', note: 'ERP从MRP发展而来，整合企业资源，实现信息一体化。' },
+        { title: 'T100系统架构与模块总览', note: 'T100采用模块化设计，涵盖采购、生产、库存、财务、人事等。' },
+        { title: '基础数据与编码规则', note: '物料编码规则：类别+流水号；供应商编码：S+4位序号。' },
+        { title: '供应商档案管理', note: '供应商分合格/试用/黑名单三档，需定期评审。' },
+        { title: '询价比价与采购申请', note: '采购申请需附三家以上供应商报价单。' },
+        { title: '采购订单创建流程', note: 'PO单号格式：PO+年月+流水号，需经部门主管审批。' },
+        { title: '到货验收与入库', note: '到货后由仓管验收，合格后办理入库手续。' },
+        { title: '采购退货与折让', note: '不合格品走退货流程，折让需财务确认。' },
+        { title: 'BOM与工艺路线', note: 'BOM定义产品结构，工艺路线定义加工顺序。' },
+        { title: '工单创建与排产', note: '工单根据销售订单或计划生成，排产考虑产能。' },
+        { title: '生产报工与进度跟踪', note: '报工数据实时更新工单进度，支持异常预警。' },
+        { title: '质量检验与入库', note: '成品需经QC检验合格后方可入库。' },
+        { title: '仓库与库位管理', note: '库位编码：仓库-库区-货架-层-位。' },
+        { title: '调拨与盘点', note: '调拨需双方仓库确认，盘点分定期和抽盘。' },
+        { title: '库存预警与报表', note: '设置安全库存阈值，系统自动触发补货提醒。' },
+        { title: '应付应收管理', note: '应付根据采购发票，应收根据销售发票。' },
+        { title: '凭证与总账', note: '凭证需审核过账，期末结账生成报表。' },
+        { title: '财务报表与期末结账', note: '月结流程：凭证审核→过账→结转→出报表。' }
+      ],
+      '商务谈判与客户关系': [
+        { title: '封面', note: '商务谈判与客户关系，主讲：吴昊（市场部）' },
+        { title: '目录', note: '谈判基础、准备、开场、报价、僵局、双赢、客户管理' },
+        { title: '谈判基本概念', note: '谈判是双方通过沟通达成一致的过程。' },
+        { title: '谈判准备清单', note: '明确目标、底线、备选方案，研究对方背景。' },
+        { title: '开场与破冰技巧', note: '营造轻松氛围，寻找共同话题。' },
+        { title: '报价与让步策略', note: '报价留有余地，让步要有交换条件。' },
+        { title: '僵局突破方法', note: '转移议题、引入第三方、暂时休会。' },
+        { title: '双赢谈判思维', note: '关注利益而非立场，创造价值。' },
+        { title: '客户分类与画像', note: '按价值和潜力分为A/B/C/D四类。' },
+        { title: '大客户管理策略', note: '高层对接、定制方案、定期回顾。' },
+        { title: '客户满意度提升', note: '响应速度、服务质量、超出期望。' },
+        { title: '客户流失预警', note: '订单下降、投诉增加、联系减少等信号。' },
+        { title: 'CRM数据驱动', note: '用数据指导客户运营决策。' },
+        { title: '客户关系维护案例', note: '某大客户从流失边缘到战略合作的过程。' },
+        { title: '商务谈判模拟', note: '分组模拟采购与销售谈判场景。' },
+        { title: '能力评估测试', note: '课后测试检验学习效果。' }
+      ],
+      '包装材料与工艺知识': [
+        { title: '封面', note: '包装材料与工艺知识，主讲：王磊（产品部）' },
+        { title: '目录', note: '纸制品、塑料、金属、玻璃、复合材料、印刷工艺' },
+        { title: '纸制品特性概览', note: '纸制品应用最广，成本低，可回收。' },
+        { title: '瓦楞纸板结构', note: '分A/B/C/E楞，承重和缓冲性能不同。' },
+        { title: '白卡纸与铜版纸', note: '白卡纸用于礼盒，铜版纸用于彩印。' },
+        { title: '塑料薄膜材料', note: 'PE、PP、PET等，透明度和强度各异。' },
+        { title: 'PET与PP对比', note: 'PET硬度高透明度好，PP柔韧性好。' },
+        { title: '金属包装：马口铁', note: '用于食品罐，密封性好，可回收。' },
+        { title: '铝罐成型工艺', note: '冲压拉伸成型，用于饮料包装。' },
+        { title: '玻璃容器特性', note: '化学稳定性好，适合高端产品。' },
+        { title: '复合材料结构', note: '多层复合，兼顾阻隔、强度和成本。' },
+        { title: '环保降解材料', note: 'PLA等可降解材料，符合绿色趋势。' },
+        { title: '胶印工艺详解', note: '适合大批量，色彩还原度高。' },
+        { title: '凹印与凸印', note: '凹印适合塑料薄膜，凸印适合标签。' },
+        { title: '丝网印刷工艺', note: '适合特殊效果，如烫金、局部UV。' },
+        { title: '烫金与击凸', note: '提升包装档次，常用于礼盒。' },
+        { title: 'UV局部上光', note: '突出重点区域，增加光泽感。' }
+      ]
     };
 
     // 课程章节数据（每个课程的课时列表）
@@ -701,6 +1042,20 @@
         { name: '销售漏斗分析', duration: '17:30' },
         { name: 'CRM考核测试', duration: '15:40' }
       ],
+      '商务礼仪培训': [
+        { name: '商务着装规范', duration: '14:20' },
+        { name: '商务接待礼仪', duration: '16:35' },
+        { name: '会议礼仪', duration: '13:50' },
+        { name: '商务宴请礼仪', duration: '15:10' },
+        { name: '电话与邮件礼仪', duration: '12:40' },
+        { name: '礼仪实操演练', duration: '18:25' }
+      ],
+      '每刻报销流程规范': [
+        { name: '报销制度概述', duration: '12:15' },
+        { name: '差旅费报销', duration: '17:40' },
+        { name: '招待费与办公费', duration: '14:30' },
+        { name: '线上审批流程', duration: '16:20' }
+      ],
       '商务谈判与客户关系': [
         { name: '谈判基本概念', duration: '15:30' },
         { name: '谈判准备清单', duration: '18:20' },
@@ -736,39 +1091,130 @@
       ]
     };
 
+    // 内部讲师简介（用于右侧「讲师信息」）
+    var instructorProfiles = {
+      '李芳': { position: '人力资源经理', bio: '8年人力资源管理工作经验，主导公司制度体系建设与员工培训。' },
+      '王磊': { position: '产品总监', bio: '深耕包装行业15年，熟悉各类包装材料特性与印刷工艺流程。' },
+      '陈明': { position: 'OA系统管理员', bio: '负责公司OA系统运维，擅长流程配置与文档管理培训。' },
+      '刘洋': { position: 'ERP实施顾问', bio: '10年ERP实施经验，主导柏星龙T100系统上线，擅长采购、生产、财务模块培训。' },
+      '张玲': { position: '培训主管', bio: '专注职场软技能培训，累计授课超300场，擅长沟通与协作类课程。' },
+      '赵刚': { position: '安全工程师', bio: '注册安全工程师，负责工厂安全生产标准与应急处置培训。' },
+      '林萍': { position: '行政专员', bio: '负责商务接待与礼仪规范培训，具备丰富的会务组织经验。' },
+      '孙伟': { position: '项目总监', bio: 'PMP认证，主导多个大型包装项目交付，擅长项目全流程管理。' },
+      '钱敏': { position: '财务主管', bio: '熟悉费用报销与财务合规流程，主讲每刻报销系统实操。' },
+      '吴昊': { position: '市场经理', bio: '10年大客户销售与商务谈判经验，擅长客户关系管理实战。' }
+    };
+
     // 初始化页面
     (function init() {
       var data = courseData[courseTitle] || courseData['ERP系统操作指南'];
-      document.getElementById('heroTitle').textContent = courseTitle;
-      document.getElementById('heroCategory').textContent = data.category;
-      document.getElementById('heroDesc').textContent = data.desc;
-      document.getElementById('heroLessons').textContent = data.lessons;
-      document.getElementById('heroInstructor').textContent = data.instructor;
-      document.getElementById('heroDept').textContent = data.dept;
-      document.getElementById('heroLearners').textContent = data.learners;
-      document.getElementById('heroDate').textContent = data.date;
-      document.getElementById('heroProgressText').textContent = data.progress + '%';
-      document.getElementById('heroDoneLessons').textContent = data.done;
-      document.getElementById('heroTotalLessons').textContent = data.lessons;
-      document.getElementById('heroProgressBar').style.width = data.progress + '%';
+      var profile = instructorProfiles[data.instructor] || { position: '内部讲师', bio: '企业内部认证讲师。' };
 
-      // 头部按钮文字
+      // 面包屑展示课程名称
+      document.getElementById('courseCrumb').textContent = courseTitle;
+
+      // 右侧「讲师信息」
+      document.getElementById('insAvatar').textContent = data.instructor.charAt(0);
+      document.getElementById('insName').textContent = data.instructor;
+      document.getElementById('insTitle').textContent = data.dept + ' · ' + profile.position;
+      document.getElementById('insBio').textContent = profile.bio;
+
+      // 右侧「课程数据」
+      document.getElementById('dataCategory').textContent = data.category;
+      document.getElementById('dataLessons').textContent = data.lessons + '课时';
+      document.getElementById('dataDone').textContent = data.done + '课时';
+      document.getElementById('dataProgress').textContent = data.progress + '%';
+      var minutes = data.done * 35;
+      document.getElementById('dataDuration').textContent = Math.floor(minutes / 60) + '小时' + (minutes % 60) + '分';
+      document.getElementById('dataLearners').textContent = data.learners + '人';
+      document.getElementById('dataDate').textContent = data.date;
+
+      // 右侧「学习记录」
+      renderLearningRecords(data);
+
+      // 顶部「继续学习 / 开始学习」按钮文字
       var heroBtn = document.getElementById('heroBtn');
-      var heroBadge = document.getElementById('heroProgressBadge');
       if (data.progress === 100) {
-        heroBtn.textContent = '复习课程';
-        heroBadge.textContent = '已完成';
+        // 课程已完成，不展示操作按钮
+        heroBtn.style.display = 'none';
       } else if (data.progress === 0) {
         heroBtn.textContent = '开始学习';
-        heroBadge.textContent = '未开始';
       } else {
         heroBtn.textContent = '继续学习';
-        heroBadge.textContent = '学习中';
       }
 
       // 动态渲染章节列表
       renderChapters(data);
+
+      // 根据课程类型切换视频/PDF模式
+      var courseType = data.type || 'video';
+      if (courseType === 'pdf') {
+        // PDF：整块区域切换为「左PDF文档 / 右页面内容」布局
+        document.getElementById('videoMode').style.display = 'none';
+        document.getElementById('pdfMode').style.display = '';
+        renderPdfViewer(courseTitle);
+      } else {
+        document.getElementById('videoMode').style.display = '';
+        document.getElementById('pdfMode').style.display = 'none';
+        document.getElementById('chapterCount').textContent = data.lessons + '课时';
+      }
     })();
+
+    // 取当前课程的课时名称（视频课取章节，PDF课取页码标题）
+    function getCourseLessonNames(title, data) {
+      if (courseChapters[title]) {
+        return courseChapters[title].map(function (c) { return c.name; });
+      }
+      if (pdfSlides[title]) {
+        return pdfSlides[title].map(function (s) { return s.title; });
+      }
+      var names = [];
+      for (var i = 0; i < (data.lessons || 0); i++) { names.push(''); }
+      return names;
+    }
+
+    // 渲染「学习记录」（按当前课程动态生成）
+    function renderLearningRecords(data) {
+      var box = document.getElementById('recordList');
+      var names = getCourseLessonNames(courseTitle, data);
+      var total = names.length;
+      var done = Math.min(data.done || 0, total);
+      var start = new Date('2025-01-10T09:15:00');
+
+      function fmt(d) {
+        function p(n) { return String(n).padStart(2, '0'); }
+        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+      }
+      function lessonLabel(i) {
+        var name = names[i];
+        return name ? ((i + 1) + ' ' + name) : ('第 ' + (i + 1) + ' 课时');
+      }
+
+      var list = [];
+      // 加入课程
+      list.push({ dot: 'gray', text: '加入课程「' + courseTitle + '」', time: fmt(start) });
+      // 已完成课时
+      for (var i = 0; i < done; i++) {
+        list.push({ dot: 'green', text: '完成「' + lessonLabel(i) + '」', time: fmt(new Date(start.getTime() + (i + 1) * 3 * 3600 * 1000)) });
+      }
+      // 当前学习中
+      if (done < total) {
+        list.push({ dot: 'blue', text: '开始学习「' + lessonLabel(done) + '」', time: fmt(new Date(start.getTime() + (done + 1) * 3 * 3600 * 1000)) });
+      } else {
+        list.push({ dot: 'green', text: '已完成全部课时，课程结课', time: fmt(new Date(start.getTime() + (done + 1) * 3 * 3600 * 1000)) });
+      }
+
+      list.reverse(); // 最新的记录在前
+
+      box.innerHTML = list.map(function (r) {
+        return '<div class="record-item">' +
+          '<div class="record-dot ' + r.dot + '"></div>' +
+          '<div class="record-text">' + r.text +
+            '<div class="record-time">' + r.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
 
     // 渲染章节列表
     function renderChapters(data) {
@@ -859,10 +1305,17 @@
 
       // 更新视频标签
       var lessonName = el.querySelector('.lesson-name').textContent;
-      document.getElementById('videoLabel').textContent = lessonName;
-      var duration = el.querySelector('.lesson-duration').textContent;
-      document.getElementById('videoTime').textContent = '00:00 / ' + duration;
-      document.getElementById('videoProgressFill').style.width = '0%';
+      var data = courseData[courseTitle] || courseData['ERP系统操作指南'];
+      if (data.type === 'pdf') {
+        // PDF模式：跳转到对应幻灯片
+        var lessonIdx = Array.from(document.querySelectorAll('.lesson-item')).indexOf(el);
+        selectPdfSlide(lessonIdx);
+      } else {
+        document.getElementById('videoLabel').textContent = lessonName;
+        var duration = el.querySelector('.lesson-duration').textContent;
+        document.getElementById('videoTime').textContent = '00:00 / ' + duration;
+        document.getElementById('videoProgressFill').style.width = '0%';
+      }
 
       showToast('已切换到：' + lessonName);
     }
@@ -915,7 +1368,8 @@
       if (current) {
         var name = current.querySelector('.lesson-name').textContent;
         showToast('继续学习：' + name);
-        document.querySelector('.video-placeholder').scrollIntoView({ behavior: 'smooth' });
+        var target = document.querySelector('.player-layout');
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
       } else {
         // 找到第一个未完成的
         var firstUndone = document.querySelector('.lesson-item:not(.current) .lesson-status:not(.done):not(.locked)');
@@ -926,6 +1380,127 @@
       }
     }
 
+    // ===== PDF：左侧分页缩略图 / 右侧当前页预览 =====
+    var currentPdfSlide = 0;
+    var pdfFinished = false;
+
+    function getPdfSlides(title) {
+      var slides = pdfSlides[title];
+      if (!slides || slides.length === 0) {
+        slides = [{ title: '暂无课件', note: '该课程暂无PDF课件内容' }];
+      }
+      return slides;
+    }
+
+    // 渲染左侧分页缩略图（横向，无文字）
+    function renderPdfPageList(slides) {
+      var box = document.getElementById('pdfPageList');
+      var html = '';
+      for (var i = 0; i < slides.length; i++) {
+        html += '<div class="pdf-page-item" onclick="selectPdfSlide(' + i + ')">' +
+          getSlideIcon(i) +
+          '<span class="pdf-page-no">' + (i + 1) + '</span>' +
+        '</div>';
+      }
+      box.innerHTML = html;
+    }
+
+    function renderPdfViewer(title) {
+      var slides = getPdfSlides(title);
+      pdfFinished = false;
+      // 左侧顶部展示当前学习的课程标题
+      document.getElementById('pdfDocTitle').textContent = title;
+      renderPdfPageList(slides);
+      selectPdfSlide(0);
+    }
+
+    function selectPdfSlide(idx) {
+      var slides = getPdfSlides(courseTitle);
+      if (!slides[idx]) return;
+      currentPdfSlide = idx;
+      var s = slides[idx];
+      var total = slides.length;
+
+      // ---- 左侧：当前页高亮 ----
+      var listEl = document.getElementById('pdfPageList');
+      var items = listEl.children;
+      for (var i = 0; i < items.length; i++) {
+        items[i].classList.toggle('current', i === idx);
+      }
+      // 仅滚动左侧列表本身，避免带动整页跳动
+      var curEl = items[idx];
+      if (curEl) {
+        var listRect = listEl.getBoundingClientRect();
+        var curRect = curEl.getBoundingClientRect();
+        if (curRect.top < listRect.top) {
+          listEl.scrollTop += curRect.top - listRect.top - 8;
+        } else if (curRect.bottom > listRect.bottom) {
+          listEl.scrollTop += curRect.bottom - listRect.bottom + 8;
+        }
+      }
+
+      // ---- 右侧：当前页预览 ----
+      document.getElementById('pdfSheetTitle').textContent = s.title;
+      document.getElementById('pdfSheetBody').textContent = getSlideIcon(idx);
+      // 页码统一放在右下角工具栏
+      document.getElementById('pdfFooterPage').textContent = (idx + 1) + ' / ' + total;
+
+      // ---- 翻页按钮可用状态：首页禁用「上一页」，末页禁用「下一页」 ----
+      var isFirst = idx === 0;
+      var isLast = idx === total - 1;
+      var prev = document.getElementById('pdfFooterPrev');
+      var next = document.getElementById('pdfFooterNext');
+      prev.classList.toggle('disabled', isFirst);
+      prev.style.pointerEvents = isFirst ? 'none' : '';
+      next.classList.toggle('disabled', isLast);
+      next.style.pointerEvents = isLast ? 'none' : '';
+
+      // ---- 点击到最后一页即判定该PDF课件已完成 ----
+      if (isLast && !pdfFinished) {
+        pdfFinished = true;
+        showToast('已浏览到最后一页（' + total + '/' + total + '），该PDF课件判定为已完成', 'success');
+      }
+    }
+
+    function getSlideIcon(idx) {
+      var icons = ['📊', '📋', '📈', '🏗️', '⚙️', '💰', '📦', '🔧', '📑', '🎯', '🔍', '📐', '📌', '💡', '📝', '🏆', '🧩', '📞', '📚', '✨'];
+      return icons[idx % icons.length];
+    }
+
+    function pdfPrevSlide() {
+      if (currentPdfSlide > 0) selectPdfSlide(currentPdfSlide - 1);
+    }
+    function pdfNextSlide() {
+      var slides = getPdfSlides(courseTitle);
+      if (currentPdfSlide < slides.length - 1) selectPdfSlide(currentPdfSlide + 1);
+    }
+
+    // ===== 倍速播放 =====
+    var videoSpeed = '1.0';
+    function toggleSpeedMenu(e) {
+      e.stopPropagation();
+      var menu = document.getElementById('videoSpeedMenu');
+      menu.classList.toggle('show');
+    }
+    function setVideoSpeed(e, speed) {
+      e.stopPropagation();
+      videoSpeed = speed;
+      document.getElementById('videoSpeedLabel').textContent = speed + 'x';
+      document.querySelectorAll('.video-speed-item').forEach(function(item) {
+        item.classList.toggle('active', item.textContent.trim() === speed + 'x');
+      });
+      document.getElementById('videoSpeedMenu').classList.remove('show');
+      showToast('播放速度已切换为 ' + speed + 'x');
+    }
+    // 点击空白处收起倍速菜单
+    document.addEventListener('click', function(e) {
+      var menu = document.getElementById('videoSpeedMenu');
+      var box = document.querySelector('.video-speed');
+      if (menu && box && !box.contains(e.target)) {
+        menu.classList.remove('show');
+      }
+    });
+
     // 播放按钮切换
     function togglePlay(el) {
       if (el.textContent === '▶') {
@@ -935,33 +1510,6 @@
         el.textContent = '▶';
         showToast('已暂停');
       }
-    }
-
-    // 笔记功能
-    function updateNoteBtn(input) {
-      var btn = document.getElementById('saveNoteBtn');
-      if (input.value.trim()) {
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-      } else {
-        btn.style.opacity = '0.5';
-        btn.style.cursor = 'not-allowed';
-      }
-    }
-
-    function saveNote() {
-      var input = document.getElementById('noteInput');
-      if (!input.value.trim()) return;
-      var list = document.getElementById('noteList');
-      var note = document.createElement('div');
-      note.className = 'note-item';
-      var now = new Date();
-      var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-      note.innerHTML = input.value + '<div class="note-item-time">' + timeStr + '</div>';
-      list.insertBefore(note, list.firstChild);
-      input.value = '';
-      updateNoteBtn(input);
-      showToast('笔记已保存', 'success');
     }
 
     /* ===== 课后考试 ===== */

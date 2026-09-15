@@ -2825,29 +2825,7 @@ input, select {
                   <div class="notice-tab active" onclick="switchNoticeTab('latest', this)">最新公告</div>
                   <div class="notice-tab" onclick="switchNoticeTab('history', this)">历史公告</div>
                 </div>
-                <div class="notice-portal-list">
-                  <div class="notice-portal-item-v2">
-                    <div class="notice-icon icon-green">📢</div>
-                    <div class="notice-content">
-                      <div class="notice-title">关于春节放假安排的通知</div>
-                      <div class="notice-meta">2026-01-18 · 集团办公室</div>
-                    </div>
-                  </div>
-                  <div class="notice-portal-item-v2">
-                    <div class="notice-icon icon-yellow">💬</div>
-                    <div class="notice-content">
-                      <div class="notice-title">新品A系列正式上市通知</div>
-                      <div class="notice-meta">2026-01-16 · 市场中心</div>
-                    </div>
-                  </div>
-                  <div class="notice-portal-item-v2">
-                    <div class="notice-icon icon-blue">ℹ️</div>
-                    <div class="notice-content">
-                      <div class="notice-title">办公楼电梯维护通知</div>
-                      <div class="notice-meta">2026-01-12 · 行政中心</div>
-                    </div>
-                  </div>
-                </div>
+                <div class="notice-portal-list" id="noticePortalList"></div>
               </div>
       <div class="portal-card">
                 <div class="portal-card-header">
@@ -2970,7 +2948,6 @@ input, select {
                 <div class="portal-card-header">
                   <div class="portal-card-title">柏家学堂</div>
                   <div class="study-header-info">
-                    <span>企业学习中心</span>
                     <a href="study.html" class="portal-card-more">完整 →</a>
                   </div>
                 </div>
@@ -4206,12 +4183,49 @@ input, select {
       });
     });
   
+  // 公告数据
+  var noticeData = {
+    latest: [
+      { icon: '📢', cls: 'icon-green', title: '关于春节放假安排的通知', meta: '2026-01-18 · 集团办公室' },
+      { icon: '💬', cls: 'icon-yellow', title: '新品A系列正式上市通知', meta: '2026-01-16 · 市场中心' },
+      { icon: 'ℹ️', cls: 'icon-blue', title: '办公楼电梯维护通知', meta: '2026-01-12 · 行政中心' }
+    ],
+    history: [
+      { icon: '🏆', cls: 'icon-yellow', title: '2025年度优秀员工评选结果公示', meta: '2025-12-28 · 人力资源部' },
+      { icon: '📊', cls: 'icon-blue', title: '2025年度经营目标完成情况通报', meta: '2025-12-20 · 财务部' },
+      { icon: '🔧', cls: 'icon-green', title: 'OA系统升级维护完成通知', meta: '2025-12-15 · 信息部' },
+      { icon: '📦', cls: 'icon-yellow', title: '年终盘点工作安排通知', meta: '2025-12-10 · 仓储物流部' },
+      { icon: '🎉', cls: 'icon-green', title: '公司成立20周年庆典活动通知', meta: '2025-11-25 · 集团办公室' },
+      { icon: '📋', cls: 'icon-blue', title: '2026年度培训计划征集通知', meta: '2025-11-18 · 人力资源部' }
+    ]
+  };
+
+  // 渲染公告列表
+  function renderNoticeList(type) {
+    var box = document.getElementById('noticePortalList');
+    if (!box) return;
+    var list = noticeData[type] || [];
+    box.innerHTML = list.map(function(n) {
+      return '<div class="notice-portal-item-v2">' +
+        '<div class="notice-icon ' + n.cls + '">' + n.icon + '</div>' +
+        '<div class="notice-content">' +
+          '<div class="notice-title">' + n.title + '</div>' +
+          '<div class="notice-meta">' + n.meta + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
   // 公告Tab切换
   function switchNoticeTab(type, el) {
     var tabs = document.querySelectorAll('.notice-tab');
     tabs.forEach(function(t) { t.classList.remove('active'); });
     el.classList.add('active');
+    renderNoticeList(type);
   }
+
+  // 初始化公告列表
+  renderNoticeList('latest');
 
   // 考勤月份切换
   var attendanceYear = 2026;

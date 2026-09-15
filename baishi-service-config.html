@@ -622,10 +622,10 @@
         <span class="sidebar-menu-icon">📢</span>
         <span>公告管理</span>
       </a>
-      <div class="sidebar-menu-item active">
+      <a href="baishi-service-list.html" class="sidebar-menu-item active">
         <span class="sidebar-menu-icon">🛎️</span>
         <span>柏事服务配置</span>
-      </div>
+      </a>
     </div>
     <div class="sidebar-footer">
       <span>🏠</span>
@@ -670,6 +670,21 @@
         <div>
           <input type="text" placeholder="请输入服务名称" style="width:100%;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;">
           <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">例如：宿舍申请、故障申报、软件下载等</div>
+        </div>
+      </div>
+
+      <!-- 所属系统 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
+        <div style="text-align:right;padding-top:10px;font-size:14px;color:var(--text-primary);">所属系统 <span style="color:#ef4444;">*</span></div>
+        <div>
+          <select id="serviceSystem" style="width:100%;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;background:#fff;appearance:auto;cursor:pointer;">
+            <option value="">请选择所属系统</option>
+            <option value="T100">T100</option>
+            <option value="OA">OA</option>
+            <option value="HR">HR</option>
+            <option value="CRM">CRM</option>
+          </select>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">选择该服务归属的业务系统</div>
         </div>
       </div>
 

@@ -154,6 +154,22 @@
     .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
     .empty-state .text { font-size: 14px; }
 
+    /* 详情视图的返回按钮 */
+    .back-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background: #eff6ff; }
+
     @media (max-width: 768px) {
       .course-grid { grid-template-columns: 1fr; }
     }
@@ -246,6 +262,9 @@
 
   <!-- 主内容区 -->
   <main class="main-content">
+
+    <!-- ===== 课程列表视图 ===== -->
+    <div id="listView">
     <!-- 刷新按钮 -->
     <button class="refresh-btn" onclick="location.reload()">
       <span>🔄</span>
@@ -260,10 +279,9 @@
     </div>
 
     <!-- 页面标题 -->
-    <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px;">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px;">
       <div>
-        <h1 class="page-title">柏家学堂</h1>
-        <p class="page-desc">企业在线学习中心，涵盖制度规范、产品知识、职业技能及系统操作等课程资源</p>
+        <h1 class="page-title" style="margin-bottom:0;">柏家学堂</h1>
       </div>
     </div>
 
@@ -356,7 +374,7 @@
                   <div class="course-progress-bar-fill green" style="width: 100%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#16a34a;">100%</span>
-                <button class="course-btn done" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">已完成</button>
+                <button class="course-btn done" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">已完成</button>
               </div>
             </div>
           </div>
@@ -380,7 +398,7 @@
                   <div class="course-progress-bar-fill orange" style="width: 50%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#d97706;">50%</span>
-                <button class="course-btn continue" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">继续学习</button>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
               </div>
             </div>
           </div>
@@ -404,7 +422,7 @@
                   <div class="course-progress-bar-fill gray" style="width: 0%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#94a3b8;">0%</span>
-                <button class="course-btn start" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">开始学习</button>
+                <button class="course-btn start" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">开始学习</button>
               </div>
             </div>
           </div>
@@ -428,7 +446,7 @@
                   <div class="course-progress-bar-fill orange" style="width: 35%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#d97706;">35%</span>
-                <button class="course-btn continue" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">继续学习</button>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
               </div>
             </div>
           </div>
@@ -475,7 +493,7 @@
                   <div class="course-progress-bar-fill orange" style="width: 70%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#d97706;">70%</span>
-                <button class="course-btn continue" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">继续学习</button>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
               </div>
             </div>
           </div>
@@ -499,7 +517,7 @@
                   <div class="course-progress-bar-fill gray" style="width: 0%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#94a3b8;">0%</span>
-                <button class="course-btn start" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">开始学习</button>
+                <button class="course-btn start" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">开始学习</button>
               </div>
             </div>
           </div>
@@ -523,7 +541,7 @@
                   <div class="course-progress-bar-fill orange" style="width: 25%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#d97706;">25%</span>
-                <button class="course-btn continue" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">继续学习</button>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
               </div>
             </div>
           </div>
@@ -570,7 +588,7 @@
                   <div class="course-progress-bar-fill orange" style="width: 60%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#d97706;">60%</span>
-                <button class="course-btn continue" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">继续学习</button>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
               </div>
             </div>
           </div>
@@ -594,7 +612,7 @@
                   <div class="course-progress-bar-fill gray" style="width: 0%;"></div>
                 </div>
                 <span class="course-progress-text" style="color:#94a3b8;">0%</span>
-                <button class="course-btn start" onclick="location.href='study-detail.html?title='+encodeURIComponent(this.closest('.course-card').dataset.title)">开始学习</button>
+                <button class="course-btn start" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">开始学习</button>
               </div>
             </div>
           </div>
@@ -638,9 +656,43 @@
         <button class="page-btn">›</button>
       </div>
     </div>
+    </div>
+    <!-- ===== /课程列表视图 ===== -->
+
+    <!-- ===== 学习详情视图（在当前内容区展示，左侧菜单不变） ===== -->
+    <div id="detailView" style="display:none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+        <div class="breadcrumb" style="margin-bottom:0;">
+          <a href="index.html">首页</a>
+          <span class="separator">/</span>
+          <a href="javascript:void(0)" onclick="closeCourseDetail()">柏家学堂</a>
+          <span class="separator">/</span>
+          <span class="current" id="detailCrumb">课程详情</span>
+        </div>
+        <span class="back-btn" onclick="closeCourseDetail()">← 返回课程列表</span>
+      </div>
+      <iframe id="detailFrame" title="课程学习详情" src="about:blank" style="display:block; width:100%; height:calc(100vh - 190px); border:none;"></iframe>
+    </div>
   </main>
 
   <script>
+    // ===== 学习详情：在当前内容区切换视图，左侧菜单保持不变 =====
+    function openCourseDetail(title) {
+      document.getElementById('listView').style.display = 'none';
+      document.getElementById('detailView').style.display = '';
+      document.getElementById('detailCrumb').textContent = title || '课程详情';
+      // 通过 embed=1 让详情页隐藏自身的顶部导航，作为内容区嵌入展示
+      document.getElementById('detailFrame').src = 'study-detail.html?embed=1&title=' + encodeURIComponent(title || '');
+      window.scrollTo(0, 0);
+    }
+
+    function closeCourseDetail() {
+      document.getElementById('detailFrame').src = 'about:blank';
+      document.getElementById('detailView').style.display = 'none';
+      document.getElementById('listView').style.display = '';
+      window.scrollTo(0, 0);
+    }
+
     var currentCategory = '全部课程';
 
     function switchCategory(el) {
