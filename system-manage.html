@@ -118,8 +118,8 @@
     .menu-status-off { background: #f1f5f9; color: #64748b; }
 
     /* 字段配置弹窗 */
-    .field-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .field-count { font-size: 13px; color: var(--text-muted); margin-left: auto; }
+    .field-toolbar { padding: 10px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-color); background: #f8fafc; margin-bottom: 14px; }
+    .field-count { font-size: 13px; color: var(--text-secondary); margin-left: auto; font-weight: 500; }
     .batch-upload-area { display: none; border: 2px dashed var(--border-color); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 14px; }
     .batch-upload-area.show { display: block; }
     .batch-upload-zone { border: 2px dashed #93c5fd; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
@@ -627,7 +627,7 @@
 
   <!-- 字段配置弹窗 -->
   <div class="modal-overlay" id="fieldModal" onclick="if(event.target===this)closeFieldModal()">
-    <div class="modal" style="max-width:960px;">
+    <div class="modal wide">
       <div class="modal-header"><div class="modal-title">字段配置 · <span id="fieldMenuName">发文管理</span></div><button class="modal-close" onclick="closeFieldModal()">✕</button></div>
       <div class="modal-body">
         <div class="field-toolbar">
@@ -666,7 +666,7 @@
 
   <!-- 按钮配置弹窗 -->
   <div class="modal-overlay" id="buttonModal" onclick="if(event.target===this)closeButtonModal()">
-    <div class="modal" style="max-width:960px;">
+    <div class="modal wide">
       <div class="modal-header"><div class="modal-title">按钮配置 · <span id="buttonMenuName">菜单</span></div><button class="modal-close" onclick="closeButtonModal()">✕</button></div>
       <div class="modal-body">
         <div class="field-toolbar">
