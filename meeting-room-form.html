@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新增会议室 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #1f2937; font-size: 14px; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .top-header { height: 52px; background: linear-gradient(90deg, #1e3a5f 0%, #2563eb 100%); display: flex; align-items: center; padding: 0 20px; color: #fff; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin-right: 28px; }
+    .logo-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .top-nav { display: flex; gap: 6px; flex: 1; }
+    .top-nav a { padding: 6px 14px; border-radius: 4px; font-size: 13px; opacity: 0.85; transition: all 0.2s; color: #fff; }
+    .top-nav a:hover, .top-nav a.active { opacity: 1; background: rgba(255,255,255,0.15); }
+    .top-right { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+    .top-right .user { display: flex; align-items: center; gap: 8px; }
+    .top-right .avatar { width: 30px; height: 30px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    .sub-header { height: 42px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 20px; }
+    .sub-header-nav { display: flex; gap: 4px; }
+    .sub-nav-item { padding: 8px 16px; font-size: 13px; color: #6b7280; border-radius: 4px; cursor: pointer; }
+    .sub-nav-item.active { color: #2563eb; background: #eff6ff; font-weight: 500; }
+
+    .layout { display: flex; min-height: calc(100vh - 52px - 42px); }
+    .sidebar { width: 220px; background: #fff; border-right: 1px solid #e5e7eb; flex-shrink: 0; padding: 16px 0; display: flex; flex-direction: column; }
+    .sidebar-title { padding: 0 20px; font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
+    .sidebar-subtitle { padding: 0 20px; font-size: 12px; color: #9ca3af; margin-bottom: 16px; }
+    .sidebar-menu { display: flex; flex-direction: column; }
+    .sidebar-menu-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 13px; color: #4b5563; cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; }
+    .sidebar-menu-item:hover { background: #f9fafb; color: #2563eb; }
+    .sidebar-menu-item.active { background: #eff6ff; color: #2563eb; border-left-color: #2563eb; font-weight: 500; }
+    .sidebar-menu-icon { font-size: 16px; width: 20px; text-align: center; }
+    .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid #f3f4f6; font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 8px; }
+
+    .main-content { flex: 1; padding: 20px; min-width: 0; background: #fff; min-height: calc(100vh - 52px - 42px); }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6b7280; margin-bottom: 16px; }
+    .breadcrumb a { color: #6b7280; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .separator { color: #d1d5db; }
+    .breadcrumb .current { color: #1f2937; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f3f4f6; }
+    .page-title { font-size: 18px; font-weight: 600; color: #1f2937; }
+
+    .btn { padding: 7px 14px; border-radius: 6px; font-size: 13px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-default { background: #fff; color: #4b5563; border: 1px solid #d1d5db; }
+    .btn-default:hover { background: #f9fafb; }
+
+    .form-section { margin-bottom: 24px; }
+    .form-section-title { font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 14px; padding-left: 8px; border-left: 3px solid #2563eb; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+    .form-item { display: flex; flex-direction: column; }
+    .form-item.full { grid-column: 1 / -1; }
+    .form-label { font-size: 12px; color: #4b5563; margin-bottom: 6px; }
+    .form-label .req { color: #dc2626; margin-right: 2px; }
+    .form-input, .form-select, .form-textarea { padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; outline: none; transition: border-color 0.15s; font-family: inherit; background: #fff; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #2563eb; }
+    .form-textarea { resize: vertical; min-height: 60px; }
+    .form-hint { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+
+    .photo-uploader { display: flex; gap: 16px; align-items: stretch; }
+    .photo-preview { position: relative; width: 340px; height: 210px; border: 1.5px dashed #cbd5e1; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); color: #94a3b8; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+    .photo-preview:hover { border-color: #2563eb; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); box-shadow: 0 4px 12px rgba(37,99,235,0.08); }
+    .photo-preview.dragover { border-color: #2563eb; border-style: solid; background: #eff6ff; transform: scale(1.01); }
+    .photo-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px; text-align: center; }
+    .photo-empty-icon { width: 52px; height: 52px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #94a3b8; box-shadow: 0 2px 8px rgba(15,23,42,0.06); }
+    .photo-empty-text { font-size: 13px; color: #475569; font-weight: 500; }
+    .photo-empty-sub { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+    .photo-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.55); display: none; align-items: center; justify-content: center; gap: 8px; }
+    .photo-preview.has-image:hover .photo-overlay { display: flex; }
+    .photo-overlay-btn { padding: 6px 14px; background: rgba(255,255,255,0.95); color: #1f2937; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+    .photo-overlay-btn:hover { background: #fff; transform: translateY(-1px); }
+    .photo-overlay-btn.danger { color: #dc2626; }
+    .photo-badge { position: absolute; top: 8px; left: 8px; padding: 3px 8px; background: rgba(37,99,235,0.9); color: #fff; border-radius: 4px; font-size: 10px; display: none; }
+    .photo-preview.has-image .photo-badge { display: block; }
+    .photo-actions { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+    .photo-actions-row { display: flex; gap: 8px; }
+    .photo-tip { font-size: 11px; color: #94a3b8; line-height: 1.7; background: #f8fafc; border-left: 2px solid #cbd5e1; padding: 8px 10px; border-radius: 0 4px 4px 0; }
+    .photo-tip b { color: #475569; }
+
+    .device-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .device-option { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.15s; user-select: none; }
+    .device-option:hover { border-color: #2563eb; }
+    .device-option input { margin: 0; cursor: pointer; }
+    .device-option.checked { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
+
+    .form-footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 16px; border-top: 1px solid #f3f4f6; margin-top: 8px; }
+
+    .toast { position: fixed; top: 80px; right: 24px; background: #1f2937; color: #fff; padding: 10px 16px; border-radius: 6px; font-size: 13px; z-index: 2000; opacity: 0; transform: translateX(20px); transition: all 0.2s; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.success { background: #16a34a; }
+    .toast.error { background: #dc2626; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>2026-09-16 周二 晴 26°</span>
+        </div>
+        <div class="header-bell">
+          🔔
+          <span class="badge">5</span>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <div class="sub-nav-item active">内容管理</div>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">内容管理</div>
+      <div class="sidebar-subtitle">管理企业学习与资讯内容</div>
+      <div class="sidebar-menu">
+        <a href="content-study.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📚</span>
+          <span>柏家学堂配置</span>
+        </a>
+        <a href="news-manage.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📰</span>
+          <span>新闻管理</span>
+        </a>
+        <a href="notice-manage.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📢</span>
+          <span>公告管理</span>
+        </a>
+        <a href="baishi-service-config.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🛎️</span>
+          <span>柏事服务配置</span>
+        </a>
+        <a href="quick-entry.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🔲</span>
+          <span>快捷入口管理</span>
+        </a>
+        <div class="sidebar-menu-item active">
+          <span class="sidebar-menu-icon">🏢</span>
+          <span>会议室管理</span>
+        </div>
+        <a href="ai-agent-market.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🤖</span>
+          <span>AI智能体市场</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <span>🏠</span>
+        <a href="index.html">返回门户首页</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a>
+        <span class="separator">/</span>
+        <a href="meeting-room.html">会议室管理</a>
+        <span class="separator">/</span>
+        <span class="current" id="crumbCurrent">新增会议室</span>
+      </div>
+
+      <div class="page-header">
+        <div class="page-title" id="pageTitle">新增会议室</div>
+        <div>
+          <button class="btn btn-default" onclick="location.href='meeting-room.html'">返回列表</button>
+          <button class="btn btn-primary" onclick="saveRoom()">保存</button>
+        </div>
+      </div>
+
+      <!-- 会议室照片 -->
+      <div class="form-section">
+        <div class="form-section-title">会议室照片</div>
+        <div class="photo-uploader">
+          <div class="photo-preview" id="photoPreview" onclick="if(!photoData)document.getElementById('photoInput').click()">
+            <span class="photo-badge">主图</span>
+            <div class="photo-empty" id="photoEmpty">
+              <div class="photo-empty-icon">📷</div>
+              <div>
+                <div class="photo-empty-text">点击或拖拽上传会议室照片</div>
+                <div class="photo-empty-sub">建议尺寸 1280×800 · 单张不超过 5MB</div>
+              </div>
+            </div>
+            <div class="photo-overlay" id="photoOverlay">
+              <div class="photo-overlay-btn" onclick="event.stopPropagation();document.getElementById('photoInput').click()">替换</div>
+              <div class="photo-overlay-btn danger" onclick="event.stopPropagation();removePhoto()">移除</div>
+            </div>
+          </div>
+          <div class="photo-actions">
+            <div class="photo-actions-row">
+              <button class="btn btn-default" type="button" onclick="document.getElementById('photoInput').click()">选择图片</button>
+              <button class="btn btn-default" type="button" id="removePhotoBtn" style="display:none;color:#dc2626;border-color:#fecaca;" onclick="removePhoto()">移除</button>
+            </div>
+            <div class="photo-tip">
+              <b>支持 JPG/PNG 格式</b><br>
+              · 此照片作为列表/详情页主图<br>
+              · 建议实地拍摄，包含会议桌椅全景<br>
+              · 同步显示在门口电子屏（如有）
+            </div>
+          </div>
+          <input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="onPhotoSelected(this)">
+        </div>
+      </div>
+
+      <!-- 基础信息 -->
+      <div class="form-section">
+        <div class="form-section-title">基础信息</div>
+        <div class="form-grid">
+          <div class="form-item">
+            <div class="form-label"><span class="req">*</span>会议室名称</div>
+            <input type="text" class="form-input" id="roomName" placeholder="如：战略会议室" maxlength="30">
+          </div>
+          <div class="form-item">
+            <div class="form-label"><span class="req">*</span>会议室编号</div>
+            <input type="text" class="form-input" id="roomCode" placeholder="如：MR-A301，全局唯一" maxlength="20">
+            <div class="form-hint">用于关联日程预约记录</div>
+          </div>
+          <div class="form-item">
+            <div class="form-label"><span class="req">*</span>门牌显示名称</div>
+            <input type="text" class="form-input" id="doorSignName" placeholder="如：战略会议室（用于门口电子屏显示）" maxlength="20">
+            <div class="form-hint">同步至门口电子屏显示，建议简短易识别</div>
+          </div>
+          <div class="form-item">
+            <div class="form-label"><span class="req">*</span>容纳人数</div>
+            <input type="number" class="form-input" id="capacity" placeholder="如：12" min="1" max="500">
+          </div>
+        </div>
+      </div>
+
+      <!-- 设备配置 -->
+      <div class="form-section">
+        <div class="form-section-title">设备配置</div>
+        <div class="device-checkbox-group" id="deviceGroup">
+          <label class="device-option"><input type="checkbox" value="投影仪"><span>📽 投影仪</span></label>
+          <label class="device-option"><input type="checkbox" value="电视屏"><span>📺 电视屏</span></label>
+          <label class="device-option"><input type="checkbox" value="白板"><span>📋 白板</span></label>
+          <label class="device-option"><input type="checkbox" value="视频会议设备"><span>🎥 视频会议设备</span></label>
+          <label class="device-option"><input type="checkbox" value="电话会议"><span>☎️ 电话会议</span></label>
+          <label class="device-option"><input type="checkbox" value="麦克风"><span>🎙 麦克风</span></label>
+          <label class="device-option"><input type="checkbox" value="音响"><span>🔊 音响</span></label>
+          <label class="device-option"><input type="checkbox" value="便签墙"><span>📌 便签墙</span></label>
+        </div>
+      </div>
+
+      <!-- 管理信息 -->
+      <div class="form-section">
+        <div class="form-section-title">管理信息</div>
+        <div class="form-grid">
+          <div class="form-item">
+            <div class="form-label">负责人</div>
+            <input type="text" class="form-input" id="manager" placeholder="会议室管理员或部门" maxlength="20">
+          </div>
+          <div class="form-item">
+            <div class="form-label"><span class="req">*</span>状态</div>
+            <select class="form-select" id="status">
+              <option value="on">启用</option>
+              <option value="maintain">维护中</option>
+              <option value="off">停用</option>
+            </select>
+          </div>
+          <div class="form-item full">
+            <div class="form-label">备注</div>
+            <textarea class="form-textarea" id="remark" placeholder="维护中时填写维护说明，或其他需告知预约人的注意事项" maxlength="200"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button class="btn btn-default" onclick="location.href='meeting-room.html'">取消</button>
+        <button class="btn btn-primary" onclick="saveRoom()">保存</button>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var editId = null;
+    var photoData = '';
+
+    function escAttr(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+    function getParam(name) {
+      var m = location.search.match(new RegExp('[?&]' + name + '=([^&]+)'));
+      return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    function onPhotoSelected(input) {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      if (!/^image\/(png|jpe?g)/.test(file.type)) { showToast('仅支持 JPG/PNG 格式', 'error'); return; }
+      if (file.size > 5 * 1024 * 1024) { showToast('图片不能超过 5MB', 'error'); return; }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        photoData = e.target.result;
+        var preview = document.getElementById('photoPreview');
+        var oldImg = preview.querySelector('img');
+        if (oldImg) oldImg.remove();
+        var img = document.createElement('img');
+        img.src = photoData;
+        img.alt = '会议室照片';
+        preview.insertBefore(img, preview.firstChild);
+        preview.classList.add('has-image');
+        document.getElementById('photoEmpty').style.display = 'none';
+        document.getElementById('removePhotoBtn').style.display = '';
+        showToast('照片已加载', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removePhoto() {
+      photoData = '';
+      var preview = document.getElementById('photoPreview');
+      var img = preview.querySelector('img');
+      if (img) img.remove();
+      preview.classList.remove('has-image');
+      document.getElementById('photoEmpty').style.display = '';
+      document.getElementById('removePhotoBtn').style.display = 'none';
+      document.getElementById('photoInput').value = '';
+      showToast('已移除照片', 'info');
+    }
+
+    // 拖拽上传
+    (function() {
+      var drop = document.getElementById('photoPreview');
+      ['dragenter','dragover'].forEach(function(ev) {
+        drop.addEventListener(ev, function(e) {
+          e.preventDefault(); e.stopPropagation();
+          drop.classList.add('dragover');
+        });
+      });
+      ['dragleave','drop'].forEach(function(ev) {
+        drop.addEventListener(ev, function(e) {
+          e.preventDefault(); e.stopPropagation();
+          drop.classList.remove('dragover');
+        });
+      });
+      drop.addEventListener('drop', function(e) {
+        var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file) onPhotoSelected({ files: [file] });
+      });
+    })();
+
+    // 同步设备勾选样式
+    document.querySelectorAll('.device-option input').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        var lbl = cb.closest('.device-option');
+        if (cb.checked) lbl.classList.add('checked'); else lbl.classList.remove('checked');
+      });
+    });
+
+    function getSelectedDevices() {
+      return Array.from(document.querySelectorAll('.device-option input:checked')).map(function(cb) { return cb.value; });
+    }
+
+    function setDevices(arr) {
+      document.querySelectorAll('.device-option input').forEach(function(cb) {
+        cb.checked = arr.indexOf(cb.value) >= 0;
+        if (cb.checked) cb.closest('.device-option').classList.add('checked');
+        else cb.closest('.device-option').classList.remove('checked');
+      });
+    }
+
+    function validate() {
+      var name = document.getElementById('roomName').value.trim();
+      var code = document.getElementById('roomCode').value.trim();
+      var doorSign = document.getElementById('doorSignName').value.trim();
+      var capacity = document.getElementById('capacity').value;
+      var status = document.getElementById('status').value;
+      if (!name) return showToast('请填写会议室名称', 'error'), false;
+      if (!code) return showToast('请填写会议室编号', 'error'), false;
+      if (!doorSign) return showToast('请填写门牌显示名称', 'error'), false;
+      if (!capacity || capacity < 1) return showToast('请填写容纳人数', 'error'), false;
+      if (status === 'maintain' && !document.getElementById('remark').value.trim()) {
+        return showToast('维护中时请在备注填写维护说明', 'error'), false;
+      }
+      return { name: name, code: code, doorSign: doorSign, capacity: parseInt(capacity), manager: document.getElementById('manager').value.trim(), status: status, remark: document.getElementById('remark').value.trim(), photo: photoData, devices: getSelectedDevices() };
+    }
+
+    function saveRoom() {
+      var data = validate();
+      if (!data) return;
+      // 模拟保存
+      showToast(editId ? '已保存修改' : '会议室创建成功', 'success');
+      setTimeout(function() { location.href = 'meeting-room.html'; }, 800);
+    }
+
+    function loadEditData() {
+      editId = getParam('id');
+      if (!editId) return;
+      document.getElementById('pageTitle').textContent = '编辑会议室';
+      document.getElementById('crumbCurrent').textContent = '编辑会议室';
+      // 模拟读取已有数据
+      var mock = { name: '战略会议室', code: 'MR-A301', doorSign: '战略会议室', capacity: 20, manager: '李芳', status: 'on', remark: '高管专用', devices: ['投影仪','电视屏','视频会议设备','音响'] };
+      document.getElementById('roomName').value = mock.name;
+      document.getElementById('roomCode').value = mock.code;
+      document.getElementById('doorSignName').value = mock.doorSign;
+      document.getElementById('capacity').value = mock.capacity;
+      document.getElementById('manager').value = mock.manager;
+      document.getElementById('status').value = mock.status;
+      document.getElementById('remark').value = mock.remark;
+      setDevices(mock.devices);
+    }
+
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + (type || '');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
+    }
+
+    loadEditData();
+  </script>
+</body>
+</html>

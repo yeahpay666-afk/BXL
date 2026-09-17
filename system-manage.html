@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>应用系统管理 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    .page-header-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; }
+    .page-header-actions { display: flex; gap: 8px; }
+
+    .filter-bar { display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+    .filter-bar label { font-size: 13px; color: var(--text-secondary); font-weight: 500; white-space: nowrap; }
+    .filter-bar input, .filter-bar select { padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: var(--primary-color); }
+    .btn-search { background: var(--primary-color); color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .btn-search:hover { background: var(--primary-dark); }
+    .btn-reset { background: #fff; color: var(--text-secondary); border: 1px solid var(--border-color); padding: 6px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .btn-reset:hover { color: var(--primary-color); border-color: var(--primary-color); }
+
+    .table th, .table td { padding: 10px 12px; font-size: 13px; }
+    .table th { background: #f8fafc; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+    .table td { border-bottom: 1px solid var(--border-color); }
+
+    .status-tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    .status-normal { background: #e6f7ff; color: #1890ff; }
+    .status-disabled { background: #f1f5f9; color: #64748b; }
+
+    .action-link { color: var(--primary-color); cursor: pointer; font-size: 13px; margin-right: 10px; }
+    .action-link:hover { text-decoration: underline; }
+    .action-link.purple { color: #9333ea; }
+    .action-link.blue { color: #2563eb; }
+    .action-link.gray { color: var(--text-muted); cursor: not-allowed; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 2000; display: none; align-items: flex-start; justify-content: center; padding: 30px 20px; overflow-y: auto; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: #fff; border-radius: 12px; width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: modalIn 0.25s ease; }
+    .modal.wide { max-width: 1280px; }
+    .modal.medium { max-width: 680px; }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border-color); }
+    .modal-title { font-size: 17px; font-weight: 600; }
+    .modal-close { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; color: var(--text-muted); font-size: 18px; background: none; border: none; }
+    .modal-close:hover { background: #f1f5f9; color: var(--text-primary); }
+    .modal-body { padding: 24px; max-height: calc(100vh - 200px); overflow-y: auto; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border-color); }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    .form-grid { display: grid; gap: 16px; }
+    .form-item { margin-bottom: 4px; }
+    .form-select { width: 100%; padding: 9px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; background: #fff; cursor: pointer; }
+    .form-select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(26,95,180,0.1); }
+    .form-required { color: #ef4444; }
+    .form-input { width: 100%; padding: 9px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s; }
+    .form-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(26,95,180,0.1); }
+    textarea.form-input { resize: vertical; min-height: 72px; }
+    .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+
+    /* 菜单配置弹窗布局 */
+    .menu-config-layout { display: flex; gap: 16px; min-height: 420px; }
+    .menu-tree-panel { width: 280px; flex-shrink: 0; border: 1px solid var(--border-color); border-radius: 8px; overflow-y: auto; max-height: 480px; }
+    .menu-tree-header { padding: 10px 12px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border-color); background: #f8fafc; position: sticky; top: 0; z-index: 2; }
+    .menu-tree-node { padding: 6px 12px; display: flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; }
+    .menu-tree-node:hover { background: #f0f7ff; }
+    .menu-tree-node.active { background: #e6f7ff; color: var(--primary-color); font-weight: 600; }
+    .menu-tree-arrow { font-size: 10px; transition: transform 0.2s; width: 12px; text-align: center; color: var(--text-muted); }
+    .menu-tree-arrow.expanded { transform: rotate(90deg); }
+    .menu-tree-children { display: none; }
+    .menu-tree-children.show { display: block; }
+    .menu-level-badge { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: 600; margin-right: 4px; }
+    .badge-l1 { background: #dbeafe; color: #2563eb; }
+    .badge-l2 { background: #dcfce7; color: #16a34a; }
+    .badge-l3 { background: #fef3c7; color: #d97706; }
+    .badge-l4 { background: #f3e8ff; color: #9333ea; }
+    .badge-l5 { background: #fee2e2; color: #dc2626; }
+
+    .menu-table-panel { flex: 1; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+    .menu-table-toolbar { padding: 10px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-color); background: #f8fafc; }
+    .menu-table-toolbar .label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .menu-table-toolbar input, .menu-table-toolbar select { padding: 5px 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; outline: none; }
+    .btn-tiny { padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; }
+    .btn-tiny.primary { background: var(--primary-color); color: #fff; }
+    .btn-tiny.primary:hover { background: var(--primary-dark); }
+
+    .menu-table { width: 100%; border-collapse: collapse; }
+    .menu-table th { padding: 8px 10px; font-size: 12px; font-weight: 600; color: var(--text-secondary); background: #f8fafc; border-bottom: 1px solid var(--border-color); text-align: left; white-space: nowrap; }
+    .menu-table td { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+    .menu-table tr:hover { background: #fafbfc; }
+
+    .level-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+    .level-l1 { background: #dbeafe; color: #2563eb; }
+    .level-l2 { background: #dcfce7; color: #16a34a; }
+    .level-l3 { background: #fef3c7; color: #d97706; }
+    .level-l4 { background: #f3e8ff; color: #9333ea; }
+    .level-l5 { background: #fee2e2; color: #dc2626; }
+
+    .menu-name-cell { display: flex; align-items: center; gap: 4px; }
+    .add-sub-menu-btn { color: var(--primary-color); font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .add-sub-menu-btn:hover { text-decoration: underline; }
+    .add-sub-menu-btn.disabled { color: var(--text-muted); cursor: not-allowed; }
+    .icon-btn { cursor: pointer; font-size: 14px; margin-right: 8px; }
+    .icon-btn.delete { color: #ef4444; }
+    .icon-btn.field { color: #16a34a; font-size: 12px; font-weight: 500; }
+
+    .menu-status-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; }
+    .menu-status-on { background: #dcfce7; color: #16a34a; }
+    .menu-status-off { background: #f1f5f9; color: #64748b; }
+
+    /* 字段配置弹窗 */
+    .field-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .field-count { font-size: 13px; color: var(--text-muted); margin-left: auto; }
+    .batch-upload-area { display: none; border: 2px dashed var(--border-color); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 14px; }
+    .batch-upload-area.show { display: block; }
+    .batch-upload-zone { border: 2px dashed #93c5fd; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .batch-upload-zone:hover { border-color: var(--primary-color); background: #eff6ff; }
+    .batch-upload-zone .icon { font-size: 32px; margin-bottom: 8px; }
+    .batch-upload-zone .text { font-size: 13px; color: var(--text-secondary); }
+    .batch-upload-zone .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    .field-table { width: 100%; border-collapse: collapse; }
+    .field-table th { padding: 8px 8px; font-size: 12px; font-weight: 600; color: var(--text-secondary); background: #f8fafc; border-bottom: 1px solid var(--border-color); text-align: left; white-space: nowrap; }
+    .field-table td { padding: 6px 8px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+    .field-table .field-input { padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
+    .field-table .field-input:focus { border-color: var(--primary-color); }
+    .field-table select { padding: 4px 6px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; outline: none; max-width: 100%; }
+    .field-table select:focus { border-color: var(--primary-color); }
+    .field-table select:disabled { background: #f1f5f9; color: var(--text-muted); cursor: not-allowed; }
+    .mini-switch { width: 36px; height: 18px; border-radius: 9px; background: #ccc; position: relative; cursor: pointer; border: 0; display: inline-block; }
+    .mini-switch.on { background: var(--primary-color); }
+    .mini-switch i { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: left 0.2s; }
+    .mini-switch.on i { left: 20px; }
+
+    .empty-state { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 24px; border-radius: 8px; font-size: 14px; z-index: 3000; display: none; }
+    .toast.show { display: block; animation: toastIn 0.3s ease; }
+    @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+    /* ===== 同步功能样式 ===== */
+    .sync-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; line-height: 1.4; white-space: nowrap; }
+    .sync-unsynced { background: #f1f5f9; color: #64748b; }
+    .sync-syncing { background: #dbeafe; color: #2563eb; }
+    .sync-synced { background: #dcfce7; color: #16a34a; }
+    .sync-failed { background: #fee2e2; color: #dc2626; }
+    .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+    .sync-syncing .sync-dot { animation: sync-pulse 1s ease-in-out infinite; }
+    @keyframes sync-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .retry-btn { display: inline-block; padding: 1px 8px; border: 1px solid #dc2626; color: #dc2626; border-radius: 3px; font-size: 11px; cursor: pointer; margin-left: 6px; background: #fff; }
+    .retry-btn:hover { background: #fee2e2; }
+
+    .fail-reason { position: relative; cursor: pointer; border-bottom: 1px dashed #dc2626; user-select: none; }
+    .fail-reason-tip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 11px; white-space: normal; width: 220px; z-index: 10; margin-bottom: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .fail-reason-tip.show { display: block; }
+    .fail-reason-tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1f2937; }
+
+    .sync-progress-bar { display: none; align-items: center; gap: 10px; padding: 8px 12px; margin-top: 8px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 6px; font-size: 12px; color: #1e40af; }
+    .sync-progress-bar.show { display: flex; }
+    .sync-progress-track { flex: 1; height: 6px; background: #dbeafe; border-radius: 3px; overflow: hidden; }
+    .sync-progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius: 3px; transition: width 0.3s; }
+    .sync-progress-spinner { width: 14px; height: 14px; border: 2px solid #bfdbfe; border-top-color: #1d4ed8; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .menu-rowCheckbox { width: 32px; text-align: center; }
+    .menu-rowCheckbox input, .field-table th input[type="checkbox"], .field-rowCheckbox input { cursor: pointer; }
+
+    .sync-btn-tiny { padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; }
+    .sync-btn-tiny.field { background: #dcfce7; color: #16a34a; }
+    .sync-btn-tiny.field:hover { background: #bbf7d0; }
+    .sync-btn-tiny.btn { background: #dbeafe; color: #2563eb; }
+    .sync-btn-tiny.btn:hover { background: #bfdbfe; }
+    .sync-btn-tiny:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+    .field-rowCheckbox { width: 32px; text-align: center; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo"><div class="header-logo-icon">B</div><span class="header-logo-text">柏星龙业务数字化中台</span></div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div><div class="header-nav-item">HR</div><div class="header-nav-item">OA</div><div class="header-nav-item">CRM</div><div class="header-nav-item">SRM</div><div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right"><div class="header-info"><div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div><div class="header-bell">🔔<span class="badge">5</span></div><div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div></div></div>
+  </header>
+  <div class="sub-header"><div class="sub-header-nav">
+    <a href="index.html" class="sub-nav-item">首页概览</a><a href="content-study.html" class="sub-nav-item">内容管理</a><div class="sub-nav-item">流程中心</div><div class="sub-nav-item">API中心</div><div class="sub-nav-item active">系统设置</div>
+  </div></div>
+  <aside class="sidebar">
+    <div class="sidebar-title">系统设置</div><div class="sidebar-subtitle">系统配置管理</div>
+    <div class="sidebar-menu">
+      <a href="role-list.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🔑</span><span>角色管理</span></a><a href="system-manage.html" class="sidebar-menu-item active"><span class="sidebar-menu-icon">🖥️</span><span>应用系统管理</span></a>
+    </div>
+    <div class="sidebar-footer"><span>🏠</span><a href="index.html">返回门户首页</a></div>
+  </aside>
+
+  <main class="main-content" style="padding: 16px 20px;">
+    <div class="breadcrumb" style="margin-bottom:4px;"><a href="index.html">首页</a><span class="separator">/</span><span>系统设置</span><span class="separator">/</span><span class="current">应用系统管理</span></div>
+
+    <div class="page-header-row">
+      <div><h1 class="page-title" style="margin-bottom:2px;">应用系统管理</h1><p class="page-desc" style="margin-bottom:0;">管理接入中台的业务系统，配置系统菜单与字段资源</p></div>
+      <div class="page-header-actions">
+        <button class="btn btn-outline" onclick="location.reload()">🔄 刷新</button>
+        <button class="btn btn-primary" onclick="openAddSystemModal()">+ 新增系统</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:0;">
+      <div class="filter-bar">
+        <label>系统名称</label>
+        <input type="text" id="filterName" placeholder="请输入" style="width:160px;" oninput="filterTable()">
+        <label>状态</label>
+        <select id="filterStatus" style="width:100px;" onchange="filterTable()">
+          <option value="">请选择</option>
+          <option value="normal">正常</option>
+          <option value="disabled">停用</option>
+        </select>
+        <button class="btn-search" onclick="filterTable()">🔍 查询</button>
+        <button class="btn-reset" onclick="resetFilter()">↻ 重置</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table" id="systemTable">
+          <thead><tr>
+            <th style="width:50px;">序号</th>
+            <th>系统名称</th><th>系统编码</th><th>系统描述</th><th style="width:80px;">状态</th><th style="width:140px;">更新时间</th><th style="width:260px;">操作</th>
+          </tr></thead>
+          <tbody id="systemTbody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;font-size:12px;color:var(--text-muted);">
+        <span id="paginationInfo">共 8 条记录，第 1/1 页</span>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-outline" style="padding:3px 10px;font-size:12px;" disabled>‹ 上一页</button>
+          <button class="btn" style="padding:3px 10px;font-size:12px;background:var(--primary-color);color:#fff;">1</button>
+          <button class="btn btn-outline" style="padding:3px 10px;font-size:12px;" disabled>下一页 ›</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 新增/编辑系统弹窗 -->
+  <div class="modal-overlay" id="systemModal" onclick="if(event.target===this)closeSystemModal()">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title" id="systemModalTitle">新增系统</div><button class="modal-close" onclick="closeSystemModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">系统名称<span class="form-required">*</span></label><input type="text" class="form-input" id="sysName" placeholder="请输入系统名称"></div>
+        <div class="form-group"><label class="form-label">系统编码<span class="form-required">*</span></label><input type="text" class="form-input" id="sysCode" placeholder="如：SYS_T100"><div class="form-hint">系统编码用大写字母+下划线，保存后不可修改</div></div>
+        <div class="form-group"><label class="form-label">系统描述</label><textarea class="form-input" id="sysDesc" placeholder="请输入系统描述"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">排序</label><input type="number" class="form-input" id="sysSort" value="100" min="1"></div>
+          <div class="form-group"><label class="form-label">状态</label><select class="form-input" id="sysStatus"><option value="normal">正常</option><option value="disabled">停用</option></select></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeSystemModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmAddSystem()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 菜单配置弹窗 -->
+  <div class="modal-overlay" id="menuModal" onclick="if(event.target===this)closeMenuModal()">
+    <div class="modal wide">
+      <div class="modal-header"><div class="modal-title">菜单配置 · <span id="menuSysName">T100</span></div><button class="modal-close" onclick="closeMenuModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="menu-config-layout">
+          <!-- 左侧：菜单树 -->
+          <div class="menu-tree-panel">
+            <div class="menu-tree-header">菜单导航</div>
+            <div id="menuTreeContainer"></div>
+          </div>
+          <!-- 右侧：菜单表格 -->
+          <div class="menu-table-panel">
+            <div class="menu-table-toolbar">
+              <span class="label">菜单列表</span>
+              <button class="btn-tiny primary" onclick="openAddMenuModal()">+ 新增菜单</button>
+              <button class="sync-btn-tiny field" id="syncMenuFieldBtn" onclick="syncMenuBatch('field')">⇩ 同步字段</button>
+              <button class="sync-btn-tiny btn" id="syncMenuButtonBtn" onclick="syncMenuBatch('button')">⇩ 同步按钮</button>
+            </div>
+            <div class="sync-progress-bar" id="menuSyncProgress">
+              <div class="sync-progress-spinner"></div>
+              <span id="menuSyncText">同步中 0/0 ...</span>
+              <div class="sync-progress-track"><div class="sync-progress-fill" id="menuSyncFill" style="width:0%;"></div></div>
+            </div>
+            <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
+              <table class="menu-table" id="menuTable">
+                <thead><tr>
+                  <th class="menu-rowCheckbox"><input type="checkbox" id="menuSelectAll" onchange="toggleMenuAllSelect(this)"></th>
+                  <th style="width:60px;">层级</th>
+                  <th>菜单名称</th>
+                  <th>菜单编码</th>
+                  <th>排序</th>
+                  <th style="width:70px;">状态</th>
+                  <th style="width:100px;">字段同步状态</th>
+                  <th style="width:100px;">按钮同步状态</th>
+                  <th style="width:200px;">操作</th>
+                </tr></thead>
+                <tbody id="menuTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeMenuModal()">取消</button><button class="btn btn-primary" onclick="closeMenuModal();showToast('菜单配置已保存')">确定</button></div>
+    </div>
+  </div>
+
+  <!-- 字段配置弹窗 -->
+  <div class="modal-overlay" id="fieldModal" onclick="if(event.target===this)closeFieldModal()">
+    <div class="modal" style="max-width:960px;">
+      <div class="modal-header"><div class="modal-title">字段配置 · <span id="fieldMenuName">发文管理</span></div><button class="modal-close" onclick="closeFieldModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="field-toolbar">
+          <button class="btn-tiny primary" id="addFieldBtn" onclick="addFieldRow()">+ 新增字段</button>
+          <button class="btn-tiny" id="batchUploadBtn" style="background:#f3e8ff;color:#9333ea;" onclick="toggleBatchUpload()">📥 批量上传</button>
+          <button class="sync-btn-tiny field" id="syncFieldBtn" onclick="syncFieldsSelected()">⇩ 同步所选字段</button>
+          <span style="flex:1;"></span>
+          <span class="field-count" id="fieldCount">共 0 个字段</span>
+        </div>
+        <div class="sync-progress-bar" id="fieldSyncProgress">
+          <div class="sync-progress-spinner"></div>
+          <span id="fieldSyncText">同步中 ...</span>
+          <div class="sync-progress-track"><div class="sync-progress-fill" id="fieldSyncFill" style="width:0%;"></div></div>
+        </div>
+        <div class="batch-upload-area" id="batchUploadArea">
+          <div class="batch-upload-zone" onclick="triggerFileInput()">
+            <div class="icon">📁</div>
+            <div class="text">点击或拖拽文件到此处上传</div>
+            <div class="hint">支持 .xlsx / .csv 格式，<a href="javascript:void(0)" onclick="event.stopPropagation();showToast('模板已下载')" style="color:var(--primary-color);">下载导入模板</a></div>
+          </div>
+          <input type="file" id="fileInput" style="display:none;" accept=".xlsx,.csv" onchange="onFileChange(this)">
+        </div>
+        <div style="overflow-x:auto;max-height:360px;overflow-y:auto;">
+          <table class="field-table" id="fieldTable">
+            <thead><tr>
+              <th class="field-rowCheckbox"><input type="checkbox" id="fieldSelectAll" onchange="toggleFieldAllSelect(this)"></th>
+              <th>字段编码</th>
+              <th>字段名称</th>
+              <th style="width:120px;">同步状态</th>
+              <th style="width:40px;">操作</th>
+            </tr></thead>
+            <tbody id="fieldTbody">
+              <tr><td colspan="5" class="empty-state">暂无数据，请新增字段或批量上传</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeFieldModal()">取消</button><button class="btn btn-primary" onclick="closeFieldModal();showToast('字段配置已保存')">确定</button></div>
+    </div>
+  </div>
+
+  <!-- 按钮配置弹窗 -->
+  <div class="modal-overlay" id="buttonModal" onclick="if(event.target===this)closeButtonModal()">
+    <div class="modal" style="max-width:960px;">
+      <div class="modal-header"><div class="modal-title">按钮配置 · <span id="buttonMenuName">菜单</span></div><button class="modal-close" onclick="closeButtonModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="field-toolbar">
+          <button class="btn-tiny primary" id="addButtonBtn" onclick="addButtonRow()">+ 新增按钮</button>
+          <button class="sync-btn-tiny btn" id="syncBtnBtn" onclick="syncButtonsSelected()">⇩ 同步所选按钮</button>
+          <span style="flex:1;"></span>
+          <span class="field-count" id="buttonCount">共 0 个按钮</span>
+        </div>
+        <div class="sync-progress-bar" id="buttonSyncProgress">
+          <div class="sync-progress-spinner"></div>
+          <span id="buttonSyncText">同步中 ...</span>
+          <div class="sync-progress-track"><div class="sync-progress-fill" id="buttonSyncFill" style="width:0%;"></div></div>
+        </div>
+        <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
+          <table class="field-table" id="buttonTable">
+            <thead><tr>
+              <th class="field-rowCheckbox"><input type="checkbox" id="buttonSelectAll" onchange="toggleButtonAllSelect(this)"></th>
+              <th style="width:50px;">序号</th>
+              <th style="width:120px;">按钮编码</th>
+              <th>按钮名称</th>
+              <th style="width:90px;">图标</th>
+              <th style="width:70px;">状态</th>
+              <th style="width:120px;">同步状态</th>
+              <th style="width:80px;">操作</th>
+            </tr></thead>
+            <tbody id="buttonTbody">
+              <tr><td colspan="8" class="empty-state">暂无数据，请新增按钮</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeButtonModal()">取消</button><button class="btn btn-primary" onclick="closeButtonModal();showToast('按钮配置已保存')">确定</button></div>
+    </div>
+  </div>
+
+  <!-- 按钮新增/编辑弹窗 -->
+  <div class="modal-overlay" id="buttonEditModal" style="z-index:2100;">
+    <div class="modal" style="max-width:460px;">
+      <div class="modal-header"><div class="modal-title" id="buttonEditTitle">新增按钮</div><button class="modal-close" onclick="closeButtonEditModal()">✕</button></div>
+      <div class="modal-body" id="buttonEditBody"></div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeButtonEditModal()">取消</button><button class="btn btn-primary" id="buttonEditSaveBtn" onclick="saveButtonEdit()">保存</button></div>
+    </div>
+  </div>
+
+  <!-- 其他资源配置弹窗 -->
+  <div class="modal-overlay" id="otherResourceModal" onclick="if(event.target===this)closeOtherResourceModal()">
+    <div class="modal wide" style="max-width:900px;">
+      <div class="modal-header"><div class="modal-title">其他资源配置 · <span id="otherResourceSysName">T100系统</span></div><button class="modal-close" onclick="closeOtherResourceModal()">✕</button></div>
+      <div class="modal-body" style="padding:0;">
+        <div style="display:flex;gap:0;border-bottom:2px solid var(--border-color);padding:0 20px;">
+          <div class="res-tab-item active" data-rtab="dept" onclick="switchResTab('dept')">部门数据权限</div>
+          <div class="res-tab-item" data-rtab="person" onclick="switchResTab('person')">个人数据权限</div>
+          <div class="res-tab-item" data-rtab="date" onclick="switchResTab('date')">单据日期管控</div>
+          <div class="res-tab-item" data-rtab="accdate" onclick="switchResTab('accdate')">扣账日期管控</div>
+          <div class="res-tab-item" data-rtab="detail" onclick="switchResTab('detail')">单身明细</div>
+          <div class="res-tab-item" data-rtab="field" onclick="switchResTab('field')">字段权限</div>
+<div class="res-tab-item" data-rtab="fieldType" onclick="switchResTab('fieldType')">字段类型</div>
+<div class="res-tab-item" data-rtab="encrypt" onclick="switchResTab('encrypt')">加密方法</div>
+        </div>
+        <div style="padding:16px 20px;">
+          <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+            <span id="resTabDesc" style="font-size:12px;color:var(--text-muted);"></span>
+            <button class="btn-tiny primary" onclick="openResItemModal()">+ 新增</button>
+          </div>
+          <div style="overflow-x:auto;max-height:360px;overflow-y:auto;">
+            <table class="field-table" id="resTable">
+              <thead id="resThead"></thead>
+              <tbody id="resTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeOtherResourceModal()">取消</button><button class="btn btn-primary" onclick="closeOtherResourceModal();showToast('其他资源配置已保存')">确定</button></div>
+    </div>
+  </div>
+
+  <style>
+    .res-tab-item {
+      padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: 500;
+      color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .res-tab-item:hover { color: var(--primary-color); }
+    .res-tab-item.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+    .res-tag { display: inline-block; padding: 2px 8px; background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; border-radius: 4px; font-size: 12px; font-weight: 500; }
+
+    /* 开关控件 */
+    .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; border-radius: 22px; transition: 0.3s; }
+    .toggle-slider::before { position: absolute; content: ''; height: 16px; width: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+    .toggle-switch input:checked + .toggle-slider { background: var(--primary-color); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+    .toggle-switch input:disabled + .toggle-slider { opacity: 0.5; cursor: not-allowed; }
+
+    /* 新增/编辑表单分区 */
+    .form-section { margin-bottom: 20px; }
+    .form-section-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px; }
+    .form-section-title .icon { font-size: 16px; }
+
+    /* 表单开关行 */
+    .form-switch-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; background: #fff; transition: all 0.2s; }
+    .form-switch-row:hover { border-color: #bfdbfe; background: #fcfdff; }
+    .form-switch-info { display: flex; align-items: center; gap: 10px; }
+    .form-switch-info .switch-icon { font-size: 18px; }
+    .form-switch-info .switch-text { display: flex; flex-direction: column; gap: 2px; }
+    .form-switch-info .switch-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .form-switch-info .switch-desc { font-size: 12px; color: var(--text-muted); }
+
+    /* 表单开关 */
+    .form-toggle { width: 44px; height: 24px; border-radius: 12px; background: #e2e8f0; position: relative; cursor: pointer; border: 0; display: inline-block; transition: background 0.2s; flex-shrink: 0; }
+    .form-toggle.on { background: var(--primary-color); }
+    .form-toggle i { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .form-toggle.on i { left: 22px; }
+    .form-toggle.disabled { cursor: not-allowed; opacity: 0.6; }
+  </style>
+
+  <!-- 新增菜单弹窗 -->
+  <div class="modal-overlay" id="addMenuModal" onclick="if(event.target===this)closeAddMenuModal()">
+    <div class="modal small" style="max-width:520px;">
+      <div class="modal-header"><div class="modal-title">新增菜单</div><button class="modal-close" onclick="closeAddMenuModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="form-item">
+            <label class="form-label">菜单名称 <span style="color:#ef4444;">*</span></label>
+            <input type="text" class="form-input" id="newMenuName" placeholder="请输入菜单名称">
+          </div>
+          <div class="form-item">
+            <label class="form-label">菜单编码</label>
+            <input type="text" class="form-input" id="newMenuPerm" placeholder="如 01、axmt500">
+          </div>
+          <div class="form-item">
+            <label class="form-label">上级菜单 <span style="color:#ef4444;">*</span></label>
+            <select class="form-select" id="newMenuParent" style="width:100%;"></select>
+          </div>
+          <div class="form-item">
+            <label class="form-label">排序</label>
+            <input type="number" class="form-input" id="newMenuSort" value="10" style="width:100%;">
+          </div>
+          <div class="form-item">
+            <label class="form-label">状态</label>
+            <select class="form-select" id="newMenuStatus" style="width:100%;">
+              <option value="on">启用</option>
+              <option value="off">停用</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeAddMenuModal()">取消</button><button class="btn btn-primary" onclick="confirmAddMenu()">确定</button></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ===== 系统数据 ===== */
+    var systemData = [
+      { name: 'T100系统', code: 'SYS_T100', desc: 'ERP管理系统，覆盖生产、采购、库存管理', status: 'normal', sort: 10, updateTime: '2026-01-15 10:30' },
+      { name: 'HR系统', code: 'SYS_HR', desc: '人力资源管理系统，覆盖人事、薪酬、考勤', status: 'normal', sort: 20, updateTime: '2026-01-15 10:30' },
+      { name: 'OA系统', code: 'SYS_OA', desc: '办公自动化系统，覆盖公文、审批、流程', status: 'normal', sort: 30, updateTime: '2026-01-15 10:30' },
+      { name: 'CRM系统', code: 'SYS_CRM', desc: '客户关系管理系统，覆盖客户、商机、合同', status: 'normal', sort: 40, updateTime: '2026-01-15 10:30' },
+      { name: 'SRM系统', code: 'SYS_SRM', desc: '供应商关系管理系统，覆盖供应商、采购订单', status: 'normal', sort: 50, updateTime: '2026-01-15 10:30' },
+      { name: 'BI系统', code: 'SYS_BI', desc: '商业智能系统，覆盖报表、数据分析、看板', status: 'normal', sort: 60, updateTime: '2026-01-15 10:30' },
+      { name: '每刻报销', code: 'SYS_MEI', desc: '费用报销管理系统，覆盖报销、发票、审批', status: 'normal', sort: 70, updateTime: '2026-01-15 10:30' },
+      { name: '企业微信', code: 'SYS_WX', desc: '企业即时通讯与协作平台', status: 'disabled', sort: 80, updateTime: '2026-01-10 14:20' }
+    ];
+
+    function renderSystems(data) {
+      var tb = document.getElementById('systemTbody');
+      tb.innerHTML = data.map(function(s, i) {
+        var st = s.status === 'normal'
+          ? '<span class="status-tag status-normal">正常</span>'
+          : '<span class="status-tag status-disabled">停用</span>';
+        var actionBtn = s.status === 'normal'
+          ? '<span class="action-link" onclick="toggleSystem(\'' + s.code + '\',\'disabled\')">停用</span>'
+          : '<span class="action-link" onclick="toggleSystem(\'' + s.code + '\',\'normal\')" style="color:#16a34a;">启用</span>';
+        return '<tr>' +
+          '<td style="text-align:center;color:var(--text-muted);">' + (i + 1) + '</td>' +
+          '<td style="font-weight:500;">' + s.name + '</td>' +
+          '<td><code style="font-size:12px;color:var(--text-secondary);">' + s.code + '</code></td>' +
+          '<td style="font-size:12px;color:var(--text-secondary);">' + s.desc + '</td>' +
+          '<td>' + st + '</td>' +
+          '<td style="font-size:12px;color:var(--text-muted);">' + s.updateTime + '</td>' +
+          '<td>' +
+            '<span class="action-link" onclick="editSystem(\'' + s.code + '\')">编辑</span>' +
+            '<span class="action-link purple" onclick="openMenuModal(\'' + s.name + '\',\'' + s.code + '\')">菜单配置</span>' +
+            '<span class="action-link blue" onclick="openOtherResourceModal(\'' + s.name + '\')">其他资源配置</span>' +
+            actionBtn +
+          '</td></tr>';
+      }).join('');
+      document.getElementById('paginationInfo').textContent = '共 ' + data.length + ' 条记录，第 1/1 页';
+    }
+    renderSystems(systemData);
+
+    function filterTable() {
+      var kw = document.getElementById('filterName').value.toLowerCase();
+      var st = document.getElementById('filterStatus').value;
+      var filtered = systemData.filter(function(s) {
+        var matchName = !kw || s.name.toLowerCase().indexOf(kw) !== -1 || s.code.toLowerCase().indexOf(kw) !== -1;
+        var matchStatus = !st || s.status === st;
+        return matchName && matchStatus;
+      });
+      renderSystems(filtered);
+    }
+    function resetFilter() {
+      document.getElementById('filterName').value = '';
+      document.getElementById('filterStatus').value = '';
+      renderSystems(systemData);
+    }
+
+    /* ===== 新增/编辑系统 ===== */
+    function openAddSystemModal() {
+      document.getElementById('systemModalTitle').textContent = '新增系统';
+      document.getElementById('sysName').value = '';
+      document.getElementById('sysCode').value = '';
+      document.getElementById('sysDesc').value = '';
+      document.getElementById('sysSort').value = '100';
+      document.getElementById('sysStatus').value = 'normal';
+      document.getElementById('sysCode').disabled = false;
+      document.getElementById('systemModal').classList.add('show');
+    }
+    function editSystem(code) {
+      var s = systemData.find(function(x) { return x.code === code; });
+      if (!s) return;
+      document.getElementById('systemModalTitle').textContent = '编辑系统';
+      document.getElementById('sysName').value = s.name;
+      document.getElementById('sysCode').value = s.code;
+      document.getElementById('sysCode').disabled = true;
+      document.getElementById('sysDesc').value = s.desc;
+      document.getElementById('sysSort').value = s.sort;
+      document.getElementById('sysStatus').value = s.status;
+      document.getElementById('systemModal').classList.add('show');
+    }
+    function closeSystemModal() { document.getElementById('systemModal').classList.remove('show'); }
+    function confirmAddSystem() {
+      var name = document.getElementById('sysName').value.trim();
+      var code = document.getElementById('sysCode').value.trim();
+      if (!name) { showToast('请输入系统名称'); return; }
+      if (!code) { showToast('请输入系统编码'); return; }
+      closeSystemModal();
+      showToast('保存成功');
+    }
+    function toggleSystem(code, newStatus) {
+      var s = systemData.find(function(x) { return x.code === code; });
+      if (s) { s.status = newStatus; renderSystems(systemData); }
+      showToast(newStatus === 'normal' ? '已启用' : '已停用');
+    }
+
+    /* ===== 菜单配置 ===== */
+    var menuData = [
+      { id: 1, name: '01 企业基础数据管理', code: 't100-base', type: 'menu', sort: 1, level: 1, status: 'on', fieldStatus: 'synced', buttonStatus: 'unsynced', children: [
+        { id: 2, name: '02 整体基本数据', code: 't100-base-overall', type: 'menu', sort: 2, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
+          { id: 3, name: '料件基本数据维护', code: 'axmt500', type: 'job', sort: 3, level: 3, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'unsynced', children: [] }
+        ]},
+        { id: 6, name: '03 集团基础应用设置', code: 't100-base-group', type: 'menu', sort: 3, level: 2, status: 'on', fieldStatus: 'failed', buttonStatus: 'synced', failReason: '外部系统连接超时', children: [
+          { id: 7, name: '组织架构管理', code: 'axri200', type: 'job', sort: 5, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'unsynced', children: [] }
+        ]}
+      ]},
+      { id: 8, name: '003 供应链管理', code: 't100-supply', type: 'menu', sort: 10, level: 1, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
+        { id: 9, name: '采购管理', code: 't100-purchase', type: 'menu', sort: 11, level: 2, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'unsynced', children: [
+          { id: 10, name: '采购订单管理', code: 'axmt400', type: 'job', sort: 10, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] },
+          { id: 11, name: '供应商管理', code: 'apmt200', type: 'job', sort: 20, level: 3, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'synced', children: [] }
+        ]},
+        { id: 12, name: '销售管理', code: 't100-sales', type: 'menu', sort: 12, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'unsynced', children: [
+          { id: 13, name: '销售订单管理', code: 'axmt300', type: 'job', sort: 10, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] }
+        ]}
+      ]},
+      { id: 14, name: '004 料件管理', code: 't100-item', type: 'menu', sort: 11, level: 1, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'failed', buttonFailReason: '菜单编号不存在', children: [
+        { id: 15, name: '料件基本维护', code: 't100-item-maint', type: 'menu', sort: 1, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
+          { id: 16, name: '料件基本数据维护', code: 'axmi200', type: 'job', sort: 0, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] }
+        ]}
+      ]}
+    ];
+
+    /* 同步状态文本映射 */
+    var syncStatusMap = {
+      unsynced: { label: '未同步', cls: 'sync-unsynced' },
+      syncing: { label: '同步中', cls: 'sync-syncing' },
+      synced: { label: '已同步', cls: 'sync-synced' },
+      failed: { label: '同步失败', cls: 'sync-failed' }
+    };
+
+    /* 同步状态聚合规则：任一失败→失败；含同步中→同步中；全部已同步→已同步；其余→未同步 */
+    function aggregateStatus(items) {
+      if (!items || items.length === 0) return 'unsynced';
+      var hasFailed = false, hasSyncing = false, allSynced = true;
+      items.forEach(function(it) {
+        var st = it.syncStatus || it;
+        if (st === 'failed') hasFailed = true;
+        else if (st === 'syncing') hasSyncing = true;
+        else if (st !== 'synced') allSynced = false;
+      });
+      if (hasFailed) return 'failed';
+      if (hasSyncing) return 'syncing';
+      if (allSynced) return 'synced';
+      return 'unsynced';
+    }
+
+    /* 渲染同步状态标签（含点击触发的失败原因 tooltip，重试按钮移到操作列） */
+    function renderSyncTag(status, failReason) {
+      var info = syncStatusMap[status] || syncStatusMap.unsynced;
+      var html = '<span class="sync-tag ' + info.cls + '"><span class="sync-dot"></span>' + info.label + '</span>';
+      if (status === 'failed' && failReason) {
+        html += '<span class="fail-reason" style="font-size:11px;color:#dc2626;margin-left:4px;" onclick="event.stopPropagation();toggleFailTip(this)">⚠︎' +
+          '<span class="fail-reason-tip">' + escAttr(failReason) + '</span></span>';
+      }
+      return html;
+    }
+
+    /* 点击切换失败原因 tooltip，点击外部关闭 */
+    function toggleFailTip(el) {
+      var tip = el.querySelector('.fail-reason-tip');
+      if (!tip) return;
+      // 先关掉其他所有已打开的 tip
+      document.querySelectorAll('.fail-reason-tip.show').forEach(function(t) {
+        if (t !== tip) t.classList.remove('show');
+      });
+      tip.classList.toggle('show');
+    }
+    // 点击外部关闭
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.fail-reason-tip.show').forEach(function(t) {
+        t.classList.remove('show');
+      });
+    });
+
+    var currentMenuSysName = '';
+    var currentMenuSysCode = '';
+
+    function openMenuModal(sysName, sysCode) {
+      currentMenuSysName = sysName;
+      currentMenuSysCode = sysCode || '';
+      document.getElementById('menuSysName').textContent = sysName;
+      renderMenuTree();
+      renderMenuTable();
+      document.getElementById('menuModal').classList.add('show');
+    }
+    function closeMenuModal() { document.getElementById('menuModal').classList.remove('show'); }
+
+    function renderMenuTree() {
+      var container = document.getElementById('menuTreeContainer');
+      container.innerHTML = buildTreeHTML(menuData, 0);
+    }
+
+    function buildTreeHTML(nodes, depth) {
+      if (!nodes || nodes.length === 0) return '';
+      var html = '';
+      nodes.forEach(function(n) {
+        var indent = depth * 16;
+        var hasChildren = n.children && n.children.length > 0;
+        var badgeClass = 'badge-l' + Math.min(n.level, 5);
+        html += '<div class="menu-tree-node" style="padding-left:' + (12 + indent) + 'px;" onclick="selectMenuNode(' + n.id + ', this)">' +
+          (hasChildren ? '<span class="menu-tree-arrow expanded" onclick="event.stopPropagation();toggleTreeNode(this,' + n.id + ')">▶</span>' : '<span style="width:12px;"></span>') +
+          '<span class="menu-level-badge ' + badgeClass + '">L' + n.level + '</span>' +
+          '<span>' + n.name + '</span>' +
+        '</div>';
+        if (hasChildren) {
+          html += '<div class="menu-tree-children show" id="tree-children-' + n.id + '">' + buildTreeHTML(n.children, depth + 1) + '</div>';
+        }
+      });
+      return html;
+    }
+
+    function toggleTreeNode(arrow, nodeId) {
+      var childrenDiv = document.getElementById('tree-children-' + nodeId);
+      if (childrenDiv) {
+        var isShown = childrenDiv.classList.contains('show');
+        childrenDiv.classList.toggle('show');
+        arrow.classList.toggle('expanded');
+      }
+    }
+
+    function selectMenuNode(id, el) {
+      document.querySelectorAll('.menu-tree-node').forEach(function(n) { n.classList.remove('active'); });
+      el.classList.add('active');
+    }
+
+    function renderMenuTable() {
+      var tb = document.getElementById('menuTbody');
+      var rows = flattenMenu(menuData);
+      tb.innerHTML = rows.map(function(r) {
+        var badgeClass = 'level-l' + Math.min(r.level, 5);
+        var indent = (r.level - 1) * 20;
+        var canAddChild = r.level < 5;
+        return '<tr>' +
+          '<td class="menu-rowCheckbox"><input type="checkbox" class="menu-row-cb" data-menu-id="' + r.id + '" onchange="toggleMenuRowSelect(this)"></td>' +
+          '<td><span class="level-tag ' + badgeClass + '">L' + r.level + '</span></td>' +
+          '<td><div class="menu-name-cell" style="padding-left:' + indent + 'px;">' + r.name + '</div></td>' +
+          '<td><code style="font-size:12px;color:var(--text-secondary);">' + r.code + '</code></td>' +
+          '<td style="text-align:center;">' + r.sort + '</td>' +
+          '<td><span class="menu-status-tag ' + (r.status === 'on' ? 'menu-status-on' : 'menu-status-off') + '">' + (r.status === 'on' ? '启用' : '停用') + '</span></td>' +
+          '<td>' + renderSyncTag(r.fieldStatus, r.failReason) + '</td>' +
+          '<td>' + renderSyncTag(r.buttonStatus, r.buttonFailReason) + '</td>' +
+          '<td style="white-space:nowrap;">' +
+            (canAddChild ? '<span class="action-link" onclick="addSubMenu(' + r.id + ',' + r.level + ')">添加子菜单</span>' : '') +
+            '<span class="action-link" onclick="openFieldModal(\'' + r.name + '\',' + r.id + ')">字段</span>' +
+            '<span class="action-link" onclick="openButtonModal(\'' + r.name + '\',' + r.id + ')">按钮</span>' +
+            (r.fieldStatus === 'failed' ? '<span class="action-link" style="color:#dc2626;" onclick="retryMenuSync(' + r.id + ',\'field\')">重试字段</span>' : '') +
+            (r.buttonStatus === 'failed' ? '<span class="action-link" style="color:#dc2626;" onclick="retryMenuSync(' + r.id + ',\'button\')">重试按钮</span>' : '') +
+            '<span class="action-link" style="color:#ef4444;" onclick="deleteMenu(' + r.id + ')">删除</span>' +
+          '</td></tr>';
+      }).join('');
+      // 重置全选状态
+      var selAll = document.getElementById('menuSelectAll');
+      if (selAll) selAll.checked = false;
+    }
+
+    /* 菜单行勾选 */
+    function toggleMenuRowSelect(cb) {
+      var all = document.querySelectorAll('.menu-row-cb');
+      var checked = document.querySelectorAll('.menu-row-cb:checked');
+      var selAll = document.getElementById('menuSelectAll');
+      if (selAll) selAll.checked = all.length > 0 && all.length === checked.length;
+    }
+    function toggleMenuAllSelect(cb) {
+      document.querySelectorAll('.menu-row-cb').forEach(function(el) { el.checked = cb.checked; });
+    }
+    function getSelectedMenuIds() {
+      var ids = [];
+      document.querySelectorAll('.menu-row-cb:checked').forEach(function(el) {
+        ids.push(parseInt(el.getAttribute('data-menu-id')));
+      });
+      return ids;
+    }
+
+    /* 菜单级批量同步（异步任务，按菜单轮询展示进度） */
+    var menuSyncRunning = false;
+    function syncMenuBatch(type) {
+      var ids = getSelectedMenuIds();
+      if (ids.length === 0) { showToast('请先勾选要同步的菜单'); return; }
+      if (menuSyncRunning) { showToast('已有同步任务进行中'); return; }
+      menuSyncRunning = true;
+
+      var statusKey = type === 'field' ? 'fieldStatus' : 'buttonStatus';
+      var failKey = type === 'field' ? 'failReason' : 'buttonFailReason';
+      // 标记所选菜单为同步中
+      ids.forEach(function(id) {
+        var node = findMenuNode(menuData, id);
+        if (node) {
+          node[statusKey] = 'syncing';
+          if (node[failKey]) delete node[failKey];
+        }
+      });
+      renderMenuTable();
+
+      // 显示进度条
+      var bar = document.getElementById('menuSyncProgress');
+      var text = document.getElementById('menuSyncText');
+      var fill = document.getElementById('menuSyncFill');
+      bar.classList.add('show');
+      var done = 0;
+      text.textContent = '同步中 ' + done + '/' + ids.length + ' ...';
+      fill.style.width = '0%';
+
+      // 模拟逐个菜单同步（实际为异步任务前端轮询效果）
+      var i = 0;
+      function step() {
+        if (i >= ids.length) {
+          // 全部完成
+          menuSyncRunning = false;
+          bar.classList.remove('show');
+          var failedCount = ids.filter(function(id) {
+            var n = findMenuNode(menuData, id);
+            return n && n[statusKey] === 'failed';
+          }).length;
+          if (failedCount > 0) {
+            showToast('同步完成：' + (ids.length - failedCount) + ' 成功，' + failedCount + ' 失败');
+          } else {
+            showToast('同步完成：' + ids.length + ' 个菜单全部成功');
+          }
+          renderMenuTable();
+          return;
+        }
+        var id = ids[i];
+        var node = findMenuNode(menuData, id);
+        // 模拟同步请求（部分失败）
+        setTimeout(function() {
+          if (node) {
+            // 演示失败场景：id 为 6/14 模拟失败
+            if (id === 6 && type === 'field') {
+              node[statusKey] = 'failed';
+              node[failKey] = '外部系统连接超时';
+            } else if (id === 14 && type === 'button') {
+              node[statusKey] = 'failed';
+              node[failKey] = '菜单编号不存在';
+            } else {
+              node[statusKey] = 'synced';
+              if (node[failKey]) delete node[failKey];
+            }
+          }
+          i++;
+          done = i;
+          var pct = Math.round(done / ids.length * 100);
+          text.textContent = '同步中 ' + done + '/' + ids.length + ' · ' + (node ? node.name : '');
+          fill.style.width = pct + '%';
+          renderMenuTable();
+          // 同步过程中保留选中状态展示进度条，下一轮
+          step();
+        }, 600);
+      }
+      step();
+    }
+
+    /* 单菜单重试 */
+    function retryMenuSync(menuId, type) {
+      var node = findMenuNode(menuData, menuId);
+      if (!node) return;
+      var statusKey = type === 'field' ? 'fieldStatus' : 'buttonStatus';
+      var failKey = type === 'field' ? 'failReason' : 'buttonFailReason';
+      node[statusKey] = 'syncing';
+      if (node[failKey]) delete node[failKey];
+      renderMenuTable();
+      // 模拟同步请求
+      setTimeout(function() {
+        // 演示重试成功
+        node[statusKey] = 'synced';
+        renderMenuTable();
+        showToast('重试同步成功');
+      }, 800);
+    }
+
+    function flattenMenu(nodes, result) {
+      result = result || [];
+      nodes.forEach(function(n) {
+        result.push(n);
+        if (n.children && n.children.length > 0) flattenMenu(n.children, result);
+      });
+      return result;
+    }
+
+    var nextMenuId = 17;
+
+    /* 新增菜单弹窗 */
+    function openAddMenuModal() {
+      var sel = document.getElementById('newMenuParent');
+      var flat = flattenMenu(menuData);
+      var opts = '<option value="0">（根）</option>';
+      flat.forEach(function(n) {
+        var prefix = '';
+        for (var i = 1; i < n.level; i++) prefix += '　';
+        opts += '<option value="' + n.id + '">' + prefix + 'L' + n.level + ' ' + n.name + '</option>';
+      });
+      sel.innerHTML = opts;
+      document.getElementById('newMenuName').value = '';
+      document.getElementById('newMenuPerm').value = '';
+      document.getElementById('newMenuSort').value = '10';
+      document.getElementById('newMenuStatus').value = 'on';
+      document.getElementById('addMenuModal').classList.add('show');
+    }
+    function closeAddMenuModal() { document.getElementById('addMenuModal').classList.remove('show'); }
+    function confirmAddMenu() {
+      var name = document.getElementById('newMenuName').value.trim();
+      var perm = document.getElementById('newMenuPerm').value.trim();
+      var parentId = parseInt(document.getElementById('newMenuParent').value);
+      var sort = parseInt(document.getElementById('newMenuSort').value) || 10;
+      var status = document.getElementById('newMenuStatus').value;
+      if (!name) { showToast('请输入菜单名称'); return; }
+      var newNode = { id: nextMenuId++, name: name, code: perm || ('new-menu-' + nextMenuId), sort: sort, level: 1, status: status, children: [] };
+      if (parentId === 0) {
+        newNode.level = 1;
+        menuData.push(newNode);
+      } else {
+        var parent = findMenuNode(menuData, parentId);
+        if (!parent) { showToast('父级菜单不存在'); return; }
+        if (parent.level >= 5) { showToast('最多支持5级菜单'); return; }
+        newNode.level = parent.level + 1;
+        parent.children = parent.children || [];
+        parent.children.push(newNode);
+      }
+      renderMenuTree();
+      renderMenuTable();
+      closeAddMenuModal();
+      showToast('菜单已添加');
+    }
+
+    function addSubMenu(parentId, parentLevel) {
+      var parent = findMenuNode(menuData, parentId);
+      if (!parent) return;
+      if (parentLevel >= 5) { showToast('最多支持5级菜单'); return; }
+      openAddMenuModal();
+      document.getElementById('newMenuParent').value = parentId;
+    }
+    function findMenuNode(nodes, id) {
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].id === id) return nodes[i];
+        if (nodes[i].children) { var found = findMenuNode(nodes[i].children, id); if (found) return found; }
+      }
+      return null;
+    }
+    function deleteMenu(id) {
+      function removeFromArr(arr) {
+        for (var i = 0; i < arr.length; i++) {
+          if (arr[i].id === id) { arr.splice(i, 1); return true; }
+          if (arr[i].children && removeFromArr(arr[i].children)) return true;
+        }
+        return false;
+      }
+      removeFromArr(menuData);
+      renderMenuTree();
+      renderMenuTable();
+      showToast('菜单已删除');
+    }
+
+    /* ===== 按钮配置 ===== */
+    var buttonData = [];
+    var currentButtonMenuName = '';
+    var currentButtonMenuId = null;
+    var buttonEditingIdx = -1;
+    var buttonSyncRunning = false;
+
+    var presetButtons = [
+      { code: 'btn_add', name: '新增', icon: '➕', enabled: true, syncStatus: 'synced', failReason: '' },
+      { code: 'btn_edit', name: '编辑', icon: '✏️', enabled: true, syncStatus: 'synced', failReason: '' },
+      { code: 'btn_delete', name: '删除', icon: '🗑️', enabled: true, syncStatus: 'unsynced', failReason: '' },
+      { code: 'btn_export', name: '导出', icon: '📥', enabled: true, syncStatus: 'synced', failReason: '' },
+      { code: 'btn_import', name: '导入', icon: '📤', enabled: true, syncStatus: 'unsynced', failReason: '' },
+      { code: 'btn_refresh', name: '刷新', icon: '🔄', enabled: true, syncStatus: 'synced', failReason: '' },
+      { code: 'btn_view', name: '查看详情', icon: '👁️', enabled: true, syncStatus: 'synced', failReason: '' },
+      { code: 'btn_audit', name: '审核', icon: '✅', enabled: true, syncStatus: 'unsynced', failReason: '' },
+      { code: 'btn_print', name: '打印', icon: '🖨️', enabled: true, syncStatus: 'synced', failReason: '' },
+      { code: 'btn_copy', name: '复制', icon: '📋', enabled: true, syncStatus: 'unsynced', failReason: '' }
+    ];
+
+    function openButtonModal(menuName, menuId) {
+      currentButtonMenuName = menuName;
+      currentButtonMenuId = menuId;
+      document.getElementById('buttonMenuName').textContent = menuName;
+      // T100 系统隐藏新增按钮（按钮从外部同步，不需要手动新增）
+      var addButtonBtn = document.getElementById('addButtonBtn');
+      if (addButtonBtn) addButtonBtn.style.display = (currentMenuSysCode === 'SYS_T100') ? 'none' : '';
+      // 根据菜单已有同步状态初始化按钮数据
+      var initStatus = 'synced';
+      var menuNode = menuId ? findMenuNode(menuData, menuId) : null;
+      if (menuNode && menuNode.buttonStatus === 'synced') initStatus = 'synced';
+      else if (menuNode && menuNode.buttonStatus === 'failed') initStatus = 'failed';
+      else initStatus = 'unsynced';
+      buttonData = presetButtons.slice(0, 6).map(function(b) {
+        return {
+          code: b.code,
+          name: b.name,
+          icon: b.icon,
+          enabled: b.enabled,
+          syncStatus: initStatus === 'failed' && (b.code === 'btn_import' || b.code === 'btn_delete') ? 'failed' : initStatus,
+          failReason: initStatus === 'failed' && (b.code === 'btn_import' || b.code === 'btn_delete') ? (menuNode && menuNode.buttonFailReason) || '按钮权限拉取失败' : ''
+        };
+      });
+      renderButtonTable();
+      document.getElementById('buttonModal').classList.add('show');
+    }
+
+    function closeButtonModal() {
+      document.getElementById('buttonModal').classList.remove('show');
+    }
+
+    function renderButtonTable() {
+      var tb = document.getElementById('buttonTbody');
+      document.getElementById('buttonCount').textContent = '共 ' + buttonData.length + ' 个按钮';
+      if (buttonData.length === 0) {
+        tb.innerHTML = '<tr><td colspan="8" class="empty-state">暂无数据，请新增按钮</td></tr>';
+        return;
+      }
+      tb.innerHTML = buttonData.map(function(b, i) {
+        return '<tr>' +
+          '<td class="field-rowCheckbox"><input type="checkbox" class="button-row-cb" data-idx="' + i + '" onchange="toggleButtonRowSelect(this)"></td>' +
+          '<td style="text-align:center;color:var(--text-muted);">' + (i + 1) + '</td>' +
+          '<td><code style="font-size:12px;">' + b.code + '</code></td>' +
+          '<td>' + b.icon + ' ' + b.name + '</td>' +
+          '<td style="text-align:center;font-size:16px;">' + b.icon + '</td>' +
+          '<td style="text-align:center;"><span style="font-size:12px;' + (b.enabled ? 'color:#16a34a;' : 'color:#94a3b8;') + '">' + (b.enabled ? '● 启用' : '● 停用') + '</span></td>' +
+          '<td>' + renderSyncTag(b.syncStatus, b.failReason) + '</td>' +
+          '<td style="white-space:nowrap;">' +
+            (b.syncStatus === 'failed' ? '<span class="action-link" style="color:#dc2626;" onclick="retryButtonSync(' + i + ')">重试</span>' : '') +
+            '<span class="action-link" onclick="editButton(' + i + ')">编辑</span>' +
+            '<span class="action-link" style="color:#ef4444;" onclick="deleteButton(' + i + ')">删除</span>' +
+          '</td></tr>';
+      }).join('');
+      var selAll = document.getElementById('buttonSelectAll');
+      if (selAll) selAll.checked = false;
+    }
+
+    /* 按钮行勾选 */
+    function toggleButtonRowSelect(cb) {
+      var all = document.querySelectorAll('.button-row-cb');
+      var checked = document.querySelectorAll('.button-row-cb:checked');
+      var selAll = document.getElementById('buttonSelectAll');
+      if (selAll) selAll.checked = all.length > 0 && all.length === checked.length;
+    }
+    function toggleButtonAllSelect(cb) {
+      document.querySelectorAll('.button-row-cb').forEach(function(el) { el.checked = cb.checked; });
+    }
+    function getSelectedButtonIdxs() {
+      var idxs = [];
+      document.querySelectorAll('.button-row-cb:checked').forEach(function(el) {
+        idxs.push(parseInt(el.getAttribute('data-idx')));
+      });
+      return idxs;
+    }
+
+    /* 按钮同步：条目级同步请求（前端等待返回） */
+    function syncButtonsSelected() {
+      var idxs = getSelectedButtonIdxs();
+      if (idxs.length === 0) { showToast('请先勾选要同步的按钮'); return; }
+      if (buttonSyncRunning) { showToast('已有同步任务进行中'); return; }
+      doButtonSync(idxs);
+    }
+    function syncButtonsAll() {
+      if (buttonData.length === 0) { showToast('暂无可同步按钮'); return; }
+      if (buttonSyncRunning) { showToast('已有同步任务进行中'); return; }
+      var idxs = buttonData.map(function(_, i) { return i; });
+      doButtonSync(idxs);
+    }
+    function doButtonSync(idxs) {
+      buttonSyncRunning = true;
+      idxs.forEach(function(i) {
+        buttonData[i].syncStatus = 'syncing';
+        buttonData[i].failReason = '';
+      });
+      renderButtonTable();
+      var bar = document.getElementById('buttonSyncProgress');
+      var text = document.getElementById('buttonSyncText');
+      var fill = document.getElementById('buttonSyncFill');
+      bar.classList.add('show');
+      var done = 0;
+      text.textContent = '同步中 0/' + idxs.length + ' ...';
+      fill.style.width = '0%';
+      var i = 0;
+      function step() {
+        if (i >= idxs.length) {
+          buttonSyncRunning = false;
+          bar.classList.remove('show');
+          var failed = idxs.filter(function(idx) { return buttonData[idx].syncStatus === 'failed'; }).length;
+          showToast('同步完成：' + (idxs.length - failed) + ' 成功' + (failed ? '，' + failed + ' 失败' : ''));
+          updateMenuButtonStatus();
+          renderButtonTable();
+          return;
+        }
+        setTimeout(function() {
+          var idx = idxs[i];
+          // 演示失败：btn_import 按钮模拟失败
+          if (buttonData[idx].code === 'btn_import') {
+            buttonData[idx].syncStatus = 'failed';
+            buttonData[idx].failReason = '外部系统按钮权限不足';
+          } else {
+            buttonData[idx].syncStatus = 'synced';
+          }
+          i++;
+          done = i;
+          var pct = Math.round(done / idxs.length * 100);
+          text.textContent = '同步中 ' + done + '/' + idxs.length + ' · ' + (buttonData[idx].code || '');
+          fill.style.width = pct + '%';
+          renderButtonTable();
+          step();
+        }, 500);
+      }
+      step();
+    }
+
+    /* 单按钮重试 */
+    function retryButtonSync(idx) {
+      buttonData[idx].syncStatus = 'syncing';
+      buttonData[idx].failReason = '';
+      renderButtonTable();
+      setTimeout(function() {
+        buttonData[idx].syncStatus = 'synced';
+        renderButtonTable();
+        updateMenuButtonStatus();
+        showToast('重试同步成功');
+      }, 600);
+    }
+
+    /* 按钮同步完成后回写菜单的按钮同步状态（聚合规则） */
+    function updateMenuButtonStatus() {
+      if (!currentButtonMenuId) return;
+      var node = findMenuNode(menuData, currentButtonMenuId);
+      if (!node) return;
+      node.buttonStatus = aggregateStatus(buttonData);
+      if (node.buttonStatus !== 'failed') delete node.buttonFailReason;
+      else {
+        var failedItem = buttonData.find(function(b) { return b.syncStatus === 'failed'; });
+        if (failedItem) node.buttonFailReason = failedItem.failReason;
+      }
+      renderMenuTable();
+    }
+
+    function addButtonRow() {
+      buttonEditingIdx = -1;
+      document.getElementById('buttonEditTitle').textContent = '新增按钮';
+      renderButtonEditForm(null);
+      document.getElementById('buttonEditModal').classList.add('show');
+    }
+
+    function editButton(idx) {
+      buttonEditingIdx = idx;
+      document.getElementById('buttonEditTitle').textContent = '编辑按钮';
+      renderButtonEditForm(buttonData[idx]);
+      document.getElementById('buttonEditModal').classList.add('show');
+    }
+
+    function renderButtonEditForm(item) {
+      var iconOptions = ['➕','✏️','🗑️','📥','📤','🔄','👁️','✅','🖨️','📋','🔍','📊','⚙️','💾','🔗'];
+      var iconHtml = iconOptions.map(function(ic) {
+        return '<span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--border-color);border-radius:6px;cursor:pointer;font-size:16px;' + (item && item.icon === ic ? 'border-color:var(--primary-color);background:#eff6ff;' : '') + '" onclick="selectButtonIcon(this,\'' + ic + '\')">' + ic + '</span>';
+      }).join('');
+
+      var html = '<div class="form-group">' +
+        '<label class="form-label">按钮编码 <span style="color:#ef4444;">*</span></label>' +
+        '<input type="text" class="form-input" id="btnCodeInput" placeholder="如 btn_add" value="' + (item ? item.code : '') + '">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">按钮名称 <span style="color:#ef4444;">*</span></label>' +
+        '<input type="text" class="form-input" id="btnNameInput" placeholder="如 新增" value="' + (item ? item.name : '') + '">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">按钮图标</label>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;">' + iconHtml + '</div>' +
+        '<input type="hidden" id="btnIconInput" value="' + (item ? item.icon : '➕') + '">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<label class="toggle-switch">' +
+            '<input type="checkbox" id="btnEnabledInput"' + (!item || item.enabled ? ' checked' : '') + '>' +
+            '<span class="toggle-slider"></span>' +
+          '</label>' +
+          '<span style="font-size:14px;font-weight:500;">启用</span>' +
+        '</div>' +
+      '</div>';
+
+      document.getElementById('buttonEditBody').innerHTML = html;
+    }
+
+    function selectButtonIcon(el, icon) {
+      document.getElementById('btnIconInput').value = icon;
+      var siblings = el.parentNode.children;
+      for (var i = 0; i < siblings.length; i++) {
+        siblings[i].style.borderColor = 'var(--border-color)';
+        siblings[i].style.background = '';
+      }
+      el.style.borderColor = 'var(--primary-color)';
+      el.style.background = '#eff6ff';
+    }
+
+    function saveButtonEdit() {
+      var code = document.getElementById('btnCodeInput').value.trim();
+      var name = document.getElementById('btnNameInput').value.trim();
+      if (!code || !name) { showToast('请填写按钮编码和名称'); return; }
+      var icon = document.getElementById('btnIconInput').value || '➕';
+      var enabled = document.getElementById('btnEnabledInput').checked;
+      if (buttonEditingIdx >= 0) {
+        // 编辑保存：本地手工编辑后状态回未同步（仅当原状态为已同步时）
+        var prevSync = buttonData[buttonEditingIdx].syncStatus;
+        var prevFail = buttonData[buttonEditingIdx].failReason;
+        buttonData[buttonEditingIdx] = {
+          code: code, name: name, icon: icon, enabled: enabled,
+          syncStatus: prevSync === 'synced' ? 'unsynced' : prevSync,
+          failReason: prevSync === 'synced' ? '' : prevFail
+        };
+        showToast('已更新');
+      } else {
+        buttonData.push({ code: code, name: name, icon: icon, enabled: enabled, syncStatus: 'unsynced', failReason: '' });
+        showToast('已新增');
+      }
+      renderButtonTable();
+      updateMenuButtonStatus();
+      document.getElementById('buttonEditModal').classList.remove('show');
+    }
+
+    function closeButtonEditModal() {
+      document.getElementById('buttonEditModal').classList.remove('show');
+    }
+
+    function deleteButton(idx) {
+      if (!confirm('确认删除该按钮？')) return;
+      buttonData.splice(idx, 1);
+      renderButtonTable();
+      updateMenuButtonStatus();
+      showToast('已删除');
+    }
+
+    /* ===== 字段配置 ===== */
+    var fieldData = [];
+    var currentFieldMenuName = '';
+    var currentFieldMenuId = null;
+    var fieldSyncRunning = false;
+
+    var deptScopes = [
+      { code: '0', name: '0-不管制' },
+      { code: '1', name: '1-不同部门间·可查改' },
+      { code: '2', name: '2-不同部门间·可查删' },
+      { code: '3', name: '3-不同部门间·仅查' },
+      { code: '4', name: '4-不同部门间·不可查改删' },
+      { code: '5', name: '5-相关部门群组·可查改' },
+      { code: '6', name: '6-相关部门群组·可查删' },
+      { code: '7', name: '7-相关部门群组·仅查' },
+      { code: '8', name: '8-相关部门群组·可查改删' }
+    ];
+    var personScopes = [
+      { code: '0', name: '0-仅本人' },
+      { code: '1', name: '1-可查他人' },
+      { code: '2', name: '2-可查改他人' },
+      { code: '3', name: '3-可查改删他人' },
+      { code: '4', name: '4-仅查本人' }
+    ];
+    var fieldAuths = [
+      { code: '1', name: '1-不可视' },
+      { code: '2', name: '2-部分加密' },
+      { code: '3', name: '3-不可修改' }
+    ];
+    var maskModes = [
+      { code: 'LEFT', name: '左侧遮罩(留右4位)' },
+      { code: 'RIGHT', name: '右侧遮罩(留左4位)' },
+      { code: 'MIDDLE', name: '中间遮罩(留左3右4)' },
+      { code: 'CUSTOM', name: '指定(自定义)' }
+    ];
+
+    function buildOptions(arr, selected) {
+      return arr.map(function(o) {
+        return '<option value="' + o.code + '"' + (o.code === selected ? ' selected' : '') + '>' + o.name + '</option>';
+      }).join('');
+    }
+
+    function openFieldModal(menuName, menuId) {
+      currentFieldMenuName = menuName;
+      currentFieldMenuId = menuId;
+      document.getElementById('fieldMenuName').textContent = menuName;
+      document.getElementById('batchUploadArea').classList.remove('show');
+      // T100 系统隐藏新增和批量上传按钮（字段从外部同步，不需要手动新增/导入）
+      var isT100 = currentMenuSysCode === 'SYS_T100';
+      var addFieldBtn = document.getElementById('addFieldBtn');
+      if (addFieldBtn) addFieldBtn.style.display = isT100 ? 'none' : '';
+      var batchUploadBtn = document.getElementById('batchUploadBtn');
+      if (batchUploadBtn) batchUploadBtn.style.display = isT100 ? 'none' : '';
+      // 根据菜单已有同步状态初始化字段数据
+      var initStatus = 'synced';
+      var menuNode = menuId ? findMenuNode(menuData, menuId) : null;
+      if (menuNode && menuNode.fieldStatus === 'synced') initStatus = 'synced';
+      else if (menuNode && menuNode.fieldStatus === 'failed') initStatus = 'failed';
+      else initStatus = 'unsynced';
+      fieldData = [
+        { code: 'material_no', name: '料号', syncStatus: initStatus, failReason: initStatus === 'failed' ? (menuNode && menuNode.failReason) || '字段拉取失败' : '' },
+        { code: 'material_name', name: '品名', syncStatus: initStatus, failReason: '' },
+        { code: 'supplier', name: '供应商', syncStatus: 'synced', failReason: '' },
+        { code: 'unit_price', name: '单价', syncStatus: 'unsynced', failReason: '' },
+        { code: 'contact_phone', name: '联系电话', syncStatus: 'synced', failReason: '' }
+      ];
+      renderFieldTable();
+      document.getElementById('fieldModal').classList.add('show');
+    }
+    function closeFieldModal() { document.getElementById('fieldModal').classList.remove('show'); }
+
+    function renderFieldTable() {
+      var tb = document.getElementById('fieldTbody');
+      if (fieldData.length === 0) {
+        tb.innerHTML = '<tr><td colspan="5" class="empty-state">暂无数据，请新增字段或批量上传</td></tr>';
+      } else {
+        tb.innerHTML = fieldData.map(function(f, i) {
+          return '<tr>' +
+            '<td class="field-rowCheckbox"><input type="checkbox" class="field-row-cb" data-idx="' + i + '" onchange="toggleFieldRowSelect(this)"></td>' +
+            '<td><input type="text" class="field-input" value="' + escAttr(f.code) + '" onchange="markFieldUnsynced(' + i + ',this,\'code\')"></td>' +
+            '<td><input type="text" class="field-input" value="' + escAttr(f.name) + '" onchange="markFieldUnsynced(' + i + ',this,\'name\')"></td>' +
+            '<td>' + renderSyncTag(f.syncStatus, f.failReason) + '</td>' +
+            '<td style="white-space:nowrap;">' +
+              (f.syncStatus === 'failed' ? '<span class="action-link" style="color:#dc2626;" onclick="retryFieldSync(' + i + ')">重试</span>' : '') +
+              '<span class="action-link" style="color:#ef4444;" onclick="deleteField(' + i + ')">删除</span>' +
+            '</td>' +
+          '</tr>';
+        }).join('');
+      }
+      document.getElementById('fieldCount').textContent = '共 ' + fieldData.length + ' 个字段';
+      // 重置全选
+      var selAll = document.getElementById('fieldSelectAll');
+      if (selAll) selAll.checked = false;
+    }
+
+    /* 字段行勾选 */
+    function toggleFieldRowSelect(cb) {
+      var all = document.querySelectorAll('.field-row-cb');
+      var checked = document.querySelectorAll('.field-row-cb:checked');
+      var selAll = document.getElementById('fieldSelectAll');
+      if (selAll) selAll.checked = all.length > 0 && all.length === checked.length;
+    }
+    function toggleFieldAllSelect(cb) {
+      document.querySelectorAll('.field-row-cb').forEach(function(el) { el.checked = cb.checked; });
+    }
+    function getSelectedFieldIdxs() {
+      var idxs = [];
+      document.querySelectorAll('.field-row-cb:checked').forEach(function(el) {
+        idxs.push(parseInt(el.getAttribute('data-idx')));
+      });
+      return idxs;
+    }
+
+    /* 本地手工编辑后状态回未同步（仅当原状态为已同步时） */
+    function markFieldUnsynced(idx, input, fieldKey) {
+      fieldData[idx][fieldKey] = input.value;
+      if (fieldData[idx].syncStatus === 'synced') {
+        fieldData[idx].syncStatus = 'unsynced';
+        fieldData[idx].failReason = '';
+      }
+      renderFieldTable();
+    }
+
+    /* 字段同步：条目级同步请求（前端等待返回，演示：800ms） */
+    function syncFieldsSelected() {
+      var idxs = getSelectedFieldIdxs();
+      if (idxs.length === 0) { showToast('请先勾选要同步的字段'); return; }
+      if (fieldSyncRunning) { showToast('已有同步任务进行中'); return; }
+      doFieldSync(idxs);
+    }
+    function syncFieldsAll() {
+      if (fieldData.length === 0) { showToast('暂无可同步字段'); return; }
+      if (fieldSyncRunning) { showToast('已有同步任务进行中'); return; }
+      var idxs = fieldData.map(function(_, i) { return i; });
+      doFieldSync(idxs);
+    }
+    function doFieldSync(idxs) {
+      fieldSyncRunning = true;
+      // 标记同步中
+      idxs.forEach(function(i) {
+        fieldData[i].syncStatus = 'syncing';
+        fieldData[i].failReason = '';
+      });
+      renderFieldTable();
+      // 显示进度条
+      var bar = document.getElementById('fieldSyncProgress');
+      var text = document.getElementById('fieldSyncText');
+      var fill = document.getElementById('fieldSyncFill');
+      bar.classList.add('show');
+      var done = 0;
+      text.textContent = '同步中 0/' + idxs.length + ' ...';
+      fill.style.width = '0%';
+      // 模拟同步请求
+      var i = 0;
+      function step() {
+        if (i >= idxs.length) {
+          fieldSyncRunning = false;
+          bar.classList.remove('show');
+          var failed = idxs.filter(function(idx) { return fieldData[idx].syncStatus === 'failed'; }).length;
+          showToast('同步完成：' + (idxs.length - failed) + ' 成功' + (failed ? '，' + failed + ' 失败' : ''));
+          updateMenuFieldStatus();
+          renderFieldTable();
+          return;
+        }
+        setTimeout(function() {
+          var idx = idxs[i];
+          // 演示失败：contact_phone 字段在 contact_phone 等含 phone 字段模拟失败
+          if (fieldData[idx].code === 'contact_phone') {
+            fieldData[idx].syncStatus = 'failed';
+            fieldData[idx].failReason = '外部系统字段权限不足';
+          } else {
+            fieldData[idx].syncStatus = 'synced';
+          }
+          i++;
+          done = i;
+          var pct = Math.round(done / idxs.length * 100);
+          text.textContent = '同步中 ' + done + '/' + idxs.length + ' · ' + (fieldData[idx].code || '');
+          fill.style.width = pct + '%';
+          renderFieldTable();
+          step();
+        }, 500);
+      }
+      step();
+    }
+
+    /* 单字段重试 */
+    function retryFieldSync(idx) {
+      fieldData[idx].syncStatus = 'syncing';
+      fieldData[idx].failReason = '';
+      renderFieldTable();
+      setTimeout(function() {
+        fieldData[idx].syncStatus = 'synced';
+        renderFieldTable();
+        updateMenuFieldStatus();
+        showToast('重试同步成功');
+      }, 600);
+    }
+
+    /* 字段同步完成后回写菜单的字段同步状态（聚合规则） */
+    function updateMenuFieldStatus() {
+      if (!currentFieldMenuId) return;
+      var node = findMenuNode(menuData, currentFieldMenuId);
+      if (!node) return;
+      node.fieldStatus = aggregateStatus(fieldData);
+      if (node.fieldStatus !== 'failed') delete node.failReason;
+      else {
+        var failedItem = fieldData.find(function(f) { return f.syncStatus === 'failed'; });
+        if (failedItem) node.failReason = failedItem.failReason;
+      }
+      renderMenuTable();
+    }
+
+    /* ===== 其他资源配置 ===== */
+    var resCurrentTab = 'dept';
+    var resDataMap = {
+      dept: [
+        { code: '0', name: '不管制', scope: '所有部门', query: true, modify: true, del: true },
+        { code: '1', name: '不同部门间', scope: '不同部门间', query: true, modify: true, del: false },
+        { code: '2', name: '不同部门间', scope: '不同部门间', query: true, modify: false, del: true },
+        { code: '3', name: '不同部门间', scope: '不同部门间', query: true, modify: false, del: false },
+        { code: '4', name: '不同部门间', scope: '不同部门间', query: false, modify: false, del: false },
+        { code: '5', name: '相关部门群组间', scope: '仅相关部门群组间', query: true, modify: true, del: false },
+        { code: '6', name: '相关部门群组间', scope: '仅相关部门群组间', query: true, modify: false, del: true },
+        { code: '7', name: '相关部门群组间', scope: '仅相关部门群组间', query: true, modify: false, del: false },
+        { code: '8', name: '相关部门群组间', scope: '仅相关部门群组间', query: true, modify: true, del: true }
+      ],
+      person: [
+        { code: '0', name: '仅本人可操作', queryOther: 'N', modifyOther: 'N', delOther: 'N', desc: '只能操作自己创建的资料' },
+        { code: '1', name: '可查询他人', queryOther: 'Y', modifyOther: 'N', delOther: 'N', desc: '可查询他人资料，不可修改删除' },
+        { code: '2', name: '可查改他人', queryOther: 'Y', modifyOther: 'Y', delOther: 'N', desc: '可查询、修改他人资料' },
+        { code: '3', name: '可查改删他人', queryOther: 'Y', modifyOther: 'Y', delOther: 'Y', desc: '可查询、修改、删除他人资料' },
+        { code: '4', name: '仅查本人', queryOther: 'N', modifyOther: 'N', delOther: 'N', desc: '仅可查询本人资料' }
+      ],
+      date: [
+        { code: '0', name: '不可修改', desc: '单据日期不可修改' },
+        { code: '1', name: '可修改', desc: '单据日期可修改' }
+      ],
+      accdate: [
+        { code: '0', name: '不可修改', desc: '扣账日期不可修改' },
+        { code: '1', name: '可修改', desc: '扣账日期可修改' }
+      ],
+      detail: [
+        { code: '0', name: '不允许', addDetail: 'N', delDetail: 'N', modDetail: 'N', desc: '不允许新增、删除、修改明细' },
+        { code: '1', name: '仅新增', addDetail: 'Y', delDetail: 'N', modDetail: 'N', desc: '仅允许新增明细' },
+        { code: '2', name: '仅删除', addDetail: 'N', delDetail: 'Y', modDetail: 'N', desc: '仅允许删除明细' },
+        { code: '3', name: '新增+删除', addDetail: 'Y', delDetail: 'Y', modDetail: 'N', desc: '允许新增和删除明细' },
+        { code: '4', name: '新增+删除+修改', addDetail: 'Y', delDetail: 'Y', modDetail: 'Y', desc: '允许新增、删除、修改明细' }
+      ],
+      field: [
+        { code: '1', name: '不可视', desc: '字段完全不可见，界面上不展示该字段' },
+        { code: '2', name: '部分加密', desc: '字段部分内容加密显示，需配合加密方法' },
+        { code: '3', name: '不可修改', desc: '字段可见但不可编辑修改' }
+      ],
+fieldType: [
+{ code: '1', name: '一般作业', desc: '日常业务操作字段，如录入、编辑、审批等' },
+{ code: '2', name: '报表作业', desc: '报表查询统计字段，如汇总、分析、导出等' }
+],
+      encrypt: [
+        { code: 'XM', method: '左侧遮罩', maskType: 'L', startPos: 2, enabled: true, desc: '姓名左侧遮罩，前2位保留' },
+        { code: 'SFZ', method: '中间遮罩', maskType: 'M', startPos: 7, enabled: true, desc: '身份证号中间遮罩，首尾各保留4位' },
+        { code: 'DH', method: '右侧遮罩', maskType: 'R', startPos: 4, enabled: true, desc: '电话右侧遮罩，后4位保留' },
+        { code: 'YHZH', method: '指定字符开始', maskType: 'C', startPos: 5, enabled: false, desc: '银行账户从第5位字符开始遮罩' }
+      ]
+    };
+    var resTabDescMap = {
+      dept: '管控不同部门间及相关部门群组间的查询/修改/删除权限（9级）',
+      person: '按资料所有者管控的查询/修改/删除权限（5级）',
+      date: '控制单据日期是否可修改（2级）',
+      accdate: '控制扣账日期是否可修改（2级）',
+      detail: '控制单身（明细行）的新增、删除、修改权限（5级）',
+      field: '配置字段级权限类型：不可视、部分加密、不可修改（3种）',
+fieldType: '配置字段类型：一般作业、报表作业（与字段权限中的字段类型联动）',
+      encrypt: '配置加密方法、遮罩方式与起始位数'
+    };
+
+    var resEditingIdx = -1;
+
+    function openOtherResourceModal(sysName) {
+      document.getElementById('otherResourceSysName').textContent = sysName;
+      resCurrentTab = 'dept';
+      switchResTab('dept');
+      document.getElementById('otherResourceModal').classList.add('show');
+    }
+    function closeOtherResourceModal() { document.getElementById('otherResourceModal').classList.remove('show'); }
+
+    function switchResTab(tab) {
+      resCurrentTab = tab;
+      document.querySelectorAll('.res-tab-item').forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-rtab') === tab);
+      });
+      document.getElementById('resTabDesc').textContent = resTabDescMap[tab] || '';
+      renderResTable();
+    }
+
+    function renderResTable() {
+      var tab = resCurrentTab;
+      var data = resDataMap[tab] || [];
+      var thead = document.getElementById('resThead');
+      var tb = document.getElementById('resTbody');
+      var actionCell = function(idx) {
+        return '<span class="action-link" onclick="viewResItem(' + idx + ')">查看</span><span class="action-link" onclick="editResItem(' + idx + ')">编辑</span><span class="action-link" style="color:#ef4444;" onclick="deleteResItem(' + idx + ')">删除</span>';
+      };
+      var yn = function(val) { return val === 'Y' || val === true ? '<span style="color:#16a34a;">✓</span>' : '<span style="color:#ef4444;">✗</span>'; };
+
+      if (tab === 'dept' || tab === 'person' || tab === 'date' || tab === 'accdate' || tab === 'detail') {
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:80px;">权限代码</th><th>权限名称</th><th>说明</th></tr>';
+        tb.innerHTML = data.map(function(r, i) {
+          return '<tr>' +
+            '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
+            '<td><code>' + r.code + '</code></td>' +
+            '<td>' + r.name + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+          '</tr>';
+        }).join('');
+      } else if (tab === 'field') {
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:80px;">权限代码</th><th>权限名称</th><th>说明</th></tr>';
+        tb.innerHTML = data.map(function(r, i) {
+          return '<tr>' +
+            '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
+            '<td><code>' + r.code + '</code></td>' +
+            '<td>' + r.name + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+          '</tr>';
+        }).join('');
+      } else if (tab === 'fieldType') {
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:60px;">代码</th><th>类型名称</th><th>说明</th><th style="width:140px;">操作</th></tr>';
+        tb.innerHTML = data.map(function(r, i) {
+          return '<tr>' +
+            '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
+            '<td><code>' + r.code + '</code></td>' +
+            '<td>' + r.name + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+            '<td>' + actionCell(i) + '</td>' +
+          '</tr>';
+        }).join('');
+      } else if (tab === 'encrypt') {
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:90px;">权限码</th><th style="width:120px;">加密方法</th><th style="width:130px;">遮罩方式</th><th style="width:150px;">从第几位数据开始</th><th style="width:70px;">启用</th><th>说明</th><th style="width:140px;">操作</th></tr>';
+        tb.innerHTML = data.map(function(r, i) {
+          return '<tr>' +
+            '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
+            '<td><code>' + r.code + '</code></td>' +
+            '<td>' + (r.method || '-') + '</td>' +
+            '<td>' + (r.maskType || '-') + '</td>' +
+            '<td style="text-align:center;">第 ' + r.startPos + ' 位</td>' +
+            '<td style="text-align:center;">' + (r.enabled !== false ? '<span style="color:#16a34a;">●</span> 启用' : '<span style="color:#94a3b8;">●</span> 停用') + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+            '<td>' + actionCell(i) + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+
+    function viewResItem(idx) {
+      resEditingIdx = -1;
+      var item = resDataMap[resCurrentTab][idx];
+      if (!item) return;
+      openResItemModal(idx, true);
+    }
+    function editResItem(idx) {
+      resEditingIdx = idx;
+      openResItemModal(idx, false);
+    }
+    function deleteResItem(idx) {
+      resDataMap[resCurrentTab].splice(idx, 1);
+      renderResTable();
+      showToast('已删除');
+    }
+
+    function openResItemModal(idx, readOnly) {
+      var tab = resCurrentTab;
+      var item = (idx !== undefined && idx >= 0) ? resDataMap[tab][idx] : null;
+      var isView = readOnly === true;
+      var titlePrefix = isView ? '查看' : (item ? '编辑' : '新增');
+      var titleMap = { dept: '部门数据权限', person: '个人数据权限', date: '单据日期管控', accdate: '扣账日期管控', detail: '单身明细', field: '字段权限', fieldType: '字段类型', encrypt: '加密方法' };
+      var title = titlePrefix + ' · ' + (titleMap[tab] || '');
+      var dis = isView ? ' disabled' : '';
+
+      function toggleSwitch(id, label, desc, icon, isOn) {
+        return '<div class="form-switch-row">' +
+          '<div class="form-switch-info">' +
+            '<span class="switch-icon">' + icon + '</span>' +
+            '<div class="switch-text">' +
+              '<span class="switch-label">' + label + '</span>' +
+              (desc ? '<span class="switch-desc">' + desc + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<button type="button" class="form-toggle' + (isOn ? ' on' : '') + (isView ? ' disabled' : '') + '" id="' + id + '" data-val="' + (isOn ? 'Y' : 'N') + '"' + (isView ? '' : ' onclick="toggleFormSwitch(this)"') + '><i></i></button>' +
+        '</div>';
+      }
+
+      var html = '<div class="modal-overlay show" id="resItemModal" style="z-index:2100;" onclick="if(event.target===this)closeResItemModal()"><div class="modal" style="max-width:560px;">' +
+        '<div class="modal-header"><div class="modal-title">' + title + '</div><button class="modal-close" onclick="closeResItemModal()">✕</button></div>' +
+        '<div class="modal-body">';
+
+      // Section: 基本信息
+      if (tab !== 'encrypt') {
+        html += '<div class="form-section">' +
+          '<div class="form-section-title"><span class="icon">📋</span>基本信息</div>' +
+          '<div class="form-grid" style="grid-template-columns:1fr 1fr;">' +
+            '<div class="form-item"><label class="form-label">权限代码 <span style="color:#ef4444;">*</span></label><input type="text" class="form-input" id="riCode" value="' + (item ? item.code : '') + '" placeholder="如 0、1、2..."' + dis + '></div>' +
+            '<div class="form-item"><label class="form-label">权限名称 <span style="color:#ef4444;">*</span></label><input type="text" class="form-input" id="riName" value="' + (item ? item.name : '') + '" placeholder="如 不管制、不同部门间"' + dis + '></div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      if (tab === 'encrypt') {
+        html += '<div class="form-section">' +
+          '<div class="form-section-title"><span class="icon">🔐</span>加密配置</div>' +
+          '<div class="form-grid" style="grid-template-columns:1fr 1fr;">' +
+            '<div class="form-item"><label class="form-label">权限码 <span style="color:#ef4444;">*</span></label>' +
+              '<input type="text" class="form-input" id="riCode" value="' + (item ? item.code : '') + '" placeholder="请输入权限码"' + dis + '></div>' +
+            '<div class="form-item"><label class="form-label">加密方法 <span style="color:#ef4444;">*</span></label>' +
+              '<input type="text" class="form-input" id="riMethod" value="' + (item ? (item.method || '') : '') + '" placeholder="请输入加密方法，如左侧遮罩"' + dis + '></div>' +
+          '</div>' +
+          '<div class="form-grid" style="grid-template-columns:1fr 1fr;">' +
+            '<div class="form-item"><label class="form-label">遮罩方式 <span style="color:#ef4444;">*</span></label>' +
+              '<input type="text" class="form-input" id="riMaskType" value="' + (item ? (item.maskType || '') : '') + '" placeholder="请输入遮罩方式，如L"' + dis + '></div>' +
+            '<div class="form-item"><label class="form-label">从第几位数据开始 <span style="color:#ef4444;">*</span></label>' +
+              '<input type="number" class="form-input" id="riStartPos" value="' + (item ? item.startPos : 1) + '" min="1" style="width:100%"' + dis + '></div>' +
+          '</div>' +
+          '<div class="form-item" style="display:flex;align-items:center;gap:10px;padding-top:4px;">' +
+            '<label class="toggle-switch">' +
+              '<input type="checkbox" id="riEnabled"' + (!item || item.enabled !== false ? ' checked' : '') + ' ' + dis + '>' +
+              '<span class="toggle-slider"></span>' +
+            '</label>' +
+            '<span style="font-size:14px;font-weight:500;color:var(--text-primary);">启用</span>' +
+          '</div>' +
+        '</div>';
+      }
+
+      // Section: 说明
+      html += '<div class="form-section">' +
+        '<div class="form-section-title"><span class="icon">💬</span>说明</div>' +
+        '<textarea class="form-input" id="riDesc" placeholder="' + (tab === 'encrypt' ? '请输入遮罩样式说明' : '权限说明（选填）') + '"' + dis + ' style="resize:vertical;min-height:60px;">' + (item ? (item.desc || '') : '') + '</textarea>' +
+      '</div>';
+
+      html += '</div>';
+      html += '<div class="modal-footer">';
+      if (isView) {
+        html += '<button class="btn btn-outline" onclick="closeResItemModal()">关闭</button>';
+      } else {
+        html += '<button class="btn btn-outline" onclick="closeResItemModal()">取消</button><button class="btn btn-primary" onclick="saveResItem()">确定</button>';
+      }
+      html += '</div></div></div>';
+
+      var old = document.getElementById('resItemModal');
+      if (old) old.remove();
+      document.body.insertAdjacentHTML('beforeend', html);
+      if (idx === undefined) resEditingIdx = -1;
+    }
+
+    function autoGenCode() {
+      var nameInput = document.getElementById('riName');
+      var codeInput = document.getElementById('riCode');
+      if (!nameInput || !codeInput) return;
+      if (codeInput.value && codeInput.dataset.userEdited === '1') return;
+      var pinyinMap = {
+        '不':'bu','管':'guan','制':'zhi','同':'tong','部':'bu','门':'men','间':'jian',
+        '相':'xiang','关':'guan','群':'qun','组':'zu','仅':'jin','查':'cha',
+        '改':'gai','删':'shan','可':'ke','许':'xu','允':'yun','人':'ren','他':'ta',
+        '单':'dan','据':'ju','期':'qi','日':'ri','扣':'kou','账':'zhang','明':'ming',
+        '细':'xi','新':'xin','增':'zeng','修':'xiu','加':'jia','左':'zuo','右':'you',
+        '侧':'ce','中':'zhong','间':'jian','遮':'zhe','罩':'zhao','留':'liu',
+        '位':'wei','字':'zi','符':'fu','本':'ben','视':'shi','见':'jian',
+        '加':'jia','密':'mi','修':'xiu','般':'ban','作':'zuo','业':'ye',
+        '表':'biao','报':'bao','自':'zi','定':'ding','义':'yi','策':'ce','略':'lue',
+        '启':'qi','用':'yong','停':'ting','所':'suo','有':'you','料':'liao',
+        '号':'hao','品':'pin','名':'ming','供':'gong','应':'ying','商':'shang',
+        '单':'dan','价':'jia','联':'lian','系':'xi','电':'dian','话':'hua'
+      };
+      var name = nameInput.value.trim();
+      var code = '';
+      for (var i = 0; i < name.length; i++) {
+        var ch = name[i];
+        if (pinyinMap[ch]) {
+          code += pinyinMap[ch];
+        } else if (/[a-zA-Z0-9]/.test(ch)) {
+          code += ch.toLowerCase();
+        }
+      }
+      if (!code) { codeInput.value = ''; return; }
+      var existing = resDataMap[resCurrentTab] || [];
+      var baseCode = code;
+      var suffix = 1;
+      while (existing.some(function(r) { return r.code === code; })) {
+        code = baseCode + '_' + suffix;
+        suffix++;
+      }
+      codeInput.value = code;
+    }
+
+    function toggleFormSwitch(el) {
+      el.classList.toggle('on');
+      el.setAttribute('data-val', el.classList.contains('on') ? 'Y' : 'N');
+    }
+
+    function closeResItemModal() {
+      var m = document.getElementById('resItemModal');
+      if (m) m.remove();
+    }
+
+    function saveResItem() {
+      var tab = resCurrentTab;
+      var code = document.getElementById('riCode').value.trim();
+      var newItem;
+
+      if (tab === 'encrypt') {
+        var method = document.getElementById('riMethod').value.trim();
+        var maskType = document.getElementById('riMaskType').value.trim();
+        if (!code || !method || !maskType) { showToast('请填写必填项'); return; }
+        var startPos = parseInt(document.getElementById('riStartPos').value) || 1;
+        var encEnabled = document.getElementById('riEnabled').checked;
+        newItem = {
+          code: code,
+          method: method,
+          maskType: maskType,
+          startPos: startPos,
+          enabled: encEnabled,
+          desc: document.getElementById('riDesc').value
+        };
+      } else {
+        var name = document.getElementById('riName').value.trim();
+        if (!code || !name) { showToast('请填写必填项'); return; }
+        newItem = { code: code, name: name, desc: document.getElementById('riDesc').value };
+      }
+
+      if (resEditingIdx >= 0) {
+        resDataMap[tab][resEditingIdx] = newItem;
+        showToast('已更新');
+      } else {
+        resDataMap[tab].push(newItem);
+        showToast('已新增');
+      }
+      closeResItemModal();
+      renderResTable();
+    }
+
+    function escAttr(v) { return String(v || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+    function addFieldRow() {
+      fieldData.push({ code: '', name: '', syncStatus: 'unsynced', failReason: '' });
+      renderFieldTable();
+    }
+    function deleteField(idx) {
+      fieldData.splice(idx, 1);
+      renderFieldTable();
+      updateMenuFieldStatus();
+    }
+
+    function toggleBatchUpload() {
+      document.getElementById('batchUploadArea').classList.toggle('show');
+    }
+    function triggerFileInput() {
+      document.getElementById('fileInput').click();
+    }
+    function onFileChange(input) {
+      if (input.files && input.files.length > 0) {
+        var fileName = input.files[0].name;
+        var sampleFields = [
+          { code: 'title', name: '标题', syncStatus: 'unsynced', failReason: '' },
+          { code: 'doc_no', name: '单号', syncStatus: 'unsynced', failReason: '' },
+          { code: 'doc_type', name: '类型', syncStatus: 'unsynced', failReason: '' },
+          { code: 'security_level', name: '密级', syncStatus: 'unsynced', failReason: '' },
+          { code: 'content', name: '正文内容', syncStatus: 'unsynced', failReason: '' },
+          { code: 'creator', name: '创建人', syncStatus: 'unsynced', failReason: '' },
+          { code: 'create_time', name: '创建时间', syncStatus: 'unsynced', failReason: '' },
+          { code: 'status', name: '状态', syncStatus: 'unsynced', failReason: '' }
+        ];
+        fieldData = sampleFields;
+        renderFieldTable();
+        document.getElementById('batchUploadArea').classList.remove('show');
+        showToast('导入成功：' + fileName + '（共 ' + sampleFields.length + ' 个字段）');
+        input.value = '';
+        updateMenuFieldStatus();
+      }
+    }
+
+    /* ===== Toast ===== */
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
+    }
+  </script>
+</body>
+</html>

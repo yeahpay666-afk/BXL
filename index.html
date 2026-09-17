@@ -1,0 +1,5282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页 - 柏星龙业务数字化中台</title>
+<style>
+/* ===== 公共样式 ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  background: #f5f7fa;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+input, select {
+  outline: none;
+  font-family: inherit;
+}
+
+/* ===== 颜色变量 ===== */
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1e40af;
+  --header-bg: #1a365d;
+  --header-bg-light: #2c5282;
+  --sidebar-bg: #fff;
+  --card-bg: #fff;
+  --text-primary: #1a202c;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --bg-light: #f8fafc;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --info-color: #3b82f6;
+}
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+.sub-header {
+  height: 44px;
+  background: #fff;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+.sub-header-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.sub-nav-item {
+  padding: 0 16px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.sub-nav-item:hover {
+  color: var(--primary-color);
+}
+
+.sub-nav-item.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* ===== 主内容区 ===== */
+.main-content {
+  margin-left: 200px;
+  margin-top: 100px;
+  padding: 24px;
+  min-height: calc(100vh - 100px);
+}
+
+.main-content.no-sidebar {
+  margin-left: 0;
+  margin-top: 100px;
+  padding: 12px 16px;
+  min-height: calc(100vh - 100px);
+}
+
+/* ===== 标签 ===== */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tag-red { background: #fee2e2; color: #dc2626; }
+.tag-orange { background: #ffedd5; color: #ea580c; }
+.tag-green { background: #dcfce7; color: #16a34a; }
+.tag-blue { background: #dbeafe; color: #2563eb; }
+.tag-purple { background: #f3e8ff; color: #9333ea; }
+.tag-gray { background: #f1f5f9; color: #64748b; }
+.tag-yellow { background: #fef9c3; color: #ca8a04; }
+
+/* ===== 快捷入口 ===== */
+.quick-entry {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.quick-entry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  background: #f8fafc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.quick-entry-item:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.quick-entry-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.quick-entry-name {
+  font-size: 11px;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* 不同颜色的图标背景 */
+.icon-yellow { background: #fef3c7; color: #d97706; }
+.icon-blue { background: #dbeafe; color: #2563eb; }
+.icon-orange { background: #ffedd5; color: #ea580c; }
+.icon-green { background: #dcfce7; color: #16a34a; }
+.icon-red { background: #fee2e2; color: #dc2626; }
+.icon-purple { background: #f3e8ff; color: #9333ea; }
+.icon-pink { background: #fce7f3; color: #db2777; }
+.icon-cyan { background: #cffafe; color: #0891b2; }
+.icon-indigo { background: #e0e7ff; color: #4f46e5; }
+.icon-gray { background: #f1f5f9; color: #64748b; }
+
+/* ===== 滚动条样式 ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ===== AI助手悬浮按钮 ===== */
+.ai-assistant-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+}
+
+.ai-assistant-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+  transition: all 0.3s;
+}
+
+.ai-assistant-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+
+/* ===== 门户首页布局 ===== */
+.portal-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: auto;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.portal-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  height: 100%;
+}
+
+.portal-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.portal-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.portal-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.portal-card-title .badge {
+  background: #ef4444;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.portal-card-more {
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.portal-card-more:hover {
+  color: var(--primary-color);
+}
+
+.portal-card-body {
+  padding: 10px 12px;
+  box-sizing: border-box;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.portal-card-body.no-padding {
+  padding: 0;
+}
+
+/* 首页IT中心状态条 */
+.it-center-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.it-center-status .it-center-service {
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.it-center-status .it-center-online {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.it-center-status .it-center-online::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 首页IT中心入口 - 2行3列 */
+.portal-card-body .it-entry {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 6px;
+  flex: 1;
+}
+
+.portal-card-body .it-entry-item {
+  padding: 8px 4px;
+  border-radius: 6px;
+}
+
+.portal-card-body .it-entry-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.portal-card-body .it-entry-name {
+  font-size: 10px;
+}
+
+/* 我的考勤卡片 */
+.attendance-month-select {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.attendance-month-select button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.attendance-month-select button:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.attendance-month-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.attendance-month-text:hover {
+  background: #f1f5f9;
+}
+
+/* 自定义月份选择器 popup */
+.am-picker {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 210px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15,23,42,0.12);
+  padding: 12px;
+  z-index: 50;
+}
+.am-picker.show { display: block; }
+.am-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.am-picker-yr-btn {
+  width: 26px; height: 26px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.am-picker-yr-btn:hover { border-color: #2563eb; color: #2563eb; }
+.am-picker-year {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.am-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.am-picker-cell {
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.am-picker-cell:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+.am-picker-cell.active {
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+}
+.am-picker-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 12px;
+  color: #64748b;
+}
+.am-picker-clear, .am-picker-today {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.am-picker-clear:hover { color: #ef4444; }
+.am-picker-today:hover { color: #2563eb; }
+
+.attendance-stats-full {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
+  flex: 1;
+}
+
+.attendance-stats-full .attendance-stat-item {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.attendance-stats-full .attendance-stat-num {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 3px;
+  color: var(--text-primary);
+}
+
+.attendance-stats-full .attendance-stat-num.green { color: #16a34a; }
+.attendance-stats-full .attendance-stat-num.blue { color: #2563eb; }
+.attendance-stats-full .attendance-stat-num.purple { color: #9333ea; }
+.attendance-stats-full .attendance-stat-num.orange { color: #ea580c; }
+.attendance-stats-full .attendance-stat-num.red { color: #dc2626; }
+
+.attendance-stats-full .attendance-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.quick-entry-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 0;
+}
+
+.quick-entry-action-btn {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 5px 0;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  transition: all 0.15s;
+}
+
+.quick-entry-action-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: #f1f5f9;
+}
+
+/* 日程周历 */
+.schedule-week {
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.schedule-week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.schedule-week-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.schedule-week-nav button {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.schedule-week-nav button:hover {
+  background: #e2e8f0;
+}
+
+.schedule-week-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+
+.schedule-week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 0;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.schedule-week-day:hover {
+  background: #e2e8f0;
+}
+
+.schedule-week-day .weekday {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.schedule-week-day .date {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.schedule-week-day.today {
+  background: var(--primary-color);
+}
+
+.schedule-week-day.today .weekday,
+.schedule-week-day.today .date {
+  color: #fff;
+}
+
+.schedule-list {
+  margin-bottom: 6px;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.schedule-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-time {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 42px;
+  padding-top: 1px;
+}
+
+.schedule-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.schedule-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-title {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 1px;
+  font-weight: 500;
+}
+
+.schedule-location {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 6px;
+  padding-top: 5px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 2px;
+}
+
+.schedule-action-btn {
+  flex: 1;
+  padding: 4px;
+  font-size: 11px;
+  background: #f8fafc;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.schedule-action-btn:first-child {
+  background: #3370ff;
+  color: #fff;
+}
+
+.schedule-action-btn:first-child:hover {
+  background: #2860e6;
+}
+
+.schedule-action-btn:hover {
+  background: #eff6ff;
+  color: var(--primary-color);
+}
+
+/* IT中心入口 */
+.it-entry {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.it-entry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 4px;
+  background: #f8fafc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.it-entry-item:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.it-entry-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.it-entry-name {
+  font-size: 10px;
+  color: var(--text-primary);
+}
+
+/* 待办列表 */
+.todo-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.todo-tab {
+  padding: 6px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.todo-tab:hover {
+  color: var(--primary-color);
+}
+
+.todo-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 500;
+}
+
+.todo-tab .num {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.todo-tab.active .num {
+  color: var(--primary-color);
+}
+
+.todo-list {
+  padding: 0 12px;
+}
+
+.todo-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.todo-list-item:hover {
+  background: #f8fafc;
+  margin: 0 -12px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.todo-list-item:last-child {
+  border-bottom: none;
+}
+
+.todo-category {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.todo-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-main-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-main-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-right {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.todo-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.todo-status.new {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.todo-action-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+/* 新闻列表 */
+.news-portal-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.news-portal-item:last-child {
+  border-bottom: none;
+}
+
+.news-portal-thumb {
+  width: 100px;
+  height: 70px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+}
+
+.news-portal-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-portal-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.news-portal-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-portal-item:hover .news-portal-title {
+  color: var(--primary-color);
+}
+
+.news-portal-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 公告 */
+.notice-tabs {
+  display: flex;
+  gap: 24px;
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+
+.notice-tab {
+  padding: 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.notice-tab.active {
+  color: #10b981;
+  border-bottom-color: #10b981;
+}
+
+.notice-portal-list {
+  padding: 0 12px;
+}
+
+.notice-portal-item-v2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #e2e8f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notice-portal-item-v2:last-child {
+  border-bottom: none;
+}
+
+.notice-portal-item-v2:hover {
+  background: #f8fafc;
+  margin: 0 -12px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 4px;
+}
+
+.notice-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.notice-icon.icon-green { background: #ecfdf5; color: #10b981; }
+.notice-icon.icon-yellow { background: #fffbeb; color: #f59e0b; }
+.notice-icon.icon-blue { background: #eff6ff; color: #3b82f6; }
+
+.notice-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notice-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notice-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 柏家学堂 */
+.study-header-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.study-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 0 20px 12px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.study-tab {
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 16px;
+  background: #f1f5f9;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.study-tab:hover {
+  background: #e2e8f0;
+}
+
+.study-tab.active {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.study-list {
+  padding: 0 20px 16px;
+}
+
+.study-item {
+  display: flex;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.study-item:last-child {
+  border-bottom: none;
+}
+
+.study-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.study-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.study-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.study-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  gap: 12px;
+}
+
+.study-progress {
+  width: 100%;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.study-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.study-progress-bar.green { background: #10b981; }
+.study-progress-bar.orange { background: #f59e0b; }
+.study-progress-bar.gray { background: #cbd5e1; }
+
+/* AI智能卡片 */
+
+.ai-auth-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 20px 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #ddd6fe;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+.ai-auth-card:hover {
+  background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12);
+}
+.ai-auth-left { display: flex; align-items: center; gap: 12px; }
+.ai-auth-icon {
+  width: 40px; height: 40px; border-radius: 8px; background: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.15);
+}
+.ai-auth-title { font-size: 14px; font-weight: 600; color: #1f2937; }
+.ai-auth-sub { font-size: 12px; color: #6b7280; margin-top: 3px; }
+.ai-auth-num { color: #7c3aed; font-weight: 600; }
+.ai-auth-arrow { color: #7c3aed; font-size: 18px; font-weight: 600; }
+
+.ai-portal-apps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 20px 16px;
+}
+
+.ai-portal-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 8px;
+  background: #f8fafc;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.ai-portal-app:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.ai-portal-app-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.ai-portal-app-name {
+  font-size: 10px;
+  color: var(--text-primary);
+}
+
+/* ===== 弹窗 ===== */
+.modal-mask {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4); z-index: 2000;
+  display: none; align-items: center; justify-content: center;
+}
+.modal-mask.show { display: flex; }
+.modal-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+.modal-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+.modal-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 16px;
+  border: none;
+  background: transparent;
+  transition: all 0.15s;
+}
+.modal-close:hover { background: #f1f5f9; color: #1e293b; }
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 24px;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+.modal-btn {
+  padding: 7px 20px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+.modal-btn-cancel { background: #f1f5f9; color: #475569; }
+.modal-btn-cancel:hover { background: #e2e8f0; }
+.modal-btn-primary { background: #3370ff; color: #fff; }
+.modal-btn-primary:hover { background: #2860e6; }
+
+/* 新建会议 - 表单 */
+.meeting-create-modal { width: 680px; }
+.mc-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.mc-label {
+  width: 80px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #475569;
+  padding-top: 8px;
+  text-align: right;
+  padding-right: 12px;
+}
+.mc-label .req { color: #ef4444; margin-left: 2px; }
+.mc-field { flex: 1; min-width: 0; }
+.mc-title-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.mc-title-input:focus { border-color: #3370ff; }
+.mc-time-row { display: flex; align-items: center; gap: 6px; }
+.mc-time-input {
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+  color: #1e293b;
+}
+.mc-time-input:focus { border-color: #3370ff; }
+.mc-time-arrow { color: #94a3b8; font-size: 13px; }
+.mc-convener {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.mc-convener-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #3370ff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+}
+.mc-convener-name { font-size: 13px; color: #1e293b; }
+.mc-convener-tag {
+  font-size: 11px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.mc-attendees-box, .mc-room-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  min-height: 38px;
+  padding: 5px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mc-attendees-box:hover, .mc-room-box:hover { border-color: #3370ff; }
+.mc-attendee-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 5px;
+  padding: 3px 6px 3px 3px;
+  font-size: 12px;
+  color: #1e40af;
+}
+.mc-attendee-tag .tag-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #3370ff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+.mc-attendee-tag .tag-remove {
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-left: 1px;
+}
+.mc-attendee-tag .tag-remove:hover { color: #ef4444; }
+.mc-attendee-placeholder, .mc-room-placeholder {
+  color: #94a3b8; font-size: 13px; padding: 5px;
+}
+.mc-room-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 12px;
+  color: #15803d;
+}
+.mc-room-tag .tag-remove { cursor: pointer; color: #94a3b8; margin-left: 2px; }
+.mc-room-tag .tag-remove:hover { color: #ef4444; }
+.mc-select {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+  background: #fff;
+  color: #1e293b;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.mc-select:focus { border-color: #3370ff; }
+.mc-notify-group { display: flex; gap: 12px; flex-wrap: wrap; }
+.mc-notify-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+}
+.mc-notify-item input[type="checkbox"] { accent-color: #3370ff; width: 15px; height: 15px; cursor: pointer; }
+.mc-attach-area {
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mc-attach-area:hover { border-color: #3370ff; background: #f8fbff; }
+.mc-attach-icon { font-size: 20px; color: #94a3b8; margin-bottom: 2px; }
+.mc-attach-text { font-size: 12px; color: #64748b; }
+.mc-attach-list { margin-top: 6px; }
+.mc-attach-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #f8fafc;
+  border-radius: 5px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #475569;
+}
+.mc-attach-item .attach-remove { margin-left: auto; cursor: pointer; color: #94a3b8; font-size: 12px; }
+.mc-attach-item .attach-remove:hover { color: #ef4444; }
+.mc-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 64px;
+  font-family: inherit;
+}
+.mc-textarea:focus { border-color: #3370ff; }
+
+/* 参会人/会议室子弹窗 */
+.mc-sub-modal { width: 520px; }
+.mc-search-box { position: relative; margin-bottom: 12px; }
+.mc-search-input {
+  width: 100%; padding: 7px 10px 7px 32px;
+  border: 1px solid #e2e8f0; border-radius: 6px;
+  font-size: 13px; outline: none; box-sizing: border-box;
+}
+.mc-search-input:focus { border-color: #3370ff; }
+.mc-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
+.mc-org-tree { font-size: 13px; }
+.mc-org-node { padding: 4px 0; }
+.mc-org-toggle { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 5px; padding: 3px 0; }
+.mc-org-toggle:hover { color: #3370ff; }
+.mc-org-arrow { font-size: 9px; color: #94a3b8; transition: transform 0.15s; }
+.mc-org-arrow.open { transform: rotate(90deg); }
+.mc-org-children { padding-left: 18px; display: none; }
+.mc-org-children.show { display: block; }
+.mc-person-list { margin-top: 10px; }
+.mc-person-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid #f8fafc;
+  cursor: pointer;
+}
+.mc-person-item:hover { background: #f8fbff; margin: 0 -6px; padding: 6px; border-radius: 5px; }
+.mc-person-checkbox { width: 15px; height: 15px; accent-color: #3370ff; cursor: pointer; }
+.mc-person-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #3370ff; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0;
+}
+.mc-person-info { flex: 1; min-width: 0; }
+.mc-person-name { font-size: 13px; color: #1e293b; }
+.mc-person-dept { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+.mc-room-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px; border: 1px solid #f1f5f9; border-radius: 6px;
+  margin-bottom: 6px; cursor: pointer; transition: all 0.15s;
+}
+.mc-room-item:hover { border-color: #3370ff; background: #f8fbff; }
+.mc-room-item.selected { border-color: #3370ff; background: #eff6ff; }
+.mc-room-radio { width: 15px; height: 15px; accent-color: #3370ff; cursor: pointer; }
+.mc-room-info { flex: 1; }
+.mc-room-name { font-size: 13px; color: #1e293b; font-weight: 500; }
+.mc-room-meta { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+.mc-room-status {
+  font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500;
+}
+.mc-room-status.available { background: #f0fdf4; color: #15803d; }
+.mc-room-status.unavailable { background: #fef2f2; color: #dc2626; }
+.mc-room-name-clickable { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.mc-room-name-clickable:hover { color: #3370ff; }
+.mc-room-name-clickable .mc-photo-icon { font-size: 12px; opacity: 0.55; }
+.mc-room-name-clickable:hover .mc-photo-icon { opacity: 1; }
+.ru-room-name-clickable { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.ru-room-name-clickable:hover { color: #3370ff; }
+.ru-room-name-clickable .mc-photo-icon { font-size: 11px; opacity: 0.55; }
+.ru-room-name-clickable:hover .mc-photo-icon { opacity: 1; }
+.mc-usage-btn {
+  margin-top: 8px; padding: 6px 14px; font-size: 12px;
+  background: #f8fafc; color: #3370ff; border: 1px solid #dbeafe;
+  border-radius: 6px; cursor: pointer; transition: all 0.15s;
+}
+.mc-usage-btn:hover { background: #eff6ff; border-color: #3370ff; }
+
+/* 会议室照片浮层 */
+.room-photo-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  display: none; align-items: center; justify-content: center; z-index: 10000;
+}
+.room-photo-overlay.show { display: flex; }
+.room-photo-card {
+  background: #fff; border-radius: 10px; padding: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25); max-width: 92vw;
+}
+.room-photo-card img { width: 360px; max-width: 86vw; height: 240px; object-fit: cover; border-radius: 8px; display: block; background: #f1f5f9; }
+.room-photo-title { font-size: 14px; font-weight: 600; color: #1e293b; margin: 12px 0 4px; }
+.room-photo-meta { font-size: 12px; color: #64748b; }
+.room-photo-close { position: absolute; top: 10px; right: 14px; color: #fff; font-size: 24px; cursor: pointer; line-height: 1; }
+/* Toast 轻提示 */
+.toast-wrap { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 20000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast-item { background: #1e293b; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.2); opacity: 0; transform: translateY(-10px); transition: all 0.25s; pointer-events: auto; }
+.toast-item.show { opacity: 1; transform: translateY(0); }
+.toast-item.success { background: #15803d; }
+.toast-item.error { background: #dc2626; }
+.toast-item.info { background: #3370ff; }
+
+
+/* 会议详情浮层 */
+.bd-card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); width: 360px; max-width: 92vw; }
+.bd-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+.bd-title { font-size: 16px; font-weight: 600; color: #1e293b; flex: 1; }
+.bd-mine-badge { font-size: 11px; background: #eff6ff; color: #3370ff; padding: 2px 8px; border-radius: 10px; display: none; }
+.bd-field { display: flex; align-items: flex-start; gap: 12px; padding: 6px 0; }
+.bd-label { font-size: 12px; color: #94a3b8; width: 56px; flex-shrink: 0; }
+.bd-value { font-size: 13px; color: #1e293b; font-weight: 500; }
+
+/* ===== 会议管理弹窗 ===== */
+.meeting-manage-modal {
+  width: 1000px;
+  max-width: 96vw;
+  height: 640px;
+  max-height: 92vh;
+  background: #fff;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+/* 会议相关整页面板 */
+    body.meeting-page-active .portal-layout { display: none !important; }
+    body.meeting-page-active .meeting-page-panel.show { display: block !important; }
+    .meeting-page-panel { padding: 0; margin-top: 0; }
+    .meeting-page-panel.show { padding: 24px; }
+.meeting-page-panel { display: none; position: static; width: 100%; padding: 24px; }
+.meeting-page-panel.show { display: block; }
+.page-panel-inner { max-width: 720px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.page-panel-inner.meeting-manage-full { max-width: 960px; }
+.page-panel-inner.room-usage-full { max-width: none; }
+.mm-item-side { width: 4px; min-height: 60px; border-radius: 0; }
+.mm-page-header { padding: 18px 24px; border-bottom: 1px solid #f1f5f9; }
+.mm-toolbar-full { padding: 14px 24px; border-bottom: 1px solid #f1f5f9; background: #fafbfc; }
+.mm-list-scroll-full { max-height: none; overflow: visible; padding: 16px 24px; }
+.mm-pagination-full { padding: 12px 24px; border-top: 1px solid #f1f5f9; }
+.ru-page-wrap-full { background: #fff; border-radius: 10px; padding: 24px; }
+.ru-grid-full { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+
+
+/* 标题栏 */
+.mm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.mm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mm-header-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #3370ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.mm-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.mm-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mm-export-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #fff;
+  color: #475569;
+  transition: all 0.15s;
+}
+
+.mm-export-btn:hover {
+  border-color: #3370ff;
+  color: #3370ff;
+}
+
+.mm-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 18px;
+  border: none;
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.mm-close-btn:hover {
+  background: #f1f5f9;
+}
+
+/* 工具栏 */
+.mm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+
+.mm-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.mm-tab {
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  border-radius: 0;
+  transition: all 0.15s;
+  background: #fff;
+}
+
+.mm-tab:first-child { border-radius: 6px 0 0 6px; }
+.mm-tab:last-child { border-radius: 0 6px 6px 0; }
+.mm-tab:not(:first-child) { border-left: none; }
+.mm-tab:hover { color: #3370ff; }
+.mm-tab.active {
+  background: #3370ff;
+  color: #fff;
+  border-color: #3370ff;
+}
+
+.mm-tab .count {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  background: rgba(255,255,255,0.2);
+  color: inherit;
+  border-radius: 10px;
+}
+
+.mm-tab:not(.active) .count {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.mm-search {
+  position: relative;
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.mm-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.mm-search input {
+  width: 100%;
+  padding: 6px 10px 6px 30px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.mm-search input:focus {
+  border-color: #3370ff;
+}
+
+.mm-date-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mm-date-input {
+  padding: 5px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #475569;
+  outline: none;
+  width: 130px;
+}
+
+.mm-date-input:focus {
+  border-color: #3370ff;
+}
+
+.mm-date-sep {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.mm-view-switch {
+  display: flex;
+  gap: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.mm-view-btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  background: #fff;
+  color: #475569;
+  transition: all 0.15s;
+}
+
+.mm-view-btn.active {
+  background: #3370ff;
+  color: #fff;
+}
+
+/* 列表滚动区 */
+.mm-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px;
+  min-height: 0;
+}
+
+/* 列表条目 */
+.mm-list-scroll .mm-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.15s;
+}
+
+.mm-list-scroll .mm-list-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.mm-item-left-bar {
+  width: 4px;
+  height: 40px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.mm-item-left-bar.upcoming { background: #3370ff; }
+.mm-item-left-bar.ongoing { background: #10b981; }
+.mm-item-left-bar.finished { background: #cbd5e1; }
+.mm-item-left-bar.cancelled { background: #ef4444; }
+
+.mm-item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mm-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mm-item-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.mm-status-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.mm-status-tag.upcoming { background: #eff6ff; color: #2563eb; }
+.mm-status-tag.ongoing { background: #ecfdf5; color: #059669; }
+.mm-status-tag.finished { background: #f1f5f9; color: #64748b; }
+.mm-status-tag.cancelled { background: #fef2f2; color: #dc2626; }
+
+.mm-cycle-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #fdf4ff;
+  color: #7e22ce;
+}
+
+.mm-mine-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.mm-rsvp-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.mm-rsvp-tag.accepted { background: #ecfdf5; color: #059669; }
+.mm-rsvp-tag.declined { background: #fef2f2; color: #dc2626; }
+.mm-rsvp-tag.tentative { background: #fffbeb; color: #d97706; }
+.mm-rsvp-tag.pending { background: #f1f5f9; color: #64748b; }
+
+.mm-item-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* 右侧操作区 - 固定占位 */
+.mm-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  width: auto;
+  min-width: 60px;
+  justify-content: flex-end;
+}
+
+.mm-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.mm-btn-primary {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.mm-btn-primary:hover {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.mm-btn-default {
+  background: #fff;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.mm-btn-default:hover {
+  border-color: #3370ff;
+  color: #3370ff;
+}
+
+.mm-btn-danger {
+  background: #fff;
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.mm-btn-danger:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+.mm-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* 分页 */
+.mm-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.mm-page-info {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.mm-page-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.mm-page-btn {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  color: #64748b;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.mm-page-btn:hover { border-color: #3370ff; color: #3370ff; }
+.mm-page-btn.active {
+  background: #3370ff;
+  border-color: #3370ff;
+  color: #fff;
+}
+
+/* 日历视图 */
+.mm-cal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.mm-cal-nav {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mm-cal-nav:hover { border-color: #3370ff; color: #3370ff; }
+.mm-cal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  min-width: 100px;
+  text-align: center;
+}
+.mm-cal-today {
+  margin-left: auto;
+  padding: 4px 12px;
+  font-size: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+}
+.mm-cal-today:hover { border-color: #3370ff; color: #3370ff; }
+.mm-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+.mm-cal-wd {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  padding: 6px 0;
+}
+.mm-cal-wd.weekend { color: #ef4444; }
+.mm-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #f1f5f9;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.mm-cal-cell {
+  background: #fff;
+  min-height: 72px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mm-cal-cell.other-month {
+  background: #f8fafc;
+  min-height: 36px;
+}
+.mm-cal-cell.today {
+  background: #eff6ff;
+}
+.mm-cal-cell.today .mm-cal-day {
+  color: #fff;
+  background: #3370ff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+.mm-cal-day {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 2px;
+}
+.mm-cal-event {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.mm-cal-event.upcoming {
+  background: #eff6ff;
+  color: #2563eb;
+  border-left: 2px solid #3370ff;
+}
+.mm-cal-event.ongoing {
+  background: #ecfdf5;
+  color: #059669;
+  border-left: 2px solid #10b981;
+}
+.mm-cal-event.finished {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-left: 2px solid #cbd5e1;
+}
+.mm-cal-event.cancelled {
+  background: #fef2f2;
+  color: #dc2626;
+  border-left: 2px solid #ef4444;
+}
+.mm-cal-event-time {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.mm-cal-event-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mm-cal-more {
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+  padding: 1px 0;
+}
+
+/* ===== 会议室使用情况弹窗 ===== */
+.room-usage-modal { width: 860px; }
+.ru-header-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.ru-date-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ru-date-nav button {
+  width: 26px;
+  height: 26px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ru-date-nav button:hover { border-color: #3370ff; color: #3370ff; }
+.ru-date-nav .date-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  min-width: 120px;
+  text-align: center;
+}
+.ru-legend {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: #64748b;
+}
+.ru-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ru-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.ru-legend-dot.available { background: #dcfce7; border: 1px solid #86efac; }
+.ru-legend-dot.occupied { background: #dcfce7; border: 1px solid #86efac; }
+.ru-legend-dot.my { background: #fef3c7; border: 1px solid #fcd34d; }
+.ru-grid {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.ru-grid-header {
+  display: grid;
+  grid-template-columns: 120px repeat(9, 1fr);
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+.ru-grid-header-cell {
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  border-right: 1px solid #e2e8f0;
+}
+.ru-grid-header-cell:last-child { border-right: none; }
+.ru-grid-header-cell.room-col {
+  text-align: left;
+  padding-left: 12px;
+}
+.ru-grid-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+.ru-grid-row {
+  display: grid;
+  grid-template-columns: 120px repeat(9, 1fr);
+  border-bottom: 1px solid #f1f5f9;
+  min-height: 48px;
+}
+.ru-grid-row:last-child { border-bottom: none; }
+.ru-room-cell {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 500;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.ru-room-cell .room-name {
+  font-size: 12px;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ru-room-cell .room-capacity {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.ru-time-cell {
+  border-right: 1px solid #f1f5f9;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ru-time-cell:last-child { border-right: none; }
+.ru-time-cell:hover { background: #f8fbff; }
+.ru-time-cell.available { background: #f0fdf4; }
+.ru-booking-block {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 2px;
+  right: 2px;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 11px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all 0.15s;
+  z-index: 1;
+}
+.ru-booking-block:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.ru-booking-block.occupied {
+  background: #10b981;
+  color: #fff;
+}
+.ru-booking-block.conflict {
+  background: #ef4444;
+  color: #fff;
+}
+.ru-booking-block .booking-title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ru-booking-block .booking-time {
+  font-size: 10px;
+  opacity: 0.9;
+  margin-top: 1px;
+}
+/* 日周月视图切换 */
+.ru-view-tabs {
+  display: flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.ru-view-tab {
+  padding: 5px 14px;
+  font-size: 13px;
+  border: none;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ru-view-tab:not(:first-child) {
+  border-left: 1px solid #e2e8f0;
+}
+.ru-view-tab:hover {
+  color: #3370ff;
+}
+.ru-view-tab.active {
+  background: #3370ff;
+  color: #fff;
+  border-color: #3370ff;
+}
+.ru-today-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  margin-left: 4px;
+}
+.ru-today-btn:hover { border-color: #3370ff; color: #3370ff; }
+.ru-search-box {
+  position: relative;
+  flex: 1;
+  max-width: 200px;
+}
+.ru-search-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #94a3b8;
+}
+.ru-search-box input {
+  width: 100%;
+  padding: 5px 10px 5px 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+.ru-search-box input:focus { border-color: #3370ff; }
+.ru-legend-dot.conflict { background: #fecaca; border: 1px solid #ef4444; }
+
+/* 会议明细 */
+.ru-detail-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+.ru-detail-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+.ru-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.ru-detail-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 500;
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+}
+.ru-detail-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+.ru-detail-table tr:hover td {
+  background: #f8fbff;
+}
+.ru-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.ru-status-badge.occupied {
+  background: #ecfdf5;
+  color: #059669;
+}
+.ru-status-badge.conflict {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.ru-detail-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.ru-page-info {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.ru-page-btns {
+  display: flex;
+  gap: 4px;
+}
+.ru-page-btn {
+  min-width: 28px;
+  height: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  color: #64748b;
+  font-size: 12px;
+  cursor: pointer;
+}
+.ru-page-btn.active {
+  background: #3370ff;
+  border-color: #3370ff;
+  color: #fff;
+}
+
+/* 门户首页响应式 */
+@media (max-width: 1400px) {
+  .portal-layout {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(140px, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .portal-layout {
+    grid-template-columns: 1fr;
+    grid-auto-rows: minmax(120px, auto);
+  }
+}
+
+/* ===== 添加常用应用 弹窗 ===== */
+.qe-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+.qe-modal-overlay.show { display: flex; }
+.qe-modal {
+  width: 520px;
+  max-width: 92vw;
+  max-height: 80vh;
+  background: #fff;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+}
+.qe-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #eef0f4;
+}
+.qe-modal-title { font-size: 17px; font-weight: 600; color: #1e293b; }
+.qe-modal-close {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; color: #94a3b8; font-size: 18px; cursor: pointer;
+  transition: all 0.15s;
+}
+.qe-modal-close:hover { background: #f1f5f9; color: #475569; }
+.qe-modal-search {
+  padding: 14px 22px;
+  border-bottom: 1px solid #eef0f4;
+}
+.qe-modal-search input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 38px;
+  padding: 0 12px 0 36px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f8fafc url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%2394a3b8' viewBox='0 0 24 24'><path d='M15.5 14h-.79l-.28-.27A6.5 6.5 0 1 0 13 15.5l.27.28v.79l5 4.99L19.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z'/></svg>") no-repeat 12px center;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.qe-modal-search input:focus { border-color: #3b82f6; background-color: #fff; }
+.qe-modal-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.qe-modal-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 22px;
+  transition: background 0.15s;
+}
+.qe-modal-row:hover { background: #f8fafc; }
+.qe-modal-row-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.qe-modal-row-name { flex: 1; font-size: 14px; color: #1e293b; }
+.qe-add-btn {
+  padding: 5px 14px;
+  border: 1px solid #3b82f6;
+  background: #fff;
+  color: #3b82f6;
+  border-radius: 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.qe-add-btn:hover { background: #3b82f6; color: #fff; }
+.qe-add-btn.added {
+  background: #f1f5f9; border-color: #e2e8f0; color: #94a3b8;
+  cursor: default;
+}
+.qe-empty {
+  text-align: center; color: #94a3b8; font-size: 13px; padding: 40px 0;
+}
+
+/* ===== 编辑模式 ===== */
+.quick-entry-item { position: relative; }
+.qe-remove-btn {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 18px; height: 18px;
+  background: #ef4444; color: #fff;
+  border-radius: 50%;
+  display: none;
+  align-items: center; justify-content: center;
+  font-size: 12px; cursor: pointer;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.quick-entry.editing .qe-remove-btn { display: flex; }
+.quick-entry.editing .quick-entry-item { cursor: default; }
+.quick-entry.editing .quick-entry-item:hover { transform: none; background: #f8fafc; }
+.quick-entry-item.drag-over { outline: 2px dashed #3b82f6; }
+#quickEditBtn.active { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+
+/* ===== 右侧抽屉 ===== */
+.drawer-mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  z-index: 3000; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.drawer-mask.show { opacity: 1; pointer-events: auto; }
+.drawer-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  background: #fff; z-index: 3001;
+  display: flex; flex-direction: column;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.12);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.drawer-panel.show { transform: translateX(0); }
+.drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+.drawer-title { font-size: 16px; font-weight: 600; color: #1e293b; }
+.drawer-close {
+  width: 32px; height: 32px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #94a3b8; cursor: pointer;
+  transition: all 0.15s; background: transparent; border: none;
+}
+.drawer-close:hover { background: #f1f5f9; color: #475569; }
+.drawer-body {
+  flex: 1; overflow-y: auto; padding: 20px;
+}
+.drawer-footer {
+  padding: 14px 20px; border-top: 1px solid #f1f5f9;
+  display: flex; justify-content: flex-end; gap: 10px;
+  flex-shrink: 0; background: #fafbfc;
+}
+.drawer-footer .btn:disabled {
+  opacity: 0.6; cursor: not-allowed;
+}
+
+/* ===== 编辑会议表单 ===== */
+.me-form { display: flex; flex-direction: column; gap: 16px; }
+.me-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.me-form-item { display: flex; flex-direction: column; gap: 6px; }
+.me-form-label { font-size: 13px; color: #475569; font-weight: 500; }
+.me-form-label .req { color: #ef4444; margin-right: 2px; }
+.me-form-input, .me-form-select, .me-form-textarea {
+  width: 100%; padding: 8px 12px;
+  border: 1px solid #e2e8f0; border-radius: 6px;
+  font-size: 13px; color: #1e293b; outline: none;
+  transition: border-color 0.15s; font-family: inherit;
+  box-sizing: border-box;
+}
+.me-form-input:focus, .me-form-select:focus, .me-form-textarea:focus {
+  border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+.me-form-textarea { resize: vertical; min-height: 80px; }
+.me-participants {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;
+  min-height: 40px; align-items: center;
+}
+.me-part-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; background: #eff6ff; color: #1e40af;
+  border-radius: 14px; font-size: 12px;
+}
+.me-part-remove {
+  cursor: pointer; color: #94a3b8; font-size: 14px;
+  line-height: 1; transition: color 0.15s;
+}
+.me-part-remove:hover { color: #ef4444; }
+.me-part-add {
+  cursor: pointer; color: #3b82f6; font-size: 12px;
+  padding: 4px 8px; border-radius: 4px; transition: background 0.15s;
+}
+.me-part-add:hover { background: #eff6ff; }
+
+/* ===== 确认弹窗 ===== */
+.confirm-mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 4000; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.confirm-mask.show { opacity: 1; pointer-events: auto; }
+.confirm-dialog {
+  background: #fff; border-radius: 12px; width: 380px; max-width: 90%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  transform: scale(0.9); transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+.confirm-mask.show .confirm-dialog { transform: scale(1); }
+.confirm-header {
+  padding: 20px 20px 0; display: flex; gap: 12px; align-items: flex-start;
+}
+.confirm-icon {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background: #fef2f2; color: #ef4444;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.confirm-content { flex: 1; }
+.confirm-title { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 6px; }
+.confirm-desc { font-size: 13px; color: #64748b; line-height: 1.6; }
+.confirm-footer {
+  padding: 16px 20px; display: flex; justify-content: flex-end; gap: 10px;
+  border-top: 1px solid #f1f5f9; margin-top: 16px;
+}
+.confirm-footer .btn { padding: 7px 18px; }
+</style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
+          🔔
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <div class="sub-nav-item active">首页概览</div>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+
+  <!-- 主内容区 -->
+
+  <main class="main-content no-sidebar">
+        <div class="portal-layout">
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">快捷入口</div>
+                </div>
+                <div class="portal-card-body">
+                  <div class="quick-entry" id="quickEntryGrid"></div>
+                  <div class="quick-entry-actions" id="quickEntryActions">
+                    <div class="quick-entry-action-btn" onclick="openQuickEntryModal()">＋ 添加</div>
+                    <div class="quick-entry-action-btn" id="quickEditBtn" onclick="toggleQuickEditMode()">✏️ 编辑</div>
+                  </div>
+                </div>
+              </div>
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">
+                    我的待办
+                    <span class="badge">5</span>
+                  </div>
+                  <a href="todo-list.html" class="portal-card-more">查看全部 →</a>
+                </div>
+      
+                <div class="todo-tabs">
+                  <div class="todo-tab active">
+                    待办
+                    <span class="num">3</span>
+                  </div>
+                  <div class="todo-tab">
+                    已办
+                    <span class="num">12</span>
+                  </div>
+                  <div class="todo-tab">
+                    抄送
+                    <span class="num">3</span>
+                  </div>
+                </div>
+      
+                <div class="todo-list">
+                  <div class="todo-list-item">
+                    <span class="todo-category">生产类</span>
+                    <div class="todo-main">
+                      <div class="todo-main-title">审批报销单</div>
+                      <div class="todo-main-desc">张三提交，2024-01-15</div>
+                    </div>
+                    <div class="todo-right">
+                      <span class="todo-status new">NEW</span>
+                      <div class="todo-action-text">09:30</div>
+                    </div>
+                  </div>
+                  <div class="todo-list-item">
+                    <span class="todo-category">采购类</span>
+                    <div class="todo-main">
+                      <div class="todo-main-title">采购合同签订</div>
+                      <div class="todo-main-desc">待处理，供应商：华东科技</div>
+                    </div>
+                    <div class="todo-right">
+                      <span class="todo-status new">NEW</span>
+                      <div class="todo-action-text">11:00</div>
+                    </div>
+                  </div>
+                  <div class="todo-list-item">
+                    <span class="todo-category">产品</span>
+                    <div class="todo-main">
+                      <div class="todo-main-title">员工入职流程</div>
+                      <div class="todo-main-desc">李四，技术部，待HR审批</div>
+                    </div>
+                    <div class="todo-right">
+                      <span class="todo-status"></span>
+                      <div class="todo-action-text">16:00</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">公告通知</div>
+                  <a href="notice-list.html" class="portal-card-more">全部 →</a>
+                </div>
+                <div class="notice-tabs">
+                  <div class="notice-tab active" onclick="switchNoticeTab('latest', this)">最新公告</div>
+                  <div class="notice-tab" onclick="switchNoticeTab('history', this)">历史公告</div>
+                </div>
+                <div class="notice-portal-list" id="noticePortalList"></div>
+              </div>
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">我的日程</div>
+                </div>
+                <div class="portal-card-body">
+                  <div class="schedule-week">
+                    <div class="schedule-week-header">
+                      <span>2025.1</span>
+                      <div class="schedule-week-nav">
+                        <button>‹</button>
+                        <button>›</button>
+                      </div>
+                    </div>
+                    <div class="schedule-week-days">
+                      <div class="schedule-week-day">
+                        <span class="weekday">周一</span>
+                        <span class="date">13</span>
+                      </div>
+                      <div class="schedule-week-day">
+                        <span class="weekday">周二</span>
+                        <span class="date">14</span>
+                      </div>
+                      <div class="schedule-week-day today">
+                        <span class="weekday">周三</span>
+                        <span class="date">15</span>
+                      </div>
+                      <div class="schedule-week-day">
+                        <span class="weekday">周四</span>
+                        <span class="date">16</span>
+                      </div>
+                      <div class="schedule-week-day">
+                        <span class="weekday">周五</span>
+                        <span class="date">17</span>
+                      </div>
+                      <div class="schedule-week-day">
+                        <span class="weekday">周六</span>
+                        <span class="date">18</span>
+                      </div>
+                      <div class="schedule-week-day">
+                        <span class="weekday">周日</span>
+                        <span class="date">19</span>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <div class="schedule-list">
+                    <div class="schedule-item">
+                      <div class="schedule-time">09:00</div>
+                      <div class="schedule-dot" style="background:#9333ea;"></div>
+                      <div class="schedule-info">
+                        <div class="schedule-title">周例会</div>
+                        <div class="schedule-location">会议室A</div>
+                      </div>
+                    </div>
+                    <div class="schedule-item">
+                      <div class="schedule-time">14:00</div>
+                      <div class="schedule-dot" style="background:#3b82f6;"></div>
+                      <div class="schedule-info">
+                        <div class="schedule-title">需求评审</div>
+                        <div class="schedule-location">线上会议</div>
+                      </div>
+                    </div>
+                    <div class="schedule-item">
+                      <div class="schedule-time">16:30</div>
+                      <div class="schedule-dot" style="background:#f59e0b;"></div>
+                      <div class="schedule-info">
+                        <div class="schedule-title">客户拜访</div>
+                        <div class="schedule-location">外出</div>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <div class="schedule-actions">
+                    <button class="schedule-action-btn" onclick="openMeetingCreateModal()">+ 预定会议室</button>
+                    <button class="schedule-action-btn" onclick="openMeetingManageModal()">会议管理</button>
+                    <button class="schedule-action-btn" onclick="openRoomUsageModal()">会议室使用</button>
+                  </div>
+                </div>
+              </div>
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">集团新闻</div>
+                  <a href="news-list.html" class="portal-card-more">更多 →</a>
+                </div>
+                <div class="portal-card-body">
+                  <div class="news-portal-item">
+                    <div class="news-portal-thumb" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"></div>
+                    <div class="news-portal-content">
+                      <div class="news-portal-title">集团Q4营收同比增长15%，创历史新高</div>
+                      <div class="news-portal-meta">
+                        <span class="tag tag-blue">集团财务部</span>
+                        <span>01-10</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="news-portal-item">
+                    <div class="news-portal-thumb" style="background: linear-gradient(135deg, #10b981, #059669);"></div>
+                    <div class="news-portal-content">
+                      <div class="news-portal-title">柏星龙获评「制造业数字化转型标杆企业」</div>
+                      <div class="news-portal-meta">
+                        <span class="tag tag-green">行业资讯</span>
+                        <span>01-08</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="news-portal-item">
+                    <div class="news-portal-thumb" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></div>
+                    <div class="news-portal-content">
+                      <div class="news-portal-title">柏星龙获评国家级专精特新"小巨人"企业</div>
+                      <div class="news-portal-meta">
+                        <span class="tag tag-green">行业资讯</span>
+                        <span>01-05</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">柏家学堂</div>
+                  <div class="study-header-info">
+                    <a href="study.html" class="portal-card-more">完整 →</a>
+                  </div>
+                </div>
+      
+                <div class="study-tabs">
+                  <div class="study-tab active">全部课程</div>
+                  <div class="study-tab">制度规范</div>
+                  <div class="study-tab">产品知识</div>
+                  <div class="study-tab">职业技能</div>
+                  <div class="study-tab">系统操作</div>
+                </div>
+      
+                <div class="study-list">
+                  <div class="study-item">
+                    <div class="study-content">
+                      <div class="study-title">公司制度全集</div>
+                      <div class="study-meta">
+                        <span>已完成</span>
+                        <span>12课时</span>
+                        <span>人力资源部</span>
+                      </div>
+                      <div class="study-progress">
+                        <div class="study-progress-bar green" style="width: 100%;"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="study-item">
+                    <div class="study-content">
+                      <div class="study-title">产品知识大全</div>
+                      <div class="study-meta">
+                        <span>学习中</span>
+                        <span>24课时</span>
+                        <span>产品部</span>
+                      </div>
+                      <div class="study-progress">
+                        <div class="study-progress-bar orange" style="width: 50%;"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="study-item">
+                    <div class="study-info">
+                      <div class="study-title">OA系统操作培训</div>
+                      <div class="study-meta">
+                        <span>未开始</span>
+                        <span>6课时</span>
+                        <span>信息部</span>
+                      </div>
+                      <div class="study-progress"><div class="study-progress-bar" style="width: 0%"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">我的考勤</div>
+                </div>
+                <div class="portal-card-body">
+                  <div class="attendance-month-select">
+                    <button onclick="attendancePrevMonth()">‹</button>
+                    <span class="attendance-month-text" onclick="openAttendanceMonthPicker()" id="attendanceMonthLabel">2026年9月</span>
+                    <button onclick="attendanceNextMonth()">›</button>
+                    <!-- 自定义月份选择器 popup -->
+                    <div class="am-picker" id="attendanceMonthPicker">
+                      <div class="am-picker-header">
+                        <button class="am-picker-yr-btn" onclick="amPickYear(-1)">‹</button>
+                        <span class="am-picker-year" id="amPickerYear">2026</span>
+                        <button class="am-picker-yr-btn" onclick="amPickYear(1)">›</button>
+                      </div>
+                      <div class="am-picker-grid" id="amPickerGrid"></div>
+                      <div class="am-picker-footer">
+                        <span class="am-picker-clear" onclick="amPickClear()">清除</span>
+                        <span class="am-picker-today" onclick="amPickToday()">本月</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="attendance-stats-full">
+                    <div class="attendance-stat-item">
+                      <div class="attendance-stat-num green">18</div>
+                      <div class="attendance-stat-label">本月出勤（天）</div>
+                    </div>
+                    <div class="attendance-stat-item">
+                      <div class="attendance-stat-num">0</div>
+                      <div class="attendance-stat-label">迟到次数</div>
+                    </div>
+                    <div class="attendance-stat-item">
+                      <div class="attendance-stat-num">0</div>
+                      <div class="attendance-stat-label">签卡次数</div>
+                    </div>
+                    <div class="attendance-stat-item">
+                      <div class="attendance-stat-num blue">5</div>
+                      <div class="attendance-stat-label">年假剩余（小时）</div>
+                    </div>
+                    <div class="attendance-stat-item">
+                      <div class="attendance-stat-num purple">2</div>
+                      <div class="attendance-stat-label">调休剩余（小时）</div>
+                    </div>
+                    <div class="attendance-stat-item">
+                      <div class="attendance-stat-num orange">12</div>
+                      <div class="attendance-stat-label">缺卡次数</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">柏事服务</div>
+                </div>
+                <div class="portal-card-body">
+                  <div class="it-entry">
+                    <a href="it-service.html" class="it-entry-item">
+                      <div class="it-entry-icon icon-blue">💻</div>
+                      <div class="it-entry-name">宿舍申请</div>
+                    </a>
+                    <a href="fault-report.html" class="it-entry-item">
+                      <div class="it-entry-icon icon-red">⚠️</div>
+                      <div class="it-entry-name">故障申报</div>
+                    </a>
+                    <a href="software-download.html" class="it-entry-item">
+                      <div class="it-entry-icon icon-green">📥</div>
+                      <div class="it-entry-name">软件下载</div>
+                    </a>
+                    <a href="account-permission.html" class="it-entry-item">
+                      <div class="it-entry-icon icon-yellow">🔐</div>
+                      <div class="it-entry-name">账号权限</div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+      <div class="portal-card">
+                <div class="portal-card-header">
+                  <div class="portal-card-title">AI智能</div>
+                </div>
+                <!-- 已授权智能体列表入口 -->
+                <a href="ai-list.html" class="ai-auth-card">
+                  <div class="ai-auth-left">
+                    <div class="ai-auth-icon">🤖</div>
+                    <div class="ai-auth-text">
+                      <div class="ai-auth-title">AI智能体 · 智能对话</div>
+                      <div class="ai-auth-sub">已授权 <span class="ai-auth-num">8</span> 个智能体</div>
+                    </div>
+                  </div>
+                  <div class="ai-auth-arrow">→</div>
+                </a>
+                <div class="ai-portal-apps" id="aiPortalApps">
+                  <a href="ai-resume.html" class="ai-portal-app">
+                    <div class="ai-portal-app-icon icon-purple">📋</div>
+                    <div class="ai-portal-app-name">简历筛选</div>
+                  </a>
+                  <a href="ai-meeting.html" class="ai-portal-app">
+                    <div class="ai-portal-app-icon icon-blue">🎙️</div>
+                    <div class="ai-portal-app-name">智能会议</div>
+                  </a>
+                  <a href="ai-contract.html" class="ai-portal-app">
+                    <div class="ai-portal-app-icon icon-green">📄</div>
+                    <div class="ai-portal-app-name">合同审查</div>
+                  </a>
+                </div>
+              </div>
+    </div>
+  </main>
+
+  <!-- 右下角悬浮AI助手按钮 -->
+  <div class="ai-assistant-float">
+    <a href="ai-chat.html" class="ai-assistant-btn" title="进入AI对话">
+      🤖
+    </a>
+  </div>
+
+  <!-- ===== 新建会议弹窗 ===== -->
+  <div class="modal-mask" id="meetingCreateModal" onclick="if(event.target===this)closeMeetingCreateModal()">
+    <div class="modal-container meeting-create-modal">
+      <div class="modal-header">
+        <h2>新建会议</h2>
+        <button class="modal-close" onclick="closeMeetingCreateModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- 日程标题 -->
+        <div class="mc-row">
+          <div class="mc-label">日程标题<span class="req">*</span></div>
+          <div class="mc-field">
+            <input type="text" class="mc-title-input" placeholder="请输入日程标题" id="mcTitle">
+          </div>
+        </div>
+        <!-- 时间 -->
+        <div class="mc-row">
+          <div class="mc-label">会议时间<span class="req">*</span></div>
+          <div class="mc-field">
+            <div class="mc-time-row">
+              <input type="datetime-local" class="mc-time-input" id="mcStart" value="">
+              <span class="mc-time-arrow">→</span>
+              <input type="datetime-local" class="mc-time-input" id="mcEnd" value="">
+            </div>
+          </div>
+        </div>
+        <!-- 召集人 -->
+        <div class="mc-row">
+          <div class="mc-label">召集人</div>
+          <div class="mc-field">
+            <div class="mc-convener">
+              <div class="mc-convener-avatar">张</div>
+              <span class="mc-convener-name">张建国</span>
+              <span class="mc-convener-tag">当前OA账号</span>
+            </div>
+          </div>
+        </div>
+        <!-- 参会人 -->
+        <div class="mc-row">
+          <div class="mc-label">参会人</div>
+          <div class="mc-field">
+            <div class="mc-attendees-box" onclick="openAttendeeModal()">
+              <span class="mc-attendee-placeholder" id="attendeePlaceholder">点击添加参会人</span>
+              <div id="attendeeTags" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- 会议室 -->
+        <div class="mc-row">
+          <div class="mc-label">会议室</div>
+          <div class="mc-field">
+            <div class="mc-room-box" onclick="openRoomModal()">
+              <span class="mc-room-placeholder" id="roomPlaceholder">点击选择会议室</span>
+              <div id="roomTags" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- 提醒 -->
+        <div class="mc-row">
+          <div class="mc-label">提醒</div>
+          <div class="mc-field">
+            <select class="mc-select" id="mcRemind">
+              <option value="0">不提醒</option>
+              <option value="10">10分钟前</option>
+              <option value="30" selected>30分钟前</option>
+              <option value="60">1小时前</option>
+              <option value="120">2小时前</option>
+              <option value="1440">1天前</option>
+            </select>
+          </div>
+        </div>
+        <!-- 提醒方式 -->
+        <div class="mc-row">
+          <div class="mc-label">提醒方式</div>
+          <div class="mc-field">
+            <div class="mc-notify-group">
+              <label class="mc-notify-item"><input type="checkbox" value="sms" checked> 短信</label>
+              <label class="mc-notify-item"><input type="checkbox" value="email" checked> 邮件</label>
+              <label class="mc-notify-item"><input type="checkbox" value="msg" checked> 消息中心</label>
+            </div>
+          </div>
+        </div>
+        <!-- 重复 -->
+        <div class="mc-row">
+          <div class="mc-label">重复</div>
+          <div class="mc-field">
+            <select class="mc-select" id="mcRepeat">
+              <option value="none" selected>不重复</option>
+              <option value="daily">每天</option>
+              <option value="weekly">每周</option>
+              <option value="biweekly">每两周</option>
+              <option value="monthly">每月</option>
+              <option value="yearly">每年</option>
+            </select>
+          </div>
+        </div>
+        <!-- 附件 -->
+        <div class="mc-row">
+          <div class="mc-label">附件</div>
+          <div class="mc-field">
+            <div class="mc-attach-area" onclick="document.getElementById('mcAttach').click()">
+              <div class="mc-attach-icon">📎</div>
+              <div class="mc-attach-text">点击或拖拽上传附件</div>
+            </div>
+            <input type="file" id="mcAttach" style="display:none" multiple onchange="handleAttach(this)">
+            <div class="mc-attach-list" id="attachList"></div>
+          </div>
+        </div>
+        <!-- 日程描述 -->
+        <div class="mc-row">
+          <div class="mc-label">日程描述</div>
+          <div class="mc-field">
+            <textarea class="mc-textarea" id="mcDesc" placeholder="请输入日程描述"></textarea>
+          </div>
+        </div>
+        <!-- 可见范围 -->
+        <div class="mc-row">
+          <div class="mc-label">可见范围</div>
+          <div class="mc-field">
+            <select class="mc-select" id="mcVisible">
+              <option value="all" selected>所有参会人可见</option>
+              <option value="organizer">仅召集人可见</option>
+              <option value="custom">指定人员可见</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn modal-btn-cancel" onclick="closeMeetingCreateModal()">取消</button>
+        <button class="modal-btn modal-btn-primary" onclick="saveMeeting()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 参会人子弹窗 -->
+  <div class="modal-mask" id="attendeeModal">
+    <div class="modal-container mc-sub-modal">
+      <div class="modal-header">
+        <h2>选择参会人</h2>
+        <button class="modal-close" onclick="closeAttendeeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="mc-search-box">
+          <span class="mc-search-icon">🔍</span>
+          <input type="text" class="mc-search-input" placeholder="搜索姓名" oninput="filterPerson(this.value)">
+        </div>
+        <div class="mc-org-tree" id="orgTree"></div>
+        <div class="mc-person-list" id="personList"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn modal-btn-cancel" onclick="closeAttendeeModal()">取消</button>
+        <button class="modal-btn modal-btn-primary" onclick="confirmAttendees()">确认选择（<span id="attendeeCount">0</span>）</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 会议室子弹窗 -->
+  <div class="modal-mask" id="roomModal">
+    <div class="modal-container mc-sub-modal">
+      <div class="modal-header">
+        <h2>选择会议室</h2>
+        <button class="modal-close" onclick="closeRoomModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="mc-search-box">
+          <span class="mc-search-icon">🔍</span>
+          <input type="text" class="mc-search-input" placeholder="搜索会议室名称" oninput="filterRoom(this.value)">
+        </div>
+        <div id="roomList"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn modal-btn-cancel" onclick="closeRoomModal()">取消</button>
+        <button class="modal-btn modal-btn-primary" onclick="confirmRoom()">确认选择</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 会议管理弹窗 ===== -->
+  <div class="modal-mask" id="meetingManageModal" onclick="if(event.target===this)closeMeetingManageModal()">
+    <div class="modal-container meeting-manage-modal">
+      <!-- 标题栏：固定不动 -->
+      <div class="mm-header">
+        <div class="mm-header-left">
+          <div class="mm-header-icon">📅</div>
+          <h2>会议管理</h2>
+        </div>
+        <div class="mm-header-right">
+          <button class="mm-export-btn" onclick="exportMeetingRecord()">📥 导出会议记录</button>
+          <button class="mm-close-btn" onclick="closeMeetingManageModal()">✕</button>
+        </div>
+      </div>
+      <!-- 工具栏：Tab+搜索+日期+视图切换，固定不动 -->
+      <div class="mm-toolbar">
+        <div class="mm-tabs">
+          <div class="mm-tab active" data-tab="mine" onclick="switchMmTab(this)">我发起<span class="count">6</span></div>
+          <div class="mm-tab" data-tab="joined" onclick="switchMmTab(this)">我参与<span class="count">8</span></div>
+        </div>
+        <div class="mm-search">
+          <span class="mm-search-icon">🔍</span>
+          <input type="text" placeholder="搜索会议名称、召集人" oninput="filterMeeting(this.value)">
+        </div>
+        <div class="mm-date-range">
+          <input type="date" class="mm-date-input" onchange="filterMeetingByDate()">
+          <span class="mm-date-sep">至</span>
+          <input type="date" class="mm-date-input" onchange="filterMeetingByDate()">
+        </div>
+        <div class="mm-view-switch">
+          <button class="mm-view-btn active" onclick="switchMmView(this,'list')">📋 列表</button>
+          <button class="mm-view-btn" onclick="switchMmView(this,'calendar')">📅 日历</button>
+        </div>
+      </div>
+      <!-- 列表区域：独立滚动 -->
+      <div class="mm-list-scroll" id="mmList"></div>
+      <!-- 分页：固定不动 -->
+      <div class="mm-pagination">
+        <span class="mm-page-info">共 8 条</span>
+        <div class="mm-page-btns">
+          <button class="mm-page-btn">‹</button>
+          <button class="mm-page-btn active">1</button>
+          <button class="mm-page-btn">2</button>
+          <button class="mm-page-btn">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 会议室使用情况弹窗 ===== -->
+  <div class="modal-mask" id="roomUsageModal" onclick="if(event.target===this)closeRoomUsageModal()">
+    <div class="modal-container room-usage-modal">
+      <div class="modal-header">
+        <h2>会议室使用情况</h2>
+        <button class="modal-close" onclick="closeRoomUsageModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="ru-header-info">
+          <div class="ru-view-tabs">
+            <button class="ru-view-tab active" onclick="switchRuView(this,'day')">日</button>
+            <button class="ru-view-tab" onclick="switchRuView(this,'week')">周</button>
+            <button class="ru-view-tab" onclick="switchRuView(this,'month')">月</button>
+          </div>
+          <div class="ru-date-nav">
+            <button onclick="changeRuDate(-1)">‹</button>
+            <span class="date-text" id="ruDateText" onclick="document.getElementById('ruDatePicker').showPicker && document.getElementById('ruDatePicker').showPicker()" style="cursor:pointer;border-bottom:2px solid #f59e0b;padding:2px 4px;">2026年09月11日</span>
+            <input type="date" id="ruDatePicker" onchange="ruPickDate(this.value)" style="position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;">
+            <input type="month" id="ruMonthPicker" onchange="ruPickMonth(this.value)" style="position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;">
+            <button onclick="changeRuDate(1)">›</button>
+            <button class="ru-today-btn" onclick="ruGoToday()">今天</button>
+          </div>
+          <div class="ru-search-box">
+            <span class="ru-search-icon">🔍</span>
+            <input type="text" id="ruSearchInput" placeholder="搜索会议室" oninput="renderRoomUsageGrid();renderRuDetail()">
+          </div>
+          <div class="ru-legend">
+            <div class="ru-legend-item"><span class="ru-legend-dot occupied"></span>占用</div>
+            <div class="ru-legend-item"><span class="ru-legend-dot conflict"></span>冲突</div>
+          </div>
+        </div>
+        <div class="ru-grid">
+          <div class="ru-grid-header">
+            <div class="ru-grid-header-cell room-col">会议室</div>
+            <div class="ru-grid-header-cell">09:00</div>
+            <div class="ru-grid-header-cell">10:00</div>
+            <div class="ru-grid-header-cell">11:00</div>
+            <div class="ru-grid-header-cell">12:00</div>
+            <div class="ru-grid-header-cell">14:00</div>
+            <div class="ru-grid-header-cell">15:00</div>
+            <div class="ru-grid-header-cell">16:00</div>
+            <div class="ru-grid-header-cell">17:00</div>
+            <div class="ru-grid-header-cell">18:00</div>
+          </div>
+          <div class="ru-grid-body" id="ruGridBody"></div>
+        </div>
+        <div class="ru-detail-section">
+          <div class="ru-detail-title">会议明细</div>
+          <table class="ru-detail-table">
+            <thead>
+              <tr>
+                <th>会议名称</th>
+                <th>召集人</th>
+                <th>会议类型</th>
+                <th>会议地点</th>
+                <th>开始日期</th>
+                <th>结束日期</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="ruDetailBody"></tbody>
+          </table>
+          <div class="ru-detail-pagination">
+            <span class="ru-page-info" id="ruPageInfo">共 5 条</span>
+            <div class="ru-page-btns">
+              <button class="ru-page-btn">‹</button>
+              <button class="ru-page-btn active">1</button>
+              <button class="ru-page-btn">›</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab切换功能
+    document.querySelectorAll('.todo-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        this.parentElement.querySelectorAll('.todo-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.notice-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        this.parentElement.querySelectorAll('.notice-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.study-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        this.parentElement.querySelectorAll('.study-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    /* ===== 新建会议弹窗 ===== */
+    function openMeetingCreateModal() {
+      // 设置默认时间
+      var now = new Date();
+      var start = new Date(now.getTime() + 30*60000);
+      var end = new Date(now.getTime() + 90*60000);
+      document.getElementById('mcStart').value = formatDateTimeLocal(start);
+      document.getElementById('mcEnd').value = formatDateTimeLocal(end);
+      document.getElementById('mcTitle').value = '';
+      document.getElementById('mcDesc').value = '';
+      selectedAttendees = [];
+      selectedRoom = null;
+      attachFiles = [];
+      renderAttendeeTags();
+      renderRoomTag();
+      renderAttachList();
+      document.getElementById('meetingCreateModal').classList.add('show');
+    }
+
+    function closeMeetingCreateModal() {
+      document.getElementById('meetingCreateModal').classList.remove('show');
+    }
+
+    function formatDateTimeLocal(date) {
+      var y = date.getFullYear();
+      var m = String(date.getMonth() + 1).padStart(2, '0');
+      var d = String(date.getDate()).padStart(2, '0');
+      var h = String(date.getHours()).padStart(2, '0');
+      var min = String(date.getMinutes()).padStart(2, '0');
+      return y + '-' + m + '-' + d + 'T' + h + ':' + min;
+    }
+
+    /* ===== 参会人数据 ===== */
+    var orgData = [
+      { name: '柏星龙集团', children: [
+        { name: '研发中心', persons: [
+          { name: '张建国', dept: '研发中心-产品部', avatar: '张' },
+          { name: '李明轩', dept: '研发中心-技术部', avatar: '李' },
+          { name: '王思雨', dept: '研发中心-设计部', avatar: '王' }
+        ]},
+        { name: '运营中心', persons: [
+          { name: '陈晓东', dept: '运营中心-运营部', avatar: '陈' },
+          { name: '刘雅婷', dept: '运营中心-市场部', avatar: '刘' }
+        ]},
+        { name: '职能中心', persons: [
+          { name: '赵海峰', dept: '职能中心-财务部', avatar: '赵' },
+          { name: '孙丽华', dept: '职能中心-人事部', avatar: '孙' },
+          { name: '周建国', dept: '职能中心-行政部', avatar: '周' }
+        ]}
+      ]}
+    ];
+
+    var selectedAttendees = [];
+    var tempSelected = [];
+
+    function buildOrgTree() {
+      var html = '';
+      orgData.forEach(function(org, oi) {
+        html += '<div class="mc-org-node">';
+        html += '<div class="mc-org-toggle" onclick="toggleOrgNode(this)">';
+        html += '<span class="mc-org-arrow">▶</span>';
+        html += '<span>' + org.name + '</span>';
+        html += '<span style="margin-left:auto;font-size:12px;color:#94a3b8;">(' + org.children.reduce(function(a,c){return a+c.persons.length;},0) + '人)</span>';
+        html += '</div>';
+        html += '<div class="mc-org-children">';
+        org.children.forEach(function(dept, di) {
+          html += '<div class="mc-org-node">';
+          html += '<div class="mc-org-toggle" onclick="toggleOrgNode(this)">';
+          html += '<span class="mc-org-arrow">▶</span>';
+          html += '<span>' + dept.name + '</span>';
+          html += '<span style="margin-left:auto;font-size:12px;color:#94a3b8;">(' + dept.persons.length + '人)</span>';
+          html += '</div>';
+          html += '<div class="mc-org-children">';
+          dept.persons.forEach(function(p, pi) {
+            var pid = oi + '-' + di + '-' + pi;
+            var isChecked = tempSelected.find(function(x){return x.pid===pid;});
+            html += '<div class="mc-person-item" onclick="togglePerson(this,\'' + pid + '\')">';
+            html += '<input type="checkbox" class="mc-person-checkbox" data-pid="' + pid + '" ' + (isChecked?'checked':'') + ' onclick="event.stopPropagation(); togglePerson(this.parentElement,\'' + pid + '\')">';
+            html += '<div class="mc-person-avatar">' + p.avatar + '</div>';
+            html += '<div class="mc-person-info"><div class="mc-person-name">' + p.name + '</div>';
+            html += '<div class="mc-person-dept">' + p.dept + '</div></div>';
+            html += '</div>';
+          });
+          html += '</div></div>';
+        });
+        html += '</div></div>';
+      });
+      document.getElementById('orgTree').innerHTML = html;
+    }
+
+    function toggleOrgNode(el) {
+      var arrow = el.querySelector('.mc-org-arrow');
+      var children = el.nextElementSibling;
+      if (children) {
+        children.classList.toggle('show');
+        arrow.classList.toggle('open');
+      }
+    }
+
+    function findPerson(pid) {
+      var parts = pid.split('-');
+      var org = orgData[parseInt(parts[0])];
+      var dept = org.children[parseInt(parts[1])];
+      return dept.persons[parseInt(parts[2])];
+    }
+
+    function togglePerson(el, pid) {
+      var cb = el.querySelector('input[type="checkbox"]');
+      cb.checked = !cb.checked;
+      if (cb.checked) {
+        if (!tempSelected.find(function(p){return p.pid===pid;})) {
+          var person = findPerson(pid);
+          person.pid = pid;
+          tempSelected.push(person);
+        }
+      } else {
+        tempSelected = tempSelected.filter(function(p){return p.pid!==pid;});
+      }
+      document.getElementById('attendeeCount').textContent = tempSelected.length;
+    }
+
+    function filterPerson(val) {
+      var items = document.querySelectorAll('.mc-person-item');
+      items.forEach(function(item) {
+        var name = item.querySelector('.mc-person-name').textContent;
+        item.style.display = !val || name.indexOf(val) >= 0 ? '' : 'none';
+      });
+    }
+
+    function openAttendeeModal() {
+      tempSelected = selectedAttendees.slice();
+      buildOrgTree();
+      document.getElementById('attendeeCount').textContent = tempSelected.length;
+      document.getElementById('attendeeModal').classList.add('show');
+    }
+
+    function closeAttendeeModal() {
+      document.getElementById('attendeeModal').classList.remove('show');
+    }
+
+    function confirmAttendees() {
+      selectedAttendees = tempSelected.slice();
+      renderAttendeeTags();
+      closeAttendeeModal();
+    }
+
+    function renderAttendeeTags() {
+      var boxId = meContext ? 'meAttendeeTags' : 'attendeeTags';
+      var phId = meContext ? 'meAttendeePlaceholder' : 'attendeePlaceholder';
+      var box = document.getElementById(boxId);
+      var placeholder = document.getElementById(phId);
+      if (!box) return;
+      if (selectedAttendees.length === 0) {
+        placeholder.style.display = 'inline';
+        box.innerHTML = '';
+        return;
+      }
+      placeholder.style.display = 'none';
+      box.innerHTML = selectedAttendees.map(function(p, i) {
+        return '<div class="mc-attendee-tag">' +
+          '<div class="tag-avatar">' + p.avatar + '</div>' +
+          '<span>' + p.name + '</span>' +
+          '<span class="tag-remove" onclick="event.stopPropagation();removeAttendee(' + i + ')">✕</span>' +
+          '</div>';
+      }).join('');
+    }
+
+    function removeAttendee(idx) {
+      selectedAttendees.splice(idx, 1);
+      renderAttendeeTags();
+    }
+
+    /* ===== 会议室数据（photo 默认演示 SVG；若 localStorage 有会议室管理上传的真实照片则覆盖） ===== */
+    var roomPhotoDefault = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="300" height="200" fill="#f1f5f9"/><rect x="20" y="20" width="260" height="160" fill="#fff" stroke="#cbd5e1" stroke-width="2" rx="4"/><rect x="40" y="40" width="100" height="40" fill="#e2e8f0" rx="2"/><text x="90" y="65" font-size="12" fill="#64748b" text-anchor="middle">投影幕布</text><rect x="60" y="100" width="180" height="14" fill="#cbd5e1" rx="3"/><rect x="60" y="124" width="180" height="14" fill="#cbd5e1" rx="3"/><rect x="60" y="148" width="85" height="14" fill="#cbd5e1" rx="3"/><rect x="155" y="148" width="85" height="14" fill="#cbd5e1" rx="3"/><text x="150" y="190" font-size="11" fill="#94a3b8" text-anchor="middle">会议室示意图</text></svg>');
+    var roomData = [
+      { id: 'r1', name: '柏星龙一号会议室', location: 'A栋3楼', capacity: 20, status: 'available', photo: roomPhotoDefault },
+      { id: 'r2', name: '柏星龙二号会议室', location: 'A栋3楼', capacity: 12, status: 'available', photo: roomPhotoDefault },
+      { id: 'r3', name: '研发会议室', location: 'B栋2楼', capacity: 8, status: 'unavailable', photo: roomPhotoDefault },
+      { id: 'r4', name: '运营会议室', location: 'C栋1楼', capacity: 15, status: 'available', photo: roomPhotoDefault },
+      { id: 'r5', name: '高管会议室', location: 'A栋5楼', capacity: 6, status: 'unavailable', photo: roomPhotoDefault },
+      { id: 'r6', name: '培训室', location: 'B栋3楼', capacity: 30, status: 'available', photo: roomPhotoDefault }
+    ];
+    /* 从 localStorage 读取会议室管理上传的真实照片，覆盖默认 photo */
+    try {
+      var savedRooms = JSON.parse(localStorage.getItem('bxl_meeting_rooms') || '[]');
+      var photoMap = {};
+      savedRooms.forEach(function(r) { if (r.photo) photoMap[r.name] = r.photo; });
+      roomData.forEach(function(r) { if (photoMap[r.name]) r.photo = photoMap[r.name]; });
+    } catch(e) {}
+    var selectedRoom = null;
+    var tempRoom = null;
+
+    function buildRoomList(val) {
+      val = val || '';
+      var list = roomData.filter(function(r) {
+        return !val || r.name.indexOf(val) >= 0;
+      });
+      var html = list.map(function(r) {
+        var isSel = tempRoom && tempRoom.id === r.id;
+        var statusText = r.status === 'available' ? '可用' : '已被占用';
+        var statusClass = r.status === 'available' ? 'available' : 'unavailable';
+        return '<div class="mc-room-item' + (isSel ? ' selected' : '') + '" onclick="selectRoom(\'' + r.id + '\')">' +
+          '<input type="radio" class="mc-room-radio" name="room" ' + (isSel ? 'checked' : '') + ' onclick="event.stopPropagation(); selectRoom(\'' + r.id + '\')">' +
+          '<div class="mc-room-info">' +
+            '<div class="mc-room-name mc-room-name-clickable" onclick="event.stopPropagation(); showRoomPhoto(\'' + r.id + '\')" title="点击查看会议室照片">' + r.name + ' <span class="mc-photo-icon">🖼</span></div>' +
+            '<div class="mc-room-meta">可容纳' + r.capacity + '人</div>' +
+          '</div>' +
+          '<span class="mc-room-status ' + statusClass + '">' + statusText + '</span>' +
+        '</div>';
+      }).join('');
+      document.getElementById('roomList').innerHTML = html || '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">未找到匹配的会议室</div>';
+    }
+
+    function filterRoom(val) { buildRoomList(val); }
+
+    function selectRoom(rid) {
+      tempRoom = roomData.find(function(r){return r.id===rid;});
+      buildRoomList();
+    }
+
+    function openRoomModal() {
+      tempRoom = selectedRoom;
+      buildRoomList();
+      document.getElementById('roomModal').classList.add('show');
+    }
+
+    function closeRoomModal() {
+      document.getElementById('roomModal').classList.remove('show');
+    }
+
+    function confirmRoom() {
+      selectedRoom = tempRoom;
+      renderRoomTag();
+      closeRoomModal();
+    }
+
+    /* 会议室照片浮层 */
+    function showRoomPhoto(roomId) {
+      var r = roomData.find(function(x){return x.id===roomId;});
+      if (!r) return;
+      document.getElementById('roomPhotoImg').src = r.photo || roomPhotoDefault;
+      document.getElementById('roomPhotoTitle').textContent = r.name;
+      document.getElementById('roomPhotoMeta').textContent = '可容纳' + r.capacity + '人' + (r.photo && r.photo !== roomPhotoDefault ? ' · 已上传照片' : ' · 暂无照片，显示示意图');
+      document.getElementById('roomPhotoOverlay').classList.add('show');
+    }
+    function showRoomUsagePhoto(roomId) {
+      var ru = roomUsageData.find(function(x){return x.roomId===roomId;});
+      if (!ru) return;
+      document.getElementById('roomPhotoImg').src = ru.photo || roomPhotoDefault;
+      document.getElementById('roomPhotoTitle').textContent = ru.roomName;
+      document.getElementById('roomPhotoMeta').textContent = '可容纳' + ru.capacity + '人' + (ru.photo && ru.photo !== roomPhotoDefault ? ' · 已上传照片' : ' · 暂无照片，显示示意图');
+      document.getElementById('roomPhotoOverlay').classList.add('show');
+    }
+    function hideRoomPhoto() { document.getElementById('roomPhotoOverlay').classList.remove('show'); }
+
+    /* 会议室使用情况-会议详情浮层 */
+    function showBookingDetail(roomName, booking) {
+      document.getElementById("bdRoom").textContent = roomName;
+      document.getElementById("bdTitle").textContent = booking.title;
+      document.getElementById("bdTime").textContent = getTimeLabel(booking.start) + " - " + getTimeLabel(booking.end);
+      document.getElementById("bdOrganizer").textContent = booking.organizer || "-";
+      document.getElementById("bdType").textContent = booking.type || "会议";
+      document.getElementById("bdMineBadge").style.display = booking.isMine ? "inline-block" : "none";
+      document.getElementById("bookingDetailOverlay").classList.add("show");
+    }
+    function hideBookingDetail() { document.getElementById("bookingDetailOverlay").classList.remove("show"); }
+
+    /* 从新建会议弹窗打开会议室使用情况（联动） */
+    function openRoomUsageFromMeeting() {
+      closeMeetingCreateModal();
+      setTimeout(function(){ openRoomUsageModal(); }, 120);
+    }
+
+    function renderRoomTag() {
+      var boxId = meContext ? 'meRoomTags' : 'roomTags';
+      var phId = meContext ? 'meRoomPlaceholder' : 'roomPlaceholder';
+      var box = document.getElementById(boxId);
+      var placeholder = document.getElementById(phId);
+      if (!box) return;
+      if (!selectedRoom) {
+        placeholder.style.display = 'inline';
+        box.innerHTML = '';
+        return;
+      }
+      placeholder.style.display = 'none';
+      box.innerHTML = '<div class="mc-room-tag">' +
+        '<span>🏢 ' + selectedRoom.name + '</span>' +
+        '<span class="tag-remove" onclick="event.stopPropagation();removeRoom()">✕</span>' +
+        '</div>';
+    }
+
+    function removeRoom() {
+      selectedRoom = null;
+      renderRoomTag();
+    }
+
+    /* ===== 附件 ===== */
+    var attachFiles = [];
+    function handleAttach(input) {
+      Array.prototype.forEach.call(input.files, function(f) {
+        attachFiles.push(f);
+      });
+      renderAttachList();
+      input.value = '';
+    }
+
+    function renderAttachList() {
+      var box = document.getElementById('attachList');
+      if (!box) return;
+      box.innerHTML = attachFiles.map(function(f, i) {
+        var icon = '📄';
+        if (f.type.indexOf('image') >= 0) icon = '🖼️';
+        else if (f.type.indexOf('video') >= 0) icon = '🎬';
+        else if (f.type.indexOf('pdf') >= 0) icon = '📕';
+        var size = (f.size / 1024).toFixed(1) + ' KB';
+        return '<div class="mc-attach-item">' +
+          '<span>' + icon + '</span>' +
+          '<span>' + f.name + '</span>' +
+          '<span style="color:#94a3b8;">' + size + '</span>' +
+          '<span class="attach-remove" onclick="removeAttach(' + i + ')">✕</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    function removeAttach(idx) {
+      attachFiles.splice(idx, 1);
+      renderAttachList();
+    }
+
+    /* ===== 保存会议 ===== */
+    /* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
+
+    function pushMeetingNotify(action, meeting) {
+      var titles = {
+        create: '会议邀请：' + meeting.title,
+        cancel: '会议取消：' + meeting.title,
+        update: '会议变更：' + meeting.title
+      };
+      var descs = {
+        create: '张建国 邀请您参加 ' + meeting.date + ' ' + meeting.time + ' ' + meeting.room + ' 的会议',
+        cancel: '张建国 取消了原定于 ' + meeting.date + ' ' + meeting.time + ' 的' + meeting.title,
+        update: '张建国 更新了 ' + meeting.title + ' 的会议信息'
+      };
+      var newNotify = {
+        id: Date.now(),
+        type: 'meeting',
+        icon: '📅',
+        title: titles[action],
+        desc: descs[action],
+        time: '刚刚',
+        read: false
+      };
+      notifications.unshift(newNotify);
+      updateNotifyBadge();
+      showToast('会议通知已推送给参会人', 'success');
+    }
+
+    function saveMeeting() {
+      var title = document.getElementById('mcTitle').value.trim();
+      if (!title) { alert('请输入日程标题'); return; }
+      var room = document.getElementById('roomTags') ? (document.querySelector('#roomTags .mc-room-tag span') ? document.querySelector('#roomTags .mc-room-tag span').textContent.replace(/^🏢\s*/,'') : '线上会议') : '线上会议';
+      var meeting = { title: title, date: '09-18', time: '09:00-10:00', room: room };
+      pushMeetingNotify('create', meeting);
+      closeMeetingCreateModal();
+    }
+
+    /* ===== 会议管理弹窗 ===== */
+    var meetingListData = [
+      { id: 1, title: '产品周会', date: '09-10', time: '09:00-10:00', room: '柏星龙一号会议室', attendees: 8, status: 'ongoing', organizer: '张建国', isMine: true, cycle: 'weekly' },
+      { id: 2, title: '需求对接-新功能', date: '09-12', time: '10:00-11:30', room: '柏星龙二号会议室', attendees: 6, status: 'upcoming', organizer: '张建国', isMine: true },
+      { id: 3, title: 'Q4战略规划', date: '09-12', time: '14:00-17:00', room: '高管会议室', attendees: 6, status: 'upcoming', organizer: '张建国', isMine: true },
+      { id: 4, title: '部门晨会', date: '09-11', time: '08:30-09:00', room: '线上会议', attendees: 12, status: 'ongoing', organizer: '张建国', isMine: true, cycle: 'daily' },
+      { id: 7, title: '季度总结会议', date: '09-10', time: '15:00-17:00', room: '培训室', attendees: 30, status: 'finished', organizer: '张建国', isMine: true },
+      { id: 9, title: '供应商评审会', date: '09-09', time: '14:00-16:00', room: '柏星龙二号会议室', attendees: 5, status: 'cancelled', organizer: '张建国', isMine: true },
+      { id: 5, title: '产品需求评审会', date: '09-11', time: '10:30-12:00', room: '研发会议室', attendees: 6, status: 'upcoming', organizer: '李明轩', isMine: false, rsvp: 'accepted' },
+      { id: 6, title: '客户项目沟通会', date: '09-11', time: '14:00-15:30', room: '二号会议室', attendees: 5, status: 'upcoming', organizer: '陈晓东', isMine: false, rsvp: 'tentative' },
+      { id: 12, title: '周例会', date: '09-12', time: '09:00-10:00', room: '柏星龙一号会议室', attendees: 8, status: 'upcoming', organizer: '李明轩', isMine: false, rsvp: 'tentative' },
+      { id: 13, title: '客户拜访准备会', date: '09-12', time: '14:00-15:00', room: '二号会议室', attendees: 4, status: 'upcoming', organizer: '陈晓东', isMine: false, rsvp: 'declined' },
+      { id: 14, title: '紧急问题排查', date: '09-13', time: '10:00-11:00', room: '研发会议室', attendees: 6, status: 'ongoing', organizer: '王思雨', isMine: false, rsvp: 'tentative' },
+      { id: 15, title: '产品演示会', date: '09-13', time: '14:00-15:30', room: '柏星龙一号会议室', attendees: 12, status: 'ongoing', organizer: '李明轩', isMine: false, rsvp: 'accepted' },
+      { id: 16, title: '技术分享会', date: '09-10', time: '16:00-17:00', room: '研发会议室', attendees: 15, status: 'finished', organizer: '王思雨', isMine: false, rsvp: 'accepted' },
+      { id: 17, title: '团队建设讨论', date: '09-07', time: '15:00-16:30', room: '培训室', attendees: 20, status: 'cancelled', organizer: '刘雅婷', isMine: false, rsvp: 'pending' }
+    ];
+    var currentMmTab = 'mine';
+    var currentMmView = 'list';
+
+    function openMeetingManageModal() {
+      renderMeetingList();
+      updateMmTabCounts();
+      document.getElementById('meetingManageModal').classList.add('show');
+    }
+
+    function closeMeetingManageModal() {
+      document.getElementById('meetingManageModal').classList.remove('show');
+    }
+
+    function exportMeetingRecord() {
+      alert('会议记录已导出');
+    }
+
+    var mmCalDate = new Date(2026, 8, 1);
+
+    function switchMmView(el, view) {
+      document.querySelectorAll('.mm-view-btn').forEach(function(b) { b.classList.remove('active'); });
+      el.classList.add('active');
+      currentMmView = view;
+      if (view === 'list') {
+        renderMeetingList();
+      } else {
+        renderMmCalendar();
+      }
+    }
+
+    function renderMmCalendar() {
+      var y = mmCalDate.getFullYear();
+      var mo = mmCalDate.getMonth();
+      var monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+      var weekDays = ['日','一','二','三','四','五','六'];
+      var firstDay = new Date(y, mo, 1).getDay();
+      var daysInMonth = new Date(y, mo + 1, 0).getDate();
+
+      var filtered = meetingListData.filter(function(m) {
+        if (currentMmTab === 'mine') return m.isMine;
+        if (currentMmTab === 'joined') return !m.isMine;
+        return true;
+      });
+
+      var meetingByDate = {};
+      filtered.forEach(function(m) {
+        var parts = m.date.split('-');
+        var day = parseInt(parts[1]);
+        if (!meetingByDate[day]) meetingByDate[day] = [];
+        meetingByDate[day].push(m);
+      });
+
+      var today = new Date();
+      var isCurrentMonth = (today.getFullYear() === y && today.getMonth() === mo);
+
+      var html = '<div class="mm-cal-header">';
+      html += '<button class="mm-cal-nav" onclick="mmCalPrev()">‹</button>';
+      html += '<span class="mm-cal-title">' + y + '年 ' + monthNames[mo] + '</span>';
+      html += '<button class="mm-cal-nav" onclick="mmCalNext()">›</button>';
+      html += '<button class="mm-cal-today" onclick="mmCalToday()">今天</button>';
+      html += '</div>';
+      html += '<div class="mm-cal-weekdays">';
+      weekDays.forEach(function(wd) {
+        var cls = (wd === '日' || wd === '六') ? 'mm-cal-wd weekend' : 'mm-cal-wd';
+        html += '<div class="' + cls + '">' + wd + '</div>';
+      });
+      html += '</div>';
+      html += '<div class="mm-cal-grid">';
+
+      for (var i = 0; i < firstDay; i++) {
+        html += '<div class="mm-cal-cell other-month"></div>';
+      }
+      for (var d = 1; d <= daysInMonth; d++) {
+        var cellCls = 'mm-cal-cell';
+        if (isCurrentMonth && d === today.getDate()) cellCls += ' today';
+        var meetings = meetingByDate[d] || [];
+        html += '<div class="' + cellCls + '">';
+        html += '<div class="mm-cal-day">' + d + '</div>';
+        meetings.slice(0, 3).forEach(function(m) {
+          var sCls = m.status === 'ongoing' ? 'ongoing' : (m.status === 'finished' ? 'finished' : (m.status === 'cancelled' ? 'cancelled' : 'upcoming'));
+          html += '<div class="mm-cal-event ' + sCls + '" title="' + m.title + '">' +
+            '<span class="mm-cal-event-time">' + m.time.split('-')[0] + '</span>' +
+            '<span class="mm-cal-event-name">' + m.title + '</span>' +
+          '</div>';
+        });
+        if (meetings.length > 3) {
+          html += '<div class="mm-cal-more">+' + (meetings.length - 3) + '场</div>';
+        }
+        html += '</div>';
+      }
+      var totalCells = firstDay + daysInMonth;
+      var remaining = (7 - (totalCells % 7)) % 7;
+      for (var j = 0; j < remaining; j++) {
+        html += '<div class="mm-cal-cell other-month"></div>';
+      }
+      html += '</div>';
+
+      document.getElementById('mmList').innerHTML = html;
+    }
+
+    function mmCalPrev() {
+      mmCalDate.setMonth(mmCalDate.getMonth() - 1);
+      renderMmCalendar();
+    }
+
+    function mmCalNext() {
+      mmCalDate.setMonth(mmCalDate.getMonth() + 1);
+      renderMmCalendar();
+    }
+
+    function mmCalToday() {
+      mmCalDate = new Date();
+      renderMmCalendar();
+    }
+
+    function updateMmTabCounts() {
+      var mine = meetingListData.filter(function(m) { return m.isMine; }).length;
+      var joined = meetingListData.filter(function(m) { return !m.isMine; }).length;
+      var tabs = document.querySelectorAll('.mm-tab');
+      tabs[0].querySelector('.count').textContent = mine;
+      tabs[1].querySelector('.count').textContent = joined;
+    }
+
+    function switchMmTab(el) {
+      document.querySelectorAll('.mm-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      currentMmTab = el.dataset.tab;
+      if (currentMmView === 'calendar') renderMmCalendar();
+      else renderMeetingList();
+    }
+
+    function filterMeeting(keyword) {
+      if (currentMmView === 'calendar') renderMmCalendar();
+      else renderMeetingList(keyword);
+    }
+
+    function filterMeetingByDate() {
+      renderMeetingList();
+    }
+
+    function renderMeetingList(keyword) {
+      keyword = keyword || '';
+      var list = meetingListData.filter(function(m) {
+        if (currentMmTab === 'mine') {
+          if (!m.isMine) return false;
+        } else if (currentMmTab === 'joined') {
+          if (m.isMine) return false;
+        }
+        if (keyword && m.title.indexOf(keyword) < 0 && m.organizer.indexOf(keyword) < 0) return false;
+        return true;
+      });
+      var statusMap = {
+        upcoming: { text: '未开始', cls: 'upcoming' },
+        ongoing: { text: '进行中', cls: 'ongoing' },
+        finished: { text: '已结束', cls: 'finished' },
+        cancelled: { text: '已取消', cls: 'cancelled' }
+      };
+      var rsvpMap = {
+        accepted: { text: '已确认', cls: 'accepted' },
+        declined: { text: '已拒绝', cls: 'declined' },
+        tentative: { text: '待确认', cls: 'tentative' },
+        pending: { text: '待确认', cls: 'pending' }
+      };
+      var html = list.map(function(m) {
+        var s = statusMap[m.status];
+        var actions = '';
+
+        if (currentMmTab === 'mine') {
+          if (m.status === 'upcoming') {
+            actions = '<span class="mm-btn mm-btn-default" onclick="editMeeting(' + m.id + ')">编辑</span>' +
+              '<span class="mm-btn mm-btn-danger" onclick="cancelMeeting(' + m.id + ')">取消</span>';
+          } else if (m.status === 'ongoing') {
+            actions = '';
+          } else if (m.status === 'finished') {
+            actions = '<span class="mm-btn mm-btn-default" onclick="copyMeeting(' + m.id + ')">复制</span>';
+          } else if (m.status === 'cancelled') {
+            actions = '<span class="mm-btn mm-btn-primary" onclick="restartMeeting(' + m.id + ')">重新发起</span>';
+          }
+        } else if (currentMmTab === 'joined') {
+          actions = '';
+        }
+
+        var cycleTag = (m.cycle && !m.isMine) ? '<span class="mm-cycle-tag">🔁 周期</span>' : '';
+        var mineTag = m.isMine ? '<span class="mm-mine-tag">组织者</span>' : '';
+        var showCycle = !m.isMine;
+        var showOrganizer = !m.isMine;
+
+        return '<div class="mm-list-item">' +
+          '<div class="mm-item-left-bar ' + s.cls + '"></div>' +
+          '<div class="mm-item-main">' +
+            '<div class="mm-item-title-row">' +
+              '<span class="mm-item-title">' + m.title + '</span>' +
+              (showCycle ? cycleTag : '') +
+              '<span class="mm-status-tag ' + s.cls + '">' + s.text + '</span>' +
+            '</div>' +
+            '<div class="mm-item-meta">' +
+              '<span>' + m.date + ' ' + m.time + '</span>' +
+              '<span>· ' + m.room + '</span>' +
+              (showOrganizer ? '<span>· 召集人：' + m.organizer + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="mm-item-actions">' + actions + '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('mmList').innerHTML = html || '<div class="mm-empty">暂无会议记录</div>';
+    }
+
+
+    /* Toast 轻提示 */
+    function showToast(msg, type) {
+      type = type || 'info';
+      var wrap = document.getElementById('toastWrap');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.id = 'toastWrap';
+        wrap.className = 'toast-wrap';
+        document.body.appendChild(wrap);
+      }
+      var item = document.createElement('div');
+      item.className = 'toast-item ' + type;
+      item.textContent = msg;
+      wrap.appendChild(item);
+      requestAnimationFrame(function() { item.classList.add('show'); });
+      setTimeout(function() {
+        item.classList.remove('show');
+        setTimeout(function() { if (item.parentNode) item.parentNode.removeChild(item); }, 250);
+      }, 2200);
+    }
+
+    /* ===== 会议操作按钮功能 ===== */
+    var meEditMode = 'edit'; // edit / copy / restart
+    var meEditMeetingId = null;
+    var meEditData = {};
+    var meContext = false;
+    
+    function editMeeting(mid) { openMeDrawer(mid, 'edit'); }
+    function restartMeeting(mid) { openMeDrawer(mid, 'restart'); }
+    
+    function openMeDrawer(mid, mode) {
+      var m = meetingListData.find(function(x){return x.id===mid;});
+      if (!m) return;
+      meEditMode = mode;
+      meEditMeetingId = mid;
+      var titleMap = { edit: '编辑会议', copy: '复制会议', restart: '重新发起会议' };
+      var saveText = mode === 'copy' ? '保存' : (mode === 'restart' ? '发起' : '保存');
+      document.querySelector('#meDrawer .drawer-title').textContent = titleMap[mode];
+      var saveBtn = document.getElementById('meSaveBtn');
+      saveBtn.textContent = saveText;
+      saveBtn.disabled = false;
+      meEditData = {
+        title: mode === 'copy' ? m.title + '（副本）' : m.title,
+        date: m.date,
+        time: m.time,
+        room: m.room,
+        participants: ['李明轩', '陈晓东', '王思雨', '刘雅婷'],
+        agenda: ''
+      };
+      // 渲染表单（与预定会议室弹窗字段一致）
+      var startDt = '2026-' + m.date + 'T' + (m.time.split('-')[0] || '09:00');
+      var endDt = '2026-' + m.date + 'T' + (m.time.split('-')[1] || '10:00');
+      var bodyHtml = '<div style="padding: 4px 0;">' +
+        // 日程标题
+        '<div class="mc-row">' +
+          '<div class="mc-label">日程标题<span class="req">*</span></div>' +
+          '<div class="mc-field"><input type="text" class="mc-title-input" id="meTitle" value="' + meEditData.title + '"></div>' +
+        '</div>' +
+        // 会议时间
+        '<div class="mc-row">' +
+          '<div class="mc-label">会议时间<span class="req">*</span></div>' +
+          '<div class="mc-field"><div class="mc-time-row">' +
+            '<input type="datetime-local" class="mc-time-input" id="meStart" value="' + startDt + '">' +
+            '<span class="mc-time-arrow">→</span>' +
+            '<input type="datetime-local" class="mc-time-input" id="meEnd" value="' + endDt + '">' +
+          '</div></div>' +
+        '</div>' +
+        // 召集人
+        '<div class="mc-row">' +
+          '<div class="mc-label">召集人</div>' +
+          '<div class="mc-field"><div class="mc-convener">' +
+            '<div class="mc-convener-avatar">张</div>' +
+            '<span class="mc-convener-name">张建国</span>' +
+            '<span class="mc-convener-tag">当前OA账号</span>' +
+          '</div></div>' +
+        '</div>' +
+        // 参会人
+        '<div class="mc-row">' +
+          '<div class="mc-label">参会人</div>' +
+          '<div class="mc-field"><div class="mc-attendees-box" onclick="openAttendeeModal()">' +
+            '<span class="mc-attendee-placeholder" id="meAttendeePlaceholder">点击添加参会人</span>' +
+            '<div id="meAttendeeTags" style="display:flex;flex-wrap:wrap;gap:5px;"></div>' +
+          '</div></div>' +
+        '</div>' +
+        // 会议室
+        '<div class="mc-row">' +
+          '<div class="mc-label">会议室</div>' +
+          '<div class="mc-field"><div class="mc-room-box" onclick="openRoomModal()">' +
+            '<span class="mc-room-placeholder" id="meRoomPlaceholder">点击选择会议室</span>' +
+            '<div id="meRoomTags" style="display:flex;flex-wrap:wrap;gap:5px;"></div>' +
+          '</div></div>' +
+        '</div>' +
+        // 提醒
+        '<div class="mc-row">' +
+          '<div class="mc-label">提醒</div>' +
+          '<div class="mc-field"><select class="mc-select" id="meRemind">' +
+            '<option value="0">不提醒</option>' +
+            '<option value="10">10分钟前</option>' +
+            '<option value="30" selected>30分钟前</option>' +
+            '<option value="60">1小时前</option>' +
+            '<option value="120">2小时前</option>' +
+            '<option value="1440">1天前</option>' +
+          '</select></div>' +
+        '</div>' +
+        // 提醒方式
+        '<div class="mc-row">' +
+          '<div class="mc-label">提醒方式</div>' +
+          '<div class="mc-field"><div class="mc-notify-group">' +
+            '<label class="mc-notify-item"><input type="checkbox" value="sms" checked> 短信</label>' +
+            '<label class="mc-notify-item"><input type="checkbox" value="email" checked> 邮件</label>' +
+            '<label class="mc-notify-item"><input type="checkbox" value="msg" checked> 消息中心</label>' +
+          '</div></div>' +
+        '</div>' +
+        // 重复
+        '<div class="mc-row">' +
+          '<div class="mc-label">重复</div>' +
+          '<div class="mc-field"><select class="mc-select" id="meRepeat">' +
+            '<option value="none" selected>不重复</option>' +
+            '<option value="daily">每天</option>' +
+            '<option value="weekly">每周</option>' +
+            '<option value="biweekly">每两周</option>' +
+            '<option value="monthly">每月</option>' +
+            '<option value="yearly">每年</option>' +
+          '</select></div>' +
+        '</div>' +
+        // 附件
+        '<div class="mc-row">' +
+          '<div class="mc-label">附件</div>' +
+          '<div class="mc-field">' +
+            '<div class="mc-attach-area" onclick="document.getElementById(\'meAttach\').click()">' +
+              '<div class="mc-attach-icon">📎</div>' +
+              '<div class="mc-attach-text">点击或拖拽上传附件</div>' +
+            '</div>' +
+            '<input type="file" id="meAttach" style="display:none" multiple>' +
+          '</div>' +
+        '</div>' +
+        // 日程描述
+        '<div class="mc-row">' +
+          '<div class="mc-label">日程描述</div>' +
+          '<div class="mc-field"><textarea class="mc-textarea" id="meDesc" placeholder="请输入日程描述"></textarea></div>' +
+        '</div>' +
+        // 可见范围
+        '<div class="mc-row">' +
+          '<div class="mc-label">可见范围</div>' +
+          '<div class="mc-field"><select class="mc-select" id="meVisible">' +
+            '<option value="all" selected>所有参会人可见</option>' +
+            '<option value="organizer">仅召集人可见</option>' +
+            '<option value="custom">指定人员可见</option>' +
+          '</select></div>' +
+        '</div>' +
+      '</div>';
+      document.getElementById('meDrawerBody').innerHTML = bodyHtml;
+      // 回填会议室
+      if (m.room && m.room !== '线上会议') {
+        document.getElementById('meRoomPlaceholder').style.display = 'none';
+        document.getElementById('meRoomTags').innerHTML = '<span class="mc-room-tag">' + m.room + '<span class="tag-remove" onclick="event.stopPropagation();this.parentElement.remove();document.getElementById(\'meRoomPlaceholder\').style.display=\'\'">×</span></span>';
+      }
+      // 回填参会人
+      if (meEditData.participants && meEditData.participants.length) {
+        document.getElementById('meAttendeePlaceholder').style.display = 'none';
+        document.getElementById('meAttendeeTags').innerHTML = meEditData.participants.map(function(p){
+          return '<span class="mc-room-tag">' + p + '<span class="tag-remove" onclick="event.stopPropagation();this.parentElement.remove();checkMeAttendeeEmpty()">×</span></span>';
+        }).join('');
+      }
+      meContext = true;
+      document.getElementById('meDrawerMask').classList.add('show');
+      document.getElementById('meDrawer').classList.add('show');
+    }
+    function checkMeAttendeeEmpty() {
+      var tags = document.getElementById('meAttendeeTags');
+      if (!tags.children.length) document.getElementById('meAttendeePlaceholder').style.display = '';
+    }
+    function closeMeDrawer() {
+      meContext = false;
+      document.getElementById('meDrawerMask').classList.remove('show');
+      document.getElementById('meDrawer').classList.remove('show');
+    }
+    function removeMePart(el) { el.parentElement.remove(); }
+    function addMePart() {
+      var name = prompt('请输入参会人姓名');
+      if (!name) return;
+      var container = document.getElementById('meParticipants');
+      var addBtn = container.querySelector('.me-part-add');
+      var tag = document.createElement('span');
+      tag.className = 'me-part-tag';
+      tag.innerHTML = name + '<span class="me-part-remove" onclick="removeMePart(this)">×</span>';
+      container.insertBefore(tag, addBtn);
+    }
+    function getMeRoomName() {
+      var tag = document.querySelector('#meRoomTags .mc-room-tag span');
+      if (!tag) return '线上会议';
+      return tag.textContent.replace(/^🏢\s*/, '');
+    }
+    function saveEditMeeting() {
+      var title = document.getElementById('meTitle').value.trim();
+      if (!title) return showToast('请输入会议主题', 'error');
+      var roomName = getMeRoomName();
+      var saveBtn = document.getElementById('meSaveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '保存中...';
+      setTimeout(function() {
+        if (meEditMode === 'edit') {
+          var m = meetingListData.find(function(x){return x.id===meEditMeetingId;});
+          if (m) { m.title = title; m.room = roomName; }
+          showToast('会议已更新', 'success');
+        } else if (meEditMode === 'copy') {
+          var src = meetingListData.find(function(x){return x.id===meEditMeetingId;});
+          if (src) {
+            var newId = Math.max.apply(null, meetingListData.map(function(x){return x.id;})) + 1;
+            meetingListData.push({
+              id: newId, title: title, date: src.date, time: src.time,
+              room: roomName, attendees: src.attendees,
+              status: 'upcoming', organizer: '张建国', isMine: true
+            });
+          }
+          showToast('会议已复制', 'success');
+        } else if (meEditMode === 'restart') {
+          var r = meetingListData.find(function(x){return x.id===meEditMeetingId;});
+          if (r) { r.status = 'upcoming'; r.title = title; r.room = roomName; }
+          showToast('会议已重新发起', 'success');
+        }
+        saveBtn.disabled = false;
+        saveBtn.textContent = meEditMode === 'restart' ? '发起' : '保存';
+        closeMeDrawer();
+        renderMeetingList(document.getElementById("mmSearchInput") ? document.getElementById("mmSearchInput").value : "");
+        updateMmTabCounts();
+      }, 300);
+    }
+    var pendingCancelId = null;
+    function cancelMeeting(mid) {
+      var m = meetingListData.find(function(x){return x.id===mid;});
+      if (!m) return;
+      pendingCancelId = mid;
+      document.getElementById('cancelConfirmDesc').textContent = '确定要取消会议「' + m.title + '」吗？取消后无法恢复。';
+      document.getElementById('cancelConfirmMask').classList.add('show');
+    }
+    function closeCancelConfirm() {
+      pendingCancelId = null;
+      document.getElementById('cancelConfirmMask').classList.remove('show');
+    }
+    function confirmCancelMeeting() {
+      if (pendingCancelId == null) return;
+      var m = meetingListData.find(function(x){return x.id===pendingCancelId;});
+      if (m) { m.status = "cancelled"; pushMeetingNotify('cancel', m); }
+      closeCancelConfirm();
+      renderMeetingList(document.getElementById("mmSearchInput") ? document.getElementById("mmSearchInput").value : "");
+      updateMmTabCounts();
+    }
+    function copyMeeting(mid) {
+      var m = meetingListData.find(function(x){return x.id===mid;});
+      if (!m) return;
+      openMeDrawer(mid, 'copy');
+    }
+    function leaveMeeting(mid) {
+      var m = meetingListData.find(function(x){return x.id===mid;});
+      if (!m) return;
+      if (!confirm("确定要退出会议「" + m.title + "」吗？")) return;
+      if (!m.isMine) m.rsvp = 'declined';
+      showToast("已退出会议");
+      renderMeetingList(document.getElementById("mmSearchInput") ? document.getElementById("mmSearchInput").value : "");
+    }
+    function confirmMeeting(mid) {
+      var m = meetingListData.find(function(x){return x.id===mid;});
+      if (!m) return;
+      m.rsvp = 'accepted';
+      showToast("已确认会议", 'success');
+      renderMeetingList(document.getElementById("mmSearchInput") ? document.getElementById("mmSearchInput").value : "");
+    }
+    function viewMinutes(mid) {
+      var m = meetingListData.find(function(x){return x.id===mid;});
+      if (!m) return;
+      openMeetingDrawer(mid, 'minutes');
+    }
+    function viewMeeting(mid) {
+      openMeetingDrawer(mid, 'view');
+    }
+    function joinMeeting(mid) {
+      openMeetingDrawer(mid, 'join');
+    }
+
+    function openMeetingDrawer(mid, mode) {
+      var m = meetingListData.find(function(x){return x.id===mid;});
+      if (!m) return;
+      mode = mode || 'view';
+      var statusMap = { upcoming: '未开始', ongoing: '进行中', finished: '已结束', cancelled: '已取消' };
+      var attendeesHtml = '<div class="md-attendee-tag"><div class="avatar">' + m.organizer.charAt(0) + '</div><span>' + m.organizer + '（召集人）</span></div>';
+      var mockAttendees = ['李明轩', '陈晓东', '王思雨', '刘雅婷'];
+      mockAttendees.forEach(function(name) {
+        attendeesHtml += '<div class="md-attendee-tag"><div class="avatar">' + name.charAt(0) + '</div><span>' + name + '</span></div>';
+      });
+      var bodyHtml = '';
+      bodyHtml += '<div class="md-status-bar">';
+      bodyHtml += '<div class="md-title">' + m.title + '</div>';
+      bodyHtml += '<span class="md-status-tag ' + m.status + '">' + statusMap[m.status] + '</span>';
+      bodyHtml += '</div>';
+      bodyHtml += '<div class="md-section">';
+      bodyHtml += '<div class="md-section-title">基本信息</div>';
+      bodyHtml += '<div class="md-info-grid">';
+      bodyHtml += '<span class="md-label">会议时间</span><span class="md-value">' + m.date + ' ' + m.time + '</span>';
+      bodyHtml += '<span class="md-label">会议室</span><span class="md-value">' + m.room + '</span>';
+      bodyHtml += '<span class="md-label">召集人</span><span class="md-value">' + m.organizer + '</span>';
+      bodyHtml += '<span class="md-label">参会人数</span><span class="md-value">' + (m.attendees || 6) + ' 人</span>';
+      bodyHtml += '<span class="md-label">会议类型</span><span class="md-value">' + ((m.cycle && !m.isMine) ? '周期会议' : '普通会议') + '</span>';
+      bodyHtml += '</div></div>';
+      bodyHtml += '<div class="md-section">';
+      bodyHtml += '<div class="md-section-title">参会人员</div>';
+      bodyHtml += '<div class="md-attendee-list">' + attendeesHtml + '</div>';
+      bodyHtml += '</div>';
+      bodyHtml += '<div class="md-section">';
+      bodyHtml += '<div class="md-section-title">会议议程</div>';
+      bodyHtml += '<div class="md-agenda-item">';
+      bodyHtml += '<div class="md-agenda-time">' + m.time + '</div>';
+      bodyHtml += '<div class="md-agenda-title">' + m.title + '</div>';
+      bodyHtml += '<div class="md-agenda-desc">会议进行中，请准时参加</div>';
+      bodyHtml += '</div></div>';
+      document.getElementById('mdDrawerBody').innerHTML = bodyHtml;
+      var footerHtml = '';
+      if (mode === 'minutes') {
+        bodyHtml += '<div class="md-section">';
+        bodyHtml += '<div class="md-section-title">会议纪要</div>';
+        bodyHtml += '<div style="background:#f8fafc;border-radius:8px;padding:14px;font-size:13px;color:#475569;line-height:1.8;">';
+        bodyHtml += '<div><strong>会议结论：</strong>确定Q4产品迭代方向，新增移动端适配优先级最高。</div>';
+        bodyHtml += '<div style="margin-top:8px;"><strong>待办事项：</strong></div>';
+        bodyHtml += '<div style="margin-left:16px;">1. 李明轩负责需求文档整理（本周完成）</div>';
+        bodyHtml += '<div style="margin-left:16px;">2. 王思雨负责技术方案评审（下周一前）</div>';
+        bodyHtml += '<div style="margin-left:16px;">3. 陈晓东负责客户反馈收集（持续进行）</div>';
+        bodyHtml += '</div></div>';
+        document.getElementById('mdDrawerBody').innerHTML = bodyHtml;
+        footerHtml = '<button class="mm-btn mm-btn-default" onclick="closeMeetingDrawer()">关闭</button>';
+      } else if (mode === 'join') {
+        footerHtml = '<button class="mm-btn mm-btn-default" onclick="closeMeetingDrawer()">稍后</button>';
+        footerHtml += '<button class="mm-btn mm-btn-primary" onclick="closeMeetingDrawer();showToast(\'已进入会议\',\'success\');">进入会议</button>';
+      } else if (mode === 'view') {
+        if (m.status === 'cancelled') {
+          footerHtml = '<button class="mm-btn mm-btn-default" onclick="closeMeetingDrawer()">关闭</button>';
+          footerHtml += '<button class="mm-btn mm-btn-primary" onclick="closeMeetingDrawer();restartMeeting(' + m.id + ')">重新发起</button>';
+        } else {
+          footerHtml = '<button class="mm-btn mm-btn-default" onclick="closeMeetingDrawer()">关闭</button>';
+        }
+      }
+      document.getElementById('mdDrawerFooter').innerHTML = footerHtml;
+      document.getElementById('mdDrawerMask').classList.add('show');
+      document.getElementById('mdDrawer').classList.add('show');
+    }
+    function closeMeetingDrawer() {
+      document.getElementById('mdDrawerMask').classList.remove('show');
+      document.getElementById('mdDrawer').classList.remove('show');
+    }
+            /* ===== 会议室使用情况弹窗 ===== */
+    var ruCurrentDate = new Date();
+    var roomUsageData = [
+      { roomId: 'r1', roomName: '一号会议室', capacity: 20, bookings: [
+        { title: '周例会', start: 0, end: 1, isMine: true, organizer: '张建国', type: '例会' },
+        { title: '项目评审', start: 3, end: 5, isMine: false, organizer: '李明轩', type: '评审会' }
+      ]},
+      { roomId: 'r2', roomName: '二号会议室', capacity: 12, bookings: [
+        { title: '客户沟通会', start: 4, end: 6, isMine: false, organizer: '陈晓东', type: '商务' },
+        { title: '面试', start: 7, end: 8, isMine: false, organizer: '王思雨', type: '招聘' }
+      ]},
+      { roomId: 'r3', roomName: '研发会议室', capacity: 8, bookings: [
+        { title: '需求评审', start: 1, end: 3, isMine: false, organizer: '李明轩', type: '评审会' },
+        { title: '技术分享', start: 6, end: 7, isMine: false, organizer: '王思雨', type: '分享' }
+      ]},
+      { roomId: 'r4', roomName: '运营会议室', capacity: 15, bookings: [
+        { title: '运营周会', start: 0, end: 1, isMine: false, organizer: '刘雅婷', type: '例会' }
+      ]},
+      { roomId: 'r5', roomName: '高管会议室', capacity: 6, bookings: [
+        { title: '战略会议', start: 4, end: 7, isMine: false, organizer: '赵海峰', type: '战略' }
+      ]},
+      { roomId: 'r6', roomName: '培训室', capacity: 30, bookings: [
+        { title: '新员工培训', start: 1, end: 4, isMine: false, organizer: '赵海峰', type: '培训' },
+        { title: '产品培训', start: 5, end: 8, isMine: true, organizer: '张建国', type: '培训' }
+      ]}
+    ];
+    /* 会议室使用情况数据 photo 合并：从 roomData（已含 localStorage 真实照片）按 roomId 同步 */
+    roomUsageData.forEach(function(ru) {
+      var match = roomData.find(function(rd) { return rd.id === ru.roomId; });
+      if (match) ru.photo = match.photo; else ru.photo = roomPhotoDefault;
+    });
+
+    var ruViewMode = 'day';
+
+    function openRoomUsageModal() {
+      renderRoomUsageGrid();
+      renderRuDetail();
+      document.getElementById('roomUsageModal').classList.add('show');
+    }
+
+    function closeRoomUsageModal() {
+      document.getElementById('roomUsageModal').classList.remove('show');
+    }
+
+    function switchRuView(el, mode) {
+      document.querySelectorAll('.ru-view-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      ruViewMode = mode;
+      if (mode === 'month') {
+        var mp = document.getElementById('ruMonthPicker');
+        if (mp && mp.showPicker) mp.showPicker();
+        else ruPickMonth(mp.value || '2026-09');
+      } else {
+        changeRuDate(0);
+      }
+    }
+
+    function changeRuDate(delta) {
+      if (ruViewMode === 'day') {
+        ruCurrentDate.setDate(ruCurrentDate.getDate() + delta);
+      } else if (ruViewMode === 'week') {
+        ruCurrentDate.setDate(ruCurrentDate.getDate() + delta * 7);
+      } else if (ruViewMode === 'month') {
+        ruCurrentDate.setMonth(ruCurrentDate.getMonth() + delta);
+      }
+      updateRuDateText();
+      renderRoomUsageGrid();
+      renderRuDetail();
+    }
+
+    function ruGoToday() {
+      ruCurrentDate = new Date();
+      updateRuDateText();
+      renderRoomUsageGrid();
+      renderRuDetail();
+    }
+
+    function ruPickDate(val) {
+      if (!val) return;
+      var parts = val.split('-');
+      ruCurrentDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      updateRuDateText();
+      renderRoomUsageGrid();
+      renderRuDetail();
+    }
+
+    function ruPickMonth(val) {
+      if (!val) return;
+      var parts = val.split('-');
+      ruCurrentDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+      updateRuDateText();
+      renderRoomUsageGrid();
+      renderRuDetail();
+    }
+
+    function updateRuDateText() {
+      var y = ruCurrentDate.getFullYear();
+      var m = String(ruCurrentDate.getMonth() + 1).padStart(2, '0');
+      var d = String(ruCurrentDate.getDate()).padStart(2, '0');
+      var text;
+      if (ruViewMode === 'month') {
+        text = y + '年' + m + '月';
+      } else if (ruViewMode === 'week') {
+        var weekStart = new Date(ruCurrentDate);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        var weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        var ws = String(weekStart.getDate()).padStart(2, '0');
+        var we = String(weekEnd.getDate()).padStart(2, '0');
+        var wsm = String(weekStart.getMonth() + 1).padStart(2, '0');
+        var wem = String(weekEnd.getMonth() + 1).padStart(2, '0');
+        text = wsm + '月' + ws + '日 - ' + wem + '月' + we + '日';
+      } else {
+        text = y + '年' + m + '月' + d + '日';
+      }
+      document.getElementById('ruDateText').textContent = text;
+      var dp = document.getElementById('ruDatePicker');
+      if (dp) dp.value = y + '-' + m + '-' + d;
+      var mp = document.getElementById('ruMonthPicker');
+      if (mp) mp.value = y + '-' + m;
+    }
+
+    function renderRoomUsageGrid() {
+      updateRuDateText();
+      var keyword = (document.getElementById('ruSearchInput') || {}).value || '';
+      var filtered = roomUsageData.filter(function(r) {
+        return !keyword || r.roomName.indexOf(keyword) >= 0;
+      });
+      var html = '';
+      filtered.forEach(function(room) {
+        html += '<div class="ru-grid-row">';
+        html += '<div class="ru-room-cell">' +
+          '<div class="room-name ru-room-name-clickable" onclick="showRoomUsagePhoto(\'' + room.roomId + '\')" title="点击查看会议室照片">' + room.roomName + ' <span class="mc-photo-icon">🖼</span></div>' +
+          '<div class="room-capacity">可容纳' + room.capacity + '人</div>' +
+        '</div>';
+        for (var i = 0; i < 9; i++) {
+          html += '<div class="ru-time-cell"></div>';
+        }
+        html += '</div>';
+      });
+      document.getElementById('ruGridBody').innerHTML = html;
+
+      var rows = document.querySelectorAll('#ruGridBody .ru-grid-row');
+      filtered.forEach(function(room, ri) {
+        var row = rows[ri];
+        if (!row) return;
+        var cells = row.querySelectorAll('.ru-time-cell');
+        room.bookings.forEach(function(b) {
+          var startIdx = b.start;
+          var span = b.end - b.start;
+          if (startIdx < 0 || startIdx >= cells.length) return;
+          var cell = cells[startIdx];
+          var block = document.createElement('div');
+          block.className = 'ru-booking-block ' + (b.conflict ? 'conflict' : 'occupied');
+          block.style.left = '2px';
+          block.style.right = (2 - span * 2) + 'px';
+          block.style.width = 'calc(' + span * 100 + '% - 4px)';
+          block.innerHTML = '<div class="booking-title">' + b.title + '</div>' +
+            '<div class="booking-time">' + getTimeLabel(b.start) + '-' + getTimeLabel(b.end) + '</div>';
+          block.title = b.title + ' (' + getTimeLabel(b.start) + '-' + getTimeLabel(b.end) + ') - 点击查看详情';
+          block.style.cursor = 'pointer';
+          block.onclick = function(e) { e.stopPropagation(); showBookingDetail(room.roomName, b); };
+          cell.appendChild(block);
+        });
+      });
+    }
+
+    var ruDetailData = [
+      { name: '产品周会', organizer: '张建国', type: '例会', room: '柏星龙一号会议室', start: '2026-09-11 09:00', end: '2026-09-11 10:00', status: 'occupied' },
+      { name: '需求评审', organizer: '李明轩', type: '评审会', room: '研发会议室', start: '2026-09-11 10:00', end: '2026-09-11 12:00', status: 'occupied' },
+      { name: '客户沟通会', organizer: '陈晓东', type: '商务', room: '二号会议室', start: '2026-09-11 14:00', end: '2026-09-11 15:30', status: 'conflict' },
+      { name: '运营周会', organizer: '刘雅婷', type: '例会', room: '运营会议室', start: '2026-09-11 09:30', end: '2026-09-11 10:30', status: 'occupied' },
+      { name: '高管战略会', organizer: '赵海峰', type: '战略', room: '高管会议室', start: '2026-09-11 14:00', end: '2026-09-11 17:00', status: 'conflict' }
+    ];
+
+    function renderRuDetail() {
+      var keyword = (document.getElementById('ruSearchInput') || {}).value || '';
+      var filtered = ruDetailData.filter(function(d) {
+        return !keyword || d.room.indexOf(keyword) >= 0;
+      });
+      var html = filtered.map(function(d) {
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td>' + d.organizer + '</td>' +
+          '<td>' + d.type + '</td>' +
+          '<td>' + d.room + '</td>' +
+          '<td>' + d.start + '</td>' +
+          '<td>' + d.end + '</td>' +
+          '<td><span class="ru-status-badge ' + d.status + '">' + (d.status === 'occupied' ? '占用' : '冲突') + '</span></td>' +
+        '</tr>';
+      }).join('');
+      document.getElementById('ruDetailBody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:#94a3b8;">暂无会议明细</td></tr>';
+      document.getElementById('ruPageInfo').textContent = '共 ' + filtered.length + ' 条';
+    }
+
+    function getTimeLabel(idx) {
+      var hours = [9, 10, 11, 12, 14, 15, 16, 17, 18];
+      return String(hours[idx]).padStart(2, '0') + ':00';
+    }
+
+    // 点击遮罩关闭弹窗
+    document.querySelectorAll('.modal-mask').forEach(function(mask) {
+      mask.addEventListener('click', function(e) {
+        if (e.target === mask) {
+          mask.classList.remove('show');
+        }
+      });
+    });
+  
+  // 公告数据
+  var noticeData = {
+    latest: [
+      { icon: '📢', cls: 'icon-green', title: '关于春节放假安排的通知', meta: '2026-01-18 · 集团办公室' },
+      { icon: '💬', cls: 'icon-yellow', title: '新品A系列正式上市通知', meta: '2026-01-16 · 市场中心' },
+      { icon: 'ℹ️', cls: 'icon-blue', title: '办公楼电梯维护通知', meta: '2026-01-12 · 行政中心' }
+    ],
+    history: [
+      { icon: '🏆', cls: 'icon-yellow', title: '2025年度优秀员工评选结果公示', meta: '2025-12-28 · 人力资源部' },
+      { icon: '📊', cls: 'icon-blue', title: '2025年度经营目标完成情况通报', meta: '2025-12-20 · 财务部' },
+      { icon: '🔧', cls: 'icon-green', title: 'OA系统升级维护完成通知', meta: '2025-12-15 · 信息部' },
+      { icon: '📦', cls: 'icon-yellow', title: '年终盘点工作安排通知', meta: '2025-12-10 · 仓储物流部' },
+      { icon: '🎉', cls: 'icon-green', title: '公司成立20周年庆典活动通知', meta: '2025-11-25 · 集团办公室' },
+      { icon: '📋', cls: 'icon-blue', title: '2026年度培训计划征集通知', meta: '2025-11-18 · 人力资源部' }
+    ]
+  };
+
+  // 渲染公告列表
+  function renderNoticeList(type) {
+    var box = document.getElementById('noticePortalList');
+    if (!box) return;
+    var list = noticeData[type] || [];
+    box.innerHTML = list.map(function(n) {
+      return '<div class="notice-portal-item-v2">' +
+        '<div class="notice-icon ' + n.cls + '">' + n.icon + '</div>' +
+        '<div class="notice-content">' +
+          '<div class="notice-title">' + n.title + '</div>' +
+          '<div class="notice-meta">' + n.meta + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // 公告Tab切换
+  function switchNoticeTab(type, el) {
+    var tabs = document.querySelectorAll('.notice-tab');
+    tabs.forEach(function(t) { t.classList.remove('active'); });
+    el.classList.add('active');
+    renderNoticeList(type);
+  }
+
+  // 初始化公告列表
+  renderNoticeList('latest');
+
+  // 考勤月份切换
+  var attendanceYear = 2026;
+  var attendanceMonth = 9;
+  var amPickYear = 2026;   // picker 里正在浏览的年份（可独立于选中值）
+  function attendancePrevMonth() {
+    attendanceMonth--;
+    if (attendanceMonth < 1) { attendanceMonth = 12; attendanceYear--; }
+    document.getElementById('attendanceMonthLabel').textContent = attendanceYear + '年' + attendanceMonth + '月';
+  }
+  function attendanceNextMonth() {
+    attendanceMonth++;
+    if (attendanceMonth > 12) { attendanceMonth = 1; attendanceYear++; }
+    document.getElementById('attendanceMonthLabel').textContent = attendanceYear + '年' + attendanceMonth + '月';
+  }
+
+  // 自定义月份选择器
+  function openAttendanceMonthPicker() {
+    var picker = document.getElementById('attendanceMonthPicker');
+    if (picker.classList.contains('show')) {
+      picker.classList.remove('show');
+      return;
+    }
+    amPickYear = attendanceYear;
+    renderAmPicker();
+    picker.classList.add('show');
+    // 点击外部关闭
+    setTimeout(function() {
+      document.addEventListener('click', amPickerDocClick, true);
+    }, 0);
+  }
+  function amPickerDocClick(e) {
+    var picker = document.getElementById('attendanceMonthPicker');
+    if (picker && !picker.contains(e.target) && !e.target.classList.contains('attendance-month-text')) {
+      picker.classList.remove('show');
+      document.removeEventListener('click', amPickerDocClick, true);
+    }
+  }
+  function amPickYear(delta) {
+    amPickYear += delta;
+    renderAmPicker();
+  }
+  function renderAmPicker() {
+    document.getElementById('amPickerYear').textContent = amPickYear;
+    var grid = document.getElementById('amPickerGrid');
+    var html = '';
+    for (var m = 1; m <= 12; m++) {
+      var active = (amPickYear === attendanceYear && m === attendanceMonth);
+      html += '<div class="am-picker-cell' + (active ? ' active' : '') + '" data-m="' + m + '">' + m + '月</div>';
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll('.am-picker-cell').forEach(function(cell) {
+      cell.addEventListener('click', function() {
+        var m = parseInt(this.dataset.m);
+        attendanceYear = amPickYear;
+        attendanceMonth = m;
+        document.getElementById('attendanceMonthLabel').textContent = attendanceYear + '年' + attendanceMonth + '月';
+        document.getElementById('attendanceMonthPicker').classList.remove('show');
+      });
+    });
+  }
+  function amPickClear() {
+    attendanceYear = null;
+    attendanceMonth = null;
+    document.getElementById('attendanceMonthLabel').textContent = '请选择月份';
+    document.getElementById('attendanceMonthPicker').classList.remove('show');
+  }
+  function amPickToday() {
+    var now = new Date();
+    attendanceYear = now.getFullYear();
+    attendanceMonth = now.getMonth() + 1;
+    document.getElementById('attendanceMonthLabel').textContent = attendanceYear + '年' + attendanceMonth + '月';
+    document.getElementById('attendanceMonthPicker').classList.remove('show');
+  }
+  
+/* ===== AI智能板块：渲染从智能体列表页添加的智能体 ===== */
+var DEFAULT_AI_PORTAL_APPS = [
+  { id: 'ai-resume',   name: '简历筛选', icon: '📋', color: 'icon-purple', href: 'ai-resume.html' },
+  { id: 'ai-meeting',  name: '智能会议', icon: '🎙️', color: 'icon-blue',   href: 'ai-meeting.html' },
+  { id: 'ai-contract', name: '合同审查', icon: '📄', color: 'icon-green',  href: 'ai-contract.html' }
+];
+
+function getAiPortalApps() {
+  try {
+    var raw = localStorage.getItem('aiPortalApps');
+    if (raw) {
+      var arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length) return arr;
+    }
+  } catch (e) {}
+  return DEFAULT_AI_PORTAL_APPS;
+}
+
+function renderAiPortalApps() {
+  var box = document.getElementById('aiPortalApps');
+  if (!box) return;
+  box.innerHTML = getAiPortalApps().map(function(a) {
+    return '<a href="' + a.href + '" class="ai-portal-app">' +
+      '<div class="ai-portal-app-icon ' + a.color + '">' + a.icon + '</div>' +
+      '<div class="ai-portal-app-name">' + a.name + '</div>' +
+    '</a>';
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', renderAiPortalApps);
+updateNotifyBadge();
+
+/* ===== 添加常用应用 / 编辑模式 ===== */
+var APP_CATALOG = [
+  { id: "expense-apply",    name: "报销申请",   icon: "💰", color: "icon-yellow",   href: "expense-apply.html" },
+  { id: "asset-out",        name: "资产出库",   icon: "📦", color: "icon-blue",     href: "asset-out.html" },
+  { id: "purchase-apply",   name: "采购申请",   icon: "🛒", color: "icon-orange",   href: "purchase-apply.html" },
+  { id: "contract-approve", name: "合同审批",   icon: "📝", color: "icon-green",    href: "contract-approve.html" },
+  { id: "seal-apply",       name: "用印申请",   icon: "🖋️", color: "icon-pink",     href: "seal-apply.html" },
+  { id: "leave-travel",     name: "请假出差",   icon: "✈️", color: "icon-purple",   href: "leave-travel.html" },
+  { id: "travel-reimburse", name: "差旅报销",   icon: "🧳", color: "icon-cyan",     href: "#" },
+  { id: "meeting-room",     name: "会议室预订", icon: "📅", color: "icon-indigo",   href: "#" },
+  { id: "business-card",    name: "名片印制",   icon: "🎴", color: "icon-gray",     href: "#" },
+  { id: "expense-audit",    name: "费用审批",   icon: "💳", color: "icon-red",      href: "#" },
+  { id: "work-report",      name: "工作汇报",   icon: "📊", color: "icon-blue",     href: "#" },
+  { id: "recruitment",      name: "招聘申请",   icon: "👥", color: "icon-green",    href: "#" },
+  { id: "training-apply",   name: "培训申请",   icon: "🎓", color: "icon-purple",   href: "#" },
+  { id: "vehicle-apply",    name: "用车申请",   icon: "🚗", color: "icon-orange",   href: "#" },
+  { id: "visitor-apply",    name: "访客申请",   icon: "🤝", color: "icon-pink",     href: "#" }
+];
+
+// 默认快捷入口
+var quickEntryIds = ["expense-apply","asset-out","purchase-apply","contract-approve","seal-apply","leave-travel"];
+
+function getApp(id) {
+  return APP_CATALOG.find(function(a){ return a.id === id; });
+}
+
+/* 渲染九宫格 */
+function renderQuickEntry() {
+  var grid = document.getElementById("quickEntryGrid");
+  if (!grid) return;
+  var editing = grid.classList.contains("editing");
+  grid.innerHTML = quickEntryIds.map(function(id, idx){
+    var app = getApp(id);
+    if (!app) return "";
+    return (
+      '<div class="quick-entry-item" draggable="' + editing + '" data-idx="' + idx + '" data-href="' + app.href + '">' +
+        '<div class="qe-remove-btn" onclick="event.stopPropagation();removeQuickEntry(' + idx + ')">✕</div>' +
+        '<div class="quick-entry-icon ' + app.color + '">' + app.icon + '</div>' +
+        '<div class="quick-entry-name">' + app.name + '</div>' +
+      '</div>'
+    );
+  }).join("");
+  // 非编辑模式：点击跳转
+  if (!editing) {
+    grid.querySelectorAll(".quick-entry-item").forEach(function(el){
+      el.addEventListener("click", function(){
+        var href = this.getAttribute("data-href");
+        if (href && href !== "#") window.location.href = href;
+      });
+    });
+  }
+  if (editing) bindDragSort();
+}
+
+/* 打开添加弹窗 */
+function openQuickEntryModal() {
+  document.getElementById("qeModalOverlay").classList.add("show");
+  document.getElementById("qeSearchInput").value = "";
+  renderQeAppList();
+  setTimeout(function(){ document.getElementById("qeSearchInput").focus(); }, 50);
+}
+function closeQuickEntryModal() {
+  document.getElementById("qeModalOverlay").classList.remove("show");
+}
+
+/* 渲染弹窗列表（含搜索） */
+function renderQeAppList() {
+  var kw = (document.getElementById("qeSearchInput").value || "").trim();
+  var list = APP_CATALOG.filter(function(a){ return !kw || a.name.indexOf(kw) > -1; });
+  var box = document.getElementById("qeAppList");
+  if (list.length === 0) {
+    box.innerHTML = '<div class="qe-empty">未找到匹配的应用</div>';
+    return;
+  }
+  box.innerHTML = list.map(function(app){
+    var added = quickEntryIds.indexOf(app.id) > -1;
+    var btn = added
+      ? '<button class="qe-add-btn added" disabled>已添加</button>'
+      : '<button class="qe-add-btn" onclick="addQuickEntry(\'' + app.id + '\')">添加</button>';
+    return (
+      '<div class="qe-modal-row">' +
+        '<div class="qe-modal-row-icon ' + app.color + '">' + app.icon + '</div>' +
+        '<div class="qe-modal-row-name">' + app.name + '</div>' +
+        btn +
+      '</div>'
+    );
+  }).join("");
+}
+
+/* 添加到快捷入口 */
+function addQuickEntry(id) {
+  if (quickEntryIds.indexOf(id) > -1) return;
+  quickEntryIds.push(id);
+  renderQuickEntry();
+  renderQeAppList();
+}
+
+/* 从快捷入口移除 */
+function removeQuickEntry(idx) {
+  quickEntryIds.splice(idx, 1);
+  renderQuickEntry();
+}
+
+/* 切换编辑模式 */
+function toggleQuickEditMode() {
+  var grid = document.getElementById("quickEntryGrid");
+  var btn = document.getElementById("quickEditBtn");
+  var editing = !grid.classList.contains("editing");
+  grid.classList.toggle("editing", editing);
+  btn.classList.toggle("active", editing);
+  btn.textContent = editing ? "✓ 完成" : "✏️ 编辑";
+  renderQuickEntry();
+}
+
+/* 拖拽排序 */
+var _dragIdx = null;
+function bindDragSort() {
+  var items = document.querySelectorAll("#quickEntryGrid .quick-entry-item");
+  items.forEach(function(el){
+    el.addEventListener("dragstart", function(e){
+      _dragIdx = parseInt(this.dataset.idx);
+      this.style.opacity = "0.5";
+    });
+    el.addEventListener("dragend", function(){ this.style.opacity = "1"; });
+    el.addEventListener("dragover", function(e){ e.preventDefault(); this.classList.add("drag-over"); });
+    el.addEventListener("dragleave", function(){ this.classList.remove("drag-over"); });
+    el.addEventListener("drop", function(e){
+      e.preventDefault();
+      this.classList.remove("drag-over");
+      var targetIdx = parseInt(this.dataset.idx);
+      if (_dragIdx === null || _dragIdx === targetIdx) return;
+      var moved = quickEntryIds.splice(_dragIdx, 1)[0];
+      quickEntryIds.splice(targetIdx, 0, moved);
+      _dragIdx = null;
+      renderQuickEntry();
+    });
+  });
+}
+
+// 初始化快捷入口
+document.addEventListener("DOMContentLoaded", renderQuickEntry);
+
+  </script>
+  
+  <!-- 添加常用应用 弹窗 -->
+  <div class="qe-modal-overlay" id="qeModalOverlay" onclick="if(event.target===this)closeQuickEntryModal()">
+    <div class="qe-modal">
+      <div class="qe-modal-header">
+        <div class="qe-modal-title">添加常用</div>
+        <div class="qe-modal-close" onclick="closeQuickEntryModal()">✕</div>
+      </div>
+      <div class="qe-modal-search">
+        <input type="text" id="qeSearchInput" placeholder="搜索应用名称" oninput="renderQeAppList()">
+      </div>
+      <div class="qe-modal-list" id="qeAppList"></div>
+    </div>
+  </div>
+
+  <!-- 会议详情抽屉 -->
+  
+  <!-- 会议编辑/复制/重新发起抽屉 -->
+  <div class="drawer-mask" id="meDrawerMask" onclick="closeMeDrawer()"></div>
+  <div class="drawer-panel" id="meDrawer" style="width:480px;">
+    <div class="drawer-header">
+      <div class="drawer-title">编辑会议</div>
+      <button class="drawer-close" onclick="closeMeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body" id="meDrawerBody"></div>
+    <div class="drawer-footer">
+      <button class="btn btn-default" onclick="closeMeDrawer()">关闭</button>
+      <button class="btn btn-primary" id="meSaveBtn" onclick="saveEditMeeting()">保存</button>
+    </div>
+  </div>
+  <div class="drawer-mask" id="mdDrawerMask" onclick="closeMeetingDrawer()"></div>
+  <div class="drawer-panel" id="mdDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title">会议详情</div>
+      <button class="drawer-close" onclick="closeMeetingDrawer()">✕</button>
+    </div>
+    <div class="drawer-body" id="mdDrawerBody"></div>
+    <div class="drawer-footer" id="mdDrawerFooter"></div>
+  </div>
+
+  <!-- 取消会议确认弹窗 -->
+  <div class="confirm-mask" id="cancelConfirmMask" onclick="if(event.target===this)closeCancelConfirm()">
+    <div class="confirm-dialog">
+      <div class="confirm-header">
+        <div class="confirm-icon">⚠</div>
+        <div class="confirm-content">
+          <div class="confirm-title">取消会议</div>
+          <div class="confirm-desc" id="cancelConfirmDesc">确定要取消该会议吗？取消后无法恢复。</div>
+        </div>
+      </div>
+      <div class="confirm-footer">
+        <button class="btn btn-default" onclick="closeCancelConfirm()">再想想</button>
+        <button class="btn btn-primary" style="background:#ef4444;border-color:#ef4444;" onclick="confirmCancelMeeting()">确认取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 会议室照片浮层 -->
+  <div class="room-photo-overlay" id="roomPhotoOverlay" onclick="if(event.target===this) hideRoomPhoto()">
+    <div class="room-photo-card" style="position:relative;">
+      <span class="room-photo-close" onclick="hideRoomPhoto()">×</span>
+      <img id="roomPhotoImg" src="" alt="会议室照片">
+      <div class="room-photo-title" id="roomPhotoTitle"></div>
+      <div class="room-photo-meta" id="roomPhotoMeta"></div>
+    </div>
+  </div>
+
+  <!-- 会议详情浮层 -->
+  <div class="room-photo-overlay" id="bookingDetailOverlay" onclick="if(event.target===this) hideBookingDetail()">
+    <div class="bd-card" style="position:relative;">
+      <span class="room-photo-close" onclick="hideBookingDetail()">×</span>
+      <div class="bd-header">
+        <div class="bd-title" id="bdTitle"></div>
+        <span class="bd-mine-badge" id="bdMineBadge">我的会议</span>
+      </div>
+      <div class="bd-field"><span class="bd-label">会议室</span><span class="bd-value" id="bdRoom"></span></div>
+      <div class="bd-field"><span class="bd-label">时间</span><span class="bd-value" id="bdTime"></span></div>
+      <div class="bd-field"><span class="bd-label">召集人</span><span class="bd-value" id="bdOrganizer"></span></div>
+      <div class="bd-field"><span class="bd-label">类型</span><span class="bd-value" id="bdType"></span></div>
+    </div>
+  </div>
+
+</body>
+</html>

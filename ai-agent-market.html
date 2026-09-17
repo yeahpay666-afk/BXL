@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI智能体市场 - 柏星龙业务数字化中台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+:root {
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
+  --primary-light: #ede9fe;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  --info: #2563eb;
+  --info-light: #dbeafe;
+  --border: #e5e7eb;
+  --text: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --bg: #f3f4f6;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+/* 顶部导航 */
+.header { height: 52px; background: linear-gradient(90deg, #1e3a5f 0%, #2563eb 100%); display: flex; align-items: center; padding: 0 20px; color: #fff; }
+.logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; margin-right: 20px; }
+.logo-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.top-nav { display: flex; gap: 4px; flex: 1; }
+.top-nav a { padding: 6px 14px; border-radius: 4px; font-size: 13px; opacity: 0.85; color: #fff; }
+.top-nav a.active, .top-nav a:hover { opacity: 1; background: rgba(255,255,255,0.15); }
+.top-right { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+.top-right .user { display: flex; align-items: center; gap: 8px; }
+.top-right .avatar { width: 28px; height: 28px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+/* 二级导航 */
+.sub-header { height: 40px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 4px; }
+.sub-nav-item { padding: 8px 16px; font-size: 13px; color: var(--text-secondary); border-radius: 4px; cursor: pointer; }
+.sub-nav-item:hover { color: var(--info); background: #eff6ff; }
+.sub-nav-item.active { color: var(--info); background: #eff6ff; font-weight: 500; }
+
+/* 布局 */
+.layout { display: flex; min-height: calc(100vh - 92px); }
+.sidebar { width: 200px; background: #fff; border-right: 1px solid var(--border); padding: 16px 0; flex-shrink: 0; }
+.sidebar-title { font-size: 15px; font-weight: 600; padding: 0 16px 4px; }
+.sidebar-subtitle { font-size: 12px; color: var(--text-tertiary); padding: 0 16px 12px; }
+.sidebar-menu { display: flex; flex-direction: column; }
+.sidebar-menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 13px; color: var(--text-secondary); transition: all 0.15s; }
+.sidebar-menu-item:hover { background: #f9fafb; color: var(--text); }
+.sidebar-menu-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; border-right: 3px solid var(--primary); }
+.sidebar-menu-icon { font-size: 15px; width: 18px; text-align: center; }
+.sidebar-footer { margin-top: 20px; padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-tertiary); display: flex; align-items: center; gap: 6px; }
+
+.main-content { flex: 1; padding: 20px; min-width: 0; overflow: auto; }
+.breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+.breadcrumb a:hover { color: var(--info); }
+.breadcrumb .separator { margin: 0 6px; color: var(--text-tertiary); }
+.breadcrumb .current { color: var(--text); }
+
+/* 页头 */
+.page-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.page-title { font-size: 22px; font-weight: 600; }
+.page-desc { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.page-header-actions { display: flex; gap: 10px; }
+.btn { padding: 7px 16px; border-radius: 6px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-default { background: #fff; color: var(--text); border: 1px solid var(--border); }
+.btn-default:hover { border-color: var(--text-tertiary); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #15803d; }
+.btn-danger { background: #fff; color: var(--danger); border: 1px solid #fecaca; }
+.btn-danger:hover { background: #fef2f2; }
+.refresh-btn { padding: 7px 14px; border-radius: 6px; font-size: 13px; background: #fff; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+.refresh-btn:hover { border-color: var(--text-tertiary); color: var(--text); }
+
+/* 统计卡片 */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.stat-card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 14px; }
+.stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-icon.purple { background: var(--primary-light); }
+.stat-icon.green { background: var(--success-light); }
+.stat-icon.blue { background: var(--info-light); }
+.stat-icon.orange { background: #ffedd5; }
+.stat-value { font-size: 24px; font-weight: 600; line-height: 1.2; }
+.stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+/* 表格卡片 */
+.table-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
+.table-toolbar { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.toolbar-left { display: flex; align-items: center; gap: 12px; }
+.table-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.title-icon { color: var(--primary); }
+.count-badge { background: var(--primary-light); color: var(--primary); font-size: 12px; padding: 1px 8px; border-radius: 10px; font-weight: 500; }
+.toolbar-right { display: flex; gap: 10px; align-items: center; }
+.filter-select, .search-input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; }
+.filter-select { padding-right: 28px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+.search-input { width: 180px; }
+.search-input:focus, .filter-select:focus { border-color: var(--primary); }
+
+table { width: 100%; border-collapse: collapse; }
+thead th { background: #f9fafb; padding: 12px 16px; text-align: left; font-size: 12px; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 14px 16px; border-bottom: 1px solid #f3f4f6; font-size: 13px; vertical-align: middle; }
+tbody tr:hover { background: #f9fafb; }
+.sort-cell { width: 50px; color: var(--text-tertiary); cursor: grab; text-align: center; }
+.agent-icon { width: 36px; height: 36px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.agent-name-cell { display: flex; align-items: center; gap: 10px; }
+.agent-name { font-weight: 500; }
+.agent-desc { color: var(--text-secondary); font-size: 12px; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 标签 */
+.tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+.tag-api { background: var(--info-light); color: var(--info); }
+.tag-pending { background: #f3f4f6; color: var(--text-secondary); }
+.tag-auth { background: var(--success-light); color: var(--success); }
+.tag-limited { background: var(--warning-light); color: var(--warning); }
+.tag-noauth { background: #f3f4f6; color: var(--text-tertiary); }
+.status-published { background: var(--success-light); color: var(--success); }
+.status-draft { background: #f3f4f6; color: var(--text-secondary); }
+.status-offline { background: #f3f4f6; color: var(--text-tertiary); }
+
+/* 操作列 */
+.action-cell { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.action-btn { padding: 4px 10px; border-radius: 5px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s; }
+.action-edit { background: #eff6ff; color: var(--info); }
+.action-edit:hover { background: #dbeafe; }
+.action-config { background: var(--primary-light); color: var(--primary); }
+.action-config:hover { background: #ddd6fe; }
+.action-offline { background: #fef2f2; color: var(--danger); }
+.action-offline:hover { background: #fee2e2; }
+.action-publish { background: var(--success-light); color: var(--success); }
+.action-publish:hover { background: #bbf7d0; }
+.sort-btn { width: 24px; height: 24px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 14px; }
+.sort-btn:hover { background: #f3f4f6; color: var(--text); }
+
+/* 分页 */
+.pagination { padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
+.page-info { font-size: 13px; color: var(--text-secondary); }
+.page-btns { display: flex; gap: 6px; }
+.page-btn { min-width: 32px; height: 32px; border: 1px solid var(--border); background: #fff; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.page-btn:hover { border-color: var(--text-tertiary); }
+.page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* 弹窗 */
+.modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; display: none; align-items: center; justify-content: center; }
+.modal-mask.show { display: flex; }
+.modal { background: #fff; border-radius: 12px; width: 560px; max-width: 92vw; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+.modal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; }
+.modal-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.modal-title-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.modal-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.modal-close { font-size: 20px; color: var(--text-tertiary); cursor: pointer; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+.modal-close:hover { background: #f3f4f6; color: var(--text); }
+.modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+/* 表单 */
+.form-section { margin-bottom: 24px; }
+.form-section:last-child { margin-bottom: 0; }
+.form-section-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; padding-left: 8px; border-left: 3px solid var(--primary); display: flex; align-items: center; gap: 8px; }
+.form-section-title.green { border-left-color: var(--success); }
+.form-section-title.orange { border-left-color: var(--warning); }
+.section-tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; font-weight: 500; }
+.tag-done { background: var(--success-light); color: var(--success); }
+.tag-current { background: var(--primary-light); color: var(--primary); }
+
+.form-item { margin-bottom: 14px; }
+.form-label { font-size: 13px; color: var(--text); margin-bottom: 6px; display: block; }
+.form-label .req { color: var(--danger); margin-right: 2px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 13px; outline: none; transition: border-color 0.15s; font-family: inherit;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+.form-textarea { resize: vertical; min-height: 70px; }
+
+/* 图标上传 */
+.icon-upload-row { display: flex; align-items: center; gap: 12px; }
+.icon-preview { width: 56px; height: 56px; border-radius: 10px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.icon-upload-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+.icon-upload-btn:hover { border-color: var(--primary); color: var(--primary); }
+.icon-upload-tip { font-size: 12px; color: var(--text-tertiary); }
+
+/* 单选组 */
+.radio-group { display: flex; gap: 20px; }
+.radio-item { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; }
+.radio-item input { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+
+/* 访问权限选项 */
+.perm-options { display: flex; gap: 12px; margin-bottom: 12px; }
+.perm-option { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.15s; font-size: 13px; }
+.perm-option input { accent-color: var(--primary); width: 15px; height: 15px; }
+.perm-option.selected { border-color: var(--success); background: var(--success-light); color: var(--success); font-weight: 500; }
+.perm-option .perm-icon { font-size: 16px; }
+.perm-tip { background: var(--success-light); color: var(--success); padding: 8px 12px; border-radius: 6px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+.info-list .info-row { display: flex; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+.info-list .info-row:last-child { border-bottom: none; }
+.info-list .info-label { width: 90px; color: #6b7280; flex-shrink: 0; }
+.info-list .info-value { color: #1f2937; flex: 1; }
+
+/* 部门/角色选择区 */
+.dept-select-area { background: #f8fafc; border-radius: 8px; padding: 12px; }
+
+/* 组织架构下拉 */
+.org-dropdown { position: relative; }
+.org-dropdown-trigger {
+  padding: 8px 32px 8px 12px; background: #fff; border: 1px solid var(--border); border-radius: 6px;
+  display: block; width: 100%; cursor: pointer; font-size: 13px; color: var(--text); outline: none;
+  font-family: inherit;
+}
+.org-dropdown-trigger:focus { border-color: var(--primary); }
+.org-dropdown-trigger:hover { border-color: var(--primary); }
+.org-dropdown-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.org-dropdown-arrow { color: var(--text-tertiary); font-size: 10px; flex-shrink: 0; margin-left: 8px; }
+.org-dropdown-panel {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 100; display: none;
+  max-height: 320px; flex-direction: column;
+}
+.org-dropdown-panel.show { display: flex; }
+.org-tree { padding: 8px; overflow-y: auto; flex: 1; }
+.org-node-label {
+  display: flex; align-items: center; gap: 6px; padding: 5px 6px;
+  border-radius: 4px; cursor: pointer; font-size: 13px; user-select: none;
+}
+.org-node-label:hover { background: #f3f4f6; }
+.org-toggle { width: 12px; font-size: 10px; color: var(--text-tertiary); text-align: center; flex-shrink: 0; }
+.org-cb { accent-color: var(--primary); width: 14px; height: 14px; cursor: pointer; }
+.org-children { padding-left: 18px; }
+.org-dropdown-footer {
+  padding: 10px 12px; border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+.btn-tiny { padding: 5px 12px; font-size: 12px; border-radius: 5px; }
+.dept-search { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; margin-bottom: 10px; }
+.dept-selected-info { font-size: 12px; color: var(--info); margin-bottom: 8px; }
+.dept-list { max-height: 160px; overflow-y: auto; }
+.dept-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+.dept-item:hover { background: #fff; }
+.dept-item input { accent-color: var(--primary); width: 15px; height: 15px; }
+.dept-icon { width: 28px; height: 28px; border-radius: 6px; background: #eef2ff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dept-name { font-size: 13px; font-weight: 500; }
+.dept-meta { font-size: 11px; color: var(--text-tertiary); }
+.role-selected-info { font-size: 12px; color: var(--warning); margin: 10px 0 8px; }
+.role-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #fff7ed; border-radius: 6px; margin-bottom: 4px; font-size: 13px; }
+.role-item input { accent-color: var(--warning); width: 14px; height: 14px; }
+
+/* API配置 */
+.api-config-area { background: #f8fafc; border-radius: 8px; padding: 14px; }
+.api-item { margin-bottom: 12px; }
+.api-item:last-child { margin-bottom: 0; }
+.api-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.header-row { display: flex; gap: 8px; margin-bottom: 6px; }
+.header-row input { flex: 1; }
+.header-remove { color: var(--danger); cursor: pointer; font-size: 16px; display: flex; align-items: center; }
+.add-header { color: var(--info); font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.add-header:hover { text-decoration: underline; }
+.test-link-btn { color: var(--info); font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+
+/* 发布成功弹窗 */
+.success-modal { width: 520px; }
+.success-body { text-align: center; padding: 20px 24px; }
+.success-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--success-light); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--success); }
+.success-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.success-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+.info-list { background: #f8fafc; border-radius: 8px; padding: 16px; text-align: left; margin-bottom: 16px; }
+.info-row { display: flex; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+.info-row:last-child { border-bottom: none; }
+.info-label { width: 100px; color: var(--text-secondary); flex-shrink: 0; }
+.info-value { color: var(--text); flex: 1; }
+.info-value .tag { font-size: 11px; }
+.copy-btn { color: var(--text-tertiary); cursor: pointer; margin-left: 6px; }
+.copy-btn:hover { color: var(--primary); }
+.warning-tip { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; text-align: left; font-size: 12px; color: var(--warning); display: flex; gap: 8px; }
+
+/* 权限配置弹窗 */
+.perm-modal { width: 560px; }
+.perm-modal-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.perm-modal-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.perm-modal-sub { font-size: 12px; color: var(--text-secondary); }
+.perm-toolbar { padding: 12px 16px; display: flex; gap: 8px; align-items: center; }
+.perm-toolbar .search-input { flex: 1; }
+.perm-toolbar .select-all, .perm-toolbar .clear-all { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; }
+.perm-selected-bar { margin: 0 16px 10px; padding: 8px 12px; background: var(--info-light); border-radius: 6px; font-size: 12px; color: var(--info); display: flex; align-items: center; gap: 6px; }
+.dept-list-full { padding: 0 16px; max-height: 380px; overflow-y: auto; }
+.dept-item-full { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; transition: background 0.15s; }
+.dept-item-full:hover { background: #f8fafc; }
+.dept-item-full.selected { background: #eff6ff; }
+.dept-item-full input { accent-color: var(--info); width: 16px; height: 16px; }
+.dept-status-tag { margin-left: auto; font-size: 11px; padding: 1px 8px; border-radius: 10px; }
+.dept-status-tag.sel { background: var(--info-light); color: var(--info); }
+.perm-modal-footer { padding: 14px 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.switch-mode { color: var(--info); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.switch-mode:hover { text-decoration: underline; }
+
+/* 删除确认 */
+.delete-link { color: var(--danger); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.delete-link:hover { text-decoration: underline; }
+
+/* Toast */
+.toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-20px); background: rgba(15,23,42,0.9); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 14px; z-index: 9999; opacity: 0; transition: all 0.3s; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: rgba(22,163,74,0.92); }
+.toast.error { background: rgba(239,68,68,0.92); }
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">柏</div>
+    <span>柏星龙业务数字化中台</span>
+  </div>
+  <nav class="top-nav">
+    <a href="index.html">首页</a>
+    <a href="#">T100</a>
+    <a href="#">HR</a>
+    <a href="#">OA</a>
+    <a href="#">CRM</a>
+    <a href="#">SRM</a>
+    <a href="#">BI</a>
+  </nav>
+  <div class="top-right">
+    <span>2025年1月15日 周三</span>
+    <span>☀️ 深圳 18°C</span>
+    <span>🔔</span>
+    <div class="user"><div class="avatar">张</div><span>张建国 ▾</span></div>
+  </div>
+</header>
+
+<!-- 二级导航 -->
+<div class="sub-header">
+  <a href="index.html" class="sub-nav-item">首页概览</a>
+  <a href="content-study.html" class="sub-nav-item active">内容管理</a>
+  <a href="#" class="sub-nav-item">流程中心</a>
+  <a href="#" class="sub-nav-item">API中心</a>
+  <a href="role-list.html" class="sub-nav-item">系统设置</a>
+</div>
+
+<div class="layout">
+  <!-- 侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">内容管理</div>
+    <div class="sidebar-subtitle">管理企业学习与资讯内容</div>
+    <div class="sidebar-menu">
+      <a href="content-study.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">📚</span><span>柏家学堂配置</span></a>
+      <a href="#" class="sidebar-menu-item"><span class="sidebar-menu-icon">📰</span><span>新闻管理</span></a>
+      <a href="#" class="sidebar-menu-item"><span class="sidebar-menu-icon">📢</span><span>公告管理</span></a>
+      <a href="baishi-service-config.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🛎️</span><span>柏事服务配置</span></a>
+      <a href="quick-entry.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🔲</span><span>快捷入口管理</span></a>
+      <a href="meeting-room.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🏢</span><span>会议室管理</span></a>
+      <a href="ai-agent-market.html" class="sidebar-menu-item active"><span class="sidebar-menu-icon">🤖</span><span>AI智能体市场</span></a>
+    </div>
+    <div class="sidebar-footer"><span>🏠</span><a href="index.html">返回门户首页</a></div>
+  </aside>
+
+  <!-- 主内容 -->
+  <main class="main-content">
+    <div class="breadcrumb">
+      <a href="index.html">首页</a><span class="separator">/</span>
+      <a href="content-study.html">内容管理</a><span class="separator">/</span>
+      <span class="current">AI智能体市场</span>
+    </div>
+
+    <div class="page-header-row">
+      <div>
+        <h1 class="page-title">AI智能体市场管理</h1>
+        <p class="page-desc">管理门户「AI智能」卡片中的智能体应用，支持发布、更新、调用配置及访问权限管理</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="refresh-btn" onclick="location.reload()"><span>🔄</span><span>刷新</span></button>
+        <button class="btn btn-primary" onclick="openPublishModal()">+ 发布智能体</button>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon purple">🤖</div><div><div class="stat-value">12</div><div class="stat-label">智能体总数</div></div></div>
+      <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-value">8</div><div class="stat-label">已发布</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue">🔐</div><div><div class="stat-value">6</div><div class="stat-label">已授权应用</div></div></div>
+      <div class="stat-card"><div class="stat-icon orange">📊</div><div><div class="stat-value">23,456</div><div class="stat-label">本月调用次数</div></div></div>
+    </div>
+
+    <!-- 表格 -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="toolbar-left">
+          <div class="table-title"><span class="title-icon">▎</span>智能体列表<span class="count-badge">12条</span></div>
+        </div>
+        <div class="toolbar-right">
+          <select class="filter-select"><option>全部分类</option><option>HR系统</option><option>OA系统</option><option>法务系统</option></select>
+          <select class="filter-select"><option>全部状态</option><option>已发布</option><option>草稿</option><option>已下架</option></select>
+          <input type="text" class="search-input" placeholder="搜索智能体..." oninput="renderTable(this.value)">
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:50px;">排序</th>
+              <th style="width:50px;">图标</th>
+              <th>智能体名称</th>
+              <th>来源</th>
+              <th>作者</th>
+              <th>描述</th>
+              <th>调用配置</th>
+              <th>访问权限</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="agentTbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="page-info">显示 1-6 条，共 12 条记录</div>
+        <div class="page-btns">
+          <button class="page-btn">‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">›</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 发布新智能体弹窗 -->
+<div class="modal-mask" id="publishModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title"><div class="modal-title-icon">🤖</div><div><div>发布新智能体</div><div class="modal-subtitle">填写智能体基本信息并配置调用参数</div></div></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('publishModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">基本信息</div>
+        <div class="form-item"><label class="form-label"><span class="req">*</span>智能体名称</label><input class="form-input" placeholder="请输入智能体名称" id="pubName"></div>
+        <div class="form-item"><label class="form-label">智能体图标</label>
+          <div class="icon-upload-row">
+            <div class="icon-preview" id="pubIconPreview">🤖</div>
+            <button class="icon-upload-btn" onclick="document.getElementById('pubIconFile').click()">⬆ 上传图标</button>
+            <span class="icon-upload-tip">建议 200x200px PNG</span>
+            <input type="file" id="pubIconFile" style="display:none" accept="image/*" onchange="previewIcon(this,'pubIconPreview')">
+          </div>
+        </div>
+        <div class="form-item"><label class="form-label"><span class="req">*</span>来源系统</label>
+          <select class="form-select" id="pubSource"><option value="">请选择来源系统</option><option>HR系统</option><option>OA系统</option><option>法务系统</option><option>BI系统</option><option>知识库</option><option>RPA引擎</option></select>
+        </div>
+        <div class="form-item"><label class="form-label">作者/团队</label><input class="form-input" placeholder="请输入作者或团队名称" id="pubAuthor"></div>
+        <div class="form-item"><label class="form-label"><span class="req">*</span>功能描述</label><textarea class="form-textarea" placeholder="请描述智能体的功能、用途及适用场景..." id="pubDesc"></textarea></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">调用配置</div>
+        <div class="form-item"><label class="form-label">调用方式</label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="pubCallType" value="link" checked onclick="togglePubCallType('link')"> 跳转链接</label>
+            <label class="radio-item"><input type="radio" name="pubCallType" value="api" onclick="togglePubCallType('api')"> REST API</label>
+          </div>
+        </div>
+        <div id="pubLinkArea">
+          <div class="form-item"><label class="form-label"><span class="req">*</span>跳转链接</label><input class="form-input" placeholder="请输入跳转链接" id="pubLink"></div>
+        </div>
+        <div id="pubApiArea" style="display:none;">
+          <div class="api-config-area">
+            <div class="api-item"><div class="api-label">接口类型</div>
+              <div class="radio-group"><label class="radio-item"><input type="radio" name="pubApiType" value="rest" checked> REST API</label><label class="radio-item"><input type="radio" name="pubApiType" value="ws"> WebSocket</label></div>
+            </div>
+            <div class="api-item"><div class="api-label">API 地址</div><input class="form-input" placeholder="https://api.example.com/v1/agent"></div>
+            <div class="api-item"><div class="api-label">认证方式</div>
+              <select class="form-select"><option>Bearer Token</option><option>API Key</option><option>无认证</option><option>OAuth 2.0</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title orange">访问权限</div>
+        <div class="perm-options">
+          <label class="perm-option selected"><input type="radio" name="pubPerm" value="all" checked onchange="switchPubPerm('all')"> <span class="perm-icon">🌐</span> 全员可见</label>
+          <label class="perm-option"><input type="radio" name="pubPerm" value="dept" onchange="switchPubPerm('dept')"> <span class="perm-icon">🏢</span> 限定部门</label>
+          <label class="perm-option"><input type="radio" name="pubPerm" value="role" onchange="switchPubPerm('role')"> <span class="perm-icon">👥</span> 限定角色</label>
+        </div>
+        <div class="perm-tip" id="pubPermTip">🌐 全员可见：所有登录用户均可使用此智能体</div>
+
+        <!-- 限定部门：组织架构树 -->
+        <div id="pubDeptPanel" style="display:none; margin-top:10px;">
+          <div class="dept-selected-info">已选择 <b id="pubDeptCount">0</b> 个部门（可单选/多选）</div>
+          <div class="org-dropdown">
+            <input type="text" class="org-dropdown-trigger" id="pubDeptSearch" placeholder="搜索部门名称（支持模糊搜索）" onclick="togglePubDeptDropdown(event)" oninput="filterPubDeptTree(this.value)">
+            <span class="org-dropdown-arrow" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;">▼</span>
+            <div class="org-dropdown-panel" id="pubDeptPanel2">
+              <div class="org-tree" id="pubDeptTree"></div>
+              <div class="org-dropdown-footer">
+                <button class="btn btn-default btn-tiny" onclick="clearPubDept()">清空</button>
+                <button class="btn btn-primary btn-tiny" onclick="confirmPubDept()">确认</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 限定角色：可搜索多选 -->
+        <div id="pubRolePanel" style="display:none; margin-top:10px;">
+          <div class="role-selected-info">已选择 <b id="pubRoleCount">0</b> 个角色（支持搜索，可单选/多选）</div>
+          <input type="text" class="form-input" placeholder="🔍 搜索角色名称..." oninput="filterPubRoles(this.value)" style="margin-bottom:8px;">
+          <div class="role-select-mode" style="margin-bottom:8px; display:flex; gap:12px; font-size:12px; color:#6b7280;">
+            <label><input type="radio" name="pubRoleMode" value="multi" checked onchange="setPubRoleMode('multi')"> 多选</label>
+            <label><input type="radio" name="pubRoleMode" value="single" onchange="setPubRoleMode('single')"> 单选</label>
+          </div>
+          <div class="role-list-box" id="pubRoleList" style="max-height:180px; overflow-y:auto; background:#fff; border:1px solid #e5e7eb; border-radius:6px; padding:4px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('publishModal')">存为草稿</button>
+      <button class="btn btn-primary" onclick="submitPublish()">立即发布</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑智能体弹窗 -->
+<div class="modal-mask" id="editModal">
+  <div class="modal" style="width:600px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title"><div class="modal-title-icon">✏️</div><div><div id="editTitle">编辑智能体</div><div class="modal-subtitle">更新智能体信息、调用配置及访问权限</div></div></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">基本信息</div>
+        <div class="form-item"><label class="form-label">智能体名称</label><input class="form-input" id="editName"></div>
+        <div class="form-item"><label class="form-label">智能体图标</label>
+          <div class="icon-upload-row">
+            <div class="icon-preview" id="editIconPreview">🤖</div>
+            <button class="icon-upload-btn" onclick="document.getElementById('editIconFile').click()">🔄 更换图标</button>
+            <input type="file" id="editIconFile" style="display:none" accept="image/*" onchange="previewIcon(this,'editIconPreview')">
+          </div>
+        </div>
+        <div class="form-item"><label class="form-label">来源系统</label><select class="form-select" id="editSource"><option>HR系统</option><option>OA系统</option><option>法务系统</option><option>BI系统</option></select></div>
+        <div class="form-item"><label class="form-label">作者/团队</label><input class="form-input" id="editAuthor"></div>
+        <div class="form-item"><label class="form-label">功能描述</label><textarea class="form-textarea" id="editDesc"></textarea></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title green">调用配置 <span class="section-tag tag-done">已配置</span><span style="margin-left:auto;"><span class="test-link-btn" onclick="showToast('连接测试成功','success')">🔗 测试连接</span></span></div>
+        <div class="api-config-area">
+          <div class="api-item"><div class="api-label">接口类型</div>
+            <div class="radio-group"><label class="radio-item"><input type="radio" name="editApiType" value="rest" checked> REST API</label><label class="radio-item"><input type="radio" name="editApiType" value="ws"> WebSocket</label></div>
+          </div>
+          <div class="api-item"><div class="api-label">API 地址</div><input class="form-input" value="https://hr-api.example.com/v1/resume-screening"></div>
+          <div class="api-item"><div class="api-label">认证方式</div>
+            <select class="form-select"><option>Bearer Token</option><option>API Key</option></select>
+          </div>
+          <div class="api-item"><div class="api-label">自定义请求头</div>
+            <div class="header-row"><input class="form-input" placeholder="Header Key" value="Authorization"><input class="form-input" placeholder="Header Value" value="Bearer xxx"><span class="header-remove" onclick="this.parentElement.remove()">🗑</span></div>
+            <span class="add-header" onclick="addHeaderRow(this)">+ 添加请求头</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title orange">访问权限 <span class="section-tag tag-current" id="editPermTag">当前：全员可见</span></div>
+        <div class="perm-options">
+          <label class="perm-option selected"><input type="radio" name="editPerm" value="all" checked onchange="switchEditPerm('all')"> <span class="perm-icon">🌐</span> 全员可见</label>
+          <label class="perm-option"><input type="radio" name="editPerm" value="dept" onchange="switchEditPerm('dept')"> <span class="perm-icon">🏢</span> 限定部门</label>
+          <label class="perm-option"><input type="radio" name="editPerm" value="role" onchange="switchEditPerm('role')"> <span class="perm-icon">👥</span> 限定角色</label>
+        </div>
+
+        <!-- 限定部门：组织架构树（可搜索） -->
+        <div id="editDeptPanel" style="display:none; margin-top:10px;">
+          <div class="dept-selected-info">已选择 <b id="editDeptCount">3</b> 个部门（可单选/多选）</div>
+          <div class="org-dropdown">
+            <input type="text" class="org-dropdown-trigger" id="editDeptSearch" placeholder="搜索部门名称（支持模糊搜索）" onclick="toggleEditDeptDropdown(event)" oninput="filterEditDeptTree(this.value)">
+            <span class="org-dropdown-arrow" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;">▼</span>
+            <div class="org-dropdown-panel" id="editDeptPanel2">
+              <div class="org-tree" id="editDeptTree"></div>
+              <div class="org-dropdown-footer">
+                <button class="btn btn-default btn-tiny" onclick="clearEditDept()">清空</button>
+                <button class="btn btn-primary btn-tiny" onclick="confirmEditDept()">确认</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 限定角色：可搜索单选/多选 -->
+        <div id="editRolePanel" style="display:none; margin-top:10px;">
+          <div class="role-selected-info">已选择 <b id="editRoleCount">4</b> 个角色（支持搜索，可单选/多选）</div>
+          <input type="text" class="form-input" placeholder="🔍 搜索角色名称..." oninput="filterEditRoles(this.value)" style="margin-bottom:8px;">
+          <div class="role-select-mode" style="margin-bottom:8px; display:flex; gap:12px; font-size:12px; color:#6b7280;">
+            <label><input type="radio" name="editRoleMode" value="multi" checked onchange="setEditRoleMode('multi')"> 多选</label>
+            <label><input type="radio" name="editRoleMode" value="single" onchange="setEditRoleMode('single')"> 单选</label>
+          </div>
+          <div id="editRoleList" style="max-height:180px; overflow-y:auto; background:#fff; border:1px solid #e5e7eb; border-radius:6px; padding:4px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <span class="delete-link" onclick="confirmDelete()">🗑 删除智能体</span>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-default" onclick="closeModal('editModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveEdit()">✓ 保存修改</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 查看智能体详情弹窗 -->
+<div class="modal-mask" id="viewModal">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header">
+      <div class="modal-title"><div class="modal-title-icon">👁</div><div><div>智能体详情</div><div class="modal-subtitle">查看智能体的完整信息</div></div></div>
+      <button class="modal-close" onclick="closeModal('viewModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #f1f5f9;">
+        <div class="agent-icon" id="viewIcon" style="width:56px;height:56px;font-size:26px;"></div>
+        <div>
+          <div style="font-size:18px;font-weight:600;" id="viewName"></div>
+          <div style="margin-top:6px; display:flex; gap:8px;" id="viewStatus"></div>
+        </div>
+      </div>
+      <div class="info-list">
+        <div class="info-row"><div class="info-label">来源系统</div><div class="info-value" id="viewSource"></div></div>
+        <div class="info-row"><div class="info-label">作者/团队</div><div class="info-value" id="viewAuthor"></div></div>
+        <div class="info-row"><div class="info-label">功能描述</div><div class="info-value" id="viewDesc"></div></div>
+        <div class="info-row"><div class="info-label">调用配置</div><div class="info-value" id="viewCall"></div></div>
+        <div class="info-row"><div class="info-label">访问权限</div><div class="info-value" id="viewPerm"></div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('viewModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 访问权限配置弹窗 -->
+<div class="modal-mask" id="permModal">
+  <div class="modal perm-modal">
+    <div class="perm-modal-header">
+      <div>
+        <div class="perm-modal-title">🛡️ 访问权限配置 — 限定部门</div>
+        <div class="perm-modal-sub">选择可访问此智能体的部门，未被选中的部门将无法使用</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('permModal')">✕</button>
+    </div>
+    <div class="perm-toolbar">
+      <input type="text" class="search-input" placeholder="🔍 搜索部门名称...">
+      <button class="select-all" onclick="toggleAllDept(true)">全选</button>
+      <button class="clear-all" onclick="toggleAllDept(false)">清空</button>
+    </div>
+    <div class="perm-selected-bar">✓ 已选择 3 个部门</div>
+    <div class="dept-list-full" id="deptListFull"></div>
+    <div class="perm-modal-footer">
+      <span class="switch-mode" onclick="showToast('已切换为限定角色模式')">🔄 切换为限定角色</span>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-default" onclick="closeModal('permModal')">取消</button>
+        <button class="btn btn-primary" style="background:#f59e0b;border-color:#f59e0b;" onclick="confirmPerm()">✓ 确认授权</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 发布成功弹窗 -->
+<div class="modal-mask" id="successModal">
+  <div class="modal success-modal">
+    <div class="modal-header">
+      <div class="modal-title"><div class="modal-title-icon" style="background:#dcfce7;color:#16a34a;">✅</div><div><div>智能体发布成功</div><div class="modal-subtitle">智能体已成功发布至市场，用户可在门户首页查看</div></div></div>
+      <button class="modal-close" onclick="closeModal('successModal')">✕</button>
+    </div>
+    <div class="success-body">
+      <div class="success-icon">✅</div>
+      <div class="success-title">智能体已成功发布</div>
+      <div class="success-desc">以下为智能体的关键信息，请妥善保存</div>
+      <div class="info-list">
+        <div class="info-row"><div class="info-label">智能体名称</div><div class="info-value">简历筛选助手 <span class="copy-btn" onclick="showToast('已复制')">📋</span></div></div>
+        <div class="info-row"><div class="info-label">系统编码</div><div class="info-value"><span class="tag tag-api">AGENT-20250115-001</span> <span class="copy-btn" onclick="showToast('已复制')">📋</span></div></div>
+        <div class="info-row"><div class="info-label">当前状态</div><div class="info-value"><span class="tag status-published">● 已发布</span></div></div>
+        <div class="info-row"><div class="info-label">调用方式</div><div class="info-value">跳转链接</div></div>
+        <div class="info-row"><div class="info-label">跳转链接</div><div class="info-value" style="color:#2563eb;word-break:break-all;">https://agent.baixinglong.com/resume-screening <span class="copy-btn" onclick="showToast('已复制')">📋</span></div></div>
+        <div class="info-row"><div class="info-label">访问权限</div><div class="info-value"><span class="tag tag-auth">全员可见</span></div></div>
+        <div class="info-row"><div class="info-label">来源系统</div><div class="info-value">HR系统</div></div>
+        <div class="info-row"><div class="info-label">发布时间</div><div class="info-value">2025-01-15 14:30:25</div></div>
+      </div>
+      <div class="warning-tip">⚠️ <span><b>温馨提示</b><br>智能体已发布至门户首页「AI智能」卡片，用户可在首页直接访问。如需修改配置或调整权限，请前往智能体市场管理页面操作。</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('successModal')">返回列表</button>
+      <button class="btn btn-primary" onclick="showToast('查看详情')">🔍 查看详情</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var agents = [
+  { id:1, icon:'📄', iconBg:'#ede9fe', name:'简历筛选', source:'HR系统', author:'AI团队', desc:'智能匹配简历与岗位需求', callConfig:'API已配置', perm:'已授权', permType:'auth', status:'published' },
+  { id:2, icon:'🎙️', iconBg:'#dbeafe', name:'智能会议', source:'OA系统', author:'AI团队', desc:'语音转写与会议纪要自动生成', callConfig:'API已配置', perm:'已授权', permType:'auth', status:'published' },
+  { id:3, icon:'📑', iconBg:'#dcfce7', name:'合同审查', source:'法务系统', author:'法务部', desc:'AI辅助合同条款风险识别与审查', callConfig:'API已配置', perm:'限定角色', permType:'limited', status:'published' },
+  { id:4, icon:'📊', iconBg:'#e0e7ff', name:'报表生成', source:'BI系统', author:'数据团队', desc:'自然语言自动汇总生成数据报表', callConfig:'待配置', perm:'无权限', permType:'noauth', status:'draft' },
+  { id:5, icon:'❓', iconBg:'#f1f5f9', name:'知识问答', source:'知识库', author:'AI团队', desc:'基于企业知识库的智能问答助手', callConfig:'待配置', perm:'无权限', permType:'noauth', status:'draft' },
+  { id:6, icon:'🔄', iconBg:'#fef3c7', name:'流程自动化', source:'RPA引擎', author:'IT部门', desc:'RPA流程自动化引擎，自动执行重复任务', callConfig:'待配置', perm:'无权限', permType:'noauth', status:'offline' }
+];
+var currentEditId = null;
+
+var statusMap = { published:{text:'已发布',cls:'status-published'}, draft:{text:'草稿',cls:'status-draft'}, offline:{text:'已下架',cls:'status-offline'} };
+var permMap = { auth:{text:'已授权',cls:'tag-auth'}, limited:{text:'限定角色',cls:'tag-limited'}, noauth:{text:'无权限',cls:'tag-noauth'} };
+var callMap = { 'API已配置':'tag-api', '待配置':'tag-pending' };
+
+function renderTable(keyword) {
+  keyword = keyword || '';
+  var list = agents.filter(function(a){ return a.name.indexOf(keyword)>=0 || a.desc.indexOf(keyword)>=0; });
+  var html = list.map(function(a, i){
+    var s = statusMap[a.status], p = permMap[a.permType], cCls = callMap[a.callConfig] || 'tag-pending';
+    var actions = '';
+    if (a.status === 'published') {
+      actions = '<button class="action-btn action-edit" onclick="openEditModal('+a.id+')">✏️ 编辑</button>' +
+        '<button class="action-btn action-config" onclick="openViewDetail('+a.id+')">👁 查看</button>' +
+        '<button class="action-btn action-offline" onclick="offlineAgent('+a.id+')">⬇ 下架</button>';
+    } else if (a.status === 'draft') {
+      actions = '<button class="action-btn action-edit" onclick="openEditModal('+a.id+')">✏️ 编辑</button>' +
+        '<button class="action-btn action-config" onclick="openViewDetail('+a.id+')">👁 查看</button>' +
+        '<button class="action-btn action-publish" onclick="publishAgent('+a.id+')">⬆ 发布</button>';
+    } else {
+      actions = '<button class="action-btn action-edit" onclick="openEditModal('+a.id+')">✏️ 编辑</button>' +
+        '<button class="action-btn action-config" onclick="openViewDetail('+a.id+')">👁 查看</button>' +
+        '<button class="action-btn action-publish" onclick="publishAgent('+a.id+')">⬆ 上架</button>';
+    }
+    return '<tr>' +
+      '<td class="sort-cell">⋮⋮</td>' +
+      '<td><div class="agent-icon" style="background:'+a.iconBg+';">'+a.icon+'</div></td>' +
+      '<td><div class="agent-name-cell"><span class="agent-name">'+a.name+'</span></div></td>' +
+      '<td>'+a.source+'</td>' +
+      '<td>'+a.author+'</td>' +
+      '<td><div class="agent-desc" title="'+a.desc+'">'+a.desc+'</div></td>' +
+      '<td><span class="tag '+cCls+'">'+a.callConfig+'</span></td>' +
+      '<td><span class="tag '+p.cls+'">'+p.text+'</span></td>' +
+      '<td><span class="tag '+s.cls+'">● '+s.text+'</span></td>' +
+      '<td><div class="action-cell">'+actions+'</div></td>' +
+    '</tr>';
+  }).join('');
+  document.getElementById('agentTbody').innerHTML = html || '<tr><td colspan="10" style="text-align:center;padding:40px;color:#9ca3af;">暂无数据</td></tr>';
+}
+
+function openPublishModal() {
+  document.getElementById('publishModal').classList.add('show');
+  renderPubDeptTree();
+  renderPubRoleList();
+  switchPubPerm('all');
+}
+
+/* 发布弹窗 - 权限切换 */
+function switchPubPerm(type) {
+  document.getElementById('pubDeptPanel').style.display = type === 'dept' ? '' : 'none';
+  document.getElementById('pubRolePanel').style.display = type === 'role' ? '' : 'none';
+  var tip = document.getElementById('pubPermTip');
+  if (type === 'all') tip.innerHTML = '🌐 全员可见：所有登录用户均可使用此智能体';
+  else if (type === 'dept') tip.innerHTML = '🏢 限定部门：仅选中部门的用户可使用此智能体';
+  else tip.innerHTML = '👥 限定角色：仅选中角色的用户可使用此智能体';
+}
+
+/* 发布弹窗 - 组织架构树 */
+var pubDeptTreeHTML = '' +
+  '<div class="org-node"><div class="org-node-label" onclick="toggleOrgNode(this)"><span class="org-toggle">▼</span><input type="checkbox" class="pub-dept-cb" onchange="togglePubDeptChildren(this)"><span>🏢 柏星龙集团</span></div>' +
+    '<div class="org-children">' +
+      '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>👥 人力资源部</span></div></div>' +
+      '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>💰 财务部</span></div></div>' +
+      '<div class="org-node"><div class="org-node-label" onclick="toggleOrgNode(this)"><span class="org-toggle">▶</span><input type="checkbox" class="pub-dept-cb" onchange="togglePubDeptChildren(this)"><span>🛒 供应链中心</span></div>' +
+        '<div class="org-children" style="display:none;">' +
+          '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>采购部</span></div></div>' +
+          '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>仓储物流部</span></div></div>' +
+        '</div></div>' +
+      '<div class="org-node"><div class="org-node-label" onclick="toggleOrgNode(this)"><span class="org-toggle">▶</span><input type="checkbox" class="pub-dept-cb" onchange="togglePubDeptChildren(this)"><span>💻 技术中心</span></div>' +
+        '<div class="org-children" style="display:none;">' +
+          '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>研发中心</span></div></div>' +
+          '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>信息技术部</span></div></div>' +
+        '</div></div>' +
+      '<div class="org-node"><div class="org-node-label" onclick="toggleOrgNode(this)"><span class="org-toggle">▶</span><input type="checkbox" class="pub-dept-cb" onchange="togglePubDeptChildren(this)"><span>📣 营销中心</span></div>' +
+        '<div class="org-children" style="display:none;">' +
+          '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>市场部</span></div></div>' +
+          '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>销售部</span></div></div>' +
+        '</div></div>' +
+      '<div class="org-node"><div class="org-node-label"><span class="org-toggle"></span><input type="checkbox" class="pub-dept-cb"><span>🛡️ 安环部</span></div></div>' +
+    '</div>' +
+  '</div>';
+function renderPubDeptTree() {
+  document.getElementById('pubDeptTree').innerHTML = pubDeptTreeHTML;
+  updatePubDeptCount();
+}
+function togglePubDeptDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('pubDeptPanel2').classList.toggle('show');
+}
+function togglePubDeptChildren(cb) {
+  var children = cb.closest('.org-node').querySelectorAll('.org-children .pub-dept-cb');
+  children.forEach(function(c){ c.checked = cb.checked; });
+  updatePubDeptCount();
+}
+function updatePubDeptCount() {
+  var checked = document.querySelectorAll('#pubDeptTree .pub-dept-cb:checked');
+  document.getElementById('pubDeptCount').textContent = checked.length;
+}
+function filterPubDeptTree(keyword) {
+  keyword = (keyword || '').trim().toLowerCase();
+  document.querySelectorAll('#pubDeptTree .org-node').forEach(function(node){
+    var label = node.querySelector(':scope > .org-node-label');
+    if (!label) return;
+    var text = label.textContent.toLowerCase();
+    var children = node.querySelector(':scope > .org-children');
+    var hasVisibleChild = false;
+    if (children) {
+      children.querySelectorAll(':scope > .org-node').forEach(function(c){
+        if (c.style.display !== 'none') hasVisibleChild = true;
+      });
+    }
+    if (!keyword) {
+      node.style.display = '';
+      if (children) children.style.display = '';
+    } else {
+      var match = text.indexOf(keyword) >= 0;
+      node.style.display = (match || hasVisibleChild) ? '' : 'none';
+      if (match && children) children.style.display = '';
+    }
+  });
+}
+function clearPubDept() {
+  document.querySelectorAll('#pubDeptTree .pub-dept-cb').forEach(function(c){ c.checked = false; });
+  updatePubDeptCount();
+}
+function confirmPubDept() {
+  document.getElementById('pubDeptPanel2').classList.remove('show');
+  showToast('部门已选择', 'success');
+}
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('pub-dept-cb')) updatePubDeptCount();
+});
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#pubDeptPanel')) document.getElementById('pubDeptPanel2').classList.remove('show');
+});
+
+/* 发布弹窗 - 角色列表 */
+var pubRoles = [
+  { name:'部门主管' }, { name:'HR专员' }, { name:'采购经理' }, { name:'销售总监' },
+  { name:'财务主管' }, { name:'研发工程师' }, { name:'产品经理' }, { name:'市场专员' },
+  { name:'行政专员' }, { name:'仓储管理员' }, { name:'法务专员' }, { name:'运维工程师' }
+];
+var pubRoleMode = 'multi';
+function renderPubRoleList(filter) {
+  filter = filter || '';
+  var list = pubRoles.filter(function(r){ return r.name.indexOf(filter) >= 0; });
+  var type = pubRoleMode === 'single' ? 'radio' : 'checkbox';
+  document.getElementById('pubRoleList').innerHTML = list.map(function(r){
+    return '<div class="role-item" style="margin:2px 0; padding:6px 10px; border-radius:5px; cursor:pointer;" onclick="this.querySelector(\'input\').click()">' +
+      '<input type="'+type+'" name="pubRoleItem" class="pub-role-cb" style="accent-color:#7c3aed; margin-right:8px;" onclick="event.stopPropagation()"> ' + r.name +
+    '</div>';
+  }).join('') || '<div style="text-align:center;color:#9ca3af;padding:20px;font-size:13px;">未找到匹配角色</div>';
+  updatePubRoleCount();
+}
+function filterPubRoles(val) { renderPubRoleList(val); }
+function setPubRoleMode(mode) {
+  pubRoleMode = mode;
+  renderPubRoleList();
+}
+function updatePubRoleCount() {
+  var checked = document.querySelectorAll('.pub-role-cb:checked');
+  document.getElementById('pubRoleCount').textContent = checked.length;
+}
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('pub-role-cb')) {
+    if (pubRoleMode === 'single') {
+      document.querySelectorAll('.pub-role-cb').forEach(function(c){ if(c!==e.target) c.checked=false; });
+    }
+    updatePubRoleCount();
+  }
+});
+function openEditModal(id) {
+  currentEditId = id;
+  var a = agents.find(function(x){return x.id===id;});
+  document.getElementById('editTitle').textContent = '编辑智能体 — ' + a.name;
+  document.getElementById('editName').value = a.name;
+  document.getElementById('editSource').value = a.source;
+  document.getElementById('editAuthor').value = a.author;
+  document.getElementById('editDesc').value = a.desc;
+  document.getElementById('editIconPreview').textContent = a.icon;
+  document.getElementById('editIconPreview').style.background = a.iconBg;
+  renderEditDeptTree();
+  renderEditRoleList();
+  switchEditPerm('all');
+  document.getElementById('editModal').classList.add('show');
+}
+
+/* 编辑弹窗 - 权限切换 */
+function switchEditPerm(type) {
+  document.getElementById('editDeptPanel').style.display = type === 'dept' ? '' : 'none';
+  document.getElementById('editRolePanel').style.display = type === 'role' ? '' : 'none';
+}
+
+/* 编辑弹窗 - 组织架构树 */
+var editDeptTreeHTML = pubDeptTreeHTML.replace(/pub-dept-cb/g, 'edit-dept-cb').replace(/togglePubDeptChildren/g, 'toggleEditDeptChildren');
+function renderEditDeptTree() {
+  document.getElementById('editDeptTree').innerHTML = editDeptTreeHTML;
+  updateEditDeptCount();
+}
+function toggleEditDeptDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('editDeptPanel2').classList.toggle('show');
+}
+function toggleEditDeptChildren(cb) {
+  var children = cb.closest('.org-node').querySelectorAll('.org-children .edit-dept-cb');
+  children.forEach(function(c){ c.checked = cb.checked; });
+  updateEditDeptCount();
+}
+function updateEditDeptCount() {
+  var checked = document.querySelectorAll('#editDeptTree .edit-dept-cb:checked');
+  document.getElementById('editDeptCount').textContent = checked.length;
+}
+function filterEditDeptTree(keyword) {
+  keyword = (keyword || '').trim().toLowerCase();
+  document.querySelectorAll('#editDeptTree .org-node').forEach(function(node){
+    var label = node.querySelector(':scope > .org-node-label');
+    if (!label) return;
+    var text = label.textContent.toLowerCase();
+    var children = node.querySelector(':scope > .org-children');
+    var hasVisibleChild = false;
+    if (children) children.querySelectorAll(':scope > .org-node').forEach(function(c){ if (c.style.display !== 'none') hasVisibleChild = true; });
+    if (!keyword) { node.style.display = ''; if (children) children.style.display = ''; }
+    else { var match = text.indexOf(keyword) >= 0; node.style.display = (match || hasVisibleChild) ? '' : 'none'; if (match && children) children.style.display = ''; }
+  });
+}
+function clearEditDept() {
+  document.querySelectorAll('#editDeptTree .edit-dept-cb').forEach(function(c){ c.checked = false; });
+  updateEditDeptCount();
+}
+function confirmEditDept() {
+  document.getElementById('editDeptPanel2').classList.remove('show');
+  showToast('部门已选择', 'success');
+}
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('edit-dept-cb')) updateEditDeptCount();
+});
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#editDeptPanel')) document.getElementById('editDeptPanel2').classList.remove('show');
+});
+
+/* 编辑弹窗 - 角色列表 */
+var editRoleMode = 'multi';
+function renderEditRoleList(filter) {
+  filter = filter || '';
+  var list = pubRoles.filter(function(r){ return r.name.indexOf(filter) >= 0; });
+  var type = editRoleMode === 'single' ? 'radio' : 'checkbox';
+  document.getElementById('editRoleList').innerHTML = list.map(function(r){
+    return '<div class="role-item" style="margin:2px 0; padding:6px 10px; border-radius:5px; cursor:pointer;" onclick="this.querySelector(\'input\').click()">' +
+      '<input type="'+type+'" name="editRoleItem" class="edit-role-cb" style="accent-color:#7c3aed; margin-right:8px;" onclick="event.stopPropagation()"> ' + r.name +
+    '</div>';
+  }).join('') || '<div style="text-align:center;color:#9ca3af;padding:20px;font-size:13px;">未找到匹配角色</div>';
+  updateEditRoleCount();
+}
+function filterEditRoles(val) { renderEditRoleList(val); }
+function setEditRoleMode(mode) { editRoleMode = mode; renderEditRoleList(); }
+function updateEditRoleCount() {
+  document.getElementById('editRoleCount').textContent = document.querySelectorAll('.edit-role-cb:checked').length;
+}
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('edit-role-cb')) {
+    if (editRoleMode === 'single') document.querySelectorAll('.edit-role-cb').forEach(function(c){ if(c!==e.target) c.checked=false; });
+    updateEditRoleCount();
+  }
+});
+function openPermModal(id) { document.getElementById('permModal').classList.add('show'); renderDeptList(); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+/* 查看详情 */
+function openViewDetail(id) {
+  var a = agents.find(function(x){return x.id===id;});
+  if (!a) return;
+  var s = statusMap[a.status], p = permMap[a.permType];
+  document.getElementById('viewName').textContent = a.name;
+  document.getElementById('viewIcon').textContent = a.icon;
+  document.getElementById('viewIcon').style.background = a.iconBg;
+  document.getElementById('viewSource').textContent = a.source;
+  document.getElementById('viewAuthor').textContent = a.author;
+  document.getElementById('viewDesc').textContent = a.desc;
+  document.getElementById('viewCall').innerHTML = '<span class="tag '+(callMap[a.callConfig]||'tag-pending')+'">'+a.callConfig+'</span>';
+  document.getElementById('viewPerm').innerHTML = '<span class="tag '+p.cls+'">'+p.text+'</span>';
+  document.getElementById('viewStatus').innerHTML = '<span class="tag '+s.cls+'">● '+s.text+'</span>';
+  document.getElementById('viewModal').classList.add('show');
+}
+
+function togglePubCallType(t) {
+  document.getElementById('pubLinkArea').style.display = t==='link' ? '' : 'none';
+  document.getElementById('pubApiArea').style.display = t==='api' ? '' : 'none';
+}
+
+function previewIcon(input, targetId) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var el = document.getElementById(targetId);
+    el.innerHTML = '<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addHeaderRow(btn) {
+  var row = document.createElement('div');
+  row.className = 'header-row';
+  row.innerHTML = '<input class="form-input" placeholder="Header Key"><input class="form-input" placeholder="Header Value"><span class="header-remove" onclick="this.parentElement.remove()">🗑</span>';
+  btn.parentElement.insertBefore(row, btn);
+}
+
+var depts = [
+  { name:'人力资源部', en:'HR Department', count:32, icon:'👥', selected:true },
+  { name:'财务部', en:'Finance Department', count:18, icon:'💰', selected:true },
+  { name:'采购部', en:'Procurement Department', count:12, icon:'🛒', selected:true },
+  { name:'研发中心', en:'R&D Center', count:56, icon:'{ }', selected:false },
+  { name:'市场部', en:'Marketing Department', count:22, icon:'📣', selected:false },
+  { name:'销售部', en:'Sales Department', count:45, icon:'📈', selected:false },
+  { name:'安环部', en:'Safety & Environment', count:8, icon:'🛡️', selected:false },
+  { name:'信息技术部', en:'IT Department', count:15, icon:'💻', selected:false }
+];
+function renderDeptList() {
+  document.getElementById('deptListFull').innerHTML = depts.map(function(d){
+    return '<div class="dept-item-full'+(d.selected?' selected':'')+'">' +
+      '<input type="checkbox" '+(d.selected?'checked':'')+' onclick="toggleDept(this)">' +
+      '<div class="dept-icon">'+d.icon+'</div>' +
+      '<div><div class="dept-name">'+d.name+'</div><div class="dept-meta">'+d.en+' · '+d.count+'人</div></div>' +
+      (d.selected?'<span class="dept-status-tag sel">已选</span>':'') +
+    '</div>';
+  }).join('');
+}
+
+/* 组织架构下拉 */
+function toggleOrgDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('orgDropdownPanel').classList.toggle('show');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#orgDropdown')) {
+    document.getElementById('orgDropdownPanel').classList.remove('show');
+  }
+});
+function toggleOrgNode(el) {
+  var children = el.parentElement.querySelector('.org-children');
+  var toggle = el.querySelector('.org-toggle');
+  if (children) {
+    var hidden = children.style.display === 'none';
+    children.style.display = hidden ? '' : 'none';
+    toggle.textContent = hidden ? '▼' : '▶';
+  }
+}
+function toggleOrgChildren(cb) {
+  var children = cb.closest('.org-node').querySelectorAll('.org-children .org-cb');
+  children.forEach(function(c){ c.checked = cb.checked; });
+  updateDeptSelCount();
+}
+function updateDeptSelCount() {
+  var checked = document.querySelectorAll('#orgDropdownPanel .org-cb:checked');
+  document.getElementById('deptSelCount').textContent = checked.length;
+}
+function clearOrgDept() {
+  document.querySelectorAll('#orgDropdownPanel .org-cb').forEach(function(c){ c.checked = false; });
+  updateDeptSelCount();
+}
+function confirmOrgDept() {
+  document.getElementById('orgDropdownPanel').classList.remove('show');
+  showToast('部门权限已保存', 'success');
+}
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('org-cb')) updateDeptSelCount();
+});
+function toggleDept(cb) {
+  var item = cb.closest('.dept-item-full');
+  item.classList.toggle('selected', cb.checked);
+  var tag = item.querySelector('.dept-status-tag');
+  if (cb.checked) { if(!tag){ tag=document.createElement('span'); tag.className='dept-status-tag sel'; tag.textContent='已选'; item.appendChild(tag);} }
+  else if (tag) tag.remove();
+}
+function toggleAllDept(checked) {
+  document.querySelectorAll('#deptListFull input[type=checkbox]').forEach(function(cb){ cb.checked = checked; toggleDept(cb); });
+}
+
+function submitPublish() {
+  var name = document.getElementById('pubName').value.trim();
+  var source = document.getElementById('pubSource').value;
+  if (!name) return showToast('请输入智能体名称','error');
+  if (!source) return showToast('请选择来源系统','error');
+  closeModal('publishModal');
+  document.getElementById('successModal').classList.add('show');
+}
+function saveEdit() { closeModal('editModal'); showToast('智能体已更新','success'); }
+function confirmPerm() { closeModal('permModal'); showToast('权限配置已保存','success'); }
+function offlineAgent(id) {
+  var a = agents.find(function(x){return x.id===id;});
+  if (a) { a.status='offline'; renderTable(); showToast('智能体已下架','success'); }
+}
+function publishAgent(id) {
+  var a = agents.find(function(x){return x.id===id;});
+  if (a) { a.status='published'; renderTable(); showToast('智能体已发布','success'); }
+}
+function confirmDelete() {
+  if (!confirm('确定要删除此智能体吗？删除后无法恢复。')) return;
+  closeModal('editModal');
+  showToast('智能体已删除','success');
+}
+
+function showToast(msg, type) {
+  type = type || '';
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){ t.classList.add('show'); });
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 300); }, 2000);
+}
+
+renderTable();
+</script>
+</body>
+</html>

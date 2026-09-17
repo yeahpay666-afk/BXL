@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI智能体 - 柏星龙业务数字化中台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #1f2937; font-size: 14px; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* 顶部导航 */
+    .top-header { height: 52px; background: linear-gradient(90deg, #1e3a5f 0%, #2563eb 100%); display: flex; align-items: center; padding: 0 20px; color: #fff; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin-right: 28px; }
+    .logo-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .top-nav { display: flex; gap: 6px; flex: 1; }
+    .top-nav a { padding: 6px 14px; border-radius: 4px; font-size: 13px; opacity: 0.85; transition: all 0.2s; color: #fff; }
+    .top-nav a:hover, .top-nav a.active { opacity: 1; background: rgba(255,255,255,0.15); }
+    .top-right { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+    .top-right .user { display: flex; align-items: center; gap: 8px; }
+    .top-right .avatar { width: 30px; height: 30px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    /* 主体布局 */
+    .layout { display: flex; min-height: calc(100vh - 52px); }
+    .sidebar { width: 180px; background: #fff; border-right: 1px solid #e5e7eb; padding: 12px 0; }
+    .side-title { padding: 8px 20px; font-size: 12px; color: #9ca3af; font-weight: 500; }
+    .side-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: #4b5563; cursor: pointer; transition: all 0.15s; }
+    .side-item:hover { background: #f3f4f6; color: #2563eb; }
+    .side-item.active { background: #eff6ff; color: #2563eb; font-weight: 500; border-right: 3px solid #2563eb; }
+    .side-bottom { position: absolute; bottom: 16px; left: 0; width: 180px; }
+    .side-back { display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-size: 13px; color: #6b7280; cursor: pointer; }
+    .side-back:hover { color: #2563eb; }
+
+    .main { flex: 1; padding: 20px 24px; overflow-y: auto; }
+
+    /* 面包屑 */
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6b7280; margin-bottom: 14px; }
+    .breadcrumb a { color: #6b7280; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .separator { color: #d1d5db; }
+    .breadcrumb .current { color: #1f2937; font-weight: 500; }
+
+    /* 页头 */
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .page-title { font-size: 22px; font-weight: 600; color: #1f2937; }
+    .page-desc { font-size: 13px; color: #6b7280; margin-top: 6px; }
+    .btn { padding: 7px 14px; border-radius: 6px; font-size: 13px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-default { background: #fff; color: #4b5563; border: 1px solid #d1d5db; }
+    .btn-default:hover { background: #f9fafb; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    /* 筛选栏 */
+    .filter-bar { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .filter-input { padding: 7px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; outline: none; width: 200px; }
+    .filter-input:focus { border-color: #2563eb; }
+    .filter-select { padding: 7px 30px 7px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #fff; outline: none; }
+    .status-legend { margin-left: auto; display: flex; gap: 14px; font-size: 12px; color: #6b7280; }
+    .status-legend span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+    /* 卡片列表 */
+    .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 15px; font-weight: 600; color: #1f2937; }
+    .section-title::before { content: ''; width: 3px; height: 16px; background: #2563eb; border-radius: 2px; }
+
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .agent-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; transition: all 0.2s; position: relative; }
+    .agent-card:hover { border-color: #bfdbfe; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.08); transform: translateY(-2px); }
+    .agent-card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .agent-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .agent-name { font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 6px; }
+    .agent-desc { font-size: 12px; color: #6b7280; line-height: 1.6; margin-bottom: 14px; min-height: 38px; }
+    .agent-tags { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .agent-tag { padding: 3px 8px; background: #f3f4f6; color: #6b7280; border-radius: 4px; font-size: 11px; }
+    .agent-card-foot { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f3f4f6; }
+    .call-count { font-size: 12px; color: #9ca3af; display: flex; align-items: center; gap: 4px; }
+    .use-btn { padding: 6px 14px; background: #2563eb; color: #fff; border-radius: 6px; font-size: 12px; transition: all 0.15s; }
+    .use-btn:hover { background: #1d4ed8; }
+    .offline-tag { padding: 6px 14px; background: #f3f4f6; color: #9ca3af; border-radius: 6px; font-size: 12px; }
+
+    .status-badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+    .status-online { background: #dcfce7; color: #16a34a; }
+    .status-offline { background: #f3f4f6; color: #9ca3af; }
+
+    /* 分页 */
+    .pagination { margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 6px; }
+    .pagination-info { font-size: 12px; color: #6b7280; margin-right: auto; }
+    .page-btn { min-width: 30px; height: 30px; padding: 0 8px; border: 1px solid #d1d5db; background: #fff; border-radius: 6px; font-size: 12px; cursor: pointer; }
+    .page-btn:hover { background: #f9fafb; }
+    .page-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .page-size { padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; background: #fff; }
+
+    .toast { position: fixed; top: 80px; right: 24px; background: #1f2937; color: #fff; padding: 10px 16px; border-radius: 6px; font-size: 13px; z-index: 2000; opacity: 0; transform: translateX(20px); transition: all 0.2s; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.success { background: #16a34a; }
+  </style>
+</head>
+<body>
+  <div class="top-header">
+    <div class="logo"><div class="logo-icon">🏢</div>柏星龙业务数字化中台</div>
+    <div class="top-nav">
+      <a href="index.html">首页概览</a>
+      <a href="content-study.html" class="active">内容管理</a>
+      <a href="system-manage.html">系统管理</a>
+    </div>
+    <div class="top-right">
+      <div class="user">
+        <div class="avatar">张</div>
+        <span>张建国</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout" style="position:relative;">
+    <div class="sidebar">
+      <div class="side-title">快捷导航</div>
+      <a href="index.html" class="side-item">📋 我的待办</a>
+      <a href="index.html" class="side-item">📰 集团新闻</a>
+      <a href="index.html" class="side-item">📢 公告通知</a>
+      <a href="index.html" class="side-item">📁 最新文档</a>
+      <a href="ai-list.html" class="side-item active">🤖 AI智能体</a>
+      <div class="side-bottom">
+        <a href="index.html" class="side-back">« 返回门户首页</a>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a><span class="separator">/</span><span class="current">AI智能</span>
+      </div>
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">智能办公</div>
+          <div class="page-desc">智能协同与办公AI智能体，提升工作效率与创新力</div>
+        </div>
+        <button class="btn btn-default" onclick="showToast('已刷新','success')">🔄 刷新</button>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" class="filter-input" placeholder="🔍 搜索智能体名称..." id="searchInput" oninput="filterAgents()">
+        <select class="filter-select" id="catFilter" onchange="filterAgents()">
+          <option value="">全部分类</option>
+          <option>HR系统</option><option>OA系统</option><option>法务系统</option><option>BI系统</option><option>RPA引擎</option>
+        </select>
+        <select class="filter-select" id="statusFilter" onchange="filterAgents()">
+          <option value="">全部状态</option>
+          <option value="online">已上线</option>
+          <option value="offline">已下线</option>
+        </select>
+        <div class="status-legend">
+          <span><i class="dot" style="background:#f59e0b;"></i> 草稿 <b id="cntDraft">0</b></span>
+          <span><i class="dot" style="background:#10b981;"></i> 已发布 <b id="cntOnline">0</b></span>
+          <span><i class="dot" style="background:#9ca3af;"></i> 已下架 <b id="cntOffline">0</b></span>
+        </div>
+      </div>
+
+      <div class="section-title">智能体列表</div>
+      <div class="card-grid" id="cardGrid"></div>
+
+      <div class="pagination">
+        <span class="pagination-info">共 <b id="totalCnt">0</b> 个智能体</span>
+        <button class="page-btn">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">›</button>
+        <select class="page-size"><option>6 条/页</option><option>12 条/页</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var agents = [
+      { name:'测试AI智能体', icon:'🧪', iconBg:'#dbeafe', desc:'测试测试测试测试测试', source:'HR系统', call:'跳转已配置', count:3, status:'online' },
+      { name:'简历筛选', icon:'📋', iconBg:'#ede9fe', desc:'自动筛选简历，匹配岗位要求', source:'HR系统', call:'API已配置', count:0, status:'online' },
+      { name:'流程自动化', icon:'🔄', iconBg:'#fef3c7', desc:'跨系统流程自动执行', source:'RPA引擎', call:'跳转已配置', count:0, status:'offline' },
+      { name:'智能会议', icon:'🎙️', iconBg:'#dbeafe', desc:'语音转写与会议纪要自动生成', source:'OA系统', call:'API已配置', count:12, status:'online' },
+      { name:'合同审查', icon:'📄', iconBg:'#dcfce7', desc:'AI辅助合同条款风险识别与审查', source:'法务系统', call:'API已配置', count:5, status:'online' },
+      { name:'报表生成', icon:'📊', iconBg:'#dbeafe', desc:'自然语言自动汇总生成数据报表', source:'BI系统', call:'待配置', count:0, status:'online' }
+    ];
+
+    function renderCards() {
+      var kw = document.getElementById('searchInput').value.trim().toLowerCase();
+      var cat = document.getElementById('catFilter').value;
+      var st = document.getElementById('statusFilter').value;
+      var list = agents.filter(function(a){
+        return (a.name.toLowerCase().indexOf(kw) >= 0 || a.desc.toLowerCase().indexOf(kw) >= 0)
+          && (!cat || a.source === cat)
+          && (!st || a.status === st);
+      });
+      var html = list.map(function(a){
+        var statusTag = a.status === 'online'
+          ? '<span class="status-badge status-online">已上线</span>'
+          : '<span class="status-badge status-offline">已下线</span>';
+        var footBtn = a.status === 'online'
+          ? '<button class="use-btn" onclick="useAgent(\''+a.name+'\')">立即使用</button>'
+          : '<span class="offline-tag">已下线</span>';
+        return '<div class="agent-card">' +
+          '<div class="agent-card-head">' +
+            '<div class="agent-icon" style="background:'+a.iconBg+';">'+a.icon+'</div>' +
+            statusTag +
+          '</div>' +
+          '<div class="agent-name">'+a.name+'</div>' +
+          '<div class="agent-desc">'+a.desc+'</div>' +
+          '<div class="agent-tags"><span class="agent-tag">'+a.source+'</span><span class="agent-tag">'+a.call+'</span></div>' +
+          '<div class="agent-card-foot">' +
+            '<span class="call-count">⚡ '+a.count+' 次调用</span>' +
+            footBtn +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('cardGrid').innerHTML = html || '<div style="grid-column:1/-1;text-align:center;color:#9ca3af;padding:40px 0;">暂无匹配的智能体</div>';
+      document.getElementById('totalCnt').textContent = list.length;
+      // 状态统计（基于全量数据）
+      document.getElementById('cntOnline').textContent = agents.filter(function(a){return a.status==='online';}).length;
+      document.getElementById('cntOffline').textContent = agents.filter(function(a){return a.status==='offline';}).length;
+      document.getElementById('cntDraft').textContent = 0;
+    }
+
+    function filterAgents() { renderCards(); }
+
+    function useAgent(name) {
+      showToast('正在启动「' + name + '」...', 'success');
+    }
+
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + (type || '') + ' show';
+      setTimeout(function(){ t.classList.remove('show'); }, 2000);
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>
