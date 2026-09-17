@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>快捷入口详情 - 柏星龙业务数字化中台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #1f2937; font-size: 14px; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .top-header { height: 52px; background: linear-gradient(90deg, #1e3a5f 0%, #2563eb 100%); display: flex; align-items: center; padding: 0 20px; color: #fff; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin-right: 28px; }
+    .logo-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .top-nav { display: flex; gap: 6px; flex: 1; }
+    .top-nav a { padding: 6px 14px; border-radius: 4px; font-size: 13px; opacity: 0.85; transition: all 0.2s; color: #fff; }
+    .top-nav a:hover, .top-nav a.active { opacity: 1; background: rgba(255,255,255,0.15); }
+    .top-right { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+    .top-right .user { display: flex; align-items: center; gap: 8px; }
+    .top-right .avatar { width: 30px; height: 30px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    .sub-header { height: 42px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 20px; }
+    .sub-header-nav { display: flex; gap: 4px; }
+    .sub-nav-item { padding: 8px 16px; font-size: 13px; color: #6b7280; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .sub-nav-item:hover { color: #2563eb; background: #eff6ff; }
+    .sub-nav-item.active { color: #2563eb; background: #eff6ff; font-weight: 500; }
+
+    .layout { display: flex; min-height: calc(100vh - 52px - 42px); }
+
+    .sidebar { width: 220px; background: #fff; border-right: 1px solid #e5e7eb; flex-shrink: 0; padding: 16px 0; }
+    .sidebar-title { padding: 0 20px; font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
+    .sidebar-subtitle { padding: 0 20px; font-size: 12px; color: #9ca3af; margin-bottom: 16px; }
+    .sidebar-menu { display: flex; flex-direction: column; }
+    .sidebar-menu-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 13px; color: #4b5563; cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; }
+    .sidebar-menu-item:hover { background: #f9fafb; color: #2563eb; }
+    .sidebar-menu-item.active { background: #eff6ff; color: #2563eb; border-left-color: #2563eb; font-weight: 500; }
+    .sidebar-menu-icon { font-size: 16px; width: 20px; text-align: center; }
+    .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid #f3f4f6; font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 8px; }
+
+    .main-content { flex: 1; padding: 20px; min-width: 0; }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6b7280; margin-bottom: 12px; }
+    .breadcrumb a { color: #6b7280; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .separator { color: #d1d5db; }
+    .breadcrumb .current { color: #1f2937; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .page-title { font-size: 20px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
+    .btn-back { padding: 8px 16px; border: 1px solid #d1d5db; background: #fff; border-radius: 6px; font-size: 13px; color: #4b5563; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn-back:hover { border-color: #2563eb; color: #2563eb; }
+
+    .detail-card { background: #fff; border-radius: 10px; border: 1px solid #f3f4f6; padding: 28px 36px; }
+
+    .detail-header { display: flex; align-items: flex-start; gap: 18px; padding-bottom: 24px; border-bottom: 1px solid #f3f4f6; margin-bottom: 24px; position: relative; }
+    .detail-icon { width: 64px; height: 64px; border-radius: 14px; background: #fff7ed; color: #f97316; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+    .detail-title-area { flex: 1; }
+    .detail-title { font-size: 20px; font-weight: 600; color: #1f2937; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+    .detail-status-badge { padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; }
+    .detail-status-badge.enabled { background: #ecfdf5; color: #10b981; }
+    .detail-status-badge.disabled { background: #f3f4f6; color: #9ca3af; }
+    .detail-meta { display: flex; gap: 16px; font-size: 12px; color: #9ca3af; }
+    .detail-meta span { display: flex; align-items: center; gap: 4px; }
+    .header-actions { position: absolute; top: 28px; right: 0; display: flex; gap: 10px; }
+    .btn-edit { padding: 8px 16px; border: 1px solid #2563eb; background: #fff; color: #2563eb; border-radius: 6px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .btn-edit:hover { background: #eff6ff; }
+    .btn-disable { padding: 8px 16px; border: 1px solid #ef4444; background: #fff; color: #ef4444; border-radius: 6px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .btn-disable:hover { background: #fef2f2; }
+
+    .detail-section { margin-bottom: 28px; }
+    .detail-section:last-child { margin-bottom: 0; }
+    .detail-section-title { font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .detail-section-title::before { content: ''; width: 4px; height: 16px; background: #2563eb; border-radius: 2px; }
+
+    .detail-row { display: grid; grid-template-columns: 130px 1fr; gap: 12px 24px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-size: 13px; color: #6b7280; }
+    .detail-value { font-size: 13px; color: #1f2937; word-break: break-all; }
+    .detail-value.monospace { font-family: monospace; color: #374151; background: #f9fafb; padding: 6px 10px; border-radius: 4px; }
+    .detail-value.url { color: #2563eb; font-family: monospace; }
+
+    .status-bar { height: 8px; border-radius: 4px; background: #ecfdf5; margin-top: 4px; }
+    .status-bar.disabled { background: #f3f4f6; }
+
+    .perm-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .perm-tag { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .perm-tag.dept { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .perm-tag.role { background: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .info-grid .detail-row { padding: 10px 0; }
+
+    .detail-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; padding-top: 24px; border-top: 1px solid #f3f4f6; }
+
+    .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px); background: #1f2937; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; opacity: 0; transition: all 0.25s; z-index: 1000; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: #10b981; }
+  </style>
+</head>
+<body>
+
+  <header class="top-header">
+    <div class="logo"><span class="logo-icon">🏢</span>柏星龙业务数字化中台</div>
+    <nav class="top-nav">
+      <a href="index.html">首页</a>
+      <a href="#">T100</a>
+      <a href="#">HR</a>
+      <a href="#">OA</a>
+      <a href="#">CRM</a>
+      <a href="#">SRM</a>
+      <a href="#">BI</a>
+    </nav>
+    <div class="top-right">
+      <span>2025年1月15日 周三</span>
+      <span>深圳 18℃ ☀️</span>
+      <span>🔔</span>
+      <div class="user"><span class="avatar">张</span>张建国 ▾</div>
+    </div>
+  </header>
+
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <div class="sub-nav-item active">内容管理</div>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">内容管理</div>
+      <div class="sidebar-subtitle">管理企业学习与资讯内容</div>
+      <div class="sidebar-menu">
+        <a href="content-study.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">📚</span>柏家学堂配置</a>
+        <a href="news-manage.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">📰</span>新闻管理</a>
+        <a href="notice-manage.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">📢</span>公告管理</a>
+        <a href="baishi-service-list.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🛎️</span>柏事服务管理</a>
+        <a href="quick-entry.html" class="sidebar-menu-item active"><span class="sidebar-menu-icon">🔲</span>快捷入口管理</a>
+        <a href="meeting-room.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🏢</span>会议室管理</a>
+        <a href="ai-agent-market.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🤖</span>AI智能体市场</a>
+      </div>
+      <div class="sidebar-footer"><span>🏠</span><a href="index.html">返回门户首页</a></div>
+    </aside>
+
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a><span class="separator">/</span>
+        <span>内容管理</span><span class="separator">/</span>
+        <a href="quick-entry.html">快捷入口管理</a><span class="separator">/</span>
+        <span class="current">详情</span>
+      </div>
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">快捷入口详情</h1>
+        </div>
+        <a href="quick-entry.html" class="btn-back">← 返回列表</a>
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-header">
+          <div class="detail-icon">📄</div>
+          <div class="detail-title-area">
+            <div class="detail-title">
+              报销申请
+              <span class="detail-status-badge enabled">已启用</span>
+            </div>
+            <div class="detail-meta">
+              <span>排序：1</span>
+              <span>·</span>
+              <span>🕐 创建于 2025-01-10 09:30</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">基本信息</div>
+          <div class="detail-row"><div class="detail-label">所属系统</div><div class="detail-value">OA办公系统</div></div>
+          <div class="detail-row"><div class="detail-label">入口名称</div><div class="detail-value">报销申请</div></div>
+          <div class="detail-row"><div class="detail-label">图标</div><div class="detail-value"><span style="display:inline-flex;width:36px;height:36px;border-radius:8px;background:#fff7ed;color:#f97316;align-items:center;justify-content:center;font-size:18px;">📄</span></div></div>
+          <div class="detail-row"><div class="detail-label">目标系统地址</div><div class="detail-value monospace">https://oa.baixinglong.com</div></div>
+          <div class="detail-row"><div class="detail-label">系统路径</div><div class="detail-value monospace">/expense/apply</div></div>
+          <div class="detail-row"><div class="detail-label">完整跳转链接</div><div class="detail-value url">https://oa.baixinglong.com/expense/apply</div></div>
+          <div class="detail-row"><div class="detail-label">排序</div><div class="detail-value">1</div></div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">状态</div>
+          <div class="detail-row">
+            <div class="detail-label">状态</div>
+            <div>
+              <div class="detail-value" style="margin-bottom:4px;">
+                <span class="detail-status-badge enabled">已启用</span>
+              </div>
+              <div class="status-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">访问权限</div>
+          <div class="detail-row">
+            <div class="detail-label">访问范围</div>
+            <div>
+              <div style="font-size:13px;color:#1f2937;margin-bottom:8px;">限定部门 + 限定角色</div>
+              <div style="margin-bottom:8px;">
+                <span style="font-size:12px;color:#6b7280;margin-right:8px;">限定部门：</span>
+                <span class="perm-tags">
+                  <span class="perm-tag dept">人力资源部</span>
+                  <span class="perm-tag dept">财务部</span>
+                </span>
+              </div>
+              <div>
+                <span style="font-size:12px;color:#6b7280;margin-right:8px;">限定角色：</span>
+                <span class="perm-tags">
+                  <span class="perm-tag role">部门主管</span>
+                  <span class="perm-tag role">采购经理</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">创建信息</div>
+          <div class="info-grid">
+            <div class="detail-row"><div class="detail-label">创建人</div><div class="detail-value">张建国 · 2025-01-10 09:30</div></div>
+            <div class="detail-row"><div class="detail-label">最后修改</div><div class="detail-value">李经理 · 2025-01-12 14:20</div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  function toggleDisable() { showToast('快捷入口已禁用', 'success'); }
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(function(){ t.className = 'toast'; }, 2200);
+  }
+</script>
+</body>
+</html>

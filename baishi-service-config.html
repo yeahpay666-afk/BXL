@@ -1,0 +1,2700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>柏事服务管理 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    /* ===== 统计卡片 ===== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stat-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .stat-card-info { flex: 1; min-width: 0; }
+    .stat-card-num {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .stat-card-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ===== 操作栏 ===== */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .action-bar .btn { white-space: nowrap; }
+
+    .btn-success {
+      background: #16a34a;
+      color: #fff;
+      border: 1px solid #16a34a;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-success:hover { background: #15803d; }
+
+    /* ===== 顶部内容Tab ===== */
+    .content-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+    .content-tab {
+      padding: 10px 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .content-tab:hover { color: var(--primary-color); }
+    .content-tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+      font-weight: 500;
+    }
+    .content-tab-content { display: none; }
+    .content-tab-content.active { display: block; }
+
+    /* ===== 弹窗 ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 2000;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 640px;
+      max-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 20px;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      background: #f1f5f9;
+      color: var(--text-primary);
+    }
+    .modal-body {
+      padding: 24px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      background: #fff;
+      border-radius: 0 0 12px 12px;
+      flex-shrink: 0;
+    }
+
+    /* ===== 上传区域 ===== */
+    .upload-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .upload-tab {
+      padding: 10px 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .upload-tab:hover { color: var(--primary-color); }
+    .upload-tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+      font-weight: 500;
+    }
+    .upload-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f8fafc;
+    }
+    .upload-zone:hover {
+      border-color: var(--primary-color);
+      background: #eff6ff;
+    }
+    .upload-zone.dragover {
+      border-color: var(--primary-color);
+      background: #dbeafe;
+    }
+    .upload-zone-icon {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+    .upload-zone-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .upload-zone-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .upload-zone-formats {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* 已上传文件预览 */
+    .file-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    .file-preview-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .file-preview-info { flex: 1; min-width: 0; }
+    .file-preview-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-preview-size {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .file-preview-remove {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .file-preview-remove:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* 上传进度条 */
+    .upload-progress {
+      margin-top: 8px;
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .upload-progress-bar {
+      height: 100%;
+      background: var(--primary-color);
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    /* 表单宽窄布局 */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+      background: #f8fafc;
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+    .form-textarea:focus {
+      border-color: var(--primary-color);
+      background: #fff;
+    }
+    .form-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 20px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .form-section-title:first-child { margin-top: 0; }
+
+    /* 表格操作按钮 */
+    .table-action {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      margin-right: 4px;
+    }
+    .table-action.edit { background: #dbeafe; color: #2563eb; }
+    .table-action.edit:hover { background: #bfdbfe; }
+    .table-action.off { background: #fef3c7; color: #d97706; }
+    .table-action.off:hover { background: #fde68a; }
+    .table-action.on { background: #dcfce7; color: #16a34a; }
+    .table-action.on:hover { background: #bbf7d0; }
+    .table-action.del { background: #fee2e2; color: #dc2626; }
+    .table-action.del:hover { background: #fecaca; }
+
+    /* 文件类型图标 */
+    .file-type-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .file-type-tag.video { background: #f3e8ff; color: #9333ea; }
+    .file-type-tag.pdf { background: #fee2e2; color: #dc2626; }
+    .file-type-tag.both { background: #dbeafe; color: #2563eb; }
+
+    /* ===== 考试内容配置 ===== */
+    .exam-config { display: none; }
+    .exam-config.show { display: block; }
+    .exam-meta-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .exam-question-card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #f8fafc;
+    }
+    .exam-q-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .exam-q-num {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary-color);
+      white-space: nowrap;
+    }
+    .exam-q-type {
+      padding: 3px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 12px;
+      background: #fff;
+      cursor: pointer;
+      outline: none;
+    }
+    .exam-q-score {
+      width: 60px;
+      padding: 3px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 12px;
+      background: #fff;
+    }
+    .exam-q-score-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .exam-q-delete {
+      margin-left: auto;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .exam-q-delete:hover { background: #fee2e2; }
+    .exam-q-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      margin-bottom: 8px;
+      font-family: inherit;
+    }
+    .exam-q-input:focus { border-color: var(--primary-color); }
+    .exam-option-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .exam-option-letter {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .exam-option-letter.correct {
+      background: #dcfce7;
+      color: #16a34a;
+      border-color: #16a34a;
+    }
+    .exam-option-letter:hover { border-color: var(--primary-color); }
+    .exam-option-input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+    }
+    .exam-option-input:focus { border-color: var(--primary-color); }
+    .exam-option-delete {
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 14px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .exam-option-delete:hover { background: #fee2e2; }
+    .exam-add-option {
+      font-size: 12px;
+      color: var(--primary-color);
+      cursor: pointer;
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .exam-add-option:hover { background: #eff6ff; }
+    .exam-add-question {
+      width: 100%;
+      padding: 10px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+    .exam-add-question:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      background: #eff6ff;
+    }
+    .exam-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      line-height: 1.6;
+    }
+    .exam-ref-label {
+      font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .exam-ref-answer {
+      width: 100%; min-height: 70px; padding: 8px 12px;
+      border: 1px solid var(--border-color); border-radius: 6px;
+      font-size: 13px; background: #fff; resize: vertical;
+      font-family: inherit; box-sizing: border-box; outline: none;
+      transition: border-color 0.2s;
+    }
+    .exam-ref-answer:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(26,95,180,0.1); }
+    .table-action.exam { color: #7c3aed; }
+    .table-action.exam:hover { background: #f3e8ff; }
+    .exam-course-select {
+      padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px;
+      font-size: 13px; background: #fff; width: 100%; appearance: auto; cursor: pointer;
+    }
+    .exam-course-tree { background:#fff; }
+    .tree-node { font-size:13px; }
+    .tree-node-parent { padding:6px 12px; cursor:pointer; font-weight:500; color:var(--text-primary); display:flex; align-items:center; gap:6px; }
+    .tree-node-parent:hover { background:#f1f5f9; }
+    .tree-arrow { display:inline-block; width:14px; transition:transform 0.2s; font-size:10px; color:var(--text-muted); }
+    .tree-arrow.open { transform:rotate(90deg); }
+    .tree-children { display:none; padding-left:20px; }
+    .tree-children.open { display:block; }
+    .tree-leaf { padding:6px 12px; cursor:pointer; color:var(--text-secondary); display:flex; align-items:center; gap:8px; }
+    .tree-leaf:hover { background:#f1f5f9; }
+    .tree-leaf input[type="checkbox"] { width:16px; height:16px; accent-color:var(--primary-color); cursor:pointer; }
+    .exam-lesson-tabs {
+      display: flex; gap: 0; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap;
+    }
+    .exam-lesson-tab {
+      padding: 8px 16px; font-size: 13px; color: var(--text-secondary); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; white-space: nowrap;
+    }
+    .exam-lesson-tab:hover { color: var(--primary-color); }
+    .exam-lesson-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 500; }
+    .exam-lesson-panel { display: none; }
+    .exam-lesson-panel.active { display: block; }
+
+    @media (max-width: 1200px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .exam-meta-row { grid-template-columns: 1fr; }
+    }
+  
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+
+</style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
+          🔔
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <div class="sub-nav-item active">内容管理</div>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+    <aside class="sidebar">
+    <div class="sidebar-title">内容管理</div>
+    <div class="sidebar-subtitle">管理企业学习与资讯内容</div>
+    <div class="sidebar-menu">
+      <a href="content-study.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📚</span>
+        <span>柏家学堂配置</span>
+      </a>
+      <a href="news-manage.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📰</span>
+        <span>新闻管理</span>
+      </a>
+      <a href="notice-manage.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📢</span>
+        <span>公告管理</span>
+      </a>
+      <a href="baishi-service-list.html" class="sidebar-menu-item active">
+        <span class="sidebar-menu-icon">🛎️</span>
+        <span>柏事服务管理</span>
+      </a>
+      <a href="quick-entry.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🔲</span>
+        <span>快捷入口管理</span>
+      </a>
+      <a href="meeting-room.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🏢</span>
+        <span>会议室管理</span>
+      </a>
+      <a href="ai-agent-market.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🤖</span>
+        <span>AI智能体市场</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+<main class="main-content">
+    <!-- 刷新按钮 -->
+    <button class="refresh-btn" onclick="location.reload()">
+      <span>🔄</span>
+      <span>刷新</span>
+    </button>
+
+    <!-- 面包屑 -->
+    <div class="breadcrumb">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span>内容管理</span>
+      <span class="separator">/</span>
+      <span>柏事服务管理</span>
+      <span class="separator">/</span>
+      <span class="current">新增服务</span>
+    </div>
+
+    <!-- 标题 -->
+    <div style="margin-bottom:20px;">
+      <h1 class="page-title" style="margin-bottom:4px;font-size:18px;">新增服务</h1>
+      <p class="page-desc" style="margin:0;">配置新的柏事服务入口，添加后将展示在门户首页「柏事服务」卡片中</p>
+    </div>
+
+    <!-- 表单卡片 -->
+    <div style="background:#fff;border:1px solid var(--border-color);border-radius:8px;padding:28px 36px;">
+      <div style="display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px solid #eef0f4;margin-bottom:28px;">
+        <span style="display:inline-block;width:4px;height:18px;background:#2563eb;border-radius:2px;"></span>
+        <span style="font-size:16px;font-weight:600;color:var(--text-primary);">基本信息</span>
+      </div>
+
+      <!-- 服务名称 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
+        <div style="text-align:right;padding-top:10px;font-size:14px;color:var(--text-primary);">服务名称 <span style="color:#ef4444;">*</span></div>
+        <div>
+          <input type="text" placeholder="请输入服务名称" style="width:100%;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;">
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">例如：宿舍申请、故障申报、软件下载等</div>
+        </div>
+      </div>
+
+      <!-- 所属系统 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
+        <div style="text-align:right;padding-top:10px;font-size:14px;color:var(--text-primary);">所属系统 <span style="color:#ef4444;">*</span></div>
+        <div>
+          <select id="serviceSystem" style="width:100%;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;background:#fff;appearance:auto;cursor:pointer;">
+            <option value="">请选择所属系统</option>
+            <option value="T100">T100</option>
+            <option value="OA">OA</option>
+            <option value="HR">HR</option>
+            <option value="CRM">CRM</option>
+          </select>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">选择该服务归属的业务系统</div>
+        </div>
+      </div>
+
+      <!-- 图标 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
+        <div style="text-align:right;padding-top:18px;font-size:14px;color:var(--text-primary);">图标 <span style="color:#ef4444;">*</span></div>
+        <div>
+          <div style="display:flex;gap:12px;">
+            <div style="width:44px;height:44px;border:2px solid #2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;background:#eff6ff;">💻</div>
+            <div style="width:44px;height:44px;border:1px solid #d9dce3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;">📞</div>
+            <div style="width:44px;height:44px;border:1px solid #d9dce3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;">💡</div>
+            <div style="width:44px;height:44px;border:1px solid #d9dce3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;">📥</div>
+            <div style="width:44px;height:44px;border:1px solid #d9dce3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;">🔐</div>
+            <div style="width:44px;height:44px;border:1px solid #d9dce3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;">🌐</div>
+            <div style="width:44px;height:44px;border:1px solid #d9dce3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;">❓</div>
+            <div style="width:44px;height:44px;border:1px solid #d9dce3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;">🛡️</div>
+            <div style="width:44px;height:44px;border:1px solid #d9dce3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;">✂️</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">选择服务图标，将在首页卡片中展示</div>
+        </div>
+      </div>
+
+      <!-- 图标颜色 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
+        <div style="text-align:right;padding-top:14px;font-size:14px;color:var(--text-primary);">图标颜色</div>
+        <div style="display:flex;gap:14px;align-items:center;">
+          <div style="width:26px;height:26px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 2px #fff, 0 0 0 4px #2563eb33;"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#10b981;cursor:pointer;"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#ef4444;cursor:pointer;"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#f59e0b;cursor:pointer;"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#8b5cf6;cursor:pointer;"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#9ca3af;cursor:pointer;"></div>
+        </div>
+      </div>
+
+      <!-- 描述 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
+        <div style="text-align:right;padding-top:10px;font-size:14px;color:var(--text-primary);">描述 <span style="color:#ef4444;">*</span></div>
+        <div>
+          <textarea placeholder="请输入服务描述，将展示在首页卡片中" rows="3" style="width:100%;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;resize:vertical;"></textarea>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">例如：9:00-18:00在线，提供宿舍问题咨询与申请协助</div>
+        </div>
+      </div>
+
+      <!-- 跳转链接 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
+        <div style="text-align:right;padding-top:10px;font-size:14px;color:var(--text-primary);">跳转链接 <span style="color:#ef4444;">*</span></div>
+        <div>
+          <input type="text" placeholder="请输入跳转链接，如 /service/dorm-apply" style="width:100%;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;">
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">用户点击后将跳转至该链接</div>
+        </div>
+      </div>
+
+      <!-- 排序 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
+        <div style="text-align:right;padding-top:10px;font-size:14px;color:var(--text-primary);">排序</div>
+        <div>
+          <input type="number" value="7" style="width:120px;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;">
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">数字越小越靠前，当前最大排序为 6</div>
+        </div>
+      </div>
+
+      <!-- 启用状态 -->
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:center;margin-bottom:8px;">
+        <div style="text-align:right;font-size:14px;color:var(--text-primary);">启用状态</div>
+        <div style="display:flex;gap:24px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-primary);cursor:pointer;">
+            <input type="radio" name="svcEnabled" checked style="accent-color:#2563eb;"> 启用
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-primary);cursor:pointer;">
+            <input type="radio" name="svcEnabled" style="accent-color:#2563eb;"> 停用
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:28px;">
+      <button style="padding:9px 22px;border:1px solid #d9dce3;background:#fff;border-radius:6px;font-size:14px;color:var(--text-primary);cursor:pointer;">取消</button>
+      <button style="padding:9px 22px;border:1px solid #2563eb;background:#fff;border-radius:6px;font-size:14px;color:#2563eb;cursor:pointer;">💾 保存草稿</button>
+      <button style="padding:9px 28px;border:none;background:#2563eb;border-radius:6px;font-size:14px;color:#fff;cursor:pointer;">✓ 提交</button>
+    </div>
+  </main>
+
+  <!-- 发布学习内容弹窗 -->
+  <div class="modal-overlay" id="publishModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">发布学习内容</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="saveCourseDraft()">存为草稿</button>
+          <button class="btn btn-primary btn-sm" onclick="submitCourse()">发布课程</button>
+          <div class="modal-close" onclick="closeModal()">✕</div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <!-- 基本信息 -->
+        <div class="form-section-title">📋 基本信息</div>
+        <div class="form-group">
+          <label class="form-label">课程名称 <span style="color:#ef4444;">*</span></label>
+          <input type="text" class="form-input" id="courseName" placeholder="请输入课程名称">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">课程分类 <span style="color:#ef4444;">*</span></label>
+            <div style="display:flex;gap:8px;">
+              <select class="form-input" id="courseCategory" style="appearance:auto;flex:1;" onchange="onCategoryChange(this)">
+                <option value="">请选择分类</option>
+                <option>制度规范</option>
+                <option>产品知识</option>
+                <option>职业技能</option>
+                <option>系统操作</option>
+                <option value="__new__">+ 新增分类</option>
+              </select>
+              <input type="text" class="form-input" id="newCategoryInput" placeholder="输入新分类名称" style="display:none;flex:1;" onblur="addNewCategory(this)">
+              <button class="btn btn-primary btn-sm" id="confirmCategoryBtn" type="button" onclick="confirmNewCategory()" style="display:none;white-space:nowrap;">确认</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">课程简介</label>
+          <textarea class="form-textarea" placeholder="请输入课程简介，不超过200字"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">讲师</label>
+            <input type="text" class="form-input" placeholder="请输入讲师姓名">
+          </div>
+          <div class="form-group">
+            <label class="form-label">所属部门</label>
+            <div style="position:relative;">
+              <input type="text" class="form-input" id="deptSelect" placeholder="请选择部门" readonly style="cursor:pointer;background:#f8fafc;" onclick="toggleDeptTree()">
+              <div id="deptTreeDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:#fff;border:1px solid var(--border-color);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:280px;overflow-y:auto;padding:8px 0;">
+                <div style="padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-primary);" onclick="toggleDeptNode(this)">
+                  <span style="display:inline-block;width:14px;transition:transform 0.2s;">▶</span>柏星龙集团
+                </div>
+                <div style="display:none;padding-left:20px;">
+                  <div style="padding:6px 12px;cursor:pointer;font-size:13px;" onclick="toggleDeptNode(this)">
+                    <span style="display:inline-block;width:14px;transition:transform 0.2s;">▶</span>研发中心
+                  </div>
+                  <div style="display:none;padding-left:20px;">
+                    <div style="padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text-secondary);" onclick="selectDept(this,'产品部')">产品部</div>
+                    <div style="padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text-secondary);" onclick="selectDept(this,'信息部')">信息部</div>
+                    <div style="padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text-secondary);" onclick="selectDept(this,'设计部')">设计部</div>
+                  </div>
+                  <div style="padding:6px 12px;cursor:pointer;font-size:13px;" onclick="toggleDeptNode(this)">
+                    <span style="display:inline-block;width:14px;transition:transform 0.2s;">▶</span>运营中心
+                  </div>
+                  <div style="display:none;padding-left:20px;">
+                    <div style="padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text-secondary);" onclick="selectDept(this,'市场部')">市场部</div>
+                    <div style="padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text-secondary);" onclick="selectDept(this,'项目管理办')">项目管理办</div>
+                  </div>
+                  <div style="padding:6px 12px;cursor:pointer;font-size:13px;" onclick="toggleDeptNode(this)">
+                    <span style="display:inline-block;width:14px;transition:transform 0.2s;">▶</span>职能中心
+                  </div>
+                  <div style="display:none;padding-left:20px;">
+                    <div style="padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text-secondary);" onclick="selectDept(this,'人力资源部')">人力资源部</div>
+                    <div style="padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text-secondary);" onclick="selectDept(this,'财务部')">财务部</div>
+                    <div style="padding:6px 12px;cursor:pointer;font-size:13px;color:var(--text-secondary);" onclick="selectDept(this,'安环部')">安环部</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 学习目标 -->
+        <div class="form-section-title">🎯 学习目标</div>
+        <div class="form-group">
+          <label class="form-label">学习目标描述（每行一条，最多5条）</label>
+          <textarea class="form-textarea" id="learningGoals" placeholder="如：&#10;掌握OA系统流程发起操作&#10;熟悉审批与驳回流程&#10;了解文档管理功能" style="min-height:90px;"></textarea>
+        </div>
+
+        <!-- 适用人群 -->
+        <div class="form-section-title">👥 适用人群</div>
+        <div class="form-group">
+          <label class="form-label">选择适用组织/岗位（支持多选）</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="text" class="form-input" id="audienceDisplay" placeholder="请选择适用人员" readonly style="cursor:pointer;flex:1;background:#f8fafc;" onclick="openOrgPicker()">
+            <button class="btn btn-outline btn-sm" type="button" onclick="openOrgPicker()" style="white-space:nowrap;">选择</button>
+          </div>
+          <div id="audienceTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+        </div>
+
+        <!-- 课件上传 -->
+        <div class="form-section-title">📎 课件上传（支持批量上传多个课时文件）</div>
+        <div class="upload-tabs">
+          <div class="upload-tab active" data-type="video" onclick="switchUploadTab(this)">
+            🎬 视频文件
+          </div>
+          <div class="upload-tab" data-type="pdf" onclick="switchUploadTab(this)">
+            📄 PDF文件
+          </div>
+        </div>
+
+        <!-- 视频上传区 -->
+        <div id="videoUploadArea">
+          <div class="upload-zone" id="videoDropZone" onclick="document.getElementById('videoFileInput').click()">
+            <div class="upload-zone-icon">🎬</div>
+            <div class="upload-zone-text">点击或拖拽视频文件到此处上传（支持多选）</div>
+            <div class="upload-zone-hint">支持 MP4、AVI、MOV、WMV 格式</div>
+            <div class="upload-zone-formats">单个文件最大 2GB，可批量选择多个文件</div>
+            <input type="file" id="videoFileInput" accept="video/mp4,video/x-msvideo,video/quicktime,video/x-ms-wmv" multiple style="display:none;" onchange="handleFileSelect(event, 'video')">
+          </div>
+          <div id="videoFilePreview"></div>
+        </div>
+
+        <!-- PDF上传区 -->
+        <div id="pdfUploadArea" style="display:none;">
+          <div class="upload-zone" id="pdfDropZone" onclick="document.getElementById('pdfFileInput').click()">
+            <div class="upload-zone-icon">📄</div>
+            <div class="upload-zone-text">点击或拖拽PDF文件到此处上传（支持多选）</div>
+            <div class="upload-zone-hint">支持 PDF 格式</div>
+            <div class="upload-zone-formats">单个文件最大 100MB，可批量选择多个文件</div>
+            <input type="file" id="pdfFileInput" accept="application/pdf" multiple style="display:none;" onchange="handleFileSelect(event, 'pdf')">
+          </div>
+          <div id="pdfFilePreview"></div>
+        </div>
+
+        <!-- 课时文件列表 -->
+        <div id="lessonFileList" style="margin-top:12px;"></div>
+
+        <!-- 学习设置 -->
+        <div class="form-section-title">⚙️ 学习设置</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">完成条件 <span style="color:#ef4444;">*</span></label>
+            <select class="form-input" id="completeCondition" style="appearance:auto;">
+              <option value="watch_all">观看完视频即可</option>
+              <option value="pass_test">考试通过即可</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">学习有效期</label>
+            <input type="date" class="form-input" id="expiryDate" placeholder="到期后自动下架">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">排序权重</label>
+            <input type="number" class="form-input" id="sortWeight" placeholder="数字越大越靠前，默认10" min="0" value="10">
+          </div>
+        </div>
+      </div>
+
+      <!-- 考试内容配置 -->
+      <div class="exam-config" id="examConfig">
+        <div class="form-section-title">📝 考试内容配置</div>
+        <div class="exam-meta-row">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">考试时长（分钟）</label>
+            <input type="number" class="form-input" id="examDuration" value="30" min="5" step="5" style="appearance:auto;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">及格分数（分）</label>
+            <input type="number" class="form-input" id="examPassScore" value="60" min="0" max="100" step="5" style="appearance:auto;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">考试说明</label>
+            <input type="text" class="form-input" id="examDesc" placeholder="如：闭卷考试，可重考1次">
+          </div>
+        </div>
+        <div id="examQuestionList"></div>
+        <button type="button" class="exam-add-question" onclick="addExamQuestion()">+ 添加题目</button>
+        <div class="exam-hint" style="display:none;"></div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="examPublishModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">📝 发布考试</div>
+        <div class="modal-close" onclick="closeExamPublishModal()">✕</div>
+      </div>
+      <div class="modal-body">
+        <!-- 关联课程 -->
+        <div class="form-section-title">🔗 关联课程与课时</div>
+        <div class="form-group">
+          <label class="form-label">选择课程与课时 <span style="color:#ef4444;">*</span></label>
+          <div class="exam-course-tree" id="examCourseTree" style="max-height:240px;overflow-y:auto;border:1px solid var(--border-color);border-radius:8px;padding:8px 0;"></div>
+        </div>
+
+        <!-- 考试内容配置 -->
+        <div class="form-section-title">📝 考试内容配置</div>
+        <div id="examLessonTabs" style="display:none;">
+          <div class="exam-lesson-tabs" id="examLessonTabBar"></div>
+          <div id="examLessonTabContent"></div>
+        </div>
+        <div id="examLessonEmpty" style="display:none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="saveExamDraft()">存为草稿</button>
+        <button class="btn btn-primary" onclick="submitExamPublish()">发布考试</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 内容Tab切换 =====
+    function switchContentTab(tab) {
+      var tabs = document.querySelectorAll('.content-tab');
+      var contents = document.querySelectorAll('.content-tab-content');
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      contents.forEach(function(c) { c.classList.remove('active'); });
+      if (tab === 'course') {
+        tabs[0].classList.add('active');
+        document.getElementById('courseTabContent').classList.add('active');
+      } else {
+        tabs[1].classList.add('active');
+        document.getElementById('examTabContent').classList.add('active');
+      }
+    }
+
+    // ===== 考试列表操作 =====
+    function filterExamTable() {
+      var keyword = document.getElementById('examSearchInput').value.toLowerCase();
+      var status = document.getElementById('examStatusFilter').value;
+      var rows = document.querySelectorAll('#examListBody tr');
+      rows.forEach(function(row) {
+        var name = row.cells[1].textContent.toLowerCase();
+        var st = row.querySelector('.status-tag').textContent.trim();
+        var matchKeyword = !keyword || name.indexOf(keyword) >= 0;
+        var matchStatus = !status || st === status;
+        row.style.display = (matchKeyword && matchStatus) ? '' : 'none';
+      });
+    }
+
+    function deleteExam(btn) {
+      if (confirm('确认删除该考试？')) {
+        var row = btn.closest('tr');
+        row.remove();
+        var rows = document.querySelectorAll('#examListBody tr');
+        rows.forEach(function(r, i) {
+          r.cells[1].textContent = i + 1;
+        });
+        var badge = document.querySelector('#examTabContent .count-badge');
+        if (badge) badge.textContent = rows.length + '场';
+        var pageInfo = document.querySelector('#examTabContent .pagination-info');
+        if (pageInfo) pageInfo.textContent = '共' + rows.length + '条记录';
+      }
+    }
+
+    function examToggleSelectAll(cb) {
+      var checks = document.querySelectorAll('.exam-row-check');
+      checks.forEach(function(c) { c.checked = cb.checked; });
+      examUpdateBatchButtons();
+    }
+
+    function examUpdateBatchButtons() {
+      var checks = document.querySelectorAll('.exam-row-check:checked');
+      var count = checks.length;
+      var pubBtn = document.getElementById('examBatchPublishBtn');
+      var delBtn = document.getElementById('examBatchDeleteBtn');
+      var selectAll = document.getElementById('examSelectAll');
+      if (count > 0) {
+        pubBtn.style.opacity = '1';
+        pubBtn.style.cursor = 'pointer';
+        pubBtn.style.borderColor = '#16a34a';
+        pubBtn.style.color = '#16a34a';
+        pubBtn.textContent = '批量上架（' + count + '）';
+        delBtn.style.opacity = '1';
+        delBtn.style.cursor = 'pointer';
+        delBtn.style.borderColor = '#ef4444';
+        delBtn.style.color = '#ef4444';
+        delBtn.textContent = '批量删除（' + count + '）';
+      } else {
+        pubBtn.style.opacity = '0.4';
+        pubBtn.style.cursor = 'not-allowed';
+        pubBtn.style.borderColor = '#d1d5db';
+        pubBtn.style.color = '#9ca3af';
+        pubBtn.textContent = '批量上架';
+        delBtn.style.opacity = '0.4';
+        delBtn.style.cursor = 'not-allowed';
+        delBtn.style.borderColor = '#d1d5db';
+        delBtn.style.color = '#9ca3af';
+        delBtn.textContent = '批量删除';
+      }
+      if (selectAll) {
+        var allChecks = document.querySelectorAll('.exam-row-check');
+        selectAll.checked = allChecks.length > 0 && count === allChecks.length;
+      }
+    }
+
+    function examToggleRowStatus(btn) {
+      var row = btn.closest('tr');
+      var statusCell = row.querySelector('.status-tag');
+      var currentStatus = statusCell.textContent.trim();
+      if (currentStatus === '已发布') {
+        statusCell.className = 'status-tag status-off';
+        statusCell.textContent = '草稿';
+        btn.textContent = '上架';
+      } else {
+        statusCell.className = 'status-tag status-on';
+        statusCell.textContent = '已发布';
+        btn.textContent = '下架';
+      }
+    }
+
+    function examBatchPublish() {
+      var checks = document.querySelectorAll('.exam-row-check:checked');
+      if (checks.length === 0) return;
+      checks.forEach(function(cb) {
+        var row = cb.closest('tr');
+        var statusCell = row.querySelector('.status-tag');
+        if (statusCell) {
+          statusCell.className = 'status-tag status-on';
+          statusCell.textContent = '已发布';
+        }
+      });
+      document.getElementById('examSelectAll').checked = false;
+      examUpdateBatchButtons();
+      alert('已上架 ' + checks.length + ' 场考试');
+    }
+
+    function examBatchDelete() {
+      var checks = document.querySelectorAll('.exam-row-check:checked');
+      if (checks.length === 0) return;
+      if (!confirm('确认删除选中的 ' + checks.length + ' 场考试？')) return;
+      checks.forEach(function(cb) { cb.closest('tr').remove(); });
+      var rows = document.querySelectorAll('#examListBody tr');
+      rows.forEach(function(r, i) { r.cells[1].textContent = i + 1; });
+      var badge = document.querySelector('#examTabContent .count-badge');
+      if (badge) badge.textContent = rows.length + '场';
+      var pageInfo = document.querySelector('#examTabContent .pagination-info');
+      if (pageInfo) pageInfo.textContent = '共' + rows.length + '条记录';
+      examUpdateBatchButtons();
+    }
+
+    // 弹窗开关
+    function openModal(courseName) {
+      var modal = document.getElementById('publishModal');
+      var title = document.getElementById('modalTitle');
+      var nameInput = document.getElementById('courseName');
+      // 课时清单重置为空白
+      uploadedFiles = [];
+      fileSeq = 0;
+      renderLessonList();
+      if (courseName) {
+        title.textContent = '编辑课程：' + courseName;
+        nameInput.value = courseName;
+        // 还原已保存的课程信息与课时清单
+        var saved = savedCourses[courseName];
+        if (saved) {
+          document.getElementById('courseCategory').value = saved.category;
+          saved.lessons.forEach(function (l) {
+            uploadedFiles.push({
+              id: ++fileSeq, name: l.name, size: l.size || 0, type: l.type,
+              lessonName: l.name, renamed: true, progress: 100, done: true
+            });
+          });
+          renderLessonList();
+        }
+      } else {
+        title.textContent = '发布学习内容';
+        nameInput.value = '';
+      }
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('publishModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('publishModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // ===== 组织架构选择器 =====
+    var orgData = [
+      { id: 'all', name: '全员', type: 'group', children: [
+        { id: 'g1', name: '集团总部', type: 'dept', children: [
+          { id: 'd1', name: '总经办', type: 'dept' },
+          { id: 'd2', name: '人力资源部', type: 'dept' },
+          { id: 'd3', name: '财务部', type: 'dept' },
+          { id: 'd4', name: '信息部', type: 'dept' },
+          { id: 'd5', name: '行政部', type: 'dept' },
+          { id: 'd6', name: '安环部', type: 'dept' }
+        ]},
+        { id: 'g2', name: '营销中心', type: 'dept', children: [
+          { id: 'd7', name: '市场部', type: 'dept' },
+          { id: 'd8', name: '销售一部', type: 'dept' },
+          { id: 'd9', name: '销售二部', type: 'dept' },
+          { id: 'd10', name: '客户服务部', type: 'dept' }
+        ]},
+        { id: 'g3', name: '生产中心', type: 'dept', children: [
+          { id: 'd11', name: '生产一部', type: 'dept' },
+          { id: 'd12', name: '生产二部', type: 'dept' },
+          { id: 'd13', name: '质量部', type: 'dept' },
+          { id: 'd14', name: '仓储物流部', type: 'dept' }
+        ]},
+        { id: 'g4', name: '研发中心', type: 'dept', children: [
+          { id: 'd15', name: '产品部', type: 'dept' },
+          { id: 'd16', name: '设计部', type: 'dept' },
+          { id: 'd17', name: '工艺技术部', type: 'dept' }
+        ]},
+        { id: 'g5', name: '采购中心', type: 'dept', children: [
+          { id: 'd18', name: '采购部', type: 'dept' },
+          { id: 'd19', name: '供应商管理部', type: 'dept' }
+        ]}
+      ]}
+    ];
+
+    var selectedOrgIds = [];
+
+    // 岗位数据
+    var positionData = [
+      { id: 'pos_all', name: '全部岗位', type: 'all' },
+      { id: 'pos_1', name: '总经理', category: '管理岗' },
+      { id: 'pos_2', name: '部门经理', category: '管理岗' },
+      { id: 'pos_3', name: '主管', category: '管理岗' },
+      { id: 'pos_4', name: '采购员', category: '业务岗' },
+      { id: 'pos_5', name: '销售代表', category: '业务岗' },
+      { id: 'pos_6', name: '客户服务员', category: '业务岗' },
+      { id: 'pos_7', name: '质检员', category: '业务岗' },
+      { id: 'pos_8', name: '仓管员', category: '业务岗' },
+      { id: 'pos_9', name: '生产操作工', category: '生产岗' },
+      { id: 'pos_10', name: '设备维护员', category: '生产岗' },
+      { id: 'pos_11', name: '安全员', category: '生产岗' },
+      { id: 'pos_12', name: '会计', category: '职能岗' },
+      { id: 'pos_13', name: '出纳', category: '职能岗' },
+      { id: 'pos_14', name: '人事专员', category: '职能岗' },
+      { id: 'pos_15', name: '行政专员', category: '职能岗' },
+      { id: 'pos_16', name: 'IT运维', category: '职能岗' },
+      { id: 'pos_17', name: '设计师', category: '研发岗' },
+      { id: 'pos_18', name: '产品工程师', category: '研发岗' },
+      { id: 'pos_19', name: '工艺工程师', category: '研发岗' },
+      { id: 'pos_20', name: '基础用户', category: '通用' }
+    ];
+
+    var currentOrgTab = 'org';
+
+    function switchOrgTab(tab) {
+      currentOrgTab = tab;
+      var orgBtn = document.getElementById('tabOrgBtn');
+      var posBtn = document.getElementById('tabPosBtn');
+      var orgPanel = document.getElementById('orgTreePanel');
+      var posPanel = document.getElementById('posListPanel');
+      var search = document.getElementById('orgSearch');
+      if (tab === 'org') {
+        orgBtn.style.background = '#1a5fb4'; orgBtn.style.color = '#fff'; orgBtn.style.fontWeight = '500';
+        posBtn.style.background = '#fff'; posBtn.style.color = 'var(--text-secondary)'; posBtn.style.fontWeight = '400';
+        orgPanel.style.display = ''; posPanel.style.display = 'none';
+        search.placeholder = '搜索部门名称';
+      } else {
+        posBtn.style.background = '#1a5fb4'; posBtn.style.color = '#fff'; posBtn.style.fontWeight = '500';
+        orgBtn.style.background = '#fff'; orgBtn.style.color = 'var(--text-secondary)'; orgBtn.style.fontWeight = '400';
+        orgPanel.style.display = 'none'; posPanel.style.display = '';
+        search.placeholder = '搜索岗位名称';
+      }
+      search.value = '';
+    }
+
+    function onOrgSearchInput(val) {
+      if (currentOrgTab === 'org') {
+        filterOrgTree(val);
+      } else {
+        renderPosList(val.trim());
+      }
+    }
+
+    function renderPosList(filter) {
+      var container = document.getElementById('posListContainer');
+      if (!container) return;
+      var lowerFilter = filter ? filter.toLowerCase() : '';
+      var categories = {};
+      positionData.forEach(function(pos) {
+        if (filter && pos.name.toLowerCase().indexOf(lowerFilter) < 0) return;
+        if (pos.type === 'all') {
+          if (!filter) {
+            if (!categories['全部']) categories['全部'] = [];
+            categories['全部'].push(pos);
+          }
+          return;
+        }
+        if (!categories[pos.category]) categories[pos.category] = [];
+        categories[pos.category].push(pos);
+      });
+      var html = '';
+      var catOrder = ['全部', '管理岗', '业务岗', '生产岗', '职能岗', '研发岗', '通用'];
+      catOrder.forEach(function(cat) {
+        if (!categories[cat]) return;
+        html += '<div style="padding:6px 8px;font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">' + cat + '</div>';
+        categories[cat].forEach(function(pos) {
+          var checked = selectedOrgIds.indexOf(pos.id) >= 0 ? 'checked' : '';
+          html += '<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'\'">' +
+            '<input type="checkbox" value="' + pos.id + '" data-name="' + pos.name + '" ' + checked + ' style="accent-color:var(--primary-color);" onchange="toggleOrgCheck(this)">' +
+            '<span>' + pos.name + '</span>' +
+          '</label>';
+        });
+      });
+      container.innerHTML = html || '<div style="text-align:center;color:var(--text-muted);padding:20px;">未找到匹配岗位</div>';
+    }
+
+    function openOrgPicker() {
+      var existing = document.getElementById('orgPickerModal');
+      if (existing) existing.remove();
+      var overlay = document.createElement('div');
+      overlay.id = 'orgPickerModal';
+      overlay.className = 'modal-overlay show';
+      overlay.style.zIndex = '3000';
+      overlay.innerHTML = `
+        <div class="modal" style="max-width:520px;">
+          <div class="modal-header">
+            <div class="modal-title">选择适用人员</div>
+            <div class="modal-close" onclick="closeOrgPicker()">✕</div>
+          </div>
+          <div class="modal-body" style="padding:16px 24px;">
+            <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border-color);border-radius:8px;overflow:hidden;">
+              <div id="tabOrgBtn" onclick="switchOrgTab('org')" style="flex:1;padding:8px;text-align:center;font-size:13px;cursor:pointer;background:#1a5fb4;color:#fff;font-weight:500;">按部门</div>
+              <div id="tabPosBtn" onclick="switchOrgTab('pos')" style="flex:1;padding:8px;text-align:center;font-size:13px;cursor:pointer;background:#fff;color:var(--text-secondary);border-left:1px solid var(--border-color);">按岗位</div>
+            </div>
+            <input type="text" class="form-input" id="orgSearch" placeholder="搜索部门/岗位名称" style="margin-bottom:12px;" oninput="onOrgSearchInput(this.value)">
+            <div id="orgTreePanel">
+              <div style="max-height:400px;overflow-y:auto;border:1px solid var(--border-color);border-radius:8px;padding:8px;" id="orgTreeContainer"></div>
+            </div>
+            <div id="posListPanel" style="display:none;">
+              <div style="max-height:400px;overflow-y:auto;border:1px solid var(--border-color);border-radius:8px;padding:8px;" id="posListContainer"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div style="margin-right:auto;font-size:13px;color:var(--text-muted);">已选 <span id="orgSelCount">0</span> 项</div>
+            <button class="btn btn-secondary" onclick="closeOrgPicker()">取消</button>
+            <button class="btn btn-primary" onclick="confirmOrgSelection()">确认选择</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', function(e) { if (e.target === overlay) closeOrgPicker(); });
+      currentOrgTab = 'org';
+      renderOrgTree();
+      renderPosList();
+      updateOrgSelCount();
+    }
+
+    function closeOrgPicker() {
+      var modal = document.getElementById('orgPickerModal');
+      if (modal) modal.remove();
+    }
+
+    function renderOrgTree(filter) {
+      var container = document.getElementById('orgTreeContainer');
+      if (!container) return;
+      var html = '';
+      orgData.forEach(function(node) {
+        html += renderOrgNode(node, 0, filter);
+      });
+      container.innerHTML = html || '<div style="text-align:center;color:var(--text-muted);padding:20px;">未找到匹配项</div>';
+    }
+
+    function renderOrgNode(node, level, filter) {
+      var lowerFilter = filter ? filter.toLowerCase() : '';
+      var nameMatch = !filter || node.name.toLowerCase().indexOf(lowerFilter) >= 0;
+      var childMatch = false;
+      var childHtml = '';
+      if (node.children) {
+        node.children.forEach(function(child) {
+          var sub = renderOrgNode(child, level + 1, filter);
+          if (sub) { childMatch = true; childHtml += sub; }
+        });
+      }
+      if (!nameMatch && !childMatch) return '';
+      var visible = nameMatch || childMatch || !filter;
+      var checked = selectedOrgIds.indexOf(node.id) >= 0 ? 'checked' : '';
+      var indent = level * 20;
+      var hasChildren = node.children && node.children.length;
+      var toggleIcon = hasChildren ? '<span style="margin-right:4px;cursor:pointer;font-size:11px;color:var(--text-muted);display:inline-block;width:14px;" onclick="event.stopPropagation();toggleOrgExpand(this)">▼</span>' : '<span style="display:inline-block;width:18px;"></span>';
+      var typeBadge = node.type === 'tag' ? '<span style="font-size:11px;color:#9333ea;background:#f3e8ff;padding:1px 6px;border-radius:4px;margin-left:6px;">标签</span>' : (node.type === 'group' ? '<span style="font-size:11px;color:#2563eb;background:#dbeafe;padding:1px 6px;border-radius:4px;margin-left:6px;">集团</span>' : '');
+      var childrenContainer = hasChildren ? '<div class="org-children" style="' + (filter ? '' : '') + '">' + childHtml + '</div>' : '';
+      var bg = level === 0 ? 'background:#f8fafc;' : '';
+      var html = '<div style="padding:4px 0;' + bg + '">' +
+        '<label style="display:flex;align-items:center;gap:6px;padding:6px ' + (indent + 8) + 'px;cursor:pointer;font-size:13px;border-radius:6px;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'\'">' +
+          toggleIcon +
+          '<input type="checkbox" value="' + node.id + '" data-name="' + node.name + '" ' + checked + ' style="accent-color:var(--primary-color);" onchange="toggleOrgCheck(this)">' +
+          '<span>' + node.name + '</span>' + typeBadge +
+        '</label>' + childrenContainer +
+      '</div>';
+      return html;
+    }
+
+    function toggleOrgCheck(el) {
+      var id = el.value;
+      var name = el.dataset.name;
+      if (el.checked) {
+        if (selectedOrgIds.indexOf(id) < 0) selectedOrgIds.push(id);
+        if (id === 'all') {
+          orgData.forEach(function checkAll(node) {
+            if (node.id !== 'all' && selectedOrgIds.indexOf(node.id) < 0) {
+              selectedOrgIds.push(node.id);
+            }
+            var cb = document.querySelector('#orgTreeContainer input[value="' + node.id + '"]');
+            if (cb && node.id !== 'all') cb.checked = true;
+            if (node.children) node.children.forEach(checkAll);
+          });
+        }
+        if (id === 'pos_all') {
+          positionData.forEach(function(pos) {
+            if (pos.id !== 'pos_all' && selectedOrgIds.indexOf(pos.id) < 0) {
+              selectedOrgIds.push(pos.id);
+            }
+            var cb = document.querySelector('#posListContainer input[value="' + pos.id + '"]');
+            if (cb && pos.id !== 'pos_all') cb.checked = true;
+          });
+        }
+      } else {
+        selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== id; });
+        if (id === 'all') {
+          orgData.forEach(function uncheckAll(node) {
+            selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== node.id; });
+            var cb = document.querySelector('#orgTreeContainer input[value="' + node.id + '"]');
+            if (cb && node.id !== 'all') cb.checked = false;
+            if (node.children) node.children.forEach(uncheckAll);
+          });
+        }
+        if (id === 'pos_all') {
+          positionData.forEach(function(pos) {
+            selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== pos.id; });
+            var cb = document.querySelector('#posListContainer input[value="' + pos.id + '"]');
+            if (cb && pos.id !== 'pos_all') cb.checked = false;
+          });
+        }
+      }
+      updateOrgSelCount();
+    }
+
+    function toggleOrgExpand(el) {
+      var container = el.parentElement.nextElementSibling;
+      if (!container) return;
+      if (container.style.display === 'none') {
+        container.style.display = '';
+        el.textContent = '▼';
+      } else {
+        container.style.display = 'none';
+        el.textContent = '▶';
+      }
+    }
+
+    function filterOrgTree(val) {
+      renderOrgTree(val.trim());
+    }
+
+    function updateOrgSelCount() {
+      var el = document.getElementById('orgSelCount');
+      if (el) el.textContent = selectedOrgIds.length;
+    }
+
+    function confirmOrgSelection() {
+      var tags = document.getElementById('audienceTags');
+      var display = document.getElementById('audienceDisplay');
+      var selectedNames = [];
+      var tagHtml = '';
+      var isPos = false;
+      orgData.forEach(function traverse(node) {
+        if (selectedOrgIds.indexOf(node.id) >= 0) {
+          selectedNames.push(node.name);
+          tagHtml += '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#dbeafe;color:#2563eb;border-radius:6px;font-size:12px;">' + node.name + '<span style="cursor:pointer;color:#93c5fd;" onclick="removeOrgTag(\'' + node.id + '\')">✕</span></span>';
+        }
+        if (node.children) node.children.forEach(traverse);
+      });
+      positionData.forEach(function(pos) {
+        if (selectedOrgIds.indexOf(pos.id) >= 0) {
+          selectedNames.push(pos.name);
+          tagHtml += '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f3e8ff;color:#9333ea;border-radius:6px;font-size:12px;">' + pos.name + '<span style="cursor:pointer;color:#c4b5fd;" onclick="removeOrgTag(\'' + pos.id + '\')">✕</span></span>';
+        }
+      });
+      display.value = selectedNames.length ? selectedNames.join('、') : '';
+      tags.innerHTML = tagHtml;
+      closeOrgPicker();
+    }
+
+    function removeOrgTag(id) {
+      selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== id; });
+      confirmOrgSelection();
+    }
+
+    // 自定义字段联动
+    function toggleCustomField(selectEl, wrapId) {
+      var wrap = document.getElementById(wrapId);
+      if (selectEl.value === 'custom') {
+        wrap.style.display = '';
+        setTimeout(function() { wrap.querySelector('input').focus(); }, 50);
+      } else {
+        wrap.style.display = 'none';
+        wrap.querySelector('input').value = '';
+      }
+    }
+
+    // 确认自定义：输入文字后点击确认，将自定义值写入select选项
+    function confirmCustom(inputId, selectId, btnEl) {
+      var input = document.getElementById(inputId);
+      var val = input.value.trim();
+      if (!val) { input.focus(); return; }
+      var select = document.getElementById(selectId);
+      var customOption = select.querySelector('option[value="custom"]');
+      customOption.textContent = val;
+      customOption.value = 'custom_' + val;
+      select.value = 'custom_' + val;
+      var wrap = btnEl.parentElement.parentElement;
+      wrap.style.display = 'none';
+    }
+
+    // 取消自定义：恢复select到第一个预设选项
+    function cancelCustom(wrapId, selectId) {
+      var wrap = document.getElementById(wrapId);
+      wrap.style.display = 'none';
+      wrap.querySelector('input').value = '';
+      var select = document.getElementById(selectId);
+      var customOption = select.querySelector('option[value^="custom"]');
+      if (customOption) {
+        customOption.textContent = '+ 自定义';
+        customOption.value = 'custom';
+      }
+      select.selectedIndex = 0;
+    }
+
+    // ===== 轻提示 =====
+    function showToast(msg, type) {
+      var t = document.getElementById('pageToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'pageToast';
+        t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:8px;font-size:14px;color:#fff;background:#1e293b;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:5000;opacity:0;transition:opacity 0.25s, top 0.25s;pointer-events:none;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      t.style.background = type === 'error' ? '#dc2626' : (type === 'success' ? '#16a34a' : '#1e293b');
+      t.style.opacity = '1';
+      t.style.top = '90px';
+      clearTimeout(t._tid);
+      t._tid = setTimeout(function () {
+        t.style.opacity = '0';
+        t.style.top = '80px';
+      }, 2200);
+    }
+
+    // ===== 课程保存 =====
+    // 已保存课程：课程名称 -> 课程信息与课时清单（再次打开可还原，刷新后仍在）
+    var savedCourses = {};
+    try { savedCourses = JSON.parse(localStorage.getItem('bxl_saved_courses') || '{}') || {}; } catch (e) { savedCourses = {}; }
+
+    function persistSavedCourses() {
+      try { localStorage.setItem('bxl_saved_courses', JSON.stringify(savedCourses)); } catch (e) {}
+    }
+
+    // 汇总当前表单内容
+    function collectCourseForm() {
+      var typeRadio = document.querySelector('input[name="instructorType"]:checked');
+      var isExternal = typeRadio && typeRadio.value === 'external';
+      var nameEl = document.getElementById(isExternal ? 'externalInstructorName' : 'instructorNameInput');
+      var raw = nameEl ? nameEl.value.trim() : '';
+      var parts = raw.split('-');
+      var catEl = document.getElementById('courseCategory');
+      var activeTab = document.querySelector('.upload-tab.active');
+      return {
+        name: document.getElementById('courseName').value.trim(),
+        category: catEl ? catEl.value : '',
+        fileType: (activeTab && activeTab.dataset.type === 'pdf') ? 'PDF' : '视频',
+        instructor: (parts[0] || '').trim(),
+        dept: (parts[1] || '').trim() || '-',
+        lessons: uploadedFiles.map(function (f) {
+          return { name: f.lessonName, type: f.type, size: f.size };
+        })
+      };
+    }
+
+    // 查找课程列表中的已有行（本页无课程列表时返回 null）
+    function findCourseRow(name) {
+      var tbody = document.getElementById('courseTableBody');
+      if (!tbody) return null;
+      var found = null;
+      tbody.querySelectorAll('tr').forEach(function (tr) {
+        var rowName = tr.dataset.courseName || (tr.cells[1] ? tr.cells[1].textContent.trim() : '');
+        if (rowName === name) found = tr;
+      });
+      return found;
+    }
+
+    // 保存课程：记录课时清单（页面存在课程列表时同步写入列表）
+    function saveCourse(status) {
+      var form = collectCourseForm();
+      if (!form.name) { showToast('请输入课程名称', 'error'); return; }
+      if (!form.category) { showToast('请选择课程分类', 'error'); return; }
+      var existRow = findCourseRow(form.name);
+      if (form.lessons.length === 0 && !existRow) { showToast('请先上传课时文件', 'error'); return; }
+
+      // 未命名的课时按序号补默认名
+      form.lessons.forEach(function (l, i) {
+        if (!l.name || !l.name.trim()) l.name = '第' + (i + 1) + '课时';
+      });
+      // 本次未重新上传文件时，沿用原有课时数与课时清单
+      var lessonCount = form.lessons.length;
+      if (lessonCount === 0) {
+        var old = savedCourses[form.name];
+        if (old && old.lessons) {
+          form.lessons = old.lessons;
+          lessonCount = old.lessons.length;
+        } else if (existRow && existRow.cells[6]) {
+          lessonCount = parseInt(existRow.cells[6].textContent, 10) || 0;
+        }
+      }
+
+      savedCourses[form.name] = {
+        category: form.category,
+        fileType: form.fileType,
+        instructor: form.instructor,
+        dept: form.dept,
+        status: status,
+        lessons: form.lessons
+      };
+      persistSavedCourses();
+      renderCourseRow(form, status, lessonCount);
+      showToast('课程「' + form.name + '」已' + (status === '草稿' ? '存为草稿' : '发布') + '，共 ' + lessonCount + ' 个课时', 'success');
+      closeModal();
+    }
+
+    // 写入课程列表（同名课程更新原行，不重复新增；本页无列表时跳过）
+    function renderCourseRow(form, status, lessonCount) {
+      var tbody = document.getElementById('courseTableBody');
+      if (!tbody) return;
+      var existed = findCourseRow(form.name);
+      var tagClass = {
+        '制度规范': 'tag-green', '产品知识': 'tag-yellow',
+        '职业技能': 'tag-blue', '系统操作': 'tag-blue'
+      }[form.category] || 'tag-gray';
+      var d = new Date();
+      function p(n) { return String(n).padStart(2, '0'); }
+      var dateStr = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+      var statusTag = status === '草稿'
+        ? '<span class="tag tag-gray">草稿</span>'
+        : '<span class="tag tag-green">已发布</span>';
+      var html =
+        '<td><input type="checkbox" class="row-check" onchange="updateBatchButtons()"></td>' +
+        '<td><strong>' + form.name + '</strong></td>' +
+        '<td><span class="tag ' + tagClass + '">' + form.category + '</span></td>' +
+        '<td>' + form.fileType + '</td>' +
+        '<td>' + (form.instructor || '-') + '</td>' +
+        '<td>' + form.dept + '</td>' +
+        '<td>' + lessonCount + '</td>' +
+        '<td>0</td>' +
+        '<td>' + statusTag + '</td>' +
+        '<td>' + dateStr + '</td>' +
+        '<td>' +
+          '<button class="table-action edit" onclick="openModal(this.closest(\'tr\').dataset.courseName)">编辑</button>' +
+          '<button class="table-action off">下架</button>' +
+          '<button class="table-action del">删除</button>' +
+        '</td>';
+      var tr = existed || document.createElement('tr');
+      tr.dataset.courseName = form.name;
+      tr.innerHTML = html;
+      if (!existed) tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    // 重新打开页面时，还原已保存的课程
+    Object.keys(savedCourses).forEach(function (name) {
+      var s = savedCourses[name];
+      if (!s || !s.lessons) return;
+      renderCourseRow({
+        name: name, category: s.category, fileType: s.fileType,
+        instructor: s.instructor, dept: s.dept, lessons: s.lessons
+      }, s.status, s.lessons.length);
+    });
+
+    // 存为草稿
+    function saveCourseDraft() {
+      saveCourse('草稿');
+    }
+
+    // 部门组织架构树
+    function toggleDeptTree() {
+      var dd = document.getElementById('deptTreeDropdown');
+      dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    }
+    function toggleDeptNode(el) {
+      event.stopPropagation();
+      var children = el.nextElementSibling;
+      if (children) {
+        children.style.display = children.style.display === 'none' ? 'block' : 'none';
+        var arrow = el.querySelector('span');
+        if (arrow) arrow.style.transform = children.style.display === 'none' ? '' : 'rotate(90deg)';
+      }
+    }
+    function selectDept(el, name) {
+      event.stopPropagation();
+      document.getElementById('deptSelect').value = name;
+      document.getElementById('deptTreeDropdown').style.display = 'none';
+    }
+    document.addEventListener('click', function(e) {
+      var dd = document.getElementById('deptTreeDropdown');
+      var input = document.getElementById('deptSelect');
+      if (dd && input && !dd.contains(e.target) && e.target !== input) {
+        dd.style.display = 'none';
+      }
+    });
+
+    // 上传Tab切换
+    function switchUploadTab(el) {
+      document.querySelectorAll('.upload-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      var type = el.dataset.type;
+      document.getElementById('videoUploadArea').style.display = type === 'video' ? '' : 'none';
+      document.getElementById('pdfUploadArea').style.display = type === 'pdf' ? '' : 'none';
+    }
+
+    // ===== 课时文件列表 =====
+    // 每上传一个文件，自动生成一条课时记录，默认命名为「第1课时」「第2课时」…
+    var uploadedFiles = [];
+    var fileSeq = 0;
+
+    function handleFileSelect(event, type) {
+      var files = event.target.files;
+      if (!files || files.length === 0) return;
+      for (var i = 0; i < files.length; i++) {
+        uploadedFiles.push({
+          id: ++fileSeq,
+          name: files[i].name,
+          size: files[i].size,
+          type: type,
+          lessonName: '',   // 为空时按序号自动命名
+          renamed: false,   // 用户是否手动改过名称
+          progress: 0,
+          done: false
+        });
+      }
+      event.target.value = '';
+      renderLessonList();
+      uploadedFiles.forEach(function (f) { if (!f.done) simulateUpload(f); });
+    }
+
+    // 按类型渲染课时列表，课时序号随删除自动连续
+    function renderLessonList() {
+      ['video', 'pdf'].forEach(function (type) {
+        var box = document.getElementById(type + 'FilePreview');
+        if (!box) return;
+        var list = uploadedFiles.filter(function (f) { return f.type === type; });
+        box.innerHTML = '';
+        list.forEach(function (f, i) {
+          // 未手动改名的课时，保持「第N课时」的默认命名
+          if (!f.renamed) f.lessonName = '第' + (i + 1) + '课时';
+          box.appendChild(buildLessonRow(f));
+        });
+      });
+    }
+
+    // 单条课时记录
+    function buildLessonRow(f) {
+      var icon = f.type === 'video' ? '🎬' : '📄';
+      var bg = f.type === 'video' ? '#f3e8ff' : '#fee2e2';
+      var color = f.type === 'video' ? '#9333ea' : '#dc2626';
+      var row = document.createElement('div');
+      row.className = 'file-preview';
+      row.dataset.fileId = f.id;
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;margin-top:8px;';
+      row.innerHTML =
+        '<div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:' + bg + ';color:' + color + ';">' + icon + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + f.name + '</div>' +
+          '<div style="font-size:12px;color:var(--text-muted);">' + formatFileSize(f.size) + ' · <span class="upload-status">' + (f.done ? '上传完成 ✓' : '上传中 ' + Math.round(f.progress) + '%') + '</span></div>' +
+          '<div class="upload-progress" style="height:4px;background:#f1f5f9;border-radius:2px;margin-top:4px;overflow:hidden;"><div class="upload-progress-bar" style="height:100%;width:' + f.progress + '%;background:' + color + ';border-radius:2px;transition:width 0.3s;"></div></div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">' +
+          '<span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">课时名称</span>' +
+          '<input type="text" class="lesson-name-input" value="' + f.lessonName + '" placeholder="请输入课时名称" title="点击可直接修改课时名称" onfocus="this.select()" oninput="renameLesson(' + f.id + ', this.value)" onblur="commitLessonName(' + f.id + ', this)" onkeydown="if(event.key===\'Enter\'){this.blur();}" style="width:150px;padding:5px 8px;border:1px solid var(--border-color);border-radius:4px;font-size:12px;">' +
+          '<span style="cursor:pointer;color:#ef4444;font-size:16px;padding:4px;" title="删除该课时" onclick="removeLesson(' + f.id + ')">✕</span>' +
+        '</div>';
+      var st = row.querySelector('.upload-status');
+      if (st && f.done) st.style.color = '#16a34a';
+      return row;
+    }
+
+    // 输入即时同步课时名称
+    function renameLesson(id, val) {
+      var f = uploadedFiles.filter(function (x) { return x.id === id; })[0];
+      if (!f) return;
+      f.lessonName = val;
+      f.renamed = val.trim() !== '';
+    }
+
+    // 回车或失焦确认：名称留空则恢复「第N课时」默认名
+    function commitLessonName(id, input) {
+      var f = uploadedFiles.filter(function (x) { return x.id === id; })[0];
+      if (!f) return;
+      var val = input.value.trim();
+      if (val === '') {
+        f.renamed = false;
+        f.lessonName = '';
+        renderLessonList();
+        return;
+      }
+      f.lessonName = val;
+      f.renamed = true;
+      input.value = val;
+    }
+
+    // 删除课时，剩余课时自动重新编号
+    function removeLesson(id) {
+      uploadedFiles = uploadedFiles.filter(function (x) { return x.id !== id; });
+      renderLessonList();
+    }
+
+    // 上传进度模拟
+    function simulateUpload(f) {
+      var timer = setInterval(function () {
+        var row = document.querySelector('.file-preview[data-file-id="' + f.id + '"]');
+        if (!row) { clearInterval(timer); return; }
+        f.progress = Math.min(100, f.progress + Math.random() * 25);
+        if (f.progress >= 100) { f.progress = 100; f.done = true; clearInterval(timer); }
+        var bar = row.querySelector('.upload-progress-bar');
+        var st = row.querySelector('.upload-status');
+        if (bar) bar.style.width = f.progress + '%';
+        if (st) {
+          st.textContent = f.done ? '上传完成 ✓' : '上传中 ' + Math.round(f.progress) + '%';
+          st.style.color = f.done ? '#16a34a' : '';
+        }
+      }, 300);
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+      return (bytes / 1073741824).toFixed(1) + ' GB';
+    }
+
+    // 课程分类新增
+    function onCategoryChange(sel) {
+      var newInput = document.getElementById('newCategoryInput');
+      var confirmBtn = document.getElementById('confirmCategoryBtn');
+      if (sel.value === '__new__') {
+        newInput.style.display = 'block';
+        confirmBtn.style.display = 'block';
+        newInput.focus();
+      } else {
+        newInput.style.display = 'none';
+        confirmBtn.style.display = 'none';
+        newInput.value = '';
+      }
+    }
+
+    function confirmNewCategory() {
+      var input = document.getElementById('newCategoryInput');
+      var val = input.value.trim();
+      if (!val) { alert('请输入分类名称'); return; }
+      var sel = document.getElementById('courseCategory');
+      var newOpt = document.createElement('option');
+      newOpt.value = val;
+      newOpt.textContent = val;
+      var newOpt2 = newOpt.cloneNode(true);
+      sel.insertBefore(newOpt, sel.querySelector('option[value="__new__"]'));
+      sel.value = val;
+      input.style.display = 'none';
+      document.getElementById('confirmCategoryBtn').style.display = 'none';
+      input.value = '';
+      showToast('分类 "' + val + '" 已添加', 'success');
+    }
+
+    // 拖拽上传
+    ['videoDropZone', 'pdfDropZone'].forEach(function(id) {
+      var zone = document.getElementById(id);
+      if (!zone) return;
+      var type = id === 'videoDropZone' ? 'video' : 'pdf';
+      zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      });
+      zone.addEventListener('dragleave', function() {
+        zone.classList.remove('dragover');
+      });
+      zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        var input = document.getElementById(type + 'FileInput');
+        if (e.dataTransfer.files.length) {
+          input.files = e.dataTransfer.files;
+          input.dispatchEvent(new Event('change'));
+        }
+      });
+    });
+
+    // 表格筛选
+    function filterTable() {
+      var keyword = document.getElementById('adminSearch').value.toLowerCase().trim();
+      var catFilter = document.getElementById('adminCatFilter').value;
+      var statusFilter = document.getElementById('adminStatusFilter').value;
+      var rows = document.querySelectorAll('#courseTableBody tr');
+      var visible = 0;
+
+      rows.forEach(function(row) {
+        var name = row.cells[1].textContent.toLowerCase();
+        var cat = row.cells[2].textContent.trim();
+        var status = row.cells[8].textContent.trim();
+
+        var matchSearch = !keyword || name.indexOf(keyword) !== -1;
+        var matchCat = !catFilter || cat.indexOf(catFilter) !== -1;
+        var matchStatus = !statusFilter || status.indexOf(statusFilter) !== -1;
+
+        if (matchSearch && matchCat && matchStatus) {
+          row.style.display = '';
+          visible++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      document.getElementById('adminPageInfo').textContent = '共' + visible + '条记录';
+    }
+
+    // 发布课程（校验通过后写入课程列表）
+    function submitCourse() {
+      saveCourse('已发布');
+    }
+
+    // 全选/取消全选
+    function toggleSelectAll(checkbox) {
+      var rows = document.querySelectorAll('.row-check');
+      rows.forEach(function(r) { r.checked = checkbox.checked; });
+      updateBatchButtons();
+    }
+
+    // 更新批量操作按钮状态
+    function updateBatchButtons() {
+      var checked = document.querySelectorAll('.row-check:checked');
+      var hasSelected = checked.length > 0;
+      var pubBtn = document.getElementById('batchPublishBtn');
+      var delBtn = document.getElementById('batchDeleteBtn');
+      if (hasSelected) {
+        pubBtn.style.opacity = '1';
+        pubBtn.style.cursor = 'pointer';
+        pubBtn.style.borderColor = '#16a34a';
+        pubBtn.style.color = '#16a34a';
+        pubBtn.textContent = '批量上架（' + checked.length + '）';
+        delBtn.style.opacity = '1';
+        delBtn.style.cursor = 'pointer';
+        delBtn.style.borderColor = '#ef4444';
+        delBtn.style.color = '#ef4444';
+        delBtn.textContent = '批量删除（' + checked.length + '）';
+      } else {
+        pubBtn.style.opacity = '0.4';
+        pubBtn.style.cursor = 'not-allowed';
+        pubBtn.style.borderColor = '#d1d5db';
+        pubBtn.style.color = '#9ca3af';
+        pubBtn.textContent = '批量上架';
+        delBtn.style.opacity = '0.4';
+        delBtn.style.cursor = 'not-allowed';
+        delBtn.style.borderColor = '#d1d5db';
+        delBtn.style.color = '#9ca3af';
+        delBtn.textContent = '批量删除';
+      }
+      var all = document.querySelectorAll('.row-check');
+      var selectAll = document.getElementById('selectAll');
+      if (selectAll) selectAll.checked = all.length > 0 && checked.length === all.length;
+    }
+
+    // 批量上架
+    function batchPublish() {
+      var checked = document.querySelectorAll('.row-check:checked');
+      if (checked.length === 0) return;
+      if (!confirm('确认将选中的 ' + checked.length + ' 门课程上架？')) return;
+      checked.forEach(function(c) {
+        var row = c.closest('tr');
+        var statusCell = row.querySelectorAll('td')[8];
+        statusCell.innerHTML = '<span class="tag tag-green">已发布</span>';
+        var actionCell = row.querySelectorAll('td')[10];
+        var courseName = row.cells[1].textContent.trim();
+        actionCell.innerHTML = '<button class="table-action edit" onclick="openModal(\'' + courseName + '\')">编辑</button><button class="table-action off">下架</button><button class="table-action del">删除</button>';
+      });
+      document.getElementById('selectAll').checked = false;
+      updateBatchButtons();
+      alert('已上架 ' + checked.length + ' 门课程');
+    }
+
+    // 批量删除
+    function batchDelete() {
+      var checked = document.querySelectorAll('.row-check:checked');
+      if (checked.length === 0) return;
+      if (!confirm('确认删除选中的 ' + checked.length + ' 门课程？删除后不可恢复。')) return;
+      var count = checked.length;
+      checked.forEach(function(c) {
+        c.closest('tr').remove();
+      });
+      document.getElementById('selectAll').checked = false;
+      updateBatchButtons();
+      alert('已删除 ' + count + ' 门课程');
+    }
+
+    /* ===== 考试内容配置 ===== */
+    var examQuestions = [];
+    var currentExamListId = 'examQuestionList';
+    var examDataByLesson = {};
+    var currentExamLesson = '';
+    var courseLessons = {
+      '公司制度全集': ['考勤制度', '请假制度', '报销制度', '采购制度', '绩效考核'],
+      '产品知识大全': ['产品线A介绍', '产品线B介绍', '产品线C介绍', '竞品对比'],
+      'OA系统操作培训': ['流程发起', '审批操作', '文档管理', '权限设置'],
+      'ERP系统操作指南': ['采购模块', '库存模块', '销售模块', '财务模块'],
+      '职场沟通技巧': ['倾听技巧', '表达技巧', '冲突处理', '向上管理'],
+      '安全生产规范': ['消防知识', '设备安全', '应急处理'],
+      '包装设计基础': ['材料认知', '结构设计', '工艺流程'],
+      '项目管理实战': ['项目启动', '进度管理', '风险控制', '项目收尾'],
+      '商务谈判与客户关系': ['谈判准备', '谈判技巧', '客户维护'],
+      'CRM客户管理系统操作': ['客户录入', '商机管理', '合同管理', '数据分析']
+    };
+
+    function toggleExamConfig(sel) {
+      var config = document.getElementById('examConfig');
+      var val = sel.value;
+      if (val === 'quiz' || val === 'exam') {
+        config.classList.add('show');
+        currentExamListId = 'examQuestionList';
+      } else {
+        config.classList.remove('show');
+      }
+    }
+
+    function addExamQuestion(type) {
+      type = type || 'single';
+      var q;
+      if (type === 'essay') {
+        q = { type: 'essay', text: '', score: 10, referenceAnswer: '' };
+      } else if (type === 'judge') {
+        q = { type: 'judge', text: '', score: 5, options: [{ text: '正确', correct: false }, { text: '错误', correct: false }] };
+      } else {
+        q = { type: type, text: '', score: 5, options: [{ text: '', correct: false }, { text: '', correct: false }, { text: '', correct: false }, { text: '', correct: false }] };
+      }
+      examQuestions.push(q);
+      renderExamQuestions();
+    }
+
+    function renderExamQuestions() {
+      var list = document.getElementById(currentExamListId);
+      list.innerHTML = '';
+      examQuestions.forEach(function(q, qi) {
+        var letters = 'ABCDEFGHIJ';
+        var typeLabel = q.type === 'single' ? '单选题' : q.type === 'multi' ? '多选题' : q.type === 'judge' ? '判断题' : '问答题';
+        var html = '<div class="exam-question-card">';
+        html += '<div class="exam-q-header">';
+        html += '<span class="exam-q-num">第' + (qi + 1) + '题</span>';
+        html += '<select class="exam-q-type" onchange="changeExamType(' + qi + ', this)">';
+        html += '<option value="single"' + (q.type === 'single' ? ' selected' : '') + '>单选题</option>';
+        html += '<option value="multi"' + (q.type === 'multi' ? ' selected' : '') + '>多选题</option>';
+        html += '<option value="judge"' + (q.type === 'judge' ? ' selected' : '') + '>判断题</option>';
+        html += '<option value="essay"' + (q.type === 'essay' ? ' selected' : '') + '>问答题</option>';
+        html += '</select>';
+        html += '<span class="exam-q-score-label">分值</span>';
+        html += '<input type="number" class="exam-q-score" value="' + q.score + '" min="1" max="100" onchange="examQuestions[' + qi + '].score = parseInt(this.value) || 0">';
+        html += '<span class="exam-q-delete" onclick="removeExamQuestion(' + qi + ')">删除</span>';
+        html += '</div>';
+        html += '<input type="text" class="exam-q-input" placeholder="请输入题目内容" value="' + (q.text || '').replace(/"/g, '&quot;') + '" oninput="examQuestions[' + qi + '].text = this.value">';
+        if (q.type === 'essay') {
+          html += '<div class="exam-ref-label">📖 参考答案（用于人工评分参考）</div>';
+          html += '<textarea class="exam-ref-answer" placeholder="请输入参考答案..." oninput="examQuestions[' + qi + '].referenceAnswer = this.value">' + (q.referenceAnswer || '') + '</textarea>';
+        } else {
+          q.options.forEach(function(opt, oi) {
+            var letter = letters[oi] || (oi + 1);
+            html += '<div class="exam-option-row">';
+            html += '<div class="exam-option-letter' + (opt.correct ? ' correct' : '') + '">' + letter + '</div>';
+            if (q.type === 'judge') {
+              html += '<input type="text" class="exam-option-input" value="' + (opt.text || '') + '" readonly style="background:#f1f5f9;">';
+            } else {
+              html += '<input type="text" class="exam-option-input" placeholder="选项 ' + letter + ' 的内容" value="' + (opt.text || '').replace(/"/g, '&quot;') + '" oninput="examQuestions[' + qi + '].options[' + oi + '].text = this.value">';
+            }
+            if (q.type !== 'judge' && q.options.length > 2) {
+              html += '<span class="exam-option-delete" onclick="removeExamOption(' + qi + ', ' + oi + ')">✕</span>';
+            } else {
+              html += '<span style="width:24px;"></span>';
+            }
+            html += '<button type="button" class="btn btn-sm ' + (opt.correct ? 'btn-success' : 'btn-outline') + '" style="margin-left:8px;padding:4px 12px;font-size:12px;white-space:nowrap;" onclick="toggleCorrectAnswer(' + qi + ', ' + oi + ', this)">' + (opt.correct ? '✓ 已设为正确答案' : '设为正确答案') + '</button>';
+            html += '</div>';
+          });
+          if (q.type !== 'judge' && q.options.length < 6) {
+            html += '<span class="exam-add-option" onclick="addExamOption(' + qi + ')">+ 添加选项</span>';
+          }
+        }
+        html += '</div>';
+        list.innerHTML += html;
+      });
+    }
+
+    function changeExamType(qi, sel) {
+      var newType = sel.value;
+      var q = examQuestions[qi];
+      q.type = newType;
+      if (newType === 'judge') {
+        q.options = [{ text: '正确', correct: false }, { text: '错误', correct: false }];
+        delete q.referenceAnswer;
+      } else if (newType === 'essay') {
+        if (!q.referenceAnswer) q.referenceAnswer = '';
+        delete q.options;
+      } else {
+        if (!q.options || q.options.length === 0) {
+          q.options = [{ text: '', correct: false }, { text: '', correct: false }, { text: '', correct: false }, { text: '', correct: false }];
+        } else {
+          while (q.options.length < 2) q.options.push({ text: '', correct: false });
+          while (q.options.length > 4) q.options.pop();
+          q.options.forEach(function(opt) { if (opt.text === '正确' || opt.text === '错误') opt.text = ''; });
+        }
+        delete q.referenceAnswer;
+      }
+      renderExamQuestions();
+    }
+
+    function removeExamQuestion(qi) {
+      examQuestions.splice(qi, 1);
+      renderExamQuestions();
+    }
+
+    function addExamOption(qi) {
+      var q = examQuestions[qi];
+      if (q.options.length < 6) {
+        q.options.push({ text: '', correct: false });
+        renderExamQuestions();
+      }
+    }
+
+    function removeExamOption(qi, oi) {
+      var q = examQuestions[qi];
+      if (q.options.length > 2) {
+        q.options.splice(oi, 1);
+        renderExamQuestions();
+      }
+    }
+
+    function toggleCorrectAnswer(qi, oi, el) {
+      var q = examQuestions[qi];
+      if (q.type === 'single' || q.type === 'judge') {
+        q.options.forEach(function(opt) { opt.correct = false; });
+      }
+      q.options[oi].correct = !q.options[oi].correct;
+      renderExamQuestions();
+    }
+
+    function onExamCourseChange() {
+      var tree = document.getElementById('examCourseTree');
+      var courses = Object.keys(courseLessons);
+      var html = '';
+      courses.forEach(function(c, ci) {
+        var lessons = courseLessons[c];
+        html += '<div class="tree-node">';
+        html += '<div class="tree-node-parent" onclick="toggleTreeNode(this)">';
+        html += '<span class="tree-arrow">▶</span>';
+        html += '<span>' + c + '</span>';
+        html += '<span style="margin-left:auto;font-size:11px;color:var(--text-muted);">' + lessons.length + '课时</span>';
+        html += '</div>';
+        html += '<div class="tree-children">';
+        lessons.forEach(function(l) {
+          html += '<label class="tree-leaf" onclick="event.stopPropagation()">';
+          html += '<input type="checkbox" value="' + c + '|' + l + '" onchange="onLessonCheckChange(this)">';
+          html += '<span>' + l + '</span>';
+          html += '</label>';
+        });
+        html += '</div>';
+        html += '</div>';
+      });
+      tree.innerHTML = html;
+      examDataByLesson = {};
+      currentExamLesson = '';
+      document.getElementById('examLessonTabs').style.display = 'none';
+      document.getElementById('examLessonEmpty').style.display = '';
+    }
+
+    function toggleTreeNode(el) {
+      var arrow = el.querySelector('.tree-arrow');
+      var children = el.nextElementSibling;
+      if (children) {
+        children.classList.toggle('open');
+        arrow.classList.toggle('open');
+      }
+    }
+
+    function onLessonCheckChange(checkbox) {
+      var parts = checkbox.value.split('|');
+      var course = parts[0];
+      var lesson = parts[1];
+      var key = course + '|' + lesson;
+      if (checkbox.checked) {
+        if (!examDataByLesson[key]) {
+          examDataByLesson[key] = { course: course, lesson: lesson, name: lesson + '课后测试', duration: 30, passScore: 60, desc: '', questions: [] };
+        }
+      } else {
+        delete examDataByLesson[key];
+      }
+      refreshExamLessonTabs();
+    }
+
+    function refreshExamLessonTabs() {
+      var keys = Object.keys(examDataByLesson);
+      var tabsBox = document.getElementById('examLessonTabs');
+      var emptyBox = document.getElementById('examLessonEmpty');
+      var tabBar = document.getElementById('examLessonTabBar');
+      var contentBox = document.getElementById('examLessonTabContent');
+
+      if (keys.length === 0) {
+        tabsBox.style.display = 'none';
+        emptyBox.style.display = '';
+        currentExamLesson = '';
+        return;
+      }
+      tabsBox.style.display = '';
+      emptyBox.style.display = 'none';
+
+      var wasCurrentRemoved = currentExamLesson && !examDataByLesson[currentExamLesson];
+      if (wasCurrentRemoved || !currentExamLesson) {
+        currentExamLesson = keys[0];
+      }
+
+      tabBar.innerHTML = keys.map(function(k, i) {
+        var d = examDataByLesson[k];
+        var active = (k === currentExamLesson) ? ' active' : (i === 0 && !currentExamLesson ? ' active' : '');
+        return '<div class="exam-lesson-tab' + active + '" onclick="switchExamLessonTab(\'' + k.replace(/'/g, "\\'") + '\')">' + d.lesson + '</div>';
+      }).join('');
+
+      contentBox.innerHTML = keys.map(function(k, i) {
+        var d = examDataByLesson[k];
+        var panelId = 'examPanel_' + k.replace(/\|/g,'_').replace(/\s/g, '_');
+        var active = (k === currentExamLesson) ? ' active' : (i === 0 && !currentExamLesson ? ' active' : '');
+        return '<div class="exam-lesson-panel' + active + '" id="' + panelId + '">' +
+          '<div class="form-group"><label class="form-label">考试名称 <span style="color:#ef4444;">*</span></label>' +
+          '<input type="text" class="form-input" value="' + (d.name || '').replace(/"/g, '&quot;') + '" oninput="examDataByLesson[\'' + k.replace(/'/g, "\\'") + '\'].name = this.value"></div>' +
+          '<div class="exam-meta-row">' +
+          '<div class="form-group" style="margin-bottom:0;"><label class="form-label">考试时长（分钟）</label>' +
+          '<input type="number" class="form-input" value="' + d.duration + '" min="5" step="5" style="appearance:auto;" oninput="examDataByLesson[\'' + k.replace(/'/g, "\\'") + '\'].duration = parseInt(this.value)||30"></div>' +
+          '<div class="form-group" style="margin-bottom:0;"><label class="form-label">及格分数（分）</label>' +
+          '<input type="number" class="form-input" value="' + d.passScore + '" min="0" max="100" step="5" style="appearance:auto;" oninput="examDataByLesson[\'' + k.replace(/'/g, "\\'") + '\'].passScore = parseInt(this.value)||60"></div>' +
+          '<div class="form-group" style="margin-bottom:0;"><label class="form-label">考试说明</label>' +
+          '<input type="text" class="form-input" value="' + (d.desc || '').replace(/"/g, '&quot;') + '" placeholder="如：闭卷考试，可重考1次" oninput="examDataByLesson[\'' + k.replace(/'/g, "\\'") + '\'].desc = this.value"></div>' +
+          '</div>' +
+          '<div id="examList_' + k.replace(/\|/g,'_').replace(/\s/g, '_') + '"></div>' +
+          '<button type="button" class="exam-add-question" onclick="setCurrentExamLesson(\'' + k.replace(/'/g, "\\'") + '\'); addExamQuestion()">+ 添加题目</button>' +
+          '<div style="margin-top:12px;text-align:right;"><button type="button" class="btn btn-outline btn-sm" onclick="saveCurrentLesson(\'' + k.replace(/'/g, "\\'") + '\')">保存当前课时</button></div>' +
+          '</div>';
+      }).join('');
+
+      currentExamListId = 'examList_' + currentExamLesson.replace(/\|/g,'_').replace(/\s/g, '_');
+      examQuestions = examDataByLesson[currentExamLesson].questions;
+      renderExamQuestions();
+    }
+
+    function setCurrentExamLesson(key) {
+      currentExamLesson = key;
+      currentExamListId = 'examList_' + key.replace(/\|/g,'_').replace(/\s/g, '_');
+      examQuestions = examDataByLesson[key].questions;
+    }
+
+    function saveCurrentLesson(key) {
+      var d = examDataByLesson[key];
+      if (!d) return;
+      if (!d.name || !d.name.trim()) { showToast('请输入考试名称', 'error'); return; }
+      showToast('【' + d.lesson + '】考试内容已保存', 'success');
+    }
+
+    function switchExamLessonTab(key) {
+      document.querySelectorAll('.exam-lesson-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.exam-lesson-panel').forEach(function(p) { p.classList.remove('active'); });
+      event.target.classList.add('active');
+      var panelId = 'examPanel_' + key.replace(/\|/g,'_').replace(/\s/g, '_');
+      var panel = document.getElementById(panelId);
+      if (panel) panel.classList.add('active');
+      setCurrentExamLesson(key);
+      renderExamQuestions();
+    }
+
+    function openExamPublishModal(courseName) {
+      var modal = document.getElementById('examPublishModal');
+      examDataByLesson = {};
+      currentExamLesson = '';
+      onExamCourseChange();
+      modal.classList.add('show');
+    }
+
+    function closeExamPublishModal() {
+      document.getElementById('examPublishModal').classList.remove('show');
+      examDataByLesson = {};
+      currentExamLesson = '';
+      examQuestions = [];
+      currentExamListId = 'examQuestionList';
+      var tree = document.getElementById('examCourseTree');
+      if (tree) tree.innerHTML = '';
+    }
+
+    function submitExamPublish() {
+      var keys = Object.keys(examDataByLesson);
+      if (keys.length === 0) { alert('请勾选至少一个课时'); return; }
+      for (var li = 0; li < keys.length; li++) {
+        var key = keys[li];
+        var d = examDataByLesson[key];
+        if (!d.name || !d.name.trim()) { alert('课时【' + d.lesson + '】请输入考试名称'); return; }
+        if (d.questions.length === 0) { alert('课时【' + d.lesson + '】请至少添加一道题目'); return; }
+        for (var i = 0; i < d.questions.length; i++) {
+          if (!d.questions[i].text.trim()) { alert('课时【' + d.lesson + '】第' + (i + 1) + '题题目内容不能为空'); return; }
+          if (d.questions[i].type === 'essay') {
+            if (!d.questions[i].referenceAnswer || !d.questions[i].referenceAnswer.trim()) { alert('课时【' + d.lesson + '】第' + (i + 1) + '题未填写参考答案'); return; }
+          } else {
+            var hasCorrect = d.questions[i].options.some(function(o) { return o.correct; });
+            if (!hasCorrect) { alert('课时【' + d.lesson + '】第' + (i + 1) + '题未设置正确答案'); return; }
+          }
+        }
+      }
+      var totalQuestions = keys.reduce(function(s, k) { return s + examDataByLesson[k].questions.length; }, 0);
+      var courses = keys.map(function(k) { return examDataByLesson[k].course; }).filter(function(v, i, a) { return a.indexOf(v) === i; });
+      closeExamPublishModal();
+      alert('考试已发布，关联课程：' + courses.join('、') + '，共 ' + keys.length + ' 个课时，' + totalQuestions + ' 道题目');
+    }
+
+    function saveExamDraft() {
+      var keys = Object.keys(examDataByLesson);
+      if (keys.length === 0) { alert('请勾选至少一个课时'); return; }
+      closeExamPublishModal();
+      alert('考试草稿已保存，共 ' + keys.length + ' 个课时');
+    }
+  </script>
+
+<script>
+/* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
+</script>
+</body>
+</html>

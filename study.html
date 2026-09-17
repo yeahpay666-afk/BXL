@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>柏家学堂 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    /* ===== 柏家学堂二级页面专属样式 ===== */
+    .study-page-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .study-page-tab {
+      padding: 12px 24px;
+      font-size: 15px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .study-page-tab:hover { color: var(--primary-color); }
+    .study-page-tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+      font-weight: 500;
+    }
+    .study-page-tab .tab-count {
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .study-page-tab.active .tab-count {
+      background: #dbeafe;
+      color: var(--primary-color);
+    }
+
+    /* 课程卡片网格 */
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      padding: 4px 0;
+    }
+    .course-card {
+      display: flex;
+      padding: 20px;
+      background: #f8fafc;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .course-card:hover {
+      background: #fff;
+      border-color: var(--primary-color);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+    }
+    .course-card-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .course-card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .course-card-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .course-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .course-card-meta .tag { font-size: 11px; }
+    .course-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .course-progress-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .course-progress-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+    .course-progress-bar-fill.green { background: #10b981; }
+    .course-progress-bar-fill.orange { background: #f59e0b; }
+    .course-progress-bar-fill.gray { background: #cbd5e1; }
+    .course-progress-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      min-width: 38px;
+      text-align: right;
+    }
+    .course-card-action {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .course-btn {
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .course-btn.start { background: var(--primary-color); color: #fff; }
+    .course-btn.start:hover { background: var(--primary-dark); }
+    .course-btn.continue { background: #f1f5f9; color: var(--primary-color); }
+    .course-btn.continue:hover { background: #e2e8f0; }
+    .course-btn.done { background: #dcfce7; color: #16a34a; cursor: default; }
+    .course-btn.review { background: #f1f5f9; color: var(--text-secondary); }
+    .course-btn.review:hover { background: #e2e8f0; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state .text { font-size: 14px; }
+
+    /* 详情视图的返回按钮 */
+    .back-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background: #eff6ff; }
+
+    @media (max-width: 768px) {
+      .course-grid { grid-template-columns: 1fr; }
+    }
+  
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+
+</style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
+          🔔
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <div class="sub-nav-item active">首页概览</div>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">首页导航</div>
+    <div class="sidebar-subtitle">快速访问常用功能</div>
+    <div class="sidebar-menu">
+      <a href="index.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🏠</span>
+        <span>首页概览</span>
+      </a>
+      <a href="todo-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📋</span>
+        <span>我的待办</span>
+      </a>
+      <a href="news-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📰</span>
+        <span>集团新闻</span>
+      </a>
+      <a href="notice-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📢</span>
+        <span>公告通知</span>
+      </a>
+      <div class="sidebar-menu-item active">
+        <span class="sidebar-menu-icon">📚</span>
+        <span>柏家学堂</span>
+      </div>
+      <div class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">📄</span>
+        <span>最新文档</span>
+      </div>
+      <a href="ai-list.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🤖</span>
+        <span>AI智能体</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+
+    <!-- ===== 课程列表视图 ===== -->
+    <div id="listView">
+    <!-- 刷新按钮 -->
+    <button class="refresh-btn" onclick="location.reload()">
+      <span>🔄</span>
+      <span>刷新</span>
+    </button>
+
+    <!-- 页面标题 -->
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px;">
+      <div>
+        <h1 class="page-title" style="margin-bottom:0;">柏家学堂</h1>
+      </div>
+    </div>
+
+    <!-- 分类Tab -->
+    <div class="study-page-tabs">
+      <div class="study-page-tab active" data-category="全部课程" onclick="switchCategory(this)">
+        全部课程
+        <span class="tab-count">12</span>
+      </div>
+      <div class="study-page-tab" data-category="制度规范" onclick="switchCategory(this)">
+        制度规范
+        <span class="tab-count">3</span>
+      </div>
+      <div class="study-page-tab" data-category="产品知识" onclick="switchCategory(this)">
+        产品知识
+        <span class="tab-count">3</span>
+      </div>
+      <div class="study-page-tab" data-category="职业技能" onclick="switchCategory(this)">
+        职业技能
+        <span class="tab-count">3</span>
+      </div>
+      <div class="study-page-tab" data-category="系统操作" onclick="switchCategory(this)">
+        系统操作
+        <span class="tab-count">3</span>
+      </div>
+    </div>
+
+    <!-- 课程列表卡片 -->
+    <div class="card">
+      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div class="card-title" style="font-size:15px; font-weight:600; color:#1f2937;">
+          <span style="color:#2563eb; margin-right:4px;">▎</span>课程列表
+          <span class="count-badge" style="background:#dbeafe; color:#2563eb; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:400;">12门课程</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="searchInput" placeholder="搜索课程名称、讲师、部门..." oninput="filterCourses()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px; width:220px;">
+          <select id="statusFilter" onchange="filterCourses()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+            <option value="">全部状态</option>
+            <option value="已完成">已完成</option>
+            <option value="学习中">学习中</option>
+            <option value="未开始">未开始</option>
+          </select>
+          <select id="sortFilter" onchange="filterCourses()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+            <option value="">默认排序</option>
+            <option value="latest">最新发布</option>
+            <option value="popular">学习人数最多</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="course-grid" id="courseGrid">
+          <!-- 课程1 -->
+          <div class="course-card" data-title="公司制度全集" data-category="制度规范" data-status="已完成" data-dept="人力资源部" data-instructor="李芳" data-date="2024-12-20" data-learners="320">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                公司制度全集
+                <span class="tag tag-green">制度规范</span>
+              </div>
+              <div class="course-card-desc">涵盖考勤、请假、报销、采购等全部公司管理制度，新员工必修课程。</div>
+              <div class="course-card-meta">
+                <span>📅 12课时</span>
+                <span>👤 李芳</span>
+                <span>🏢 人力资源部</span>
+                <span>👥 320人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill green" style="width: 100%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#16a34a;">100%</span>
+                <button class="course-btn done" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">已完成</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程2 -->
+          <div class="course-card" data-title="产品知识大全" data-category="产品知识" data-status="学习中" data-dept="产品部" data-instructor="王磊" data-date="2025-01-08" data-learners="215">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                产品知识大全
+                <span class="tag tag-yellow">产品知识</span>
+              </div>
+              <div class="course-card-desc">全面介绍柏星龙核心产品线、包装材料特性、工艺流程及质量标准。</div>
+              <div class="course-card-meta">
+                <span>📅 24课时</span>
+                <span>👤 王磊</span>
+                <span>🏢 产品部</span>
+                <span>👥 215人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill orange" style="width: 50%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#d97706;">50%</span>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程3 -->
+          <div class="course-card" data-title="OA系统操作培训" data-category="系统操作" data-status="未开始" data-dept="信息部" data-instructor="陈明" data-date="2025-01-10" data-learners="180">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                OA系统操作培训
+                <span class="tag tag-gray">系统操作</span>
+              </div>
+              <div class="course-card-desc">新OA系统功能介绍与操作实操，涵盖流程发起、审批、文档管理等核心模块。</div>
+              <div class="course-card-meta">
+                <span>📅 6课时</span>
+                <span>👤 陈明</span>
+                <span>🏢 信息部</span>
+                <span>👥 180人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill gray" style="width: 0%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#94a3b8;">0%</span>
+                <button class="course-btn start" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">开始学习</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程4 -->
+          <div class="course-card" data-title="ERP系统操作指南" data-category="系统操作" data-status="学习中" data-dept="信息部" data-instructor="刘洋" data-date="2024-11-15" data-learners="156">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                ERP系统操作指南
+                <span class="tag tag-blue">系统操作</span>
+              </div>
+              <div class="course-card-desc">T100 ERP系统全面操作教程，包含采购、生产、库存、财务等模块实操。</div>
+              <div class="course-card-meta">
+                <span>📅 18课时</span>
+                <span>👤 刘洋</span>
+                <span>🏢 信息部</span>
+                <span>👥 156人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill orange" style="width: 35%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#d97706;">35%</span>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程5 -->
+          <div class="course-card" data-title="职场沟通技巧" data-category="职业技能" data-status="已完成" data-dept="人力资源部" data-instructor="张玲" data-date="2024-10-20" data-learners="289">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                职场沟通技巧
+                <span class="tag tag-purple">职业技能</span>
+              </div>
+              <div class="course-card-desc">高效沟通方法论，涵盖向上汇报、跨部门协作、冲突处理等实战场景。</div>
+              <div class="course-card-meta">
+                <span>📅 8课时</span>
+                <span>👤 张玲</span>
+                <span>🏢 人力资源部</span>
+                <span>👥 289人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill green" style="width: 100%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#16a34a;">100%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程6 -->
+          <div class="course-card" data-title="安全生产规范" data-category="制度规范" data-status="学习中" data-dept="安环部" data-instructor="赵刚" data-date="2024-12-05" data-learners="412">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                安全生产规范
+                <span class="tag tag-red">制度规范</span>
+              </div>
+              <div class="course-card-desc">车间安全生产标准操作规程，个人防护用品使用及应急处置流程培训。</div>
+              <div class="course-card-meta">
+                <span>📅 10课时</span>
+                <span>👤 赵刚</span>
+                <span>🏢 安环部</span>
+                <span>👥 412人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill orange" style="width: 70%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#d97706;">70%</span>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程7 -->
+          <div class="course-card" data-title="包装设计基础" data-category="产品知识" data-status="未开始" data-dept="设计部" data-instructor="周婷" data-date="2025-01-12" data-learners="98">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                包装设计基础
+                <span class="tag tag-purple">产品知识</span>
+              </div>
+              <div class="course-card-desc">包装结构设计原理、材料选择、印刷工艺及设计规范全流程入门。</div>
+              <div class="course-card-meta">
+                <span>📅 16课时</span>
+                <span>👤 周婷</span>
+                <span>🏢 设计部</span>
+                <span>👥 98人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill gray" style="width: 0%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#94a3b8;">0%</span>
+                <button class="course-btn start" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">开始学习</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程8 -->
+          <div class="course-card" data-title="项目管理实战" data-category="职业技能" data-status="学习中" data-dept="项目管理办" data-instructor="孙伟" data-date="2024-11-28" data-learners="134">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                项目管理实战
+                <span class="tag tag-blue">职业技能</span>
+              </div>
+              <div class="course-card-desc">PMBOK项目管理框架，项目立项、计划制定、风险管控及收尾全流程实战。</div>
+              <div class="course-card-meta">
+                <span>📅 20课时</span>
+                <span>👤 孙伟</span>
+                <span>🏢 项目管理办</span>
+                <span>👥 134人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill orange" style="width: 25%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#d97706;">25%</span>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程9 -->
+          <div class="course-card" data-title="每刻报销流程规范" data-category="制度规范" data-status="已完成" data-dept="财务部" data-instructor="钱敏" data-date="2024-09-15" data-learners="356">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                每刻报销流程规范
+                <span class="tag tag-yellow">制度规范</span>
+              </div>
+              <div class="course-card-desc">差旅费、招待费、办公费等各项费用报销标准及线上审批流程操作指南。</div>
+              <div class="course-card-meta">
+                <span>📅 4课时</span>
+                <span>👤 钱敏</span>
+                <span>🏢 财务部</span>
+                <span>👥 356人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill green" style="width: 100%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#16a34a;">100%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程10 -->
+          <div class="course-card" data-title="CRM客户管理系统操作" data-category="系统操作" data-status="学习中" data-dept="信息部" data-instructor="刘洋" data-date="2025-01-05" data-learners="112">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                CRM客户管理系统操作
+                <span class="tag tag-indigo">系统操作</span>
+              </div>
+              <div class="course-card-desc">CRM系统客户档案管理、商机跟进、合同管理及销售数据分析模块操作。</div>
+              <div class="course-card-meta">
+                <span>📅 10课时</span>
+                <span>👤 刘洋</span>
+                <span>🏢 信息部</span>
+                <span>👥 112人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill orange" style="width: 60%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#d97706;">60%</span>
+                <button class="course-btn continue" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">继续学习</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程11 -->
+          <div class="course-card" data-title="商务谈判与客户关系" data-category="职业技能" data-status="未开始" data-dept="市场部" data-instructor="吴昊" data-date="2025-01-14" data-learners="76">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                商务谈判与客户关系
+                <span class="tag tag-orange">职业技能</span>
+              </div>
+              <div class="course-card-desc">商务谈判策略与技巧，客户关系维护方法论，大客户管理最佳实践案例。</div>
+              <div class="course-card-meta">
+                <span>📅 14课时</span>
+                <span>👤 吴昊</span>
+                <span>🏢 市场部</span>
+                <span>👥 76人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill gray" style="width: 0%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#94a3b8;">0%</span>
+                <button class="course-btn start" onclick="openCourseDetail(this.closest('.course-card').dataset.title)">开始学习</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 课程12 -->
+          <div class="course-card" data-title="包装材料与工艺知识" data-category="产品知识" data-status="已完成" data-dept="产品部" data-instructor="王磊" data-date="2024-10-08" data-learners="203">
+            <div class="course-card-body">
+              <div class="course-card-title">
+                包装材料与工艺知识
+                <span class="tag tag-green">产品知识</span>
+              </div>
+              <div class="course-card-desc">纸制品、塑料、金属、玻璃等包装材料特性对比，印刷及后道工艺详解。</div>
+              <div class="course-card-meta">
+                <span>📅 15课时</span>
+                <span>👤 王磊</span>
+                <span>🏢 产品部</span>
+                <span>👥 203人学习</span>
+              </div>
+              <div class="course-progress-wrap">
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill green" style="width: 100%;"></div>
+                </div>
+                <span class="course-progress-text" style="color:#16a34a;">100%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 空状态提示 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="icon">🔍</div>
+          <div class="text">未找到匹配的课程，请尝试其他关键词</div>
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination" style="padding: 16px 20px; border-top: 1px solid var(--border-color);">
+        <div class="pagination-info" id="paginationInfo">共12门课程</div>
+        <button class="page-btn disabled">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+    </div>
+    <!-- ===== /课程列表视图 ===== -->
+
+    <!-- ===== 学习详情视图（在当前内容区展示，左侧菜单不变） ===== -->
+    <div id="detailView" style="display:none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+        <div class="breadcrumb" style="margin-bottom:0;">
+          <a href="index.html">首页</a>
+          <span class="separator">/</span>
+          <a href="javascript:void(0)" onclick="closeCourseDetail()">柏家学堂</a>
+          <span class="separator">/</span>
+          <span class="current" id="detailCrumb">课程详情</span>
+        </div>
+        <span class="back-btn" onclick="closeCourseDetail()">← 返回课程列表</span>
+      </div>
+      <iframe id="detailFrame" title="课程学习详情" src="about:blank" style="display:block; width:100%; height:calc(100vh - 190px); border:none;"></iframe>
+    </div>
+  </main>
+
+  <script>
+    // ===== 学习详情：在当前内容区切换视图，左侧菜单保持不变 =====
+    function openCourseDetail(title) {
+      document.getElementById('listView').style.display = 'none';
+      document.getElementById('detailView').style.display = '';
+      document.getElementById('detailCrumb').textContent = title || '课程详情';
+      // 通过 embed=1 让详情页隐藏自身的顶部导航，作为内容区嵌入展示
+      document.getElementById('detailFrame').src = 'study-detail.html?embed=1&title=' + encodeURIComponent(title || '');
+      window.scrollTo(0, 0);
+    }
+
+    function closeCourseDetail() {
+      document.getElementById('detailFrame').src = 'about:blank';
+      document.getElementById('detailView').style.display = 'none';
+      document.getElementById('listView').style.display = '';
+      window.scrollTo(0, 0);
+    }
+
+    var currentCategory = '全部课程';
+
+    function switchCategory(el) {
+      document.querySelectorAll('.study-page-tab').forEach(function(tab) {
+        tab.classList.remove('active');
+      });
+      el.classList.add('active');
+      currentCategory = el.dataset.category;
+      filterCourses();
+    }
+
+    function filterCourses() {
+      var searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
+      var statusFilter = document.getElementById('statusFilter').value;
+      var sortFilter = document.getElementById('sortFilter').value;
+      var courses = document.querySelectorAll('.course-card');
+      var visibleCount = 0;
+
+      courses.forEach(function(course) {
+        var title = (course.dataset.title || '').toLowerCase();
+        var category = course.dataset.category || '';
+        var status = course.dataset.status || '';
+        var dept = (course.dataset.dept || '').toLowerCase();
+        var instructor = (course.dataset.instructor || '').toLowerCase();
+
+        var matchSearch = !searchKeyword ||
+          title.indexOf(searchKeyword) !== -1 ||
+          dept.indexOf(searchKeyword) !== -1 ||
+          instructor.indexOf(searchKeyword) !== -1;
+
+        var matchCategory = currentCategory === '全部课程' || category === currentCategory;
+        var matchStatus = !statusFilter || status === statusFilter;
+
+        if (matchSearch && matchCategory && matchStatus) {
+          course.style.display = '';
+          visibleCount++;
+        } else {
+          course.style.display = 'none';
+        }
+      });
+
+      if (sortFilter === 'popular') {
+        sortCourses(courses, 'data-learners', true);
+      } else if (sortFilter === 'latest') {
+        sortCourses(courses, 'data-date', true);
+      }
+
+      var emptyState = document.getElementById('emptyState');
+      var grid = document.getElementById('courseGrid');
+      if (visibleCount === 0) {
+        emptyState.style.display = '';
+        grid.style.display = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        grid.style.display = '';
+      }
+
+      document.getElementById('paginationInfo').textContent = '共' + visibleCount + '门课程';
+    }
+
+    function sortCourses(courses, attr, desc) {
+      var grid = document.getElementById('courseGrid');
+      var arr = Array.from(courses).filter(function(c) { return c.style.display !== 'none'; });
+      arr.sort(function(a, b) {
+        var va = a.getAttribute(attr) || '';
+        var vb = b.getAttribute(attr) || '';
+        if (desc) {
+          return vb.localeCompare(va);
+        }
+        return va.localeCompare(vb);
+      });
+      arr.forEach(function(c) { grid.appendChild(c); });
+    }
+  </script>
+
+<script>
+/* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
+</script>
+</body>
+</html>

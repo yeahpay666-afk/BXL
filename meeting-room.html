@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会议室管理 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #1f2937; font-size: 14px; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .top-header { height: 52px; background: linear-gradient(90deg, #1e3a5f 0%, #2563eb 100%); display: flex; align-items: center; padding: 0 20px; color: #fff; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin-right: 28px; }
+    .logo-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .top-nav { display: flex; gap: 6px; flex: 1; }
+    .top-nav a { padding: 6px 14px; border-radius: 4px; font-size: 13px; opacity: 0.85; transition: all 0.2s; color: #fff; }
+    .top-nav a:hover, .top-nav a.active { opacity: 1; background: rgba(255,255,255,0.15); }
+    .top-right { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+    .top-right .user { display: flex; align-items: center; gap: 8px; }
+    .top-right .avatar { width: 30px; height: 30px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    .sub-header { height: 42px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 20px; }
+    .sub-header-nav { display: flex; gap: 4px; }
+    .sub-nav-item { padding: 8px 16px; font-size: 13px; color: #6b7280; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .sub-nav-item:hover { color: #2563eb; background: #eff6ff; }
+    .sub-nav-item.active { color: #2563eb; background: #eff6ff; font-weight: 500; }
+
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6b7280; margin-bottom: 12px; }
+    .breadcrumb a { color: #6b7280; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .separator { color: #d1d5db; }
+    .breadcrumb .current { color: #1f2937; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .page-title { font-size: 20px; font-weight: 600; color: #1f2937; }
+    .page-desc { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .header-actions { display: flex; gap: 10px; }
+    .btn { padding: 7px 14px; border-radius: 6px; font-size: 13px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-default { background: #fff; color: #4b5563; border: 1px solid #d1d5db; }
+    .btn-default:hover { background: #f9fafb; border-color: #9ca3af; }
+    .btn-danger { background: #fff; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fef2f2; }
+
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 18px; }
+    .stat-card-label { font-size: 12px; color: #6b7280; }
+    .stat-card-value { font-size: 22px; font-weight: 600; color: #1f2937; margin-top: 4px; }
+    .stat-card-foot { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+
+    .filter-bar { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .filter-input { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; outline: none; transition: border-color 0.15s; }
+    .filter-input:focus { border-color: #2563eb; }
+    .filter-select { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #fff; outline: none; }
+
+    .table-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+    .table-toolbar { padding: 10px 16px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
+    .table-toolbar-left { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #6b7280; }
+    .table-toolbar-right { display: flex; gap: 8px; }
+    .btn-tiny { padding: 5px 10px; border-radius: 5px; font-size: 12px; transition: all 0.15s; }
+    .btn-tiny.primary { background: #2563eb; color: #fff; }
+    .btn-tiny.primary:hover { background: #1d4ed8; }
+    .btn-tiny.danger { background: #fff; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-tiny.danger:hover { background: #fef2f2; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: #f9fafb; padding: 10px 12px; text-align: left; font-size: 12px; color: #6b7280; font-weight: 500; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+    tbody td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; font-size: 13px; vertical-align: middle; }
+    tbody tr:hover { background: #f9fafb; }
+    .row-cb { width: 36px; text-align: center; }
+    .row-cb input { cursor: pointer; }
+
+    .room-thumb { width: 60px; height: 44px; border-radius: 6px; object-fit: cover; background: #f3f4f6; display: inline-block; box-shadow: 0 1px 2px rgba(15,23,42,0.06); }
+    .room-thumb-placeholder { width: 60px; height: 44px; border-radius: 6px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: inline-flex; align-items: center; justify-content: center; font-size: 18px; color: #cbd5e1; border: 1px solid #e5e7eb; }
+    .room-name-cell { display: flex; align-items: center; gap: 10px; }
+    .room-name-text { font-weight: 500; color: #1f2937; }
+    .room-code { font-size: 11px; color: #9ca3af; }
+
+    .status-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .status-on { background: #dcfce7; color: #16a34a; }
+    .status-off { background: #f3f4f6; color: #6b7280; }
+    .status-maintain { background: #fef3c7; color: #d97706; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .device-tag { display: inline-block; padding: 2px 7px; background: #eff6ff; color: #2563eb; border-radius: 4px; font-size: 11px; margin-right: 3px; margin-bottom: 2px; }
+
+    .action-link { padding: 4px 8px; font-size: 12px; color: #2563eb; cursor: pointer; transition: all 0.15s; }
+    .action-link:hover { background: #eff6ff; border-radius: 4px; }
+    .action-link.danger { color: #dc2626; }
+    .action-link.danger:hover { background: #fef2f2; }
+    .action-link + .action-link { margin-left: 2px; }
+
+    .empty-row { text-align: center; color: #9ca3af; padding: 40px 0; }
+
+    .pagination { padding: 12px 16px; display: flex; justify-content: flex-end; align-items: center; gap: 4px; border-top: 1px solid #f3f4f6; }
+    .pagination-info { font-size: 12px; color: #6b7280; margin-right: auto; }
+    .page-btn { min-width: 28px; height: 28px; padding: 0 6px; border: 1px solid #d1d5db; background: #fff; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .page-btn:hover { background: #f9fafb; border-color: #9ca3af; }
+    .page-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+    .toast { position: fixed; top: 80px; right: 24px; background: #1f2937; color: #fff; padding: 10px 16px; border-radius: 6px; font-size: 13px; z-index: 2000; opacity: 0; transform: translateX(20px); transition: all 0.2s; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.success { background: #16a34a; }
+    .toast.error { background: #dc2626; }
+
+    .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-mask.show { display: flex; }
+    .modal { background: #fff; border-radius: 10px; width: 420px; max-width: 90%; max-height: 90vh; overflow: auto; }
+    .modal-header { padding: 14px 20px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 15px; font-weight: 600; }
+    .modal-close { font-size: 20px; color: #9ca3af; cursor: pointer; }
+    .modal-body { padding: 16px 20px; font-size: 13px; color: #4b5563; line-height: 1.6; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; gap: 8px; }
+
+    /* 新增/编辑会议室弹窗 */
+    .room-modal { width: 760px; max-width: 92vw; }
+    .room-modal .modal-container-inner { max-height: 78vh; overflow-y: auto; }
+    .form-section { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+    .form-section:last-child { border-bottom: none; }
+    .form-section-title { font-size: 13px; font-weight: 600; color: #1f2937; margin-bottom: 12px; padding-left: 8px; border-left: 3px solid #2563eb; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+    .form-grid.full { grid-column: 1 / -1; }
+    .form-item { display: flex; flex-direction: column; gap: 4px; }
+    .form-label { font-size: 12px; color: #4b5563; font-weight: 500; }
+    .form-label .req { color: #dc2626; margin-right: 2px; }
+    .form-input, .form-select, .form-textarea { border: 1px solid #d1d5db; border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: inherit; background: #fff; color: #1f2937; outline: none; transition: border-color 0.15s; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #2563eb; }
+    .form-textarea { resize: vertical; min-height: 56px; }
+    .form-hint { font-size: 11px; color: #9ca3af; }
+
+    .photo-uploader { display: flex; gap: 14px; align-items: stretch; }
+    .photo-preview { position: relative; width: 260px; height: 170px; border: 1.5px dashed #cbd5e1; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); color: #94a3b8; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+    .photo-preview:hover { border-color: #2563eb; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
+    .photo-preview.dragover { border-color: #2563eb; border-style: solid; background: #eff6ff; transform: scale(1.01); }
+    .photo-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; text-align: center; }
+    .photo-empty-icon { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #94a3b8; box-shadow: 0 2px 8px rgba(15,23,42,0.06); }
+    .photo-empty-text { font-size: 12px; color: #475569; font-weight: 500; }
+    .photo-empty-sub { font-size: 10px; color: #94a3b8; }
+    .photo-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.55); display: none; align-items: center; justify-content: center; gap: 8px; }
+    .photo-preview.has-image:hover .photo-overlay { display: flex; }
+    .photo-overlay-btn { padding: 5px 12px; background: rgba(255,255,255,0.95); color: #1f2937; border-radius: 5px; font-size: 12px; cursor: pointer; }
+    .photo-overlay-btn.danger { color: #dc2626; }
+    .photo-badge { position: absolute; top: 6px; left: 6px; padding: 2px 7px; background: rgba(37,99,235,0.9); color: #fff; border-radius: 4px; font-size: 10px; display: none; }
+    .photo-preview.has-image .photo-badge { display: block; }
+    .photo-tip { font-size: 11px; color: #94a3b8; line-height: 1.7; background: #f8fafc; border-left: 2px solid #cbd5e1; padding: 8px 10px; border-radius: 0 4px 4px 0; flex: 1; }
+    .photo-tip b { color: #475569; }
+
+    .device-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .device-option { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-size: 12px; user-select: none; }
+    .device-option:hover { border-color: #2563eb; }
+    .device-option.checked { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+    .device-option input { display: none; }
+  
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
+          🔔
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <div class="sub-nav-item active">内容管理</div>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+      <div class="sidebar-title">内容管理</div>
+      <div class="sidebar-subtitle">管理企业学习与资讯内容</div>
+      <div class="sidebar-menu">
+        <a href="content-study.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📚</span>
+          <span>柏家学堂配置</span>
+        </a>
+        <a href="news-manage.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📰</span>
+          <span>新闻管理</span>
+        </a>
+        <a href="notice-manage.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📢</span>
+          <span>公告管理</span>
+        </a>
+        <a href="baishi-service-list.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🛎️</span>
+          <span>柏事服务管理</span>
+        </a>
+        <a href="quick-entry.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🔲</span>
+          <span>快捷入口管理</span>
+        </a>
+        <div class="sidebar-menu-item active">
+          <span class="sidebar-menu-icon">🏢</span>
+          <span>会议室管理</span>
+        </div>
+        <a href="ai-agent-market.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🤖</span>
+          <span>AI智能体市场</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <span>🏠</span>
+        <a href="index.html">返回门户首页</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="page-title">会议室管理</div>
+          <div class="page-desc">维护企业会议室基础信息，供日程预约使用</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openRoomModal()">+ 创建会议室</button>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-card-label">会议室总数</div>
+          <div class="stat-card-value" id="statTotal">6</div>
+          <div class="stat-card-foot">覆盖3个楼层</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">启用中</div>
+          <div class="stat-card-value" id="statOn" style="color:#16a34a;">5</div>
+          <div class="stat-card-foot">可正常预约</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">维护中</div>
+          <div class="stat-card-value" id="statMaintain" style="color:#d97706;">1</div>
+          <div class="stat-card-foot">暂停预约</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-toolbar" style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid #f3f4f6;">
+          <div class="table-toolbar-left" style="font-size:15px; font-weight:600; color:#1f2937; display:flex; align-items:center; gap:10px;">
+            <span style="color:#2563eb; margin-right:4px;">▎</span>会议室列表 <span style="background:#dbeafe; color:#2563eb; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:400;">共 <b id="totalCount">6</b> 条</span>
+            <button id="batchDeleteBtn" onclick="batchDelete()" style="padding:4px 12px; border-radius:6px; font-size:12px; border:none; background:#f3f4f6; color:#9ca3af; cursor:not-allowed;">批量删除</button>
+          </div>
+          <div class="table-toolbar-right" style="display:flex; gap:8px; align-items:center;">
+            <input type="text" class="filter-input" placeholder="搜索会议室名称/编号" style="width:180px; padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" id="searchInput">
+            <select class="filter-select" id="filterStatus" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+              <option value="">全部状态</option>
+              <option value="on">启用</option>
+              <option value="maintain">维护中</option>
+              <option value="off">停用</option>
+            </select>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th class="row-cb"><input type="checkbox" id="checkAll" onchange="toggleAll(this)"></th>
+              <th>会议室</th>
+              <th>门牌显示</th>
+              <th>容纳人数</th>
+              <th>设备配置</th>
+              <th>负责人</th>
+              <th>当前状态</th>
+              <th style="white-space:nowrap;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="roomTbody"></tbody>
+        </table>
+        <div class="pagination">
+          <span class="pagination-info">第 1-6 条 / 共 6 条</span>
+          <button class="page-btn">‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">›</button>
+        </div>
+      </div>
+    </main>
+
+  <div class="modal-mask" id="confirmModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">确认操作</div>
+        <span class="modal-close" onclick="closeModal()">×</span>
+      </div>
+      <div class="modal-body" id="modalBody">确认执行此操作？</div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" id="modalConfirmBtn">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- 新增/编辑会议室弹窗 -->
+  <div class="modal-mask" id="roomModal">
+    <div class="modal room-modal">
+      <div class="modal-header">
+        <div class="modal-title" id="roomModalTitle">新增会议室</div>
+        <span class="modal-close" onclick="closeRoomModal()">×</span>
+      </div>
+      <div class="modal-container-inner">
+        <!-- 会议室照片 -->
+        <div class="form-section">
+          <div class="form-section-title">会议室照片</div>
+          <div class="photo-uploader">
+            <div class="photo-preview" id="roomPhotoPreview" onclick="if(!roomPhotoData)document.getElementById('roomPhotoInput').click()">
+              <span class="photo-badge">主图</span>
+              <div class="photo-empty" id="roomPhotoEmpty">
+                <div class="photo-empty-icon">📷</div>
+                <div>
+                  <div class="photo-empty-text">点击或拖拽上传</div>
+                  <div class="photo-empty-sub">建议 1280×800 · ≤5MB</div>
+                </div>
+              </div>
+              <div class="photo-overlay">
+                <div class="photo-overlay-btn" onclick="event.stopPropagation();document.getElementById('roomPhotoInput').click()">替换</div>
+                <div class="photo-overlay-btn danger" onclick="event.stopPropagation();removeRoomPhoto()">移除</div>
+              </div>
+            </div>
+            <div class="photo-tip">
+              <b>支持 JPG/PNG</b><br>
+              · 作为列表/详情页主图<br>
+              · 建议实地拍摄<br>
+              · 同步至门口电子屏
+            </div>
+          </div>
+          <input type="file" id="roomPhotoInput" accept="image/*" style="display:none;" onchange="onRoomPhotoSelected(this)">
+        </div>
+
+        <!-- 基础信息 -->
+        <div class="form-section">
+          <div class="form-section-title">基础信息</div>
+          <div class="form-grid">
+            <div class="form-item">
+              <div class="form-label"><span class="req">*</span>会议室名称</div>
+              <input type="text" class="form-input" id="fName" placeholder="如：战略会议室" maxlength="30">
+            </div>
+            <div class="form-item">
+              <div class="form-label"><span class="req">*</span>会议室编号</div>
+              <input type="text" class="form-input" id="fCode" placeholder="如：MR-A301" maxlength="20">
+            </div>
+            <div class="form-item">
+              <div class="form-label"><span class="req">*</span>门牌显示名称</div>
+              <input type="text" class="form-input" id="fDoorSign" placeholder="用于门口电子屏显示" maxlength="20">
+            </div>
+            <div class="form-item">
+              <div class="form-label"><span class="req">*</span>容纳人数</div>
+              <input type="number" class="form-input" id="fCapacity" placeholder="如：12" min="1" max="500">
+            </div>
+            <div class="form-item">
+              <div class="form-label">负责人</div>
+              <input type="text" class="form-input" id="fManager" placeholder="如：李芳" maxlength="10">
+            </div>
+            <div class="form-item">
+              <div class="form-label"><span class="req">*</span>状态</div>
+              <select class="form-select" id="fStatus">
+                <option value="on">启用</option>
+                <option value="maintain">维护中</option>
+                <option value="off">停用</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 设备配置 -->
+        <div class="form-section">
+          <div class="form-section-title">设备配置</div>
+          <div class="device-checkbox-group" id="fDevices">
+            <label class="device-option"><input type="checkbox" value="投影仪"><span>投影仪</span></label>
+            <label class="device-option"><input type="checkbox" value="电视屏"><span>电视屏</span></label>
+            <label class="device-option"><input type="checkbox" value="白板"><span>白板</span></label>
+            <label class="device-option"><input type="checkbox" value="视频会议设备"><span>视频会议设备</span></label>
+            <label class="device-option"><input type="checkbox" value="电话会议"><span>电话会议</span></label>
+            <label class="device-option"><input type="checkbox" value="麦克风"><span>麦克风</span></label>
+            <label class="device-option"><input type="checkbox" value="音响"><span>音响</span></label>
+          </div>
+        </div>
+
+        <!-- 备注 -->
+        <div class="form-section">
+          <div class="form-section-title">备注</div>
+          <div class="form-item">
+            <textarea class="form-textarea" id="fRemark" placeholder="维护中时请填写维护说明；其他备注信息也可写在这里" maxlength="200"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" id="roomModalFooter">
+        <button class="btn btn-default" onclick="closeRoomModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveRoom()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var roomData = [
+      { id: 1, name: '战略会议室', code: 'MR-A301', photo: '', doorSign: '战略会议室', capacity: 20, devices: ['投影仪','电视屏','视频会议设备','音响'], manager: '李芳', status: 'on', remark: '高管专用' },
+      { id: 2, name: '创新培训室', code: 'MR-A305', photo: '', doorSign: '创新培训室', capacity: 30, devices: ['投影仪','白板','音响'], manager: '王强', status: 'on', remark: '' },
+      { id: 3, name: '日常讨论室1', code: 'MR-B201', photo: '', doorSign: '讨论室1', capacity: 8, devices: ['电视屏','白板'], manager: '张敏', status: 'on', remark: '' },
+      { id: 4, name: '日常讨论室2', code: 'MR-B202', photo: '', doorSign: '讨论室2', capacity: 8, devices: ['电视屏','白板'], manager: '张敏', status: 'on', remark: '' },
+      { id: 5, name: '视频会议中心', code: 'MR-B501', photo: '', doorSign: '视频会议中心', capacity: 15, devices: ['电视屏','视频会议设备','麦克风','音响'], manager: '陈昊', status: 'on', remark: '需提前2小时预约' },
+      { id: 6, name: '头脑风暴室', code: 'MR-B503', photo: '', doorSign: '头脑风暴室', capacity: 12, devices: ['白板','便签墙'], manager: '陈昊', status: 'maintain', remark: '空调维修中，预计9月20日恢复' }
+    ];
+
+    var typeMap = { '普通': '普通会议室', '培训': '培训室', '视频': '视频会议室', '高管': '高管会议室' };
+    var statusMap = { on: { cls: 'status-on', label: '启用' }, off: { cls: 'status-off', label: '停用' }, maintain: { cls: 'status-maintain', label: '维护中' } };
+    function escAttr(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+    function renderPhoto(room) {
+      if (room.photo) {
+        return '<img class="room-thumb" src="' + escAttr(room.photo) + '" alt="">';
+      }
+      return '<span class="room-thumb-placeholder">🏢</span>';
+    }
+
+    function renderTable() {
+      var tbody = document.getElementById('roomTbody');
+      var filtered = filterData();
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-row">暂无匹配数据</td></tr>';
+        document.getElementById('totalCount').textContent = '0';
+        return;
+      }
+      tbody.innerHTML = filtered.map(function(r) {
+        var st = statusMap[r.status] || statusMap.on;
+        var devices = r.devices.map(function(d) { return '<span class="device-tag">' + escAttr(d) + '</span>'; }).join('');
+        return '<tr>' +
+          '<td class="row-cb"><input type="checkbox" class="row-cb-input" data-id="' + r.id + '" onchange="updateBatchBar()"></td>' +
+          '<td><div class="room-name-cell">' + renderPhoto(r) + '<div><div class="room-name-text">' + escAttr(r.name) + '</div><div class="room-code">' + escAttr(r.code) + '</div></div></div></td>' +
+          '<td><span style="font-weight:500;color:#1f2937;">' + escAttr(r.doorSign) + '</span><div style="font-size:11px;color:#9ca3af;margin-top:2px;">同步至门口电子屏</div></td>' +
+          '<td style="text-align:center;">' + r.capacity + ' 人</td>' +
+          '<td>' + (devices || '<span style="color:#9ca3af;">无</span>') + '</td>' +
+          '<td>' + escAttr(r.manager) + '</td>' +
+          '<td><span class="status-tag ' + st.cls + '"><span class="status-dot"></span>' + st.label + '</span></td>' +
+          '<td style="white-space:nowrap;">' +
+            '<span class="action-link" onclick="viewDetail(' + r.id + ')">详情</span>' +
+            '<span class="action-link" onclick="editRoom(' + r.id + ')">编辑</span>' +
+            '<span class="action-link danger" onclick="deleteRoom(' + r.id + ')">删除</span>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+      document.getElementById('totalCount').textContent = filtered.length;
+    }
+
+    function filterData() {
+      var kw = document.getElementById('searchInput').value.trim().toLowerCase();
+      var st = document.getElementById('filterStatus').value;
+      return roomData.filter(function(r) {
+        if (kw && r.name.toLowerCase().indexOf(kw) < 0 && r.code.toLowerCase().indexOf(kw) < 0) return false;
+        if (st && r.status !== st) return false;
+        return true;
+      });
+    }
+
+    function resetFilter() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterStatus').value = '';
+      renderTable();
+    }
+
+    function toggleAll(el) {
+      document.querySelectorAll('.row-cb-input').forEach(function(cb) { cb.checked = el.checked; });
+      updateBatchBar();
+    }
+
+    function updateBatchBar() {
+      var boxes = document.querySelectorAll('.row-cb-input:checked');
+      var count = boxes.length;
+      var btn = document.getElementById('batchDeleteBtn');
+      var checkAll = document.getElementById('checkAll');
+      var allBoxes = document.querySelectorAll('.row-cb-input');
+      if (count > 0) {
+        btn.style.background = '#dc2626'; btn.style.color = '#fff'; btn.style.cursor = 'pointer';
+      } else {
+        btn.style.background = '#f3f4f6'; btn.style.color = '#9ca3af'; btn.style.cursor = 'not-allowed';
+      }
+      if (allBoxes.length > 0) {
+        checkAll.checked = count === allBoxes.length;
+      } else {
+        checkAll.checked = false;
+      }
+    }
+
+    function getSelectedIds() {
+      return Array.from(document.querySelectorAll('.row-cb-input:checked')).map(function(cb) { return parseInt(cb.dataset.id); });
+    }
+
+    function viewDetail(id) { openRoomModal(id, true); }
+    function editRoom(id) { openRoomModal(id, false); }
+
+    // 新增/编辑弹窗
+    var roomEditId = null;
+    var roomPhotoData = '';
+
+    function openRoomModal(id, readonly) {
+      roomEditId = id || null;
+      roomPhotoData = '';
+      var isView = !!readonly;
+      document.getElementById('roomModalTitle').textContent = isView ? '会议室详情' : (id ? '编辑会议室' : '新增会议室');
+      // 清空表单
+      ['fName','fCode','fDoorSign','fCapacity','fManager','fRemark'].forEach(function(fid) { document.getElementById(fid).value = ''; });
+      document.getElementById('fStatus').value = 'on';
+      document.querySelectorAll('#fDevices input').forEach(function(cb) {
+        cb.checked = false;
+        cb.closest('.device-option').classList.remove('checked');
+      });
+      resetRoomPhoto();
+      // 回填
+      if (id) {
+        var r = roomData.find(function(x) { return x.id === id; });
+        if (r) {
+          document.getElementById('fName').value = r.name;
+          document.getElementById('fCode').value = r.code;
+          document.getElementById('fDoorSign').value = r.doorSign || '';
+          document.getElementById('fCapacity').value = r.capacity;
+          document.getElementById('fManager').value = r.manager || '';
+          document.getElementById('fStatus').value = r.status;
+          document.getElementById('fRemark').value = r.remark || '';
+          document.querySelectorAll('#fDevices input').forEach(function(cb) {
+            var checked = r.devices && r.devices.indexOf(cb.value) >= 0;
+            cb.checked = checked;
+            if (checked) cb.closest('.device-option').classList.add('checked');
+          });
+          if (r.photo) {
+            roomPhotoData = r.photo;
+            document.getElementById('roomPhotoPreview').style.backgroundImage = 'url(' + r.photo + ')';
+            document.getElementById('roomPhotoPreview').classList.add('has-photo');
+            document.getElementById('roomPhotoEmpty').style.display = 'none';
+          }
+        }
+      }
+      // 只读模式处理
+      var disableEls = document.querySelectorAll('#roomModal input, #roomModal textarea, #roomModal select');
+      disableEls.forEach(function(el) { el.disabled = isView; });
+      // 设备选项视觉
+      document.querySelectorAll('#fDevices .device-option').forEach(function(el) {
+        el.style.pointerEvents = isView ? 'none' : '';
+        el.style.opacity = isView ? '0.7' : '';
+      });
+      // 照片上传区禁用
+      var photoPrev = document.getElementById('roomPhotoPreview');
+      photoPrev.style.pointerEvents = isView ? 'none' : '';
+      // 底部按钮
+      var footer = document.getElementById('roomModalFooter');
+      if (isView) {
+        footer.innerHTML = '<button class="btn btn-primary" onclick="closeRoomModal()">关闭</button>';
+      } else {
+        footer.innerHTML = '<button class="btn btn-default" onclick="closeRoomModal()">取消</button>' +
+          '<button class="btn btn-primary" onclick="saveRoom()">保存</button>';
+      }
+      document.getElementById('roomModal').classList.add('show');
+    }
+
+    function closeRoomModal() { document.getElementById('roomModal').classList.remove('show'); }
+
+    function getSelectedDevices() {
+      return Array.from(document.querySelectorAll('#fDevices input:checked')).map(function(cb) { return cb.value; });
+    }
+
+    function saveRoom() {
+      var name = document.getElementById('fName').value.trim();
+      var code = document.getElementById('fCode').value.trim();
+      var doorSign = document.getElementById('fDoorSign').value.trim();
+      var capacity = document.getElementById('fCapacity').value;
+      var status = document.getElementById('fStatus').value;
+      var remark = document.getElementById('fRemark').value.trim();
+      if (!name) return showToast('请填写会议室名称', 'error');
+      if (!code) return showToast('请填写会议室编号', 'error');
+      if (!doorSign) return showToast('请填写门牌显示名称', 'error');
+      if (!capacity || capacity < 1) return showToast('请填写容纳人数', 'error');
+      if (status === 'maintain' && !remark) return showToast('维护中时请在备注填写维护说明', 'error');
+      var payload = { name: name, code: code, doorSign: doorSign, capacity: parseInt(capacity), manager: document.getElementById('fManager').value.trim(), status: status, remark: remark, photo: roomPhotoData, devices: getSelectedDevices() };
+      if (roomEditId) {
+        var idx = roomData.findIndex(function(x) { return x.id === roomEditId; });
+        if (idx >= 0) { payload.id = roomEditId; roomData[idx] = payload; }
+        showToast('会议室已更新', 'success');
+      } else {
+        payload.id = Date.now();
+        roomData.unshift(payload);
+        showToast('会议室已新增', 'success');
+      }
+      closeRoomModal();
+      renderTable();
+      updateStats();
+    }
+
+    // 弹窗内照片处理
+    function onRoomPhotoSelected(input) {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      if (!/^image\/(png|jpe?g)/.test(file.type)) { showToast('仅支持 JPG/PNG 格式', 'error'); return; }
+      if (file.size > 5 * 1024 * 1024) { showToast('图片不能超过 5MB', 'error'); return; }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        roomPhotoData = e.target.result;
+        var preview = document.getElementById('roomPhotoPreview');
+        var oldImg = preview.querySelector('img');
+        if (oldImg) oldImg.remove();
+        var img = document.createElement('img');
+        img.src = roomPhotoData;
+        preview.insertBefore(img, preview.firstChild);
+        preview.classList.add('has-image');
+        document.getElementById('roomPhotoEmpty').style.display = 'none';
+        showToast('照片已加载', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeRoomPhoto() {
+      roomPhotoData = '';
+      resetRoomPhoto();
+      document.getElementById('roomPhotoInput').value = '';
+      showToast('已移除照片', 'info');
+    }
+
+    function resetRoomPhoto() {
+      var preview = document.getElementById('roomPhotoPreview');
+      var img = preview.querySelector('img');
+      if (img) img.remove();
+      preview.classList.remove('has-image');
+      var empty = document.getElementById('roomPhotoEmpty');
+      if (empty) empty.style.display = '';
+    }
+
+    // 拖拽上传
+    (function() {
+      var drop = document.getElementById('roomPhotoPreview');
+      if (!drop) return;
+      ['dragenter','dragover'].forEach(function(ev) {
+        drop.addEventListener(ev, function(e) { e.preventDefault(); e.stopPropagation(); drop.classList.add('dragover'); });
+      });
+      ['dragleave','drop'].forEach(function(ev) {
+        drop.addEventListener(ev, function(e) { e.preventDefault(); e.stopPropagation(); drop.classList.remove('dragover'); });
+      });
+      drop.addEventListener('drop', function(e) {
+        var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file) onRoomPhotoSelected({ files: [file] });
+      });
+    })();
+
+    // 设备标签点击样式
+    document.querySelectorAll('#fDevices input').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        var lbl = cb.closest('.device-option');
+        if (cb.checked) lbl.classList.add('checked'); else lbl.classList.remove('checked');
+      });
+    });
+
+    function deleteRoom(id) {
+      var r = roomData.find(function(x) { return x.id === id; });
+      showConfirm('删除会议室', '确认删除「' + r.name + '」？删除后无法恢复，关联的预约记录将保留。', function() {
+        var idx = roomData.findIndex(function(x) { return x.id === id; });
+        roomData.splice(idx, 1);
+        renderTable();
+        updateStats();
+        showToast('已删除', 'success');
+      });
+    }
+
+    function batchDelete() {
+      var ids = getSelectedIds();
+      if (!ids.length) { showToast('请先勾选要删除的会议室', 'error'); return; }
+      showConfirm('批量删除', '确认删除选中的 ' + ids.length + ' 个会议室？', function() {
+        roomData = roomData.filter(function(r) { return ids.indexOf(r.id) < 0; });
+        renderTable();
+        updateStats();
+        showToast('已删除 ' + ids.length + ' 个', 'success');
+      });
+    }
+
+    /* batchEnable 已移除 */
+    function _batchEnable(on) {
+      var ids = getSelectedIds();
+      if (!ids.length) { showToast('请先勾选要操作的会议室', 'error'); return; }
+      var label = on ? '启用' : '停用';
+      showConfirm('批量' + label, '确认' + label + '选中的 ' + ids.length + ' 个会议室？', function() {
+        roomData.forEach(function(r) { if (ids.indexOf(r.id) >= 0) r.status = on ? 'on' : 'off'; });
+        renderTable();
+        updateStats();
+        showToast('已' + label + ' ' + ids.length + ' 个', 'success');
+      });
+    }
+
+    function updateStats() {
+      document.getElementById('statTotal').textContent = roomData.length;
+      document.getElementById('statOn').textContent = roomData.filter(function(r) { return r.status === 'on'; }).length;
+      document.getElementById('statMaintain').textContent = roomData.filter(function(r) { return r.status === 'maintain'; }).length;
+    }
+
+    function showConfirm(title, body, cb) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').textContent = body;
+      document.getElementById('confirmModal').classList.add('show');
+      var btn = document.getElementById('modalConfirmBtn');
+      btn.onclick = function() { closeModal(); cb && cb(); };
+    }
+    function closeModal() { document.getElementById('confirmModal').classList.remove('show'); }
+
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + (type || '');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderTable);
+    document.getElementById('filterStatus').addEventListener('change', renderTable);
+
+    renderTable();
+    updateStats();
+  </script>
+
+<script>
+/* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
+</script>
+</body>
+</html>

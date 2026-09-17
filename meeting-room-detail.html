@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会议室详情 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #1f2937; font-size: 14px; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .top-header { height: 52px; background: linear-gradient(90deg, #1e3a5f 0%, #2563eb 100%); display: flex; align-items: center; padding: 0 20px; color: #fff; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin-right: 28px; }
+    .logo-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .top-nav { display: flex; gap: 6px; flex: 1; }
+    .top-nav a { padding: 6px 14px; border-radius: 4px; font-size: 13px; opacity: 0.85; transition: all 0.2s; color: #fff; }
+    .top-nav a:hover, .top-nav a.active { opacity: 1; background: rgba(255,255,255,0.15); }
+    .top-right { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+    .top-right .user { display: flex; align-items: center; gap: 8px; }
+    .top-right .avatar { width: 30px; height: 30px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    .sub-header { height: 42px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 20px; }
+    .sub-nav-item { padding: 8px 16px; font-size: 13px; color: #6b7280; border-radius: 4px; cursor: pointer; }
+    .sub-nav-item.active { color: #2563eb; background: #eff6ff; font-weight: 500; }
+
+    .main-content { background: #fff; }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6b7280; margin-bottom: 16px; }
+    .breadcrumb a { color: #6b7280; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .separator { color: #d1d5db; }
+    .breadcrumb .current { color: #1f2937; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f3f4f6; }
+    .page-title { font-size: 18px; font-weight: 600; color: #1f2937; }
+
+    .btn { padding: 7px 14px; border-radius: 6px; font-size: 13px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-default { background: #fff; color: #4b5563; border: 1px solid #d1d5db; }
+    .btn-default:hover { background: #f9fafb; }
+
+    .detail-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .detail-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 20px; }
+    .detail-section.full { grid-column: 1 / -1; }
+    .detail-section-title { font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 14px; padding-left: 8px; border-left: 3px solid #2563eb; }
+
+    .photo-block { position: relative; width: 100%; height: 360px; border-radius: 10px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; align-items: center; justify-content: center; color: #94a3b8; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,0.04); }
+    .photo-block img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-block-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px; }
+    .photo-block-empty-icon { width: 64px; height: 64px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #cbd5e1; box-shadow: 0 2px 10px rgba(15,23,42,0.05); }
+    .photo-block-empty-text { font-size: 14px; color: #64748b; font-weight: 500; }
+    .photo-block-empty-sub { font-size: 11px; color: #94a3b8; }
+    .photo-block-badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; background: rgba(15,23,42,0.65); color: #fff; border-radius: 4px; font-size: 11px; backdrop-filter: blur(4px); display: none; }
+    .photo-block.has-image .photo-block-badge { display: block; }
+
+    .kv-grid { display: grid; grid-template-columns: 100px 1fr 100px 1fr; gap: 10px 14px; }
+    .kv-label { font-size: 12px; color: #6b7280; padding: 6px 0; }
+    .kv-value { font-size: 13px; color: #1f2937; padding: 6px 0; }
+    .kv-value.full-row { grid-column: 2 / -1; }
+
+    .device-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .device-tag { padding: 3px 9px; background: #eff6ff; color: #2563eb; border-radius: 4px; font-size: 12px; }
+
+    .status-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .status-on { background: #dcfce7; color: #16a34a; }
+    .status-off { background: #f3f4f6; color: #6b7280; }
+    .status-maintain { background: #fef3c7; color: #d97706; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .occupancy-banner { padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .occupancy-banner.free { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .occupancy-banner.busy { background: #fef2f2; border: 1px solid #fecaca; }
+    .occupancy-banner.soon { background: #fffbeb; border: 1px solid #fde68a; }
+    .occupancy-icon { font-size: 22px; }
+    .occupancy-text-main { font-size: 15px; font-weight: 600; }
+    .occupancy-text-sub { font-size: 12px; margin-top: 2px; }
+
+    .timeline { position: relative; padding-left: 20px; }
+    .timeline::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: #e5e7eb; }
+    .timeline-item { position: relative; padding-bottom: 14px; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot { position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #2563eb; border: 2px solid #fff; box-shadow: 0 0 0 2px #2563eb; }
+    .timeline-item.past .timeline-dot { background: #9ca3af; box-shadow: 0 0 0 2px #9ca3af; }
+    .timeline-time { font-size: 12px; color: #6b7280; }
+    .timeline-title { font-size: 13px; font-weight: 500; margin-top: 2px; }
+    .timeline-user { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+    .booking-table { width: 100%; border-collapse: collapse; }
+    .booking-table th { background: #f9fafb; padding: 8px 10px; text-align: left; font-size: 12px; color: #6b7280; font-weight: 500; border-bottom: 1px solid #e5e7eb; }
+    .booking-table td { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid #f3f4f6; }
+    .booking-tag { padding: 2px 7px; border-radius: 4px; font-size: 11px; }
+    .booking-future { background: #eff6ff; color: #2563eb; }
+    .booking-past { background: #f3f4f6; color: #6b7280; }
+    .booking-now { background: #dcfce7; color: #16a34a; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>2026-09-16 周二 晴 26°</span>
+        </div>
+        <div class="header-bell">
+          🔔
+          <span class="badge">5</span>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <div class="sub-nav-item active">内容管理</div>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+      <div class="sidebar-title">内容管理</div>
+      <div class="sidebar-subtitle">管理企业学习与资讯内容</div>
+      <div class="sidebar-menu">
+        <a href="content-study.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📚</span>
+          <span>柏家学堂配置</span>
+        </a>
+        <a href="news-manage.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📰</span>
+          <span>新闻管理</span>
+        </a>
+        <a href="notice-manage.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">📢</span>
+          <span>公告管理</span>
+        </a>
+        <a href="baishi-service-list.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🛎️</span>
+          <span>柏事服务管理</span>
+        </a>
+        <a href="quick-entry.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🔲</span>
+          <span>快捷入口管理</span>
+        </a>
+        <div class="sidebar-menu-item active">
+          <span class="sidebar-menu-icon">🏢</span>
+          <span>会议室管理</span>
+        </div>
+        <a href="ai-agent-market.html" class="sidebar-menu-item">
+          <span class="sidebar-menu-icon">🤖</span>
+          <span>AI智能体市场</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <span>🏠</span>
+        <a href="index.html">返回门户首页</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a>
+        <span class="separator">/</span>
+        <a href="meeting-room.html">会议室管理</a>
+        <span class="separator">/</span>
+        <span class="current" id="crumbCurrent">会议室详情</span>
+      </div>
+
+      <div class="page-header">
+        <div class="page-title" id="pageTitle">战略会议室</div>
+        <button class="btn btn-default" onclick="location.href='meeting-room.html'">返回列表</button>
+      </div>
+
+      <!-- 当前占用状态横幅 -->
+      <div class="occupancy-banner free" id="occBanner">
+        <div class="occupancy-icon">🟢</div>
+        <div>
+          <div class="occupancy-text-main" id="occMain">当前空闲</div>
+          <div class="occupancy-text-sub" id="occSub">下个预约 11:00 项目对齐会议（10:30-12:00）</div>
+        </div>
+      </div>
+
+      <div class="detail-layout">
+        <!-- 会议室照片 -->
+        <div class="detail-section full">
+          <div class="detail-section-title">会议室照片</div>
+          <div class="photo-block" id="photoBlock">
+            <span class="photo-block-badge">会议室实景</span>
+            <div class="photo-block-empty" id="photoEmpty">
+              <div class="photo-block-empty-icon">📷</div>
+              <div>
+                <div class="photo-block-empty-text">暂无会议室照片</div>
+                <div class="photo-block-empty-sub">可在编辑页上传实地照片</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 基础信息 -->
+        <div class="detail-section">
+          <div class="detail-section-title">基础信息</div>
+          <div class="kv-grid">
+            <div class="kv-label">会议室名称</div>
+            <div class="kv-value" id="dName">战略会议室</div>
+            <div class="kv-label">会议室编号</div>
+            <div class="kv-value"><code id="dCode">MR-A301</code></div>
+            <div class="kv-label">门牌显示名称</div>
+            <div class="kv-value" id="dDoorSign">战略会议室</div>
+            <div class="kv-label">容纳人数</div>
+            <div class="kv-value" id="dCapacity">20 人</div>
+            <div class="kv-label">状态</div>
+            <div class="kv-value"><span class="status-tag status-on" id="dStatus"><span class="status-dot"></span>启用</span></div>
+          </div>
+        </div>
+
+        <!-- 设备配置 -->
+        <div class="detail-section">
+          <div class="detail-section-title">设备配置</div>
+          <div class="device-tags" id="dDevices"></div>
+        </div>
+
+        <!-- 管理信息 -->
+        <div class="detail-section full">
+          <div class="detail-section-title">管理信息</div>
+          <div class="kv-grid">
+            <div class="kv-label">负责人</div>
+            <div class="kv-value" id="dManager">李芳</div>
+            <div class="kv-label">备注</div>
+            <div class="kv-value" id="dRemark">高管专用</div>
+          </div>
+        </div>
+
+        <!-- 今日预约时间轴 -->
+        <div class="detail-section full">
+          <div class="detail-section-title">今日预约时间轴</div>
+          <div class="timeline" id="todayTimeline"></div>
+        </div>
+
+        <!-- 近期预约记录 -->
+        <div class="detail-section full">
+          <div class="detail-section-title">近期预约记录</div>
+          <table class="booking-table">
+            <thead>
+              <tr>
+                <th>预约日期</th>
+                <th>时段</th>
+                <th>主题</th>
+                <th>发起人</th>
+                <th>参与人数</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="bookingTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+  <script>
+    function escAttr(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function getParam(name) {
+      var m = location.search.match(new RegExp('[?&]' + name + '=([^&]+)'));
+      return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    var typeMap = { '普通': '普通会议室', '培训': '培训室', '视频': '视频会议室', '高管': '高管会议室' };
+    var statusMap = { on: { cls: 'status-on', label: '启用' }, off: { cls: 'status-off', label: '停用' }, maintain: { cls: 'status-maintain', label: '维护中' } };
+
+    // 模拟数据
+    var rooms = {
+      1: { name: '战略会议室', code: 'MR-A301', doorSign: '战略会议室', capacity: 20, devices: ['投影仪','电视屏','视频会议设备','音响'], manager: '李芳', status: 'on', remark: '高管专用', occupancy: 'free' },
+      2: { name: '创新培训室', code: 'MR-A305', doorSign: '创新培训室', capacity: 30, devices: ['投影仪','白板','音响'], manager: '王强', status: 'on', remark: '', occupancy: 'busy' },
+      3: { name: '日常讨论室1', code: 'MR-B201', doorSign: '讨论室1', capacity: 8, devices: ['电视屏','白板'], manager: '张敏', status: 'on', remark: '', occupancy: 'free' },
+      4: { name: '日常讨论室2', code: 'MR-B202', doorSign: '讨论室2', capacity: 8, devices: ['电视屏','白板'], manager: '张敏', status: 'on', remark: '', occupancy: 'soon' },
+      5: { name: '视频会议中心', code: 'MR-B501', doorSign: '视频会议中心', capacity: 15, devices: ['电视屏','视频会议设备','麦克风','音响'], manager: '陈昊', status: 'on', remark: '需提前2小时预约', occupancy: 'busy' },
+      6: { name: '头脑风暴室', code: 'MR-B503', doorSign: '头脑风暴室', capacity: 12, devices: ['白板','便签墙'], manager: '陈昊', status: 'maintain', remark: '空调维修中，预计9月20日恢复', occupancy: 'free' }
+    };
+
+    // 模拟预约记录
+    var bookings = {
+      1: [
+        { date: '今天', time: '10:00-11:00', title: '高管周会', user: '李芳', attendees: 8, status: 'past' },
+        { date: '今天', time: '14:00-15:30', title: '月度复盘', user: '王强', attendees: 12, status: 'future' },
+        { date: '明天', time: '09:30-10:30', title: '战略对齐', user: '李芳', attendees: 6, status: 'future' },
+        { date: '2026-09-18', time: '14:00-16:00', title: '董事会汇报', user: '李芳', attendees: 15, status: 'future' },
+        { date: '2026-09-13', time: '10:00-11:00', title: '季度复盘', user: '王强', attendees: 10, status: 'past' }
+      ],
+      2: [
+        { date: '今天', time: '10:30-12:00', title: '客户评审', user: '陈昊', attendees: 8, status: 'now' },
+        { date: '今天', time: '14:00-15:30', title: '月度复盘', user: '王强', attendees: 25, status: 'future' },
+        { date: '昨天', time: '14:00-16:00', title: '培训分享', user: '张敏', attendees: 20, status: 'past' }
+      ]
+    };
+
+    var defaultBookings = [
+      { date: '今天', time: '14:00-15:00', title: '项目对齐', user: '张敏', attendees: 6, status: 'future' },
+      { date: '昨天', time: '10:00-11:00', title: '需求评审', user: '王强', attendees: 5, status: 'past' }
+    ];
+
+    function renderDetail() {
+      var id = getParam('id') || '1';
+      var r = rooms[id] || rooms[1];
+      document.getElementById('pageTitle').textContent = r.name;
+      document.getElementById('crumbCurrent').textContent = r.name;
+      document.getElementById('dName').textContent = r.name;
+      document.getElementById('dCode').textContent = r.code;
+      document.getElementById('dDoorSign').textContent = r.doorSign;
+      document.getElementById('dCapacity').textContent = r.capacity + ' 人';
+      var st = statusMap[r.status];
+      document.getElementById('dStatus').className = 'status-tag ' + st.cls;
+      document.getElementById('dStatus').innerHTML = '<span class="status-dot"></span>' + st.label;
+      document.getElementById('dManager').textContent = r.manager || '—';
+      document.getElementById('dRemark').textContent = r.remark || '—';
+      // 照片渲染
+      var pb = document.getElementById('photoBlock');
+      var demoPhoto = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e0e7ff"/><stop offset="1" stop-color="#c7d2fe"/></linearGradient></defs><rect width="800" height="450" fill="url(#g)"/><rect x="220" y="160" width="360" height="130" rx="20" fill="#fff" stroke="#a5b4fc" stroke-width="2"/><text x="400" y="235" font-size="28" text-anchor="middle" fill="#4f46e5" font-family="sans-serif" font-weight="600">会议桌</text><circle cx="300" cy="130" r="22" fill="#fff" stroke="#a5b4fc" stroke-width="2"/><circle cx="400" cy="130" r="22" fill="#fff" stroke="#a5b4fc" stroke-width="2"/><circle cx="500" cy="130" r="22" fill="#fff" stroke="#a5b4fc" stroke-width="2"/><circle cx="300" cy="320" r="22" fill="#fff" stroke="#a5b4fc" stroke-width="2"/><circle cx="400" cy="320" r="22" fill="#fff" stroke="#a5b4fc" stroke-width="2"/><circle cx="500" cy="320" r="22" fill="#fff" stroke="#a5b4fc" stroke-width="2"/><text x="400" y="410" font-size="16" text-anchor="middle" fill="#6366f1" font-family="sans-serif">会议室示意图（演示）</text></svg>');
+      var img = document.createElement('img');
+      img.src = r.photo || demoPhoto;
+      img.alt = r.name + ' 照片';
+      pb.insertBefore(img, pb.firstChild);
+      pb.classList.add('has-image');
+      document.getElementById('photoEmpty').style.display = 'none';
+
+      // 设备
+      document.getElementById('dDevices').innerHTML = r.devices.map(function(d) { return '<span class="device-tag">' + escAttr(d) + '</span>'; }).join('') || '<span style="color:#9ca3af;">无</span>';
+
+      // 占用状态横幅
+      var banner = document.getElementById('occBanner');
+      var main = document.getElementById('occMain');
+      var sub = document.getElementById('occSub');
+      var list = bookings[id] || defaultBookings;
+      var now = list.find(function(b) { return b.status === 'now'; });
+      var future = list.find(function(b) { return b.status === 'future'; });
+      if (r.status === 'maintain') {
+        banner.className = 'occupancy-banner soon';
+        banner.querySelector('.occupancy-icon').textContent = '🟠';
+        main.textContent = '维护中，暂停预约';
+        sub.textContent = r.remark || '请联系管理员确认恢复时间';
+      } else if (now) {
+        banner.className = 'occupancy-banner busy';
+        banner.querySelector('.occupancy-icon').textContent = '🔴';
+        main.textContent = '使用中：' + now.title;
+        sub.textContent = now.time + ' · 发起人 ' + now.user + ' · ' + now.attendees + ' 人';
+      } else if (future) {
+        banner.className = 'occupancy-banner soon';
+        banner.querySelector('.occupancy-icon').textContent = '🟡';
+        main.textContent = '空闲';
+        sub.textContent = '下个预约 ' + future.date + ' ' + future.time + ' ' + future.title;
+      } else {
+        banner.className = 'occupancy-banner free';
+        banner.querySelector('.occupancy-icon').textContent = '🟢';
+        main.textContent = '当前空闲';
+        sub.textContent = '今日无后续预约';
+      }
+
+      // 今日时间轴
+      var today = list.filter(function(b) { return b.date === '今天'; });
+      var tl = document.getElementById('todayTimeline');
+      if (!today.length) {
+        tl.innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:8px 0;">今日暂无预约</div>';
+      } else {
+        tl.innerHTML = today.map(function(b) {
+          var cls = b.status === 'past' ? 'past' : '';
+          return '<div class="timeline-item ' + cls + '">' +
+            '<div class="timeline-dot"></div>' +
+            '<div class="timeline-time">' + escAttr(b.time) + '</div>' +
+            '<div class="timeline-title">' + escAttr(b.title) + '</div>' +
+            '<div class="timeline-user">发起人：' + escAttr(b.user) + ' · ' + b.attendees + ' 人</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // 近期预约记录
+      var tbody = document.getElementById('bookingTbody');
+      var all = bookings[id] || defaultBookings;
+      tbody.innerHTML = all.map(function(b) {
+        var tag = { past: '<span class="booking-tag booking-past">已结束</span>', now: '<span class="booking-tag booking-now">进行中</span>', future: '<span class="booking-tag booking-future">待开始</span>' }[b.status];
+        return '<tr><td>' + escAttr(b.date) + '</td><td>' + escAttr(b.time) + '</td><td>' + escAttr(b.title) + '</td><td>' + escAttr(b.user) + '</td><td>' + b.attendees + ' 人</td><td>' + tag + '</td></tr>';
+      }).join('');
+    }
+
+    renderDetail();
+  </script>
+</body>
+</html>
