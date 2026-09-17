@@ -629,8 +629,6 @@
           <span style="flex:1;"></span>
           <span class="field-count" id="fieldCount">共 0 个字段</span>
         </div>
-<span id="fieldSyncText">同步中 ...</span>
-          <div class="sync-progress-track"><div class="sync-progress-fill" id="fieldSyncFill" style="width:0%;"></div></div>
         </div>
         <div class="batch-upload-area" id="batchUploadArea">
           <div class="batch-upload-zone" onclick="triggerFileInput()">
@@ -670,8 +668,6 @@
           <span style="flex:1;"></span>
           <span class="field-count" id="buttonCount">共 0 个按钮</span>
         </div>
-<span id="buttonSyncText">同步中 ...</span>
-          <div class="sync-progress-track"><div class="sync-progress-fill" id="buttonSyncFill" style="width:0%;"></div></div>
         </div>
         <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
           <table class="field-table" id="buttonTable">
@@ -1341,43 +1337,14 @@ function findMenuByCode(nodes, code) {
         buttonData[i].failReason = '';
       });
       renderButtonTable();
-      var bar = document.getElementById('buttonSyncProgress');
-      var text = document.getElementById('buttonSyncText');
-      var fill = document.getElementById('buttonSyncFill');
-      bar.classList.add('show');
-      var done = 0;
-      text.textContent = '同步中 0/' + idxs.length + ' ...';
-      fill.style.width = '0%';
-      var i = 0;
-      function step() {
-        if (i >= idxs.length) {
-          buttonSyncRunning = false;
-          bar.classList.remove('show');
-          var failed = idxs.filter(function(idx) { return buttonData[idx].syncStatus === 'failed'; }).length;
-          showToast('同步完成：' + (idxs.length - failed) + ' 成功' + (failed ? '，' + failed + ' 失败' : ''));
-          updateMenuButtonStatus();
-          renderButtonTable();
-          return;
-        }
-        setTimeout(function() {
-          var idx = idxs[i];
-          // 演示失败：btn_import 按钮模拟失败
-          if (buttonData[idx].code === 'btn_import') {
-            buttonData[idx].syncStatus = 'failed';
-            buttonData[idx].failReason = '外部系统按钮权限不足';
-          } else {
-            buttonData[idx].syncStatus = 'synced';
-          }
-          i++;
-          done = i;
-          var pct = Math.round(done / idxs.length * 100);
-          text.textContent = '同步中 ' + done + '/' + idxs.length + ' · ' + (buttonData[idx].code || '');
-          fill.style.width = pct + '%';
-          renderButtonTable();
-          step();
-        }, 500);
-      }
-      step();
+      var failed = 0;
+      idxs.forEach(function(idx) {
+        if (buttonData[idx].code === 'btn_import') { buttonData[idx].syncStatus = 'failed'; buttonData[idx].failReason = '外部系统按钮权限不足'; failed++; }
+        else { buttonData[idx].syncStatus = 'synced'; }
+      });
+      buttonSyncRunning = false;
+      showToast('按钮同步完成：' + (idxs.length - failed) + '成功' + (failed ? '，' + failed + '失败' : ''), failed === 0 ? 'success' : 'warning');
+      updateMenuButtonStatus(); renderButtonTable();
     }
 
     /* 单按钮重试 */
@@ -1645,45 +1612,14 @@ function findMenuByCode(nodes, code) {
         fieldData[i].failReason = '';
       });
       renderFieldTable();
-      // 显示进度条
-      var bar = document.getElementById('fieldSyncProgress');
-      var text = document.getElementById('fieldSyncText');
-      var fill = document.getElementById('fieldSyncFill');
-      bar.classList.add('show');
-      var done = 0;
-      text.textContent = '同步中 0/' + idxs.length + ' ...';
-      fill.style.width = '0%';
-      // 模拟同步请求
-      var i = 0;
-      function step() {
-        if (i >= idxs.length) {
-          fieldSyncRunning = false;
-          bar.classList.remove('show');
-          var failed = idxs.filter(function(idx) { return fieldData[idx].syncStatus === 'failed'; }).length;
-          showToast('同步完成：' + (idxs.length - failed) + ' 成功' + (failed ? '，' + failed + ' 失败' : ''));
-          updateMenuFieldStatus();
-          renderFieldTable();
-          return;
-        }
-        setTimeout(function() {
-          var idx = idxs[i];
-          // 演示失败：contact_phone 字段在 contact_phone 等含 phone 字段模拟失败
-          if (fieldData[idx].code === 'contact_phone') {
-            fieldData[idx].syncStatus = 'failed';
-            fieldData[idx].failReason = '外部系统字段权限不足';
-          } else {
-            fieldData[idx].syncStatus = 'synced';
-          }
-          i++;
-          done = i;
-          var pct = Math.round(done / idxs.length * 100);
-          text.textContent = '同步中 ' + done + '/' + idxs.length + ' · ' + (fieldData[idx].code || '');
-          fill.style.width = pct + '%';
-          renderFieldTable();
-          step();
-        }, 500);
-      }
-      step();
+      var failed = 0;
+      idxs.forEach(function(idx) {
+        if (fieldData[idx].code === 'contact_phone') { fieldData[idx].syncStatus = 'failed'; fieldData[idx].failReason = '外部系统字段权限不足'; failed++; }
+        else { fieldData[idx].syncStatus = 'synced'; }
+      });
+      fieldSyncRunning = false;
+      showToast('字段同步完成：' + (idxs.length - failed) + '成功' + (failed ? '，' + failed + '失败' : ''), failed === 0 ? 'success' : 'warning');
+      updateMenuFieldStatus(); renderFieldTable();
     }
 
     /* 单字段重试 */
