@@ -3578,6 +3578,9 @@ input, select {
             <div class="sys-tab" data-sys="SRM" onclick="switchSystem('SRM')">SRM</div>
             <div class="sys-tab" data-sys="BI" onclick="switchSystem('BI')">BI</div>
           </div>
+          <div class="tree-search-wrap">
+            <input type="text" id="treeSearch" class="tree-search" placeholder="🔍 搜索菜单..." oninput="filterTree(this.value)">
+          </div>
           <ul class="perm-tree" id="permTree">
             <!-- OA系统（根） -->
             <li class="tree-node">
