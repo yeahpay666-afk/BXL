@@ -629,6 +629,8 @@
           <span style="flex:1;"></span>
           <span class="field-count" id="fieldCount">共 0 个字段</span>
         </div>
+<span id="fieldSyncText">同步中 ...</span>
+          <div class="sync-progress-track"><div class="sync-progress-fill" id="fieldSyncFill" style="width:0%;"></div></div>
         </div>
         <div class="batch-upload-area" id="batchUploadArea">
           <div class="batch-upload-zone" onclick="triggerFileInput()">
@@ -668,6 +670,8 @@
           <span style="flex:1;"></span>
           <span class="field-count" id="buttonCount">共 0 个按钮</span>
         </div>
+<span id="buttonSyncText">同步中 ...</span>
+          <div class="sync-progress-track"><div class="sync-progress-fill" id="buttonSyncFill" style="width:0%;"></div></div>
         </div>
         <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
           <table class="field-table" id="buttonTable">
@@ -1337,14 +1341,44 @@ function findMenuByCode(nodes, code) {
         buttonData[i].failReason = '';
       });
       renderButtonTable();
-      var failed = 0;
-      idxs.forEach(function(idx) {
-        if (buttonData[idx].code === 'btn_import') { buttonData[idx].syncStatus = 'failed'; buttonData[idx].failReason = '外部系统按钮权限不足'; failed++; }
-        else { buttonData[idx].syncStatus = 'synced'; }
-      });
-      buttonSyncRunning = false;
-      showToast('按钮同步完成：' + (idxs.length - failed) + '成功' + (failed ? '，' + failed + '失败' : ''), failed === 0 ? 'success' : 'warning');
-      updateMenuButtonStatus(); renderButtonTable();
+      var bar = document.getElementById('buttonSyncProgress');
+      var text = document.getElementById('buttonSyncText');
+      var fill = document.getElementById('buttonSyncFill');
+      bar.classList.add('show');
+      var done = 0;
+      text.textContent = '同步中 0/' + idxs.length + ' ...';
+      fill.style.width = '0%';
+      var i = 0;
+      function step() {
+        if (i >= idxs.length) {
+          buttonSyncRunning = false;
+          bar.classList.remove('show');
+          var failed = idxs.filter(function(idx) { return buttonData[idx].syncStatus === 'failed'; }).length;
+          showToast('同步完成：' + (idxs.length - failed) + ' 成功' + (failed ? '，' + failed + ' 失败' : ''));
+          updateMenuButtonStatus();
+          renderButtonTable();
+          return;
+        }
+        setTimeout(function() {
+          var idx = idxs[i];
+          // 演示失败：btn_import 按钮模拟失败
+          if (buttonData[idx].code === 'btn_import') {
+            buttonData[idx].syncStatus = 'failed';
+            buttonData[idx].failReason = '外部系统按钮权限不足';
+          } else {
+            buttonData[idx].syncStatus = 'synced';
+          }
+          i++;
+          done = i;
+          var pct = Math.round(done / idxs.length * 100);
+          text.textContent = '同步中 ' + done + '/' + idxs.length + ' · ' + (buttonData[idx].code || '');
+          fill.style.width = pct + '%';
+          renderButtonTable();
+          step();
+        }, 500);
+      }
+      step();
+    }
 
     /* 单按钮重试 */
     function retryButtonSync(idx) {
@@ -1612,14 +1646,404 @@ function findMenuByCode(nodes, code) {
       });
       renderFieldTable();
       // 显示进度条
-      var failed = 0;
-      idxs.forEach(function(idx) {
-        if (fieldData[idx].code === 'f_status') { fieldData[idx].syncStatus = 'failed'; fieldData[idx].failReason = '字段权限拉取失败'; failed++; }
-        else { fieldData[idx].syncStatus = 'synced'; }
+      var bar = document.getElementById('fieldSyncProgress');
+      var text = document.getElementById('fieldSyncText');
+      var fill = document.getElementById('fieldSyncFill');
+      bar.classList.add('show');
+      var done = 0;
+      text.textContent = '同步中 0/' + idxs.length + ' ...';
+      fill.style.width = '0%';
+      // 模拟同步请求
+      var i = 0;
+      function step() {
+        if (i >= idxs.length) {
+          fieldSyncRunning = false;
+          bar.classList.remove('show');
+          var failed = idxs.filter(function(idx) { return fieldData[idx].syncStatus === 'failed'; }).length;
+          showToast('同步完成：' + (idxs.length - failed) + ' 成功' + (failed ? '，' + failed + ' 失败' : ''));
+          updateMenuFieldStatus();
+          renderFieldTable();
+          return;
+        }
+        setTimeout(function() {
+          var idx = idxs[i];
+          // 演示失败：contact_phone 字段在 contact_phone 等含 phone 字段模拟失败
+          if (fieldData[idx].code === 'contact_phone') {
+            fieldData[idx].syncStatus = 'failed';
+            fieldData[idx].failReason = '外部系统字段权限不足';
+          } else {
+            fieldData[idx].syncStatus = 'synced';
+          }
+          i++;
+          done = i;
+          var pct = Math.round(done / idxs.length * 100);
+          text.textContent = '同步中 ' + done + '/' + idxs.length + ' · ' + (fieldData[idx].code || '');
+          fill.style.width = pct + '%';
+          renderFieldTable();
+          step();
+        }, 500);
+      }
+      step();
+    }
+
+    /* 单字段重试 */
+    function retryFieldSync(idx) {
+      fieldData[idx].syncStatus = 'syncing';
+      fieldData[idx].failReason = '';
+      renderFieldTable();
+      setTimeout(function() {
+        fieldData[idx].syncStatus = 'synced';
+        renderFieldTable();
+        updateMenuFieldStatus();
+        showToast('重试同步成功');
+      }, 600);
+    }
+
+    /* 字段同步完成后回写菜单的同步状态（聚合规则） */
+    function updateMenuFieldStatus() {
+      if (!currentFieldMenuId) return;
+      var node = findMenuNode(menuData, currentFieldMenuId);
+      if (!node) return;
+      node.fieldStatus = aggregateStatus(fieldData);
+      if (node.fieldStatus !== 'failed') delete node.fieldFailReason;
+      else {
+        var failedItem = fieldData.find(function(f) { return f.syncStatus === 'failed'; });
+        if (failedItem) node.fieldFailReason = failedItem.failReason;
+      }
+      renderMenuTable();
+    }
+
+    /* ===== 其他资源配置 ===== */
+    var resCurrentTab = 'dept';
+    var resDataMap = {
+      dept: [
+        { code: '0', name: '不管制', scope: '所有部门', query: true, modify: true, del: true },
+        { code: '1', name: '不同部门间', scope: '不同部门间', query: true, modify: true, del: false },
+        { code: '2', name: '不同部门间', scope: '不同部门间', query: true, modify: false, del: true },
+        { code: '3', name: '不同部门间', scope: '不同部门间', query: true, modify: false, del: false },
+        { code: '4', name: '不同部门间', scope: '不同部门间', query: false, modify: false, del: false },
+        { code: '5', name: '相关部门群组间', scope: '仅相关部门群组间', query: true, modify: true, del: false },
+        { code: '6', name: '相关部门群组间', scope: '仅相关部门群组间', query: true, modify: false, del: true },
+        { code: '7', name: '相关部门群组间', scope: '仅相关部门群组间', query: true, modify: false, del: false },
+        { code: '8', name: '相关部门群组间', scope: '仅相关部门群组间', query: true, modify: true, del: true }
+      ],
+      person: [
+        { code: '0', name: '仅本人可操作', queryOther: 'N', modifyOther: 'N', delOther: 'N', desc: '只能操作自己创建的资料' },
+        { code: '1', name: '可查询他人', queryOther: 'Y', modifyOther: 'N', delOther: 'N', desc: '可查询他人资料，不可修改删除' },
+        { code: '2', name: '可查改他人', queryOther: 'Y', modifyOther: 'Y', delOther: 'N', desc: '可查询、修改他人资料' },
+        { code: '3', name: '可查改删他人', queryOther: 'Y', modifyOther: 'Y', delOther: 'Y', desc: '可查询、修改、删除他人资料' },
+        { code: '4', name: '仅查本人', queryOther: 'N', modifyOther: 'N', delOther: 'N', desc: '仅可查询本人资料' }
+      ],
+      date: [
+        { code: '0', name: '不可修改', desc: '单据日期不可修改' },
+        { code: '1', name: '可修改', desc: '单据日期可修改' }
+      ],
+      accdate: [
+        { code: '0', name: '不可修改', desc: '扣账日期不可修改' },
+        { code: '1', name: '可修改', desc: '扣账日期可修改' }
+      ],
+      detail: [
+        { code: '0', name: '不允许', addDetail: 'N', delDetail: 'N', modDetail: 'N', desc: '不允许新增、删除、修改明细' },
+        { code: '1', name: '仅新增', addDetail: 'Y', delDetail: 'N', modDetail: 'N', desc: '仅允许新增明细' },
+        { code: '2', name: '仅删除', addDetail: 'N', delDetail: 'Y', modDetail: 'N', desc: '仅允许删除明细' },
+        { code: '3', name: '新增+删除', addDetail: 'Y', delDetail: 'Y', modDetail: 'N', desc: '允许新增和删除明细' },
+        { code: '4', name: '新增+删除+修改', addDetail: 'Y', delDetail: 'Y', modDetail: 'Y', desc: '允许新增、删除、修改明细' }
+      ],
+      field: [
+        { code: '1', name: '不可视', desc: '字段完全不可见，界面上不展示该字段' },
+        { code: '2', name: '部分加密', desc: '字段部分内容加密显示，需配合加密方法' },
+        { code: '3', name: '不可修改', desc: '字段可见但不可编辑修改' }
+      ],
+fieldType: [
+{ code: '1', name: '一般作业', desc: '日常业务操作字段，如录入、编辑、审批等' },
+{ code: '2', name: '报表作业', desc: '报表查询统计字段，如汇总、分析、导出等' }
+],
+      encrypt: [
+        { code: 'XM', method: '左侧遮罩', maskType: 'L', startPos: 2, enabled: true, desc: '姓名左侧遮罩，前2位保留' },
+        { code: 'SFZ', method: '中间遮罩', maskType: 'M', startPos: 7, enabled: true, desc: '身份证号中间遮罩，首尾各保留4位' },
+        { code: 'DH', method: '右侧遮罩', maskType: 'R', startPos: 4, enabled: true, desc: '电话右侧遮罩，后4位保留' },
+        { code: 'YHZH', method: '指定字符开始', maskType: 'C', startPos: 5, enabled: false, desc: '银行账户从第5位字符开始遮罩' }
+      ]
+    };
+    var resTabDescMap = {
+      dept: '管控不同部门间及相关部门群组间的查询/修改/删除权限（9级）',
+      person: '按资料所有者管控的查询/修改/删除权限（5级）',
+      date: '控制单据日期是否可修改（2级）',
+      accdate: '控制扣账日期是否可修改（2级）',
+      detail: '控制单身（明细行）的新增、删除、修改权限（5级）',
+      field: '配置字段级权限类型：不可视、部分加密、不可修改（3种）',
+fieldType: '配置字段类型：一般作业、报表作业（与字段权限中的字段类型联动）',
+      encrypt: '配置加密方法、遮罩方式与起始位数'
+    };
+
+    var resEditingIdx = -1;
+
+    function openOtherResourceModal(sysName) {
+      document.getElementById('otherResourceSysName').textContent = sysName;
+      resCurrentTab = 'dept';
+      switchResTab('dept');
+      document.getElementById('otherResourceModal').classList.add('show');
+    }
+    function closeOtherResourceModal() { document.getElementById('otherResourceModal').classList.remove('show'); }
+
+    function switchResTab(tab) {
+      resCurrentTab = tab;
+      document.querySelectorAll('.res-tab-item').forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-rtab') === tab);
       });
-      fieldSyncRunning = false;
-      showToast('字段同步完成：' + (idxs.length - failed) + '成功' + (failed ? '，' + failed + '失败' : ''), failed === 0 ? 'success' : 'warning');
-      updateMenuFieldStatus(); renderFieldTable();
+      document.getElementById('resTabDesc').textContent = resTabDescMap[tab] || '';
+      renderResTable();
+    }
+
+    function renderResTable() {
+      var tab = resCurrentTab;
+      var data = resDataMap[tab] || [];
+      var thead = document.getElementById('resThead');
+      var tb = document.getElementById('resTbody');
+      var actionCell = function(idx) {
+        return '<span class="action-link" onclick="viewResItem(' + idx + ')">查看</span><span class="action-link" onclick="editResItem(' + idx + ')">编辑</span><span class="action-link" style="color:#ef4444;" onclick="deleteResItem(' + idx + ')">删除</span>';
+      };
+      var yn = function(val) { return val === 'Y' || val === true ? '<span style="color:#16a34a;">✓</span>' : '<span style="color:#ef4444;">✗</span>'; };
+
+      if (tab === 'dept' || tab === 'person' || tab === 'date' || tab === 'accdate' || tab === 'detail') {
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:80px;">权限代码</th><th>权限名称</th><th>说明</th></tr>';
+        tb.innerHTML = data.map(function(r, i) {
+          return '<tr>' +
+            '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
+            '<td><code>' + r.code + '</code></td>' +
+            '<td>' + r.name + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+          '</tr>';
+        }).join('');
+      } else if (tab === 'field') {
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:80px;">权限代码</th><th>权限名称</th><th>说明</th></tr>';
+        tb.innerHTML = data.map(function(r, i) {
+          return '<tr>' +
+            '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
+            '<td><code>' + r.code + '</code></td>' +
+            '<td>' + r.name + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+          '</tr>';
+        }).join('');
+      } else if (tab === 'fieldType') {
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:60px;">代码</th><th>类型名称</th><th>说明</th><th style="width:140px;">操作</th></tr>';
+        tb.innerHTML = data.map(function(r, i) {
+          return '<tr>' +
+            '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
+            '<td><code>' + r.code + '</code></td>' +
+            '<td>' + r.name + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+            '<td>' + actionCell(i) + '</td>' +
+          '</tr>';
+        }).join('');
+      } else if (tab === 'encrypt') {
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:90px;">权限码</th><th style="width:120px;">加密方法</th><th style="width:130px;">遮罩方式</th><th style="width:150px;">从第几位数据开始</th><th style="width:70px;">启用</th><th>说明</th><th style="width:140px;">操作</th></tr>';
+        tb.innerHTML = data.map(function(r, i) {
+          return '<tr>' +
+            '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
+            '<td><code>' + r.code + '</code></td>' +
+            '<td>' + (r.method || '-') + '</td>' +
+            '<td>' + (r.maskType || '-') + '</td>' +
+            '<td style="text-align:center;">第 ' + r.startPos + ' 位</td>' +
+            '<td style="text-align:center;">' + (r.enabled !== false ? '<span style="color:#16a34a;">●</span> 启用' : '<span style="color:#94a3b8;">●</span> 停用') + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+            '<td>' + actionCell(i) + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+
+    function viewResItem(idx) {
+      resEditingIdx = -1;
+      var item = resDataMap[resCurrentTab][idx];
+      if (!item) return;
+      openResItemModal(idx, true);
+    }
+    function editResItem(idx) {
+      resEditingIdx = idx;
+      openResItemModal(idx, false);
+    }
+    function deleteResItem(idx) {
+      resDataMap[resCurrentTab].splice(idx, 1);
+      renderResTable();
+      showToast('已删除');
+    }
+
+    function openResItemModal(idx, readOnly) {
+      var tab = resCurrentTab;
+      var item = (idx !== undefined && idx >= 0) ? resDataMap[tab][idx] : null;
+      var isView = readOnly === true;
+      var titlePrefix = isView ? '查看' : (item ? '编辑' : '新增');
+      var titleMap = { dept: '部门数据权限', person: '个人数据权限', date: '单据日期管控', accdate: '扣账日期管控', detail: '单身明细', field: '字段权限', fieldType: '字段类型', encrypt: '加密方法' };
+      var title = titlePrefix + ' · ' + (titleMap[tab] || '');
+      var dis = isView ? ' disabled' : '';
+
+      function toggleSwitch(id, label, desc, icon, isOn) {
+        return '<div class="form-switch-row">' +
+          '<div class="form-switch-info">' +
+            '<span class="switch-icon">' + icon + '</span>' +
+            '<div class="switch-text">' +
+              '<span class="switch-label">' + label + '</span>' +
+              (desc ? '<span class="switch-desc">' + desc + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<button type="button" class="form-toggle' + (isOn ? ' on' : '') + (isView ? ' disabled' : '') + '" id="' + id + '" data-val="' + (isOn ? 'Y' : 'N') + '"' + (isView ? '' : ' onclick="toggleFormSwitch(this)"') + '><i></i></button>' +
+        '</div>';
+      }
+
+      var html = '<div class="modal-overlay show" id="resItemModal" style="z-index:2100;" onclick="if(event.target===this)closeResItemModal()"><div class="modal" style="max-width:560px;">' +
+        '<div class="modal-header"><div class="modal-title">' + title + '</div><button class="modal-close" onclick="closeResItemModal()">✕</button></div>' +
+        '<div class="modal-body">';
+
+      // Section: 基本信息
+      if (tab !== 'encrypt') {
+        html += '<div class="form-section">' +
+          '<div class="form-section-title"><span class="icon">📋</span>基本信息</div>' +
+          '<div class="form-grid" style="grid-template-columns:1fr 1fr;">' +
+            '<div class="form-item"><label class="form-label">权限代码 <span style="color:#ef4444;">*</span></label><input type="text" class="form-input" id="riCode" value="' + (item ? item.code : '') + '" placeholder="如 0、1、2..."' + dis + '></div>' +
+            '<div class="form-item"><label class="form-label">权限名称 <span style="color:#ef4444;">*</span></label><input type="text" class="form-input" id="riName" value="' + (item ? item.name : '') + '" placeholder="如 不管制、不同部门间"' + dis + '></div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      if (tab === 'encrypt') {
+        html += '<div class="form-section">' +
+          '<div class="form-section-title"><span class="icon">🔐</span>加密配置</div>' +
+          '<div class="form-grid" style="grid-template-columns:1fr 1fr;">' +
+            '<div class="form-item"><label class="form-label">权限码 <span style="color:#ef4444;">*</span></label>' +
+              '<input type="text" class="form-input" id="riCode" value="' + (item ? item.code : '') + '" placeholder="请输入权限码"' + dis + '></div>' +
+            '<div class="form-item"><label class="form-label">加密方法 <span style="color:#ef4444;">*</span></label>' +
+              '<input type="text" class="form-input" id="riMethod" value="' + (item ? (item.method || '') : '') + '" placeholder="请输入加密方法，如左侧遮罩"' + dis + '></div>' +
+          '</div>' +
+          '<div class="form-grid" style="grid-template-columns:1fr 1fr;">' +
+            '<div class="form-item"><label class="form-label">遮罩方式 <span style="color:#ef4444;">*</span></label>' +
+              '<input type="text" class="form-input" id="riMaskType" value="' + (item ? (item.maskType || '') : '') + '" placeholder="请输入遮罩方式，如L"' + dis + '></div>' +
+            '<div class="form-item"><label class="form-label">从第几位数据开始 <span style="color:#ef4444;">*</span></label>' +
+              '<input type="number" class="form-input" id="riStartPos" value="' + (item ? item.startPos : 1) + '" min="1" style="width:100%"' + dis + '></div>' +
+          '</div>' +
+          '<div class="form-item" style="display:flex;align-items:center;gap:10px;padding-top:4px;">' +
+            '<label class="toggle-switch">' +
+              '<input type="checkbox" id="riEnabled"' + (!item || item.enabled !== false ? ' checked' : '') + ' ' + dis + '>' +
+              '<span class="toggle-slider"></span>' +
+            '</label>' +
+            '<span style="font-size:14px;font-weight:500;color:var(--text-primary);">启用</span>' +
+          '</div>' +
+        '</div>';
+      }
+
+      // Section: 说明
+      html += '<div class="form-section">' +
+        '<div class="form-section-title"><span class="icon">💬</span>说明</div>' +
+        '<textarea class="form-input" id="riDesc" placeholder="' + (tab === 'encrypt' ? '请输入遮罩样式说明' : '权限说明（选填）') + '"' + dis + ' style="resize:vertical;min-height:60px;">' + (item ? (item.desc || '') : '') + '</textarea>' +
+      '</div>';
+
+      html += '</div>';
+      html += '<div class="modal-footer">';
+      if (isView) {
+        html += '<button class="btn btn-outline" onclick="closeResItemModal()">关闭</button>';
+      } else {
+        html += '<button class="btn btn-outline" onclick="closeResItemModal()">取消</button><button class="btn btn-primary" onclick="saveResItem()">确定</button>';
+      }
+      html += '</div></div></div>';
+
+      var old = document.getElementById('resItemModal');
+      if (old) old.remove();
+      document.body.insertAdjacentHTML('beforeend', html);
+      if (idx === undefined) resEditingIdx = -1;
+    }
+
+    function autoGenCode() {
+      var nameInput = document.getElementById('riName');
+      var codeInput = document.getElementById('riCode');
+      if (!nameInput || !codeInput) return;
+      if (codeInput.value && codeInput.dataset.userEdited === '1') return;
+      var pinyinMap = {
+        '不':'bu','管':'guan','制':'zhi','同':'tong','部':'bu','门':'men','间':'jian',
+        '相':'xiang','关':'guan','群':'qun','组':'zu','仅':'jin','查':'cha',
+        '改':'gai','删':'shan','可':'ke','许':'xu','允':'yun','人':'ren','他':'ta',
+        '单':'dan','据':'ju','期':'qi','日':'ri','扣':'kou','账':'zhang','明':'ming',
+        '细':'xi','新':'xin','增':'zeng','修':'xiu','加':'jia','左':'zuo','右':'you',
+        '侧':'ce','中':'zhong','间':'jian','遮':'zhe','罩':'zhao','留':'liu',
+        '位':'wei','字':'zi','符':'fu','本':'ben','视':'shi','见':'jian',
+        '加':'jia','密':'mi','修':'xiu','般':'ban','作':'zuo','业':'ye',
+        '表':'biao','报':'bao','自':'zi','定':'ding','义':'yi','策':'ce','略':'lue',
+        '启':'qi','用':'yong','停':'ting','所':'suo','有':'you','料':'liao',
+        '号':'hao','品':'pin','名':'ming','供':'gong','应':'ying','商':'shang',
+        '单':'dan','价':'jia','联':'lian','系':'xi','电':'dian','话':'hua'
+      };
+      var name = nameInput.value.trim();
+      var code = '';
+      for (var i = 0; i < name.length; i++) {
+        var ch = name[i];
+        if (pinyinMap[ch]) {
+          code += pinyinMap[ch];
+        } else if (/[a-zA-Z0-9]/.test(ch)) {
+          code += ch.toLowerCase();
+        }
+      }
+      if (!code) { codeInput.value = ''; return; }
+      var existing = resDataMap[resCurrentTab] || [];
+      var baseCode = code;
+      var suffix = 1;
+      while (existing.some(function(r) { return r.code === code; })) {
+        code = baseCode + '_' + suffix;
+        suffix++;
+      }
+      codeInput.value = code;
+    }
+
+    function toggleFormSwitch(el) {
+      el.classList.toggle('on');
+      el.setAttribute('data-val', el.classList.contains('on') ? 'Y' : 'N');
+    }
+
+    function closeResItemModal() {
+      var m = document.getElementById('resItemModal');
+      if (m) m.remove();
+    }
+
+    function saveResItem() {
+      var tab = resCurrentTab;
+      var code = document.getElementById('riCode').value.trim();
+      var newItem;
+
+      if (tab === 'encrypt') {
+        var method = document.getElementById('riMethod').value.trim();
+        var maskType = document.getElementById('riMaskType').value.trim();
+        if (!code || !method || !maskType) { showToast('请填写必填项'); return; }
+        var startPos = parseInt(document.getElementById('riStartPos').value) || 1;
+        var encEnabled = document.getElementById('riEnabled').checked;
+        newItem = {
+          code: code,
+          method: method,
+          maskType: maskType,
+          startPos: startPos,
+          enabled: encEnabled,
+          desc: document.getElementById('riDesc').value
+        };
+      } else {
+        var name = document.getElementById('riName').value.trim();
+        if (!code || !name) { showToast('请填写必填项'); return; }
+        newItem = { code: code, name: name, desc: document.getElementById('riDesc').value };
+      }
+
+      if (resEditingIdx >= 0) {
+        resDataMap[tab][resEditingIdx] = newItem;
+        showToast('已更新');
+      } else {
+        resDataMap[tab].push(newItem);
+        showToast('已新增');
+      }
+      closeResItemModal();
+      renderResTable();
+    }
+
+    function escAttr(v) { return String(v || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+    function addFieldRow() {
+      fieldData.push({ code: '', name: '', syncStatus: 'unsynced', failReason: '' });
+      renderFieldTable();
+    }
     function deleteField(idx) {
       fieldData.splice(idx, 1);
       renderFieldTable();
