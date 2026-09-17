@@ -3345,6 +3345,12 @@ input, select {
     }
     .sys-tab:hover { color: var(--primary-color); }
     .sys-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
+    .tree-search-wrap { padding: 8px 0; }
+    .tree-search { width: 100%; padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; outline: none; box-sizing: border-box; transition: border-color 0.15s; background: #f8fafc; }
+    .tree-search:focus { border-color: var(--primary-color); background: #fff; }
+    .perm-tree li.hidden-node { display: none !important; }
+    .perm-tree li.search-match > .tree-row { background: #fef9c3; border-radius: 4px; }
+    .perm-tree li.search-match > .tree-row .tree-label { font-weight: 600; color: #854d0e; }
 
     /* 数据权限范围卡片 */
     .data-scope-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
@@ -4087,6 +4093,39 @@ input, select {
       var allChecked = all.every(function (c) { return stateOf(c) === 'checked'; });
       if (allChecked) unselectAll(); else selectAll();
     };
+
+    // 搜索菜单树
+    function filterTree(keyword) {
+      var kw = (keyword || '').trim().toLowerCase();
+      var tree = document.getElementById('permTree');
+      var nodes = tree.querySelectorAll('.tree-node');
+      if (!kw) {
+        nodes.forEach(function(n) { n.classList.remove('hidden-node', 'search-match'); });
+        tree.querySelectorAll('.tree-children').forEach(function(ul) { ul.style.display = ''; });
+        tree.querySelectorAll('.tree-toggle').forEach(function(t) { if (!t.classList.contains('leaf')) t.textContent = '▾'; });
+        return;
+      }
+      nodes.forEach(function(n) { n.classList.add('hidden-node'); n.classList.remove('search-match'); });
+      nodes.forEach(function(n) {
+        var label = (n.querySelector(':scope > .tree-row .tree-label') || {}).textContent || '';
+        if (label.toLowerCase().indexOf(kw) >= 0) {
+          n.classList.remove('hidden-node');
+          n.classList.add('search-match');
+          var p = n.parentElement;
+          while (p && p.tagName === 'UL') {
+            p.style.display = 'block';
+            var parentLi = p.parentElement;
+            if (parentLi && parentLi.classList.contains('tree-node')) {
+              parentLi.classList.remove('hidden-node');
+              parentLi.classList.add('search-match');
+              var toggleIcon = parentLi.querySelector(':scope > .tree-row .tree-toggle');
+              if (toggleIcon && !toggleIcon.classList.contains('leaf')) toggleIcon.textContent = '▴';
+            }
+            p = p.parentElement;
+          }
+        }
+      });
+    }
 
     // 展开/折叠全部（切换）
     window.toggleExpandAll = function () {
