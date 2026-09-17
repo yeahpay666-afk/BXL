@@ -155,41 +155,7 @@
     .fail-reason { position: relative; cursor: pointer; border-bottom: 1px dashed #dc2626; user-select: none; }
     .fail-reason-tip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 11px; white-space: normal; width: 220px; z-index: 10; margin-bottom: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .fail-reason-tip.show { display: block; }
-    .fail-reason-tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1f2937; }
-
-    .sync-progress-bar { display: none; align-items: center; gap: 10px; padding: 8px 12px; margin-top: 8px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 6px; font-size: 12px; color: #1e40af; }
-    .sync-progress-bar.show { display: flex; }
-    .sync-progress-track { flex: 1; height: 6px; background: #dbeafe; border-radius: 3px; overflow: hidden; }
-    .sync-progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius: 3px; transition: width 0.3s; }
-    .sync-progress-spinner { width: 14px; height: 14px; border: 2px solid #bfdbfe; border-top-color: #1d4ed8; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .menu-rowCheckbox { width: 32px; text-align: center; }
-    .menu-rowCheckbox input, .field-table th input[type="checkbox"], .field-rowCheckbox input { cursor: pointer; }
-
-    .sync-btn-tiny { padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; }
-    .sync-btn-tiny.field { background: #dcfce7; color: #16a34a; }
-    .sync-btn-tiny.field:hover { background: #bbf7d0; }
-    .sync-btn-tiny.btn { background: #dbeafe; color: #2563eb; }
-    .sync-btn-tiny.btn:hover { background: #bfdbfe; }
-    .sync-btn-tiny:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
-
-    .field-rowCheckbox { width: 32px; text-align: center; }
-  
-/* 消息通知下拉面板 */
-.notify-panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 380px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  z-index: 2000;
-  display: none;
-  overflow: hidden;
-}
-.notify-panel.show { display: block; }
+    .fail-reason-tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1f2937; }.notify-panel.show { display: block; }
 .notify-panel-header {
   padding: 14px 16px;
   border-bottom: 1px solid #f1f5f9;
@@ -627,9 +593,7 @@
               <button class="sync-btn-tiny menu" onclick="syncAllFields()" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe;">⇩ 同步所有字段</button>
               <button class="sync-btn-tiny menu" onclick="syncAllButtons()" style="background:#fef3c7;color:#d97706;border-color:#fcd34d;">⇩ 同步所有按钮</button>
             </div>
-            <div class="sync-progress-bar" id="menuSyncProgress">
-              <div class="sync-progress-spinner"></div>
-              <span id="menuSyncText">同步中 0/0 ...</span>
+<span id="menuSyncText">同步中 0/0 ...</span>
               <div class="sync-progress-track"><div class="sync-progress-fill" id="menuSyncFill" style="width:0%;"></div></div>
             </div>
             <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
@@ -641,6 +605,7 @@
                   <th>菜单编码</th>
                   <th>排序</th>
                   <th style="width:70px;">状态</th>
+                  <th style="width:100px;">菜单同步状态</th>
                   <th style="width:100px;">字段同步状态</th>
                   <th style="width:100px;">按钮同步状态</th>
                   <th style="width:200px;">操作</th>
@@ -667,9 +632,7 @@
           <span style="flex:1;"></span>
           <span class="field-count" id="fieldCount">共 0 个字段</span>
         </div>
-        <div class="sync-progress-bar" id="fieldSyncProgress">
-          <div class="sync-progress-spinner"></div>
-          <span id="fieldSyncText">同步中 ...</span>
+<span id="fieldSyncText">同步中 ...</span>
           <div class="sync-progress-track"><div class="sync-progress-fill" id="fieldSyncFill" style="width:0%;"></div></div>
         </div>
         <div class="batch-upload-area" id="batchUploadArea">
@@ -710,9 +673,7 @@
           <span style="flex:1;"></span>
           <span class="field-count" id="buttonCount">共 0 个按钮</span>
         </div>
-        <div class="sync-progress-bar" id="buttonSyncProgress">
-          <div class="sync-progress-spinner"></div>
-          <span id="buttonSyncText">同步中 ...</span>
+<span id="buttonSyncText">同步中 ...</span>
           <div class="sync-progress-track"><div class="sync-progress-fill" id="buttonSyncFill" style="width:0%;"></div></div>
         </div>
         <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
@@ -952,26 +913,26 @@
 
     /* ===== 菜单配置 ===== */
     var menuData = [
-      { id: 1, name: '01 企业基础数据管理', code: 't100-base', type: 'menu', sort: 1, level: 1, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
-        { id: 2, name: '02 整体基本数据', code: 't100-base-overall', type: 'menu', sort: 2, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
-          { id: 3, name: '料件基本数据维护', code: 'axmt500', type: 'job', sort: 3, level: 3, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'unsynced', children: [] }
+      { id: 1, name: '01 企业基础数据管理', code: 't100-base', type: 'menu', sort: 1, level: 1, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'synced', children: [
+        { id: 2, name: '02 整体基本数据', code: 't100-base-overall', type: 'menu', sort: 2, level: 2, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'synced', children: [
+          { id: 3, name: '料件基本数据维护', code: 'axmt500', type: 'job', sort: 3, level: 3, status: 'on', menuStatus: 'synced', fieldStatus: 'unsynced', buttonStatus: 'unsynced', children: [] }
         ]},
-        { id: 6, name: '03 集团基础应用设置', code: 't100-base-group', type: 'menu', sort: 3, level: 2, status: 'on', fieldStatus: 'failed', fieldFailReason: '外部系统连接超时', buttonStatus: 'synced', children: [
-          { id: 7, name: '组织架构管理', code: 'axri200', type: 'job', sort: 5, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] }
+        { id: 6, name: '03 集团基础应用设置', code: 't100-base-group', type: 'menu', sort: 3, level: 2, status: 'on', menuStatus: 'synced', fieldStatus: 'failed', fieldFailReason: '外部系统连接超时', buttonStatus: 'synced', children: [
+          { id: 7, name: '组织架构管理', code: 'axri200', type: 'job', sort: 5, level: 3, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'synced', children: [] }
         ]}
       ]},
-      { id: 8, name: '003 供应链管理', code: 't100-supply', type: 'menu', sort: 10, level: 1, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
-        { id: 9, name: '采购管理', code: 't100-purchase', type: 'menu', sort: 11, level: 2, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'synced', children: [
-          { id: 10, name: '采购订单管理', code: 'axmt400', type: 'job', sort: 10, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] },
-          { id: 11, name: '供应商管理', code: 'apmt200', type: 'job', sort: 20, level: 3, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'unsynced', children: [] }
+      { id: 8, name: '003 供应链管理', code: 't100-supply', type: 'menu', sort: 10, level: 1, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'synced', children: [
+        { id: 9, name: '采购管理', code: 't100-purchase', type: 'menu', sort: 11, level: 2, status: 'on', menuStatus: 'synced', fieldStatus: 'unsynced', buttonStatus: 'synced', children: [
+          { id: 10, name: '采购订单管理', code: 'axmt400', type: 'job', sort: 10, level: 3, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'synced', children: [] },
+          { id: 11, name: '供应商管理', code: 'apmt200', type: 'job', sort: 20, level: 3, status: 'on', menuStatus: 'synced', fieldStatus: 'unsynced', buttonStatus: 'unsynced', children: [] }
         ]},
-        { id: 12, name: '销售管理', code: 't100-sales', type: 'menu', sort: 12, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
-          { id: 13, name: '销售订单管理', code: 'axmt300', type: 'job', sort: 10, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'failed', buttonFailReason: '按钮权限拉取失败', children: [] }
+        { id: 12, name: '销售管理', code: 't100-sales', type: 'menu', sort: 12, level: 2, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'synced', children: [
+          { id: 13, name: '销售订单管理', code: 'axmt300', type: 'job', sort: 10, level: 3, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'failed', buttonFailReason: '按钮权限拉取失败', children: [] }
         ]}
       ]},
-      { id: 14, name: '004 料件管理', code: 't100-item', type: 'menu', sort: 11, level: 1, status: 'on', fieldStatus: 'failed', fieldFailReason: '菜单编号不存在', buttonStatus: 'unsynced', children: [
-        { id: 15, name: '料件基本维护', code: 't100-item-maint', type: 'menu', sort: 1, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
-          { id: 16, name: '料件基本数据维护', code: 'axmi200', type: 'job', sort: 0, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] }
+      { id: 14, name: '004 料件管理', code: 't100-item', type: 'menu', sort: 11, level: 1, status: 'on', menuStatus: 'synced', fieldStatus: 'failed', fieldFailReason: '菜单编号不存在', buttonStatus: 'unsynced', children: [
+        { id: 15, name: '料件基本维护', code: 't100-item-maint', type: 'menu', sort: 1, level: 2, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'synced', children: [
+          { id: 16, name: '料件基本数据维护', code: 'axmi200', type: 'job', sort: 0, level: 3, status: 'on', menuStatus: 'synced', fieldStatus: 'synced', buttonStatus: 'synced', children: [] }
         ]}
       ]}
     ];
@@ -1093,6 +1054,7 @@
           '<td><code style="font-size:12px;color:var(--text-secondary);">' + r.code + '</code></td>' +
           '<td style="text-align:center;">' + r.sort + '</td>' +
           '<td><span class="menu-status-tag ' + (r.status === 'on' ? 'menu-status-on' : 'menu-status-off') + '">' + (r.status === 'on' ? '启用' : '停用') + '</span></td>' +
+          '<td>' + renderSyncTag(r.menuStatus, r.menuFailReason) + '</td>' +
           '<td>' + renderSyncTag(r.fieldStatus, r.fieldFailReason) + '</td>' +
           '<td>' + renderSyncTag(r.buttonStatus, r.buttonFailReason) + '</td>' +
           '<td style="white-space:nowrap;">' +
@@ -1129,144 +1091,52 @@
     var menuSyncRunning = false;
     /* 菜单同步：从外部系统拉取最新菜单结构并合并 */
     function syncMenuList() {
-      if (menuSyncRunning) { showToast('已有同步任务进行中'); return; }
-      menuSyncRunning = true;
+  if (!confirm("确认同步全部菜单？")) return;
+  var remoteMenus = [{ code:"t100-base", name:"01 企业基础数据管理", level:1, parent:null },{ code:"t100-base-overall", name:"02 整体基本数据", level:2, parent:"t100-base" },{ code:"axmt500", name:"料件基本数据维护", level:3, parent:"t100-base-overall" },{ code:"t100-base-group", name:"03 集团基础应用设置", level:2, parent:"t100-base" },{ code:"axri200", name:"组织架构管理", level:3, parent:"t100-base-group" },{ code:"t100-supply", name:"003 供应链管理", level:1, parent:null },{ code:"t100-purchase", name:"采购管理", level:2, parent:"t100-supply" },{ code:"axmt400", name:"采购订单管理", level:3, parent:"t100-purchase" },{ code:"apmt200", name:"供应商管理", level:3, parent:"t100-purchase" },{ code:"t100-sales", name:"销售管理", level:2, parent:"t100-supply" },{ code:"axmt300", name:"销售订单管理", level:3, parent:"t100-sales" },{ code:"t100-item", name:"004 料件管理", level:1, parent:null },{ code:"t100-item-maint", name:"料件基本维护", level:2, parent:"t100-item" },{ code:"axmi200", name:"料件基本数据维护", level:3, parent:"t100-item-maint" }];
+  var added = 0;
+  remoteMenus.forEach(function(m) {
+    var exists = findMenuByCode(menuData, m.code);
+    if (!exists) {
+      var newNode = { id: Date.now() + Math.random(), name: m.name, code: m.code, level: m.level, sort: 99, status: "enabled", menuStatus: "synced", fieldStatus: "unsynced", buttonStatus: "unsynced", children: [] };
+      if (m.parent) { var p = findMenuByCode(menuData, m.parent); if (p) { if (!p.children) p.children = []; p.children.push(newNode); } else { menuData.push(newNode); } } else { menuData.push(newNode); }
+      added++;
+    } else { exists.menuStatus = "synced"; delete exists.menuFailReason; }
+  });
+  renderMenuTable(); renderMenuTree();
+  showToast(added > 0 ? "菜单同步完成：新增 " + added + " 个菜单" : "菜单同步完成", "success");
+}
 
-      // 模拟从外部系统拉取的菜单数据
-      var remoteMenus = [
-        { name: '01 企业基础数据管理', code: 't100-base', level: 1, parent: null },
-        { name: '02 整体基本数据', code: 't100-base-overall', level: 2, parent: 't100-base' },
-        { name: '03 集团基础应用设置', code: 't100-base-group', level: 2, parent: 't100-base' },
-        { name: '003 供应链管理', code: 't100-supply', level: 1, parent: null },
-        { name: '采购管理', code: 't100-purchase', level: 2, parent: 't100-supply' },
-        { name: '销售管理', code: 't100-sale', level: 2, parent: 't100-supply' },
-        { name: '004 料件管理', code: 't100-material', level: 1, parent: null }
-      ];
+/* ===== 同步所有字段 ===== */
+function syncAllFields() {
+  if (!confirm('确认同步全部菜单的字段配置？')) return;
+  var rows = flattenMenu(menuData);
+  var success = 0, failed = 0, failedNames = [];
+  rows.forEach(function(r) {
+    if (Math.random() < 0.1) { failed++; failedNames.push(r.name); r.fieldStatus = 'failed'; r.fieldFailReason = '外部系统响应超时'; }
+    else { success++; r.fieldStatus = 'synced'; delete r.fieldFailReason; }
+  });
+  renderMenuTable(); renderMenuTree();
+  var msg = '字段同步完成：成功 ' + success + '，失败 ' + failed;
+  if (failed > 0) msg += '（' + failedNames.slice(0,3).join('、') + '）';
+  showToast(msg, failed === 0 ? 'success' : 'warning');
+}
 
-      var bar = document.getElementById('menuSyncProgress');
-      var text = document.getElementById('menuSyncText');
-      var fill = document.getElementById('menuSyncFill');
-      bar.classList.add('show');
-      var done = 0;
-      text.textContent = '同步中 0/' + remoteMenus.length + ' · 正在拉取菜单...';
-      fill.style.width = '0%';
+/* ===== 同步所有按钮 ===== */
+function syncAllButtons() {
+  if (!confirm('确认同步全部菜单的按钮配置？')) return;
+  var rows = flattenMenu(menuData);
+  var success = 0, failed = 0, failedNames = [];
+  rows.forEach(function(r) {
+    if (Math.random() < 0.08) { failed++; failedNames.push(r.name); r.buttonStatus = 'failed'; r.buttonFailReason = '按钮权限接口异常'; }
+    else { success++; r.buttonStatus = 'synced'; delete r.buttonFailReason; }
+  });
+  renderMenuTable(); renderMenuTree();
+  var msg = '按钮同步完成：成功 ' + success + '，失败 ' + failed;
+  if (failed > 0) msg += '（' + failedNames.slice(0,3).join('、') + '）';
+  showToast(msg, failed === 0 ? 'success' : 'warning');
+}
 
-      var i = 0;
-      function step() {
-        if (i >= remoteMenus.length) {
-          menuSyncRunning = false;
-          bar.classList.remove('show');
-          renderMenuTable();
-          renderMenuTree();
-          showToast('菜单同步完成：新增 ' + remoteMenus.length + ' 个菜单');
-          return;
-        }
-        var m = remoteMenus[i];
-        setTimeout(function() {
-          // 模拟合并：检查本地是否存在该菜单编码，不存在则新增
-          var exists = findMenuByCode(menuData, m.code);
-          if (!exists) {
-            // 新增到对应父级或根级
-            var newNode = {
-              id: Date.now() + i,
-              name: m.name,
-              code: m.code,
-              level: m.level,
-              sort: 99,
-              status: 'enabled',
-              fieldStatus: "unsynced", buttonStatus: "unsynced", children: []            };
-            if (m.parent) {
-              var parent = findMenuByCode(menuData, m.parent);
-              if (parent) {
-                if (!parent.children) parent.children = [];
-                parent.children.push(newNode);
-              } else {
-                menuData.push(newNode);
-              }
-            } else {
-              menuData.push(newNode);
-            }
-          }
-          i++;
-          done = i;
-          var pct = Math.round(done / remoteMenus.length * 100);
-          text.textContent = '同步中 ' + done + '/' + remoteMenus.length + ' · ' + m.name;
-          fill.style.width = pct + '%';
-          renderMenuTable();
-          step();
-        }, 500);
-      }
-      step();
-    }
-
-    /* ===== 同步所有字段 ===== */
-    function syncAllFields() {
-      var allRows = flattenMenu(menuData);
-      var total = allRows.length;
-      if (total === 0) { showToast('暂无可同步的菜单'); return; }
-      runBulkSync(allRows, 'field', '字段');
-    }
-
-    /* ===== 同步所有按钮 ===== */
-    function syncAllButtons() {
-      var allRows = flattenMenu(menuData);
-      var total = allRows.length;
-      if (total === 0) { showToast('暂无可同步的菜单'); return; }
-      runBulkSync(allRows, 'button', '按钮');
-    }
-
-    /* ===== 通用批量同步（带进度弹窗+结果提示） ===== */
-    function runBulkSync(rows, targetKey, label) {
-      var results = { success: 0, failed: 0, failedList: [] };
-      var modal = document.createElement('div');
-      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2000;';
-      modal.innerHTML = '<div style="background:#fff;border-radius:12px;padding:28px 32px;width:460px;text-align:center;">' +
-        '<div style="font-size:18px;font-weight:600;margin-bottom:16px;">正在同步所有' + label + '</div>' +
-        '<div style="font-size:13px;color:#64748b;margin-bottom:20px;">从外部系统拉取 ' + rows.length + ' 个菜单的' + label + '配置</div>' +
-        '<div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:12px;"><div id="bulkSyncFill" style="height:100%;background:#2563eb;width:0%;transition:width 0.3s;"></div></div>' +
-        '<div id="bulkSyncText" style="font-size:13px;color:#64748b;">准备中...</div>' +
-        '</div>';
-      document.body.appendChild(modal);
-
-      var i = 0;
-      function step() {
-        if (i >= rows.length) {
-          modal.remove();
-          renderMenuTable();
-          renderMenuTree();
-          var summary = '同步完成：成功 ' + results.success + '，失败 ' + results.failed;
-          if (results.failed > 0) {
-            summary += '（' + results.failedList.slice(0, 3).join('、') + '）';
-          }
-          showToast(summary, results.failed === 0 ? 'success' : 'warning');
-          return;
-        }
-        var row = rows[i];
-        var pct = Math.round((i + 1) / rows.length * 100);
-        document.getElementById('bulkSyncText').textContent = '同步中 ' + (i + 1) + '/' + rows.length + ' · ' + row.name;
-        document.getElementById('bulkSyncFill').style.width = pct + '%';
-        // 模拟：随机 15% 概率失败（但已知失败节点保持失败，其他成功）
-        var knownFail = (targetKey === 'field' && row.fieldStatus === 'failed') || (targetKey === 'button' && row.buttonStatus === 'failed');
-        var failed = knownFail || Math.random() < 0.05;
-        setTimeout(function() {
-          if (failed) {
-            results.failed++;
-            results.failedList.push(row.name);
-            if (targetKey === 'field') { row.fieldStatus = 'failed'; row.fieldFailReason = '外部系统响应超时'; }
-            else { row.buttonStatus = 'failed'; row.buttonFailReason = '按钮权限接口异常'; }
-          } else {
-            results.success++;
-            if (targetKey === 'field') { row.fieldStatus = 'synced'; delete row.fieldFailReason; }
-            else { row.buttonStatus = 'synced'; delete row.buttonFailReason; }
-          }
-          i++;
-          step();
-        }, 400);
-      }
-      step();
-    }
-
-    function findMenuByCode(nodes, code) {
+function findMenuByCode(nodes, code) {
       for (var i = 0; i < nodes.length; i++) {
         if (nodes[i].code === code) return nodes[i];
         if (nodes[i].children && nodes[i].children.length > 0) {

@@ -840,7 +840,7 @@
                   <span class="action-link" onclick="openPositionModal('超级管理员')">关联岗位</span>
                   <span class="action-link" onclick="openModal('超级管理员')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
-                  <span class="action-link" style="color:#059669;" onclick="var n=this.closest(tr).dataset.name;runPermSync([n],false)">同步权限</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
               <tr data-name="HR管理员" data-code="ROLE_HR_ADMIN" data-status="启用">
@@ -857,7 +857,7 @@
                   <span class="action-link" onclick="openPositionModal('HR管理员')">关联岗位</span>
                   <span class="action-link" onclick="openModal('HR管理员')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
-                  <span class="action-link" style="color:#059669;" onclick="var n=this.closest(tr).dataset.name;runPermSync([n],false)">同步权限</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
               <tr data-name="OA审批人" data-code="ROLE_OA_APPROVER" data-status="启用">
@@ -874,7 +874,7 @@
                   <span class="action-link" onclick="openPositionModal('OA审批人')">关联岗位</span>
                   <span class="action-link" onclick="openModal('OA审批人')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
-                  <span class="action-link" style="color:#059669;" onclick="var n=this.closest(tr).dataset.name;runPermSync([n],false)">同步权限</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
               <tr data-name="CRM销售经理" data-code="ROLE_CRM_MANAGER" data-status="启用">
@@ -891,7 +891,7 @@
                   <span class="action-link" onclick="openPositionModal('CRM销售经理')">关联岗位</span>
                   <span class="action-link" onclick="openModal('CRM销售经理')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
-                  <span class="action-link" style="color:#059669;" onclick="var n=this.closest(tr).dataset.name;runPermSync([n],false)">同步权限</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
               <tr data-name="SRM采购员" data-code="ROLE_SRM_BUYER" data-status="启用">
@@ -908,7 +908,7 @@
                   <span class="action-link" onclick="openPositionModal('SRM采购员')">关联岗位</span>
                   <span class="action-link" onclick="openModal('SRM采购员')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
-                  <span class="action-link" style="color:#059669;" onclick="var n=this.closest(tr).dataset.name;runPermSync([n],false)">同步权限</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
               <tr data-name="T100生产主管" data-code="ROLE_T100_PROD" data-status="启用">
@@ -925,7 +925,7 @@
                   <span class="action-link" onclick="openPositionModal('T100生产主管')">关联岗位</span>
                   <span class="action-link" onclick="openModal('T100生产主管')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
-                  <span class="action-link" style="color:#059669;" onclick="var n=this.closest(tr).dataset.name;runPermSync([n],false)">同步权限</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
               <tr data-name="BI报表查看者" data-code="ROLE_BI_VIEWER" data-status="启用">
@@ -942,7 +942,7 @@
                   <span class="action-link" onclick="openPositionModal('BI报表查看者')">关联岗位</span>
                   <span class="action-link" onclick="openModal('BI报表查看者')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
-                  <span class="action-link" style="color:#059669;" onclick="var n=this.closest(tr).dataset.name;runPermSync([n],false)">同步权限</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
               <tr data-name="临时访客" data-code="ROLE_GUEST" data-status="禁用">
@@ -959,7 +959,7 @@
                   <span class="action-link" onclick="openPositionModal('临时访客')">关联岗位</span>
                   <span class="action-link" onclick="openModal('临时访客')">编辑</span>
                   <span class="action-link action-success">启用</span>
-                  <span class="action-link" style="color:#059669;" onclick="var n=this.closest(tr).dataset.name;runPermSync([n],false)">同步权限</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
             </tbody>
@@ -1167,67 +1167,24 @@
     }
 
     /* ===== 权限同步 ===== */
-    var permSyncRunning = false;
-
-    // 全选/取消全选
-    function toggleRoleAllSelect(cb) {
-      document.querySelectorAll('.role-row-cb').forEach(function(el) {
-        el.checked = cb.checked;
-      });
-      updateRoleSelectCount();
-    }
-    function updateRoleSelectCount() {
-      var checked = document.querySelectorAll('.role-row-cb:checked');
-      document.getElementById('selectedRoleCount').textContent = '已选 ' + checked.length + ' 个角色';
-    }
-
-    // 同步选中的角色权限
-    function syncSelectedRolePermissions() {
-      if (permSyncRunning) { showToast('已有同步任务进行中'); return; }
-      var checked = document.querySelectorAll('.role-row-cb:checked');
-      if (checked.length === 0) { showToast('请先勾选要同步的角色'); return; }
-      var roles = [];
-      checked.forEach(function(cb) {
-        roles.push(cb.closest('tr').dataset.name);
-      });
-      runPermSync(roles, false);
-    }
-
-    // 同步所有角色权限
+    // 同步全部角色权限（顶部按钮）
     function syncAllRolePermissions() {
-      if (permSyncRunning) { showToast('已有同步任务进行中'); return; }
+      if (!confirm('确认同步全部角色的权限配置？')) return;
       var roles = ['超级管理员', 'HR管理员', 'OA审批人', 'CRM销售经理', 'SRM采购员', 'T100生产主管', 'BI报表查看者'];
-      runPermSync(roles, true);
+      var success = 0, failed = 0, failedNames = [];
+      roles.forEach(function(r) {
+        if (Math.random() < 0.1) { failed++; failedNames.push(r); } else { success++; }
+      });
+      var msg = '权限同步完成：成功 ' + success + '，失败 ' + failed;
+      if (failed > 0) msg += '（' + failedNames.slice(0,3).join('、') + '）';
+      showToast(msg, failed === 0 ? 'success' : 'warning');
     }
 
-    // 通用权限同步执行
-    function runPermSync(roles, isAll) {
-      permSyncRunning = true;
-      var modal = document.createElement('div');
-      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2000;';
-      modal.innerHTML = '<div style="background:#fff;border-radius:12px;padding:28px 32px;width:440px;text-align:center;">' +
-        '<div style="font-size:18px;font-weight:600;margin-bottom:16px;">正在同步角色权限</div>' +
-        '<div style="font-size:13px;color:#64748b;margin-bottom:20px;">从外部系统拉取并应用 ' + roles.length + ' 个角色的权限配置</div>' +
-        '<div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:12px;"><div id="permSyncFill" style="height:100%;background:#059669;width:0%;transition:width 0.3s;"></div></div>' +
-        '<div id="permSyncText" style="font-size:13px;color:#64748b;">准备中...</div>' +
-        '</div>';
-      document.body.appendChild(modal);
-
-      var i = 0;
-      function step() {
-        if (i >= roles.length) {
-          permSyncRunning = false;
-          modal.remove();
-          showToast('权限同步完成，共 ' + roles.length + ' 个角色', 'success');
-          return;
-        }
-        var roleName = roles[i];
-        document.getElementById('permSyncText').textContent = '同步中 ' + (i + 1) + '/' + roles.length + ' · ' + roleName;
-        document.getElementById('permSyncFill').style.width = Math.round((i + 1) / roles.length * 100) + '%';
-        i++;
-        setTimeout(step, 600);
-      }
-      step();
+    // 同步单个角色权限（操作列按钮）
+    function syncRoleOne(roleName) {
+      var ok = Math.random() > 0.15;
+      if (ok) { showToast('「' + roleName + '」权限同步成功', 'success'); }
+      else { showToast('「' + roleName + '」同步失败：外部系统超时', 'warning'); }
     }
 
     /* ===== 所属系统多选 ===== */
