@@ -95,6 +95,19 @@
     .perm-all { background: #ecfdf5; color: #10b981; }
     .perm-dept { background: #fffbeb; color: #d97706; }
     .perm-role { background: #fef3c7; color: #d97706; }
+    /* 批量操作工具栏 */
+    .batch-bar { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #64748b; }
+    .batch-bar .count { font-weight: 500; color: #1f2937; }
+    .batch-bar .batch-btns { display: flex; gap: 8px; }
+    .batch-bar button { padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; }
+    .batch-bar .batch-enable { background: #059669; color: #fff; }
+    .batch-bar .batch-enable:hover { background: #047857; }
+    .batch-bar .batch-disable { background: #f59e0b; color: #fff; }
+    .batch-bar .batch-disable:hover { background: #d97706; }
+    .batch-bar .batch-delete { background: #ef4444; color: #fff; }
+    .batch-bar .batch-delete:hover { background: #dc2626; }
+    .row-checkbox, .head-checkbox { width: 16px; height: 16px; cursor: pointer; accent-color: #2563eb; }
+
     .action-btns { display: flex; gap: 6px; }
     .action-btn { padding: 4px 10px; border-radius: 4px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s; }
     .btn-view { color: #2563eb; background: #eff6ff; }
@@ -117,26 +130,362 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.success { background: #10b981; }
     .toast.error { background: #ef4444; }
-  </style>
+  
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+
+</style>
 </head>
 <body>
 
-  <header class="top-header">
-    <div class="logo"><span class="logo-icon">🏢</span>柏星龙业务数字化中台</div>
-    <nav class="top-nav">
-      <a href="index.html">首页</a>
-      <a href="#">T100</a>
-      <a href="#">HR</a>
-      <a href="#">OA</a>
-      <a href="#">CRM</a>
-      <a href="#">SRM</a>
-      <a href="#">BI</a>
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
     </nav>
-    <div class="top-right">
-      <span>2025年1月15日 周三</span>
-      <span>深圳 18℃ ☀️</span>
-      <span>🔔</span>
-      <div class="user"><span class="avatar">张</span>张建国 ▾</div>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
+          🔔
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -158,7 +507,7 @@
         <a href="content-study.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">📚</span>柏家学堂配置</a>
         <a href="news-manage.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">📰</span>新闻管理</a>
         <a href="notice-manage.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">📢</span>公告管理</a>
-        <a href="baishi-service-config.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🛎️</span>柏事服务配置</a>
+        <a href="baishi-service-list.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🛎️</span>柏事服务管理</a>
         <a href="quick-entry.html" class="sidebar-menu-item active"><span class="sidebar-menu-icon">🔲</span>快捷入口管理</a>
         <a href="meeting-room.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🏢</span>会议室管理</a>
         <a href="ai-agent-market.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🤖</span>AI智能体市场</a>
@@ -167,12 +516,6 @@
     </aside>
 
     <main class="main-content">
-      <div class="breadcrumb">
-        <a href="index.html">首页</a><span class="separator">/</span>
-        <span>内容管理</span><span class="separator">/</span>
-        <span class="current">快捷入口管理</span>
-      </div>
-
       <div class="page-header">
         <div>
           <h1 class="page-title">快捷入口管理</h1>
@@ -203,11 +546,11 @@
       </div>
 
       <div class="table-card">
-        <div class="table-header">
-          <div class="table-title">快捷入口列表 <span class="count">12条</span></div>
-          <div class="table-filters">
-            <input type="text" class="search-input" placeholder="🔍 搜索入口名称..." id="searchInput">
-            <select class="filter-select" id="statusFilter">
+        <div class="table-header" style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid #f3f4f6;">
+          <div class="table-title" style="font-size:15px; font-weight:600; color:#1f2937;"><span style="color:#2563eb; margin-right:4px;">▎</span>快捷入口列表 <span class="count-badge" style="background:#dbeafe; color:#2563eb; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:400;">12条</span> <button id="batchDeleteBtn" onclick="batchDelete()" style="padding:4px 12px; border-radius:6px; font-size:12px; border:none; background:#f3f4f6; color:#9ca3af; cursor:not-allowed;">批量删除</button></div>
+          <div class="table-filters" style="display:flex; gap:8px; align-items:center;">
+            <input type="text" class="search-input" placeholder="搜索入口名称..." id="searchInput" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px; width:180px;">
+            <select class="filter-select" id="statusFilter" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
               <option value="">全部状态</option>
               <option value="enabled">已启用</option>
               <option value="disabled">已禁用</option>
@@ -219,6 +562,7 @@
           <table>
             <thead>
               <tr>
+                <th style="width:40px"><input type="checkbox" class="head-checkbox" id="checkAll" onchange="toggleSelectAll(this.checked)"></th>
                 <th style="width:50px"></th>
                 <th style="width:60px">排序</th>
                 <th>入口名称</th>
@@ -277,6 +621,7 @@
         ? '<button class="action-btn btn-disable" onclick="toggleEnable(' + item.sort + ',false)">禁用</button>'
         : '<button class="action-btn btn-enable" onclick="toggleEnable(' + item.sort + ',true)">启用</button>';
       html += '<tr>' +
+        '<td><input type="checkbox" class="row-checkbox" data-sort="' + item.sort + '" onchange="updateBatchBar()"></td>' +
         '<td><span class="drag-icon">⋮⋮</span></td>' +
         '<td class="sort-col">' + item.sort + '</td>' +
         '<td><a href="quick-entry-detail.html" style="color:#2563eb;">' + item.name + '</a></td>' +
@@ -290,10 +635,12 @@
           '<a href="quick-entry-detail.html" class="action-btn btn-view">详情</a>' +
           '<a href="quick-entry-form.html" class="action-btn btn-edit">编辑</a>' +
           toggleBtn +
+          '<button class="action-btn btn-delete" onclick="deleteEntry(' + item.sort + ')">删除</button>' +
         '</div></td>' +
       '</tr>';
     });
     tb.innerHTML = html;
+    updateBatchBar();
   }
 
   function toggleEnable(sort, enable) {
@@ -303,6 +650,57 @@
       renderTable(entries);
       showToast(enable ? '已启用：' + item.name : '已禁用：' + item.name, 'success');
     }
+  }
+
+  /* ===== 批量操作 ===== */
+  function getSelectedSorts() {
+    var boxes = document.querySelectorAll('.row-checkbox:checked');
+    var sorts = [];
+    boxes.forEach(function(b){ sorts.push(parseInt(b.dataset.sort)); });
+    return sorts;
+  }
+
+  function updateBatchBar() {
+    var sorts = getSelectedSorts();
+    var btn = document.getElementById('batchDeleteBtn');
+    var checkAll = document.getElementById('checkAll');
+    var allBoxes = document.querySelectorAll('.row-checkbox');
+    if (sorts.length > 0) {
+      btn.style.background = '#dc2626'; btn.style.color = '#fff'; btn.style.cursor = 'pointer';
+    } else {
+      btn.style.background = '#f3f4f6'; btn.style.color = '#9ca3af'; btn.style.cursor = 'not-allowed';
+    }
+    if (allBoxes.length > 0) {
+      checkAll.checked = sorts.length === allBoxes.length;
+    } else {
+      checkAll.checked = false;
+    }
+  }
+
+  function toggleSelectAll(checked) {
+    var boxes = document.querySelectorAll('.row-checkbox');
+    boxes.forEach(function(b){ b.checked = checked; });
+    updateBatchBar();
+  }
+
+  function batchDelete() {
+    var sorts = getSelectedSorts();
+    if (sorts.length === 0) { showToast('请先选择要删除的入口'); return; }
+    if (!confirm('确定要删除选中的 ' + sorts.length + ' 个入口吗？')) return;
+    entries = entries.filter(function(e){ return sorts.indexOf(e.sort) < 0; });
+    renderTable(entries);
+    document.getElementById('checkAll').checked = false;
+    updateBatchBar();
+    showToast('已删除 ' + sorts.length + ' 个入口', 'success');
+  }
+
+  function deleteEntry(sort) {
+    var item = entries.find(function(e){ return e.sort === sort; });
+    if (!item) return;
+    if (!confirm('确定要删除"'+ item.name +'"吗？')) return;
+    entries = entries.filter(function(e){ return e.sort !== sort; });
+    renderTable(entries);
+    showToast('已删除：' + item.name, 'success');
   }
 
   function showToast(msg, type) {
@@ -328,6 +726,70 @@
   });
 
   renderTable(entries);
+</script>
+
+<script>
+/* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
 </script>
 </body>
 </html>

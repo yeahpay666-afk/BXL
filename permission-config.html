@@ -1,0 +1,4656 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>权限配置 - 柏星龙业务数字化中台</title>
+  <style>
+/* ===== 公共样式 ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  background: #f5f7fa;
+  line-height: 1.5;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+input, select {
+  outline: none;
+  font-family: inherit;
+}
+
+/* ===== 颜色变量 ===== */
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1e40af;
+  --header-bg: #1a365d;
+  --header-bg-light: #2c5282;
+  --sidebar-bg: #fff;
+  --card-bg: #fff;
+  --text-primary: #1a202c;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --bg-light: #f8fafc;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --info-color: #3b82f6;
+}
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+.sub-header {
+  height: 44px;
+  background: #fff;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+.sub-header-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.sub-nav-item {
+  padding: 0 16px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.sub-nav-item:hover {
+  color: var(--primary-color);
+}
+
+.sub-nav-item.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  width: 200px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 100px;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  z-index: 998;
+}
+
+.sidebar-title {
+  padding: 20px 20px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sidebar-subtitle {
+  padding: 0 20px 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sidebar-menu {
+  padding: 8px 0;
+}
+
+.sidebar-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.sidebar-menu-item:hover {
+  background: var(--bg-light);
+  color: var(--text-primary);
+}
+
+.sidebar-menu-item.active {
+  background: #eff6ff;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.sidebar-menu-icon {
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.sidebar-footer:hover {
+  color: var(--primary-color);
+}
+
+/* ===== 主内容区 ===== */
+.main-content {
+  margin-left: 200px;
+  margin-top: 100px;
+  padding: 24px;
+  min-height: calc(100vh - 100px);
+}
+
+.main-content.no-sidebar {
+  margin-left: 0;
+}
+
+/* ===== 面包屑 ===== */
+.breadcrumb {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.breadcrumb a {
+  color: var(--text-secondary);
+}
+
+.breadcrumb a:hover {
+  color: var(--primary-color);
+}
+
+.breadcrumb .separator {
+  margin: 0 6px;
+  color: var(--text-muted);
+}
+
+.breadcrumb .current {
+  color: var(--text-primary);
+}
+
+/* ===== 页面标题 ===== */
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.page-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* ===== 卡片 ===== */
+.card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title .count-badge {
+  background: #fef3c7;
+  color: #d97706;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.card-more {
+  font-size: 13px;
+  color: var(--primary-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-more:hover {
+  text-decoration: underline;
+}
+
+.card-body {
+  padding: 16px 20px;
+}
+
+/* ===== 按钮 ===== */
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* ===== 表单 ===== */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  background: #f8fafc;
+}
+
+.form-input:focus {
+  border-color: var(--primary-color);
+  background: #fff;
+}
+
+.form-input-icon {
+  position: relative;
+}
+
+.form-input-icon .icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.form-input-icon .form-input {
+  padding-left: 38px;
+}
+
+.form-input-icon .icon-right {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* ===== 标签 ===== */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tag-red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.tag-orange {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.tag-green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.tag-blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.tag-purple {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.tag-gray {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.tag-yellow {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+/* ===== 表格 ===== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.table tr:hover td {
+  background: #f8fafc;
+}
+
+/* ===== 分页 ===== */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.pagination-info {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.page-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.page-btn.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.page-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== 筛选栏 ===== */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-search {
+  position: relative;
+  width: 280px;
+}
+
+.filter-search input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.filter-search input:focus {
+  border-color: var(--primary-color);
+}
+
+.filter-search .icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.filter-select {
+  padding: 10px 32px 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--text-primary);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+.filter-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.filter-status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.filter-status-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.filter-status-item .count {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ===== Tab切换 ===== */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab-item {
+  padding: 12px 24px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-item:hover {
+  color: var(--primary-color);
+}
+
+.tab-item.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 500;
+}
+
+.tab-count {
+  background: #f1f5f9;
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.tab-item.active .tab-count {
+  background: #dbeafe;
+  color: var(--primary-color);
+}
+
+/* ===== 快捷入口九宫格 ===== */
+.quick-entry {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.quick-entry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.quick-entry-item:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.quick-entry-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.quick-entry-name {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+/* 不同颜色的图标背景 */
+.icon-yellow { background: #fef3c7; color: #d97706; }
+.icon-blue { background: #dbeafe; color: #2563eb; }
+.icon-orange { background: #ffedd5; color: #ea580c; }
+.icon-green { background: #dcfce7; color: #16a34a; }
+.icon-red { background: #fee2e2; color: #dc2626; }
+.icon-purple { background: #f3e8ff; color: #9333ea; }
+.icon-pink { background: #fce7f3; color: #db2777; }
+.icon-cyan { background: #cffafe; color: #0891b2; }
+.icon-indigo { background: #e0e7ff; color: #4f46e5; }
+.icon-gray { background: #f1f5f9; color: #64748b; }
+
+/* ===== 待办列表项 ===== */
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 12px;
+}
+
+.todo-item:last-child {
+  border-bottom: none;
+}
+
+.todo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.todo-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.todo-tag {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.todo-action {
+  flex-shrink: 0;
+}
+
+.todo-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ===== 新闻列表项 ===== */
+.news-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.news-item:hover {
+  background: #f8fafc;
+}
+
+.news-item:last-child {
+  border-bottom: none;
+}
+
+.news-thumb {
+  width: 160px;
+  height: 100px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.news-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.news-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.news-item:hover .news-title {
+  color: var(--primary-color);
+}
+
+.news-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.news-meta .tag {
+  margin-right: 0;
+}
+
+/* ===== 公告列表项 ===== */
+.notice-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notice-item:hover {
+  background: #f8fafc;
+}
+
+.notice-item.important {
+  background: #dcfce7;
+}
+
+.notice-item.important:hover {
+  background: #bbf7d0;
+}
+
+.notice-item.warning {
+  background: #fef9c3;
+}
+
+.notice-item.warning:hover {
+  background: #fef08a;
+}
+
+.notice-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #e0e7ff;
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.notice-item.important .notice-icon {
+  background: #bbf7d0;
+  color: #16a34a;
+}
+
+.notice-item.warning .notice-icon {
+  background: #fef08a;
+  color: #ca8a04;
+}
+
+.notice-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notice-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notice-title .new-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.notice-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.notice-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ===== AI智能体卡片 ===== */
+.ai-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.ai-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+
+.ai-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.ai-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.ai-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+.ai-status {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.ai-status.online {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.ai-status.testing {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.ai-status.offline {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.ai-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.ai-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  min-height: 40px;
+}
+
+.ai-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ai-tag {
+  background: #f1f5f9;
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.ai-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.ai-usage {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ===== 日历组件 ===== */
+.calendar-mini {
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.calendar-nav {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+.calendar-nav:hover {
+  background: #f1f5f9;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-day:hover {
+  background: #f1f5f9;
+}
+
+.calendar-day.today {
+  background: var(--primary-color);
+  color: #fff;
+  font-weight: 500;
+}
+
+.calendar-day.other-month {
+  color: #cbd5e1;
+}
+
+.calendar-day.has-event {
+  position: relative;
+}
+
+.calendar-day.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary-color);
+}
+
+/* ===== 统计数据卡片 ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat-item {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.stat-number.green { color: #16a34a; }
+.stat-number.blue { color: #2563eb; }
+.stat-number.purple { color: #9333ea; }
+.stat-number.orange { color: #ea580c; }
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ===== 悬浮AI助手 ===== */
+.ai-assistant-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+}
+
+.ai-assistant-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+  transition: all 0.3s;
+}
+
+.ai-assistant-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.ai-assistant-panel {
+  position: absolute;
+  bottom: 72px;
+  right: 0;
+  width: 360px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  overflow: hidden;
+  display: none;
+}
+
+.ai-assistant-panel.show {
+  display: block;
+}
+
+.ai-assistant-panel-header {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-assistant-panel-header .title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.ai-assistant-panel-header .actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-assistant-panel-header .action-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0.8;
+}
+
+.ai-assistant-panel-header .action-btn:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.2);
+}
+
+.ai-assistant-panel-body {
+  height: 300px;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.ai-assistant-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.ai-assistant-input {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-assistant-input input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.ai-assistant-input button {
+  padding: 0 16px;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* ===== 滚动条样式 ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ===== 刷新按钮 ===== */
+.refresh-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.refresh-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* ===== AI对话侧边栏 ===== */
+.chat-sidebar {
+  width: 260px;
+  background: #fff;
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 100px;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  z-index: 998;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.new-chat-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.new-chat-btn:hover {
+  background: var(--primary-dark);
+}
+
+.chat-history-title {
+  padding: 16px 16px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chat-history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px;
+}
+
+.chat-history-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: background 0.2s;
+}
+
+.chat-history-item:hover {
+  background: var(--bg-light);
+}
+
+.chat-history-item.active {
+  background: #eff6ff;
+}
+
+.chat-history-item-title {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-history-item.active .chat-history-item-title {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.chat-history-item-time {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.chat-sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-sidebar-user {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-sidebar-user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.chat-sidebar-user-role {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.chat-sidebar-settings {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-sidebar-settings:hover {
+  background: var(--bg-light);
+  color: var(--text-secondary);
+}
+
+/* ===== AI对话主区域 ===== */
+.chat-main {
+  margin-left: 260px;
+  margin-top: 100px;
+  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+.chat-header {
+  height: 60px;
+  background: #fff;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-ai-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.chat-ai-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-ai-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-ai-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.chat-ai-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.chat-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-model-select {
+  padding: 6px 28px 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+  color: var(--text-secondary);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  cursor: pointer;
+}
+
+.chat-header-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-header-icon:hover {
+  background: var(--bg-light);
+  color: var(--text-secondary);
+}
+
+/* ===== 对话内容区 ===== */
+.chat-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.chat-message {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.chat-message.user {
+  flex-direction: row-reverse;
+}
+
+.chat-message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.chat-message-avatar.ai {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: #fff;
+}
+
+.chat-message-avatar.user {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: #fff;
+}
+
+.chat-message-bubble {
+  max-width: 70%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  position: relative;
+}
+
+.chat-message-bubble.ai {
+  background: #fff;
+  color: var(--text-primary);
+  border-top-left-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.chat-message-bubble.user {
+  background: var(--primary-color);
+  color: #fff;
+  border-top-right-radius: 4px;
+}
+
+.chat-message-bubble p {
+  margin-bottom: 8px;
+}
+
+.chat-message-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-message-bubble ul {
+  margin: 8px 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.chat-message-bubble li {
+  margin-bottom: 6px;
+}
+
+.chat-quick-questions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chat-quick-btn {
+  padding: 6px 14px;
+  background: #eff6ff;
+  color: var(--primary-color);
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #bfdbfe;
+}
+
+.chat-quick-btn:hover {
+  background: #dbeafe;
+}
+
+.chat-message-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  padding-left: 48px;
+}
+
+.chat-action-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.chat-action-btn:hover {
+  background: #f1f5f9;
+  color: var(--text-secondary);
+}
+
+.chat-todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-top: 8px;
+  gap: 12px;
+}
+
+.chat-todo-info {
+  flex: 1;
+}
+
+.chat-todo-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.chat-todo-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
+}
+
+.chat-todo-btn {
+  padding: 4px 10px;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ===== 输入区 ===== */
+.chat-input-area {
+  background: #fff;
+  border-top: 1px solid var(--border-color);
+  padding: 16px 24px;
+  flex-shrink: 0;
+}
+
+.chat-input-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.chat-tool-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 18px;
+}
+
+.chat-tool-btn:hover {
+  background: var(--bg-light);
+  color: var(--text-secondary);
+}
+
+.chat-input-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  transition: border-color 0.2s;
+}
+
+.chat-input-wrapper:focus-within {
+  border-color: var(--primary-color);
+  background: #fff;
+}
+
+.chat-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-primary);
+  resize: none;
+  min-height: 24px;
+  max-height: 120px;
+  line-height: 1.5;
+  outline: none;
+  font-family: inherit;
+}
+
+.chat-input::placeholder {
+  color: var(--text-muted);
+}
+
+.chat-send-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.chat-send-btn:hover {
+  background: var(--primary-dark);
+}
+
+.chat-depth-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+.chat-depth-toggle .toggle {
+  width: 32px;
+  height: 18px;
+  background: #e2e8f0;
+  border-radius: 9px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chat-depth-toggle .toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.chat-depth-toggle .toggle.active {
+  background: var(--primary-color);
+}
+
+.chat-depth-toggle .toggle.active::after {
+  transform: translateX(14px);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 1200px) {
+  .ai-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .header-search {
+    display: none;
+  }
+  .sidebar, .chat-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .sidebar.show, .chat-sidebar.show {
+    transform: translateX(0);
+  }
+  .main-content, .chat-main {
+    margin-left: 0;
+  }
+  .ai-grid {
+    grid-template-columns: 1fr;
+  }
+  .quick-entry {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .chat-message-bubble {
+    max-width: 85%;
+  }
+}
+
+/* ===== 登录页 ===== */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  background: #fff;
+}
+
+.login-brand {
+  width: 50%;
+  background: linear-gradient(135deg, #0c1e3d 0%, #1e40af 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  padding: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-brand::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+              radial-gradient(circle at 70% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.login-brand-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 420px;
+}
+
+.login-brand-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.login-brand-logo-icon {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+}
+
+.login-brand-name {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.login-brand-name-en {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.login-brand-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+.login-brand-subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 60px;
+  line-height: 1.6;
+}
+
+.login-features {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-bottom: 60px;
+}
+
+.login-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-feature-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.login-feature-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+}
+
+.login-brand-footer {
+  position: absolute;
+  bottom: 32px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.login-form-wrapper {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  position: relative;
+}
+
+.login-form-container {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-welcome {
+  margin-bottom: 40px;
+}
+
+.login-welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.login-welcome-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.login-tabs {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.login-tab {
+  padding: 12px 0;
+  font-size: 16px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.login-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.login-form .form-group {
+  margin-bottom: 20px;
+}
+
+.login-form .form-input-icon .icon {
+  font-size: 18px;
+}
+
+.login-form .form-input {
+  height: 48px;
+  font-size: 15px;
+  border-radius: 10px;
+}
+
+.login-form .captcha-img {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;
+  padding: 0 12px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--primary-dark);
+  letter-spacing: 4px;
+  font-style: italic;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'Georgia', serif;
+}
+
+.login-form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.login-remember input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.login-forgot {
+  color: var(--primary-color);
+  cursor: pointer;
+}
+
+.login-forgot:hover {
+  text-decoration: underline;
+}
+
+.login-btn {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 2px;
+}
+
+.login-btn:hover {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+}
+
+.login-bottom-text {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.login-bottom-text a {
+  color: var(--primary-color);
+  cursor: pointer;
+}
+
+.login-bottom-text a:hover {
+  text-decoration: underline;
+}
+
+.login-tech-support {
+  position: absolute;
+  bottom: 24px;
+  right: 32px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .login-brand {
+    display: none;
+  }
+  .login-form-wrapper {
+    width: 100%;
+  }
+}
+
+/* ===== 门户首页 - 三列布局 ===== */
+.portal-layout {
+  display: grid;
+  grid-template-columns: 30% 40% 30%;
+  gap: 16px;
+}
+
+.portal-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.portal-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.portal-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+}
+
+.portal-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.portal-card-title .badge {
+  background: #ef4444;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.portal-card-more {
+  font-size: 13px;
+  color: var(--primary-color);
+  cursor: pointer;
+}
+
+.portal-card-more:hover {
+  text-decoration: underline;
+}
+
+.portal-card-body {
+  padding: 0 20px 16px;
+}
+
+.portal-card-body.no-padding {
+  padding: 0;
+}
+
+/* 快捷入口排序提示 */
+.quick-entry-sort {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.quick-entry-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.quick-entry-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.quick-entry-action-btn:hover {
+  background: #f1f5f9;
+  color: var(--primary-color);
+}
+
+/* 日程周历 */
+.schedule-week {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.schedule-week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.schedule-week-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.schedule-week-nav button {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.schedule-week-nav button:hover {
+  background: #e2e8f0;
+}
+
+.schedule-week-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+
+.schedule-week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.schedule-week-day:hover {
+  background: #e2e8f0;
+}
+
+.schedule-week-day .weekday {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.schedule-week-day .date {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.schedule-week-day.today {
+  background: var(--primary-color);
+}
+
+.schedule-week-day.today .weekday,
+.schedule-week-day.today .date {
+  color: #fff;
+}
+
+.schedule-list {
+  margin-bottom: 12px;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.schedule-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-time {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 48px;
+  padding-top: 2px;
+}
+
+.schedule-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.schedule-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+.schedule-location {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.schedule-action-btn {
+  flex: 1;
+  padding: 8px;
+  font-size: 12px;
+  background: #f8fafc;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.schedule-action-btn:hover {
+  background: #eff6ff;
+  color: var(--primary-color);
+}
+
+/* IT中心 */
+.it-center-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.it-center-service {
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.it-center-online {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.it-center-online::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.it-entry {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.it-entry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 4px;
+  background: #f8fafc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.it-entry-item:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.it-entry-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.it-entry-name {
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+/* 待办列表 */
+.todo-tabs {
+  display: flex;
+  gap: 20px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.todo-tab {
+  padding: 10px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.todo-tab:hover {
+  color: var(--primary-color);
+}
+
+.todo-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 500;
+}
+
+.todo-tab .num {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.todo-tab.active .num {
+  color: var(--primary-color);
+}
+
+.todo-list {
+  padding: 0 20px;
+}
+
+.todo-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.todo-list-item:hover {
+  background: #f8fafc;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.todo-list-item:last-child {
+  border-bottom: none;
+}
+
+.todo-category {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.todo-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-main-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-main-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-right {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.todo-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.todo-status.new {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.todo-action-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+/* 新闻列表 */
+.news-portal-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.news-portal-item:last-child {
+  border-bottom: none;
+}
+
+.news-portal-thumb {
+  width: 100px;
+  height: 70px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+}
+
+.news-portal-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-portal-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.news-portal-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-portal-item:hover .news-portal-title {
+  color: var(--primary-color);
+}
+
+.news-portal-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 公告 */
+.notice-tabs {
+  display: flex;
+  gap: 16px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.notice-tab {
+  padding: 10px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+}
+
+.notice-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 500;
+}
+
+.notice-portal-list {
+  padding: 12px 20px;
+}
+
+.notice-portal-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notice-portal-item:hover {
+  background: #f8fafc;
+}
+
+.notice-portal-item.important-green {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.notice-portal-item.important-yellow {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.notice-portal-tag {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.8);
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.notice-portal-more {
+  text-align: center;
+  padding: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.notice-portal-more:hover {
+  color: var(--primary-color);
+}
+
+/* 学习天地 */
+.study-header-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.study-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 0 20px 12px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.study-tab {
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 16px;
+  background: #f1f5f9;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.study-tab:hover {
+  background: #e2e8f0;
+}
+
+.study-tab.active {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.study-list {
+  padding: 0 20px 16px;
+}
+
+.study-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.study-item:last-child {
+  border-bottom: none;
+}
+
+.study-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.study-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.study-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.study-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  gap: 12px;
+}
+
+.study-progress {
+  width: 100%;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.study-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.study-progress-bar.green { background: #10b981; }
+.study-progress-bar.orange { background: #f59e0b; }
+.study-progress-bar.gray { background: #cbd5e1; }
+
+/* AI智能卡片 */
+.ai-portal-banner {
+  margin: 0 20px 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #fce7f3, #f3e8ff);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-portal-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
+}
+
+.ai-portal-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-portal-banner-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+}
+
+.ai-portal-banner-text {
+  font-size: 14px;
+  color: #be185d;
+  font-weight: 500;
+}
+
+.ai-portal-banner-text span {
+  font-size: 12px;
+  color: #9d174d;
+  font-weight: normal;
+  display: block;
+  margin-top: 2px;
+}
+
+.ai-portal-banner-arrow {
+  color: #be185d;
+  font-size: 18px;
+}
+
+.ai-portal-apps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 20px 16px;
+}
+
+.ai-portal-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 8px;
+  background: #f8fafc;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.ai-portal-app:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.ai-portal-app-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.ai-portal-app-name {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+/* AI助手面板欢迎语 */
+.ai-welcome {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.ai-welcome-avatar {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #fff;
+}
+
+.ai-welcome-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.ai-welcome-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.ai-quick-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-quick-question {
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-quick-question:hover {
+  background: #eff6ff;
+  color: var(--primary-color);
+}
+
+.ai-quick-question::before {
+  content: '💡';
+  font-size: 14px;
+}
+
+/* 门户首页响应式 */
+@media (max-width: 1400px) {
+  .portal-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+  .portal-col:nth-child(3) {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 900px) {
+  .portal-layout {
+    grid-template-columns: 1fr;
+  }
+  .portal-col:nth-child(3) {
+    grid-column: auto;
+  }
+}
+
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+
+</style>
+  <style>
+    .main-content { position: relative; }
+
+    /* 页面标题区 */
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .page-head-left .page-title { margin-bottom: 6px; }
+    .page-head-actions { display: flex; gap: 10px; align-items: center; }
+
+    /* 配置选择栏 */
+    .config-bar { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .config-field { display: flex; align-items: center; gap: 10px; }
+    .config-field .label { font-size: 13px; color: var(--text-secondary); font-weight: 500; white-space: nowrap; }
+    .config-select { min-width: 190px; }
+    .config-role-info { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 13px; color: var(--text-secondary); flex-wrap: wrap; }
+    .role-info-item { display: flex; align-items: center; gap: 6px; }
+    .role-info-item b { color: var(--text-primary); font-weight: 600; }
+
+    /* 权限主体布局：左30% 右70% */
+    .perm-layout { display: grid; grid-template-columns: 3fr 7fr; gap: 16px; align-items: flex-start; }
+
+    /* 权限树 */
+    .tree-toolbar-links { display: flex; align-items: center; gap: 8px; }
+    .tree-link { font-size: 13px; color: var(--primary-color); cursor: pointer; user-select: none; }
+    .tree-link:hover { text-decoration: underline; }
+    .tree-link-sep { color: var(--border-color); }
+    .perm-tree { font-size: 14px; }
+    .tree-row { display: flex; align-items: center; gap: 8px; padding: 7px 6px; border-radius: 6px; }
+    .tree-row:hover { background: var(--bg-light); }
+    .tree-row.lvl1 .tree-label { font-weight: 600; font-size: 15px; }
+    .tree-toggle { width: 16px; text-align: center; color: var(--text-muted); cursor: pointer; font-size: 12px; user-select: none; flex-shrink: 0; }
+    .tree-toggle.leaf { visibility: hidden; cursor: default; }
+    .tree-children { padding-left: 20px; }
+    .tree-children.collapsed { display: none; }
+    /* 自定义三态复选框 */
+    .tree-check {
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 1.5px solid #cbd5e1; background: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; transition: all .15s;
+    }
+    .tree-check:hover { border-color: var(--primary-color); }
+    .tree-check.checked { background: var(--primary-color); border-color: var(--primary-color); }
+    .tree-check.checked::after { content: '✓'; color: #fff; font-size: 11px; line-height: 1; font-weight: bold; }
+    /* 半选：蓝色填充方块（白色横条表示部分选中） */
+    .tree-check.half { background: var(--primary-color); border-color: var(--primary-color); }
+    .tree-check.half::after { content: ''; width: 8px; height: 2px; background: #fff; border-radius: 1px; }
+    .tree-icon { font-size: 15px; }
+    .tree-label { cursor: pointer; user-select: none; color: var(--text-primary); }
+    .tree-label:hover { color: var(--primary-color); }
+    .tree-row .leaf-label { cursor: default; }
+    .tree-row .leaf-label:hover { color: var(--text-primary); }
+
+    /* Tab 面板 */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .panel-desc {
+      font-size: 13px; color: var(--text-secondary);
+      margin-bottom: 16px; background: var(--bg-light);
+      padding: 10px 14px; border-radius: 8px; line-height: 1.6;
+    }
+    .panel-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+
+    /* 权限表格 */
+    .perm-table input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-color); cursor: pointer; vertical-align: middle; }
+    .perm-table code { font-family: Menlo, Consolas, monospace; font-size: 12px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; }
+    .table-footer { padding: 12px 16px; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--border-color); background: #f8fafc; }
+    .table-footer b { color: var(--primary-color); font-weight: 600; }
+
+    /* 数据范围卡片单选 */
+    .scope-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .scope-card { border: 1.5px solid var(--border-color); border-radius: 10px; padding: 14px; cursor: pointer; transition: all .2s; background: #fff; }
+    .scope-card:hover { border-color: #bfdbfe; background: #fcfdff; }
+    .scope-card.active { border-color: var(--primary-color); background: #eff6ff; box-shadow: 0 0 0 1px var(--primary-color) inset; }
+    .scope-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .scope-card.active .scope-card-title { color: var(--primary-color); }
+    .scope-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .scope-radio { width: 16px; height: 16px; border: 2px solid #cbd5e1; border-radius: 50%; flex-shrink: 0; position: relative; transition: all .15s; }
+    .scope-card.active .scope-radio { border-color: var(--primary-color); }
+    .scope-card.active .scope-radio::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color); }
+
+    /* 自定义规则 */
+    .rule-config { margin-top: 16px; padding: 16px; background: var(--bg-light); border-radius: 10px; display: none; }
+    .rule-config.show { display: block; }
+    .rule-config-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+    .rule-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .rule-row .rule-op { font-size: 12px; color: var(--text-muted); width: 40px; text-align: center; font-weight: 600; }
+    .rule-condition { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .rule-input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #fff; color: var(--text-primary); }
+    .rule-input.flex1 { flex: 1; }
+    .rule-input:focus { border-color: var(--primary-color); outline: none; }
+    .rule-del { color: var(--text-muted); cursor: pointer; padding: 6px; font-size: 14px; }
+    .rule-del:hover { color: var(--danger-color); }
+    .rule-actions { margin-top: 6px; }
+
+    /* Toast 提示 */
+    .toast {
+      position: fixed; top: 80px; left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1a202c; color: #fff;
+      padding: 12px 24px; border-radius: 8px; font-size: 14px;
+      opacity: 0; pointer-events: none; transition: all .25s; z-index: 2000;
+      box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--success-color); }
+    .toast.info { background: var(--primary-color); }
+
+
+    /* 业务系统Tab */
+    .sys-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border-color); margin-bottom: 12px; }
+    .sys-tab {
+      padding: 8px 16px; font-size: 13px; color: var(--text-secondary);
+      cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s;
+      user-select: none; white-space: nowrap;
+    }
+    .sys-tab:hover { color: var(--primary-color); }
+    .sys-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
+
+    /* 数据权限范围卡片 */
+    .data-scope-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .data-scope-card {
+      border: 1.5px solid var(--border-color); border-radius: 10px; padding: 16px;
+      cursor: pointer; transition: all .2s; background: #fff; position: relative;
+    }
+    .data-scope-card:hover { border-color: #bfdbfe; background: #fcfdff; }
+    .data-scope-card.active {
+      border-color: var(--primary-color); background: #eff6ff;
+      box-shadow: 0 0 0 1px var(--primary-color) inset;
+    }
+    .data-scope-card-title {
+      font-size: 14px; font-weight: 600; color: var(--text-primary);
+      margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+    }
+    .data-scope-card.active .data-scope-card-title { color: var(--primary-color); }
+    .data-scope-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .data-scope-radio {
+      width: 16px; height: 16px; border: 2px solid #cbd5e1; border-radius: 50%;
+      flex-shrink: 0; position: relative; transition: all .15s;
+    }
+    .data-scope-card.active .data-scope-radio { border-color: var(--primary-color); }
+    .data-scope-card.active .data-scope-radio::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%); width: 8px; height: 8px;
+      border-radius: 50%; background: var(--primary-color);
+    }
+
+    /* 组织架构树 */
+    .org-tree-container {
+      border: 1px solid var(--border-color); border-radius: 8px;
+      max-height: 300px; overflow-y: auto; padding: 8px 0; display: none;
+    }
+    .org-tree-container.show { display: block; }
+    .org-tree-node {
+      padding: 6px 16px; display: flex; align-items: center; gap: 6px;
+      cursor: pointer; font-size: 14px;
+    }
+    .org-tree-node:hover { background: var(--bg-light); }
+    .org-tree-node.root { background: #f0f7ff; font-weight: 600; }
+    .org-tree-children { display: none; }
+    .org-tree-children.show { display: block; }
+    .org-arrow { font-size: 10px; transition: transform .2s; color: var(--text-muted); }
+    .org-arrow.expanded { transform: rotate(90deg); }
+    .org-check { width: 16px; height: 16px; accent-color: var(--primary-color); cursor: pointer; }
+
+    /* 脱敏规则下拉 */
+    .mask-select {
+      padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px;
+      font-size: 12px; background: #fff; color: var(--text-primary); cursor: pointer;
+      outline: none;
+    }
+    .mask-select:focus { border-color: var(--primary-color); }
+    .mask-select:disabled { background: #f1f5f9; color: var(--text-muted); cursor: not-allowed; }
+
+    /* 字段权限下拉 */
+    .col-select {
+      padding: 4px 6px; border: 1px solid var(--border-color); border-radius: 4px;
+      font-size: 12px; background: #fff; color: var(--text-primary); cursor: pointer;
+      outline: none; max-width: 100%;
+    }
+    .col-select:focus { border-color: var(--primary-color); }
+    .col-select:disabled { background: #f1f5f9; color: var(--text-muted); cursor: not-allowed; }
+    .mini-switch {
+      width: 36px; height: 18px; border-radius: 9px; background: #ccc;
+      position: relative; cursor: pointer; border: 0; display: inline-block;
+    }
+    .mini-switch.on { background: var(--primary-color); }
+    .mini-switch i {
+      position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
+      background: #fff; border-radius: 50%; transition: left 0.2s;
+    }
+    .mini-switch.on i { left: 20px; }
+
+
+    @media (max-width: 1100px) {
+      .perm-layout { grid-template-columns: 1fr; }
+      .scope-grid { grid-template-columns: repeat(2, 1fr); }
+      .config-role-info { margin-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
+          🔔
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <div class="sub-nav-item active">系统设置</div>
+    </div>
+  </div>
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">系统设置</div>
+    <div class="sidebar-subtitle">系统配置管理</div>
+    <div class="sidebar-menu">
+      <a href="role-list.html" class="sidebar-menu-item active">
+  <span class="sidebar-menu-icon">🔑</span>
+  <span>角色管理</span>
+</a>
+      <a href="system-manage.html" class="sidebar-menu-item">
+        <span class="sidebar-menu-icon">🖥️</span>
+        <span>应用系统管理</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <span>🏠</span>
+      <a href="index.html">返回门户首页</a>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 刷新按钮 -->
+    <button class="refresh-btn" onclick="refreshPage()">⟳ 刷新</button>
+
+    <!-- 面包屑 -->
+        <div class="breadcrumb" style="margin-bottom:4px;">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span>系统设置</span>
+      <span class="separator">/</span>
+      <a href="role-list.html">角色管理</a>
+      <span class="separator">/</span>
+      <span class="current">权限配置</span>
+    </div>
+
+    <!-- 页面标题区 -->
+    <div class="page-head">
+      <div class="page-head-left">
+        <h1 class="page-title">权限配置</h1>
+        <div class="page-desc">为角色配置各业务系统的菜单、按钮、字段权限、部门数据权限、个人数据权限及日期控管</div>
+      </div>
+      <div class="page-head-actions">
+        <button class="btn btn-secondary" onclick="resetConfig()">↺ 重置</button>
+        <button class="btn btn-primary" onclick="saveConfig()">💾 保存配置</button>
+      </div>
+    </div>
+
+    <!-- 配置选择栏 -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="card-body config-bar">
+        <div class="config-field">
+          <span class="label">当前角色</span>
+          <span style="font-size:15px; font-weight:600; color:var(--text-primary);" id="roleDisplay">OA审批人</span>
+        </div>
+        <div class="config-role-info">
+          <span class="role-info-item">角色编码：<span class="tag tag-blue" id="roleCode">ROLE_OA_APPROVER</span></span>
+          <span class="role-info-item">👥 关联用户：<b id="roleUsers">12</b> 人</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 权限配置主体 -->
+    <div class="perm-layout">
+      <!-- 左栏：菜单权限树 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔐 菜单权限</div>
+          <div class="tree-toolbar-links">
+            <span class="tree-link" onclick="toggleSelectAll()">全选/全不选</span>
+            <span class="tree-link-sep">|</span>
+            <span class="tree-link" onclick="toggleExpandAll()">展开/折叠</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="sys-tabs" id="sysTabs">
+            <div class="sys-tab" data-sys="T100" onclick="switchSystem('T100')">T100</div>
+            <div class="sys-tab" data-sys="HR" onclick="switchSystem('HR')">HR</div>
+            <div class="sys-tab active" data-sys="OA" onclick="switchSystem('OA')">OA</div>
+            <div class="sys-tab" data-sys="CRM" onclick="switchSystem('CRM')">CRM</div>
+            <div class="sys-tab" data-sys="SRM" onclick="switchSystem('SRM')">SRM</div>
+            <div class="sys-tab" data-sys="BI" onclick="switchSystem('BI')">BI</div>
+          </div>
+          <ul class="perm-tree" id="permTree">
+            <!-- OA系统（根） -->
+            <li class="tree-node">
+              <div class="tree-row lvl1">
+                <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                <span class="tree-check" onclick="toggleCheck(this)"></span>
+                <span class="tree-icon">📂</span>
+                <span class="tree-label" id="treeRootLabel" onclick="toggleTreeNode(this)">OA系统</span>
+              </div>
+              <ul class="tree-children">
+                <!-- 首页概览 -->
+                <li class="tree-node">
+                  <div class="tree-row">
+                    <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                    <span class="tree-check" onclick="toggleCheck(this)"></span>
+                    <span class="tree-icon">🏠</span>
+                    <span class="tree-label" onclick="toggleTreeNode(this)">首页概览</span>
+                  </div>
+                  <ul class="tree-children">
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🖥️</span>
+                        <span class="tree-label leaf-label">工作台</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📌</span>
+                        <span class="tree-label leaf-label">我的待办</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">✅</span>
+                        <span class="tree-label leaf-label">我的已办</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <!-- 公文管理 -->
+                <li class="tree-node">
+                  <div class="tree-row">
+                    <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                    <span class="tree-check" onclick="toggleCheck(this)"></span>
+                    <span class="tree-icon">📄</span>
+                    <span class="tree-label" onclick="toggleTreeNode(this)">公文管理</span>
+                  </div>
+                  <ul class="tree-children">
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📝</span>
+                        <span class="tree-label leaf-label">发文管理</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📥</span>
+                        <span class="tree-label leaf-label">收文管理</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🔄</span>
+                        <span class="tree-label leaf-label">文件流转</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🗂️</span>
+                        <span class="tree-label leaf-label">档案管理</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <!-- 流程审批 -->
+                <li class="tree-node">
+                  <div class="tree-row">
+                    <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                    <span class="tree-check" onclick="toggleCheck(this)"></span>
+                    <span class="tree-icon">🔁</span>
+                    <span class="tree-label" onclick="toggleTreeNode(this)">流程审批</span>
+                  </div>
+                  <ul class="tree-children">
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📋</span>
+                        <span class="tree-label leaf-label">待办列表</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📑</span>
+                        <span class="tree-label leaf-label">已办列表</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🔍</span>
+                        <span class="tree-label leaf-label">流程跟踪</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">⚙️</span>
+                        <span class="tree-label leaf-label">流程配置</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <!-- 系统管理（整支未选） -->
+                <li class="tree-node">
+                  <div class="tree-row">
+                    <span class="tree-toggle" onclick="toggleTreeNode(this)">▾</span>
+                    <span class="tree-check" onclick="toggleCheck(this)"></span>
+                    <span class="tree-icon">🛠️</span>
+                    <span class="tree-label" onclick="toggleTreeNode(this)">系统管理</span>
+                  </div>
+                  <ul class="tree-children">
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">👥</span>
+                        <span class="tree-label leaf-label">用户管理</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">🛡️</span>
+                        <span class="tree-label leaf-label">角色管理</span>
+                      </div>
+                    </li>
+                    <li class="tree-node">
+                      <div class="tree-row">
+                        <span class="tree-toggle leaf">▾</span>
+                        <span class="tree-check" data-orig="unchecked" onclick="toggleCheck(this)"></span>
+                        <span class="tree-icon">📑</span>
+                        <span class="tree-label leaf-label">菜单配置</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 右栏：权限详情 Tab -->
+      <div class="card">
+        <div class="card-body" style="padding: 20px;">
+          <div class="tabs">
+            <div class="tab-item active" data-tab="button" onclick="switchTab('button')">按钮权限</div>
+            <div class="tab-item" data-tab="col" onclick="switchTab('col')">字段权限</div>
+            <div class="tab-item" data-tab="dept" onclick="switchTab('dept')">部门数据权限</div>
+            <div class="tab-item" data-tab="person" onclick="switchTab('person')">个人数据权限</div>
+            <div class="tab-item" data-tab="date" onclick="switchTab('date')">单据日期管控方式</div>
+            <div class="tab-item" data-tab="accdate" onclick="switchTab('accdate')">扣账日期管控方式</div>
+            <div class="tab-item" data-tab="detail" onclick="switchTab('detail')">单身明细</div>
+          </div>
+
+          <!-- Tab1: 按钮权限 -->
+          <div class="tab-panel active" id="panel-button">
+            <div class="panel-desc">配置当前选中菜单下的按钮级权限，决定角色在该菜单中可执行的操作。</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="menuSelect" onchange="onMenuChange()" style="min-width: 180px;">
+                <option>发文管理</option>
+                <option>收文管理</option>
+                <option>文件流转</option>
+                <option>待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x: auto;">
+              <table class="table perm-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;"><input type="checkbox" id="btnSelectAll" onchange="toggleBtnSelectAll(this)" style="accent-color:var(--primary-color);"></th>
+                    <th>按钮名称</th>
+                    <th>按钮编码</th>
+                  </tr>
+                </thead>
+                <tbody id="btnTbody"></tbody>
+              </table>
+            </div>
+            <div class="table-footer" id="btnCount">已选 5/7 个按钮权限</div>
+          </div>
+
+          <!-- Tab2: 字段权限 -->
+          <div class="tab-panel" id="panel-col">
+            <div class="panel-desc">配置字段级权限：字段授权（不可视/部分加密/不可修改）及加密方法</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="colMenuSelect" onchange="onColMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x: auto;">
+              <table class="table perm-table">
+                <thead>
+                  <tr>
+                    <th>字段名称</th>
+                    <th>字段编码</th>
+                    <th style="width:120px;">字段类型</th>
+                    <th style="width:120px;">字段授权</th>
+                    <th style="width:140px;">加密方法</th>
+                  </tr>
+                </thead>
+                <tbody id="colTbody"></tbody>
+              </table>
+            </div>
+            <div class="table-footer" id="colCount"></div>
+          </div>
+
+          <!-- Tab3: 部门数据权限 -->
+          <div class="tab-panel" id="panel-dept">
+            <div class="panel-desc">按菜单配置部门数据权限（9级），管控不同部门间及相关部门群组间的查询/修改/删除权限</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="deptMenuSelect" onchange="onDeptMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="table perm-table">
+                <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">部门数据权限</th><th style="width:200px;">说明</th></tr></thead>
+                <tbody id="deptTbody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top:12px; padding:10px 12px; background:#eff6ff; border-radius:6px; border-left:3px solid var(--primary-color); font-size:12px; color:var(--text-secondary); line-height:1.6;">
+              0级=不管制 | 1~4级=不同部门间（逐步收紧查改删） | 5~8级=仅相关部门群组间
+            </div>
+          </div>
+
+          <!-- Tab4: 个人数据权限 -->
+          <div class="tab-panel" id="panel-person">
+            <div class="panel-desc">按菜单配置个人数据权限（5级），管控按资料所有者的查询/修改/删除权限</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="personMenuSelect" onchange="onPersonMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="table perm-table">
+                <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">个人数据权限</th><th style="width:200px;">说明</th></tr></thead>
+                <tbody id="personTbody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top:12px; padding:10px 12px; background:#eff6ff; border-radius:6px; border-left:3px solid var(--primary-color); font-size:12px; color:var(--text-secondary); line-height:1.6;">
+              0级=仅本人 | 1级=可查他人 | 2级=可查改他人 | 3级=可查改删他人 | 4级=仅查本人
+            </div>
+          </div>
+
+          <!-- Tab5: 单据日期管控方式 -->
+          <div class="tab-panel" id="panel-date">
+            <div class="panel-desc">按菜单配置单据日期管控方式</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="dateMenuSelect" onchange="onDateMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+            <table class="table perm-table">
+              <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">管控方式</th></tr></thead>
+              <tbody id="dateTbody"></tbody>
+            </table>
+          </div>
+          </div>
+
+          <!-- Tab5b: 扣账日期管控方式 -->
+          <div class="tab-panel" id="panel-accdate">
+            <div class="panel-desc">按菜单配置扣账日期管控方式</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="accDateMenuSelect" onchange="onAccDateMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+            <table class="table perm-table">
+              <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">管控方式</th></tr></thead>
+              <tbody id="accDateTbody"></tbody>
+            </table>
+          </div>
+          </div>
+
+          <!-- Tab6: 单身明细 -->
+          <div class="tab-panel" id="panel-detail">
+            <div class="panel-desc">按菜单配置单身明细权限，控制明细行的新增和删除操作</div>
+            <div class="panel-toolbar">
+              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+              <select class="filter-select" id="detailMenuSelect" onchange="onDetailMenuChange()" style="min-width: 180px;">
+                <option value="发文管理">发文管理</option>
+                <option value="收文管理">收文管理</option>
+                <option value="文件流转">文件流转</option>
+                <option value="待办列表">待办列表</option>
+              </select>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="table perm-table">
+                <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:140px;">明细权限</th></tr></thead>
+                <tbody id="detailTbody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top:12px; padding:10px 12px; background:#eff6ff; border-radius:6px; border-left:3px solid var(--primary-color); font-size:12px; color:var(--text-secondary); line-height:1.6;">
+              枚举说明：0=功能不控制 | 1=允许新增，不允许删除 | 2=不允许新增，允许删除 | 3=不允许新增/删除
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function () {
+    /* ===== 角色信息映射 ===== */
+    var roleMap = {
+      '超级管理员': { code: 'ROLE_SUPER_ADMIN', users: 2, scope: '全部数据' },
+      'HR管理员': { code: 'ROLE_HR_ADMIN', users: 8, scope: '本部门及下属部门数据' },
+      'OA审批人': { code: 'ROLE_OA_APPROVER', users: 12, scope: '本部门数据' },
+      'CRM销售经理': { code: 'ROLE_CRM_SALES_MANAGER', users: 25, scope: '本部门及下属部门数据' },
+      'SRM采购员': { code: 'ROLE_SRM_BUYER', users: 6, scope: '本人数据' },
+      'T100生产主管': { code: 'ROLE_T100_PROD_MANAGER', users: 15, scope: '本部门数据' },
+      'BI报表查看者': { code: 'ROLE_BI_VIEWER', users: 40, scope: '全部数据' },
+      '临时访客': { code: 'ROLE_GUEST', users: 3, scope: '自定义规则' }
+    };
+
+    // 从 URL 参数读取角色和系统
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlRole = urlParams.get('role') || 'OA审批人';
+    var urlSystem = urlParams.get('system') || '';
+    var urlSystems = urlParams.get('systems') || '';
+
+    // 设置角色只读展示
+    document.getElementById('roleDisplay').textContent = urlRole;
+
+    // 根据所属系统参数控制Tab显示
+    if (urlSystems) {
+      var systems = urlSystems.split(',').filter(function(s) { return s; });
+      if (systems.length > 0) {
+        var tabs = document.querySelectorAll('#sysTabs .sys-tab');
+        tabs.forEach(function(tab) {
+          if (systems.indexOf(tab.dataset.sys) === -1) {
+            tab.style.display = 'none';
+          }
+        });
+        // 如果当前active的tab被隐藏，切换到第一个可见的tab
+        var activeTab = document.querySelector('#sysTabs .sys-tab.active');
+        if (!activeTab || activeTab.style.display === 'none') {
+          var firstVisible = document.querySelector('#sysTabs .sys-tab:not([style*="display: none"])');
+          if (firstVisible) {
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            firstVisible.classList.add('active');
+            if (window.switchSystem) switchSystem(firstVisible.dataset.sys);
+          }
+        }
+      }
+    }
+
+    // 更新角色信息
+    var roleInfo = roleMap[urlRole] || roleMap['OA审批人'];
+    document.getElementById('roleCode').textContent = roleInfo.code;
+    document.getElementById('roleUsers').textContent = roleInfo.users;
+
+    /* ===== Toast ===== */
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + (type || '');
+      clearTimeout(t._tid);
+      t._tid = setTimeout(function () { t.className = 'toast'; }, 2200);
+    }
+    window.showToast = showToast;
+
+    window.saveConfig = function () { showToast('权限配置保存成功', 'success'); };
+    window.refreshPage = function () { showToast('数据已刷新', 'info'); };
+
+    /* ===== Tab 切换 ===== */
+    window.switchTab = function (name) {
+      document.querySelectorAll('.tab-item[data-tab]').forEach(function (t) {
+        t.classList.toggle('active', t.getAttribute('data-tab') === name);
+      });
+      document.querySelectorAll('.tab-panel').forEach(function (p) {
+        p.classList.toggle('active', p.id === 'panel-' + name);
+      });
+      if (name === 'dept') onDeptMenuChange();
+      if (name === 'person') onPersonMenuChange();
+      if (name === 'date') onDateMenuChange();
+    };
+
+    /* ===== 权限树：三态复选框联动 ===== */
+    function getCheck(node) { return node.querySelector(':scope > .tree-row > .tree-check'); }
+    function isLeaf(node) { return !node.querySelector(':scope > .tree-children'); }
+
+    function stateOf(el) {
+      if (el.classList.contains('checked')) return 'checked';
+      if (el.classList.contains('half')) return 'half';
+      return 'unchecked';
+    }
+    function setCheck(el, st) {
+      el.classList.remove('checked', 'half');
+      if (st === 'checked') el.classList.add('checked');
+      else if (st === 'half') el.classList.add('half');
+    }
+
+    function getChildNodes(node) {
+      var container = node.querySelector(':scope > .tree-children');
+      if (!container) return [];
+      return Array.prototype.slice.call(container.querySelectorAll(':scope > .tree-node'));
+    }
+
+    // 根据子节点状态递归计算某节点应有的状态
+    function computeState(node) {
+      var children = getChildNodes(node);
+      if (children.length === 0) return stateOf(getCheck(node)); // 叶子：读自身
+      var states = children.map(function (n) { return computeState(n); });
+      if (states.every(function (s) { return s === 'checked'; })) return 'checked';
+      if (states.every(function (s) { return s === 'unchecked'; })) return 'unchecked';
+      return 'half';
+    }
+
+    function recomputeParents(node) {
+      var parent = node.parentElement.closest('.tree-node');
+      while (parent) {
+        setCheck(getCheck(parent), computeState(parent));
+        parent = parent.parentElement.closest('.tree-node');
+      }
+    }
+
+    // 点击复选框：切换并级联
+    window.toggleCheck = function (el) {
+      var node = el.closest('.tree-node');
+      var next = stateOf(el) === 'checked' ? 'unchecked' : 'checked';
+      setCheck(el, next);
+      // 级联到所有后代
+      node.querySelectorAll(':scope > .tree-children .tree-check').forEach(function (c) { setCheck(c, next); });
+      // 向上重算父节点
+      recomputeParents(node);
+    };
+
+    // 展开/折叠节点
+    window.toggleTreeNode = function (el) {
+      var node = el.closest('.tree-node');
+      var cont = node.querySelector(':scope > .tree-children');
+      if (!cont) return;
+      cont.classList.toggle('collapsed');
+      var tog = node.querySelector(':scope > .tree-row > .tree-toggle');
+      if (tog) tog.textContent = cont.classList.contains('collapsed') ? '▸' : '▾';
+    };
+
+    // 全选/全不选（切换）
+    window.selectAll = function () {
+      document.querySelectorAll('#permTree .tree-check').forEach(function (c) { setCheck(c, 'checked'); });
+    };
+    window.unselectAll = function () {
+      document.querySelectorAll('#permTree .tree-check').forEach(function (c) { setCheck(c, 'unchecked'); });
+    };
+    window.toggleSelectAll = function () {
+      var all = Array.prototype.slice.call(document.querySelectorAll('#permTree .tree-check'));
+      var allChecked = all.every(function (c) { return stateOf(c) === 'checked'; });
+      if (allChecked) unselectAll(); else selectAll();
+    };
+
+    // 展开/折叠全部（切换）
+    window.toggleExpandAll = function () {
+      var containers = Array.prototype.slice.call(document.querySelectorAll('#permTree .tree-children'));
+      var anyCollapsed = containers.some(function (c) { return c.classList.contains('collapsed'); });
+      containers.forEach(function (c) { c.classList.toggle('collapsed', !anyCollapsed); });
+      document.querySelectorAll('#permTree .tree-toggle').forEach(function (t) {
+        var node = t.closest('.tree-node');
+        var cont = node.querySelector(':scope > .tree-children');
+        t.textContent = cont && cont.classList.contains('collapsed') ? '▸' : '▾';
+      });
+    };
+
+    // 初始化：根据叶子状态计算所有父节点状态
+    function initTree() {
+      document.querySelectorAll('#permTree .tree-node').forEach(function (n) {
+        if (!isLeaf(n)) setCheck(getCheck(n), computeState(n));
+      });
+    }
+    // 重置树到初始
+    window.resetTree = function () {
+      document.querySelectorAll('#permTree .tree-check').forEach(function (c) {
+        var orig = c.getAttribute('data-orig') || 'unchecked';
+        setCheck(c, orig);
+      });
+      initTree();
+      document.querySelectorAll('#permTree .tree-children').forEach(function (c) { c.classList.remove('collapsed'); });
+      document.querySelectorAll('#permTree .tree-toggle').forEach(function (t) { t.textContent = '▾'; });
+    };
+
+    /* ===== 按钮权限表 ===== */
+    var buttonData = {
+      '发文管理': [
+        { name: '新增发文', code: 'btn:add', perm: 'oa:doc:add', desc: '允许创建新发文', checked: true },
+        { name: '编辑发文', code: 'btn:edit', perm: 'oa:doc:edit', desc: '允许编辑发文内容', checked: true },
+        { name: '删除发文', code: 'btn:delete', perm: 'oa:doc:delete', desc: '允许删除发文', checked: true },
+        { name: '提交审批', code: 'btn:submit', perm: 'oa:doc:submit', desc: '提交发文至审批流程', checked: true },
+        { name: '归档发文', code: 'btn:archive', perm: 'oa:doc:archive', desc: '将发文归入档案管理', checked: false },
+        { name: '打印发文', code: 'btn:print', perm: 'oa:doc:print', desc: '打印发文内容', checked: true },
+        { name: '导出发文', code: 'btn:export', perm: 'oa:doc:export', desc: '导出发文为PDF', checked: false }
+      ],
+      '收文管理': [
+        { name: '登记收文', code: 'btn:register', perm: 'oa:in:register', desc: '登记新收文记录', checked: true },
+        { name: '分发收文', code: 'btn:distribute', perm: 'oa:in:distribute', desc: '将收文分发给承办人', checked: true },
+        { name: '承办收文', code: 'btn:handle', perm: 'oa:in:handle', desc: '办理收文事项', checked: true },
+        { name: '归档收文', code: 'btn:archive', perm: 'oa:in:archive', desc: '将收文归入档案', checked: false },
+        { name: '打印收文', code: 'btn:print', perm: 'oa:in:print', desc: '打印收文内容', checked: true }
+      ],
+      '文件流转': [
+        { name: '发起流转', code: 'btn:start', perm: 'oa:flow:start', desc: '发起文件流转流程', checked: true },
+        { name: '流转跟踪', code: 'btn:track', perm: 'oa:flow:track', desc: '跟踪文件流转状态', checked: true },
+        { name: '催办', code: 'btn:urge', perm: 'oa:flow:urge', desc: '催促当前办理人', checked: false },
+        { name: '终交流转', code: 'btn:end', perm: 'oa:flow:end', desc: '结束文件流转', checked: true }
+      ],
+      '待办列表': [
+        { name: '查看待办', code: 'btn:view', perm: 'oa:todo:view', desc: '查看待办任务详情', checked: true },
+        { name: '办理待办', code: 'btn:handle', perm: 'oa:todo:handle', desc: '办理待办任务', checked: true },
+        { name: '转办待办', code: 'btn:transfer', perm: 'oa:todo:transfer', desc: '转办给他人办理', checked: false },
+        { name: '批量审批', code: 'btn:batch', perm: 'oa:todo:batch', desc: '批量审批多个待办', checked: false }
+      ]
+    };
+
+    function renderButtons(menu) {
+      var data = buttonData[menu] || [];
+      var tb = document.getElementById('btnTbody');
+      tb.innerHTML = data.map(function (b) {
+        return '<tr>' +
+          '<td><input type="checkbox" ' + (b.checked ? 'checked' : '') + ' onchange="updateBtnCount()"></td>' +
+          '<td>' + b.name + '</td>' +
+          '<td><code>' + b.code + '</code></td>' +
+          '</tr>';
+      }).join('');
+      updateBtnCount();
+    }
+    window.onMenuChange = function () { renderButtons(document.getElementById('menuSelect').value); };
+    window.onColMenuChange = function () { renderColumns(document.getElementById('colMenuSelect').value); };
+    window.updateBtnCount = function () {
+      var total = document.querySelectorAll('#btnTbody tr').length;
+      var sel = document.querySelectorAll('#btnTbody input:checked').length;
+      document.getElementById('btnCount').innerHTML = '已选 <b>' + sel + '/' + total + '</b> 个按钮权限';
+      var header = document.getElementById('btnSelectAll');
+      if (header) {
+        header.checked = total > 0 && sel === total;
+        header.indeterminate = sel > 0 && sel < total;
+      }
+    };
+    window.toggleBtnSelectAll = function (cb) {
+      document.querySelectorAll('#btnTbody input[type="checkbox"]').forEach(function (c) {
+        c.checked = cb.checked;
+      });
+      updateBtnCount();
+    };
+
+    /* ===== 字段权限表 ===== */
+    var deptScopes = [
+      { code: '0', name: '0-不管制' },
+      { code: '1', name: '1-不同部门间·可查改' },
+      { code: '2', name: '2-不同部门间·可查删' },
+      { code: '3', name: '3-不同部门间·仅查' },
+      { code: '4', name: '4-不同部门间·不可查改删' },
+      { code: '5', name: '5-相关部门群组·可查改' },
+      { code: '6', name: '6-相关部门群组·可查删' },
+      { code: '7', name: '7-相关部门群组·仅查' },
+      { code: '8', name: '8-相关部门群组·可查改删' }
+    ];
+    var personScopes = [
+      { code: '0', name: '0-仅本人' },
+      { code: '1', name: '1-可查他人' },
+      { code: '2', name: '2-可查改他人' },
+      { code: '3', name: '3-可查改删他人' },
+      { code: '4', name: '4-仅查本人' }
+    ];
+    var fieldAuths = [
+      { code: '1', name: '1-不可视' },
+      { code: '2', name: '2-部分加密' },
+      { code: '3', name: '3-不可修改' }
+    ];
+    var maskModes = [
+      { code: '', name: '-' },
+      { code: 'LEFT', name: '左侧遮罩(留右4位)' },
+      { code: 'RIGHT', name: '右侧遮罩(留左4位)' },
+      { code: 'MIDDLE', name: '中间遮罩(留左3右4)' }
+    ];
+
+    function buildColOptions(arr, selected) {
+      return arr.map(function(o) {
+        return '<option value="' + o.code + '"' + (o.code === selected ? ' selected' : '') + '>' + o.name + '</option>';
+      }).join('');
+    }
+
+    var fieldTypes = [
+      { code: 'general', name: '一般作业' },
+      { code: 'report', name: '报表作业' }
+    ];
+
+    var columnDataMap = {
+      '发文管理': [
+        { name: '发文标题', code: 'title', fieldAuth: '3', maskMode: '' },
+        { name: '发文字号', code: 'doc_no', fieldAuth: '3', maskMode: '' },
+        { name: '发文类型', code: 'doc_type', fieldAuth: '3', maskMode: '' },
+        { name: '密级', code: 'security_level', fieldAuth: '1', maskMode: '' },
+        { name: '正文内容', code: 'content', fieldAuth: '3', maskMode: '' },
+        { name: '附件', code: 'attachments', fieldAuth: '3', maskMode: '' },
+        { name: '创建人', code: 'creator', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '创建时间', code: 'create_time', fieldAuth: '3', maskMode: '' },
+        { name: '审批意见', code: 'internal_remark', fieldAuth: '1', maskMode: '' },
+        { name: '状态', code: 'status', fieldAuth: '3', maskMode: '' }
+      ],
+      '收文管理': [
+        { name: '收文标题', code: 'recv_title', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '收文编号', code: 'recv_no', fieldAuth: '3', maskMode: '' },
+        { name: '来文单位', code: 'sender_org', fieldAuth: '2', maskMode: 'RIGHT' },
+        { name: '来文日期', code: 'recv_date', fieldAuth: '3', maskMode: '' },
+        { name: '收文类型', code: 'recv_type', fieldAuth: '3', maskMode: '' },
+        { name: '密级', code: 'security_level', fieldAuth: '1', maskMode: '' },
+        { name: '正文内容', code: 'content', fieldAuth: '3', maskMode: '' },
+        { name: '附件', code: 'attachments', fieldAuth: '3', maskMode: '' },
+        { name: '拟办意见', code: 'propose_remark', fieldAuth: '3', maskMode: '' },
+        { name: '承办部门', code: 'handle_dept', fieldAuth: '2', maskMode: 'MIDDLE' },
+        { name: '状态', code: 'status', fieldAuth: '3', maskMode: '' }
+      ],
+      '文件流转': [
+        { name: '流转标题', code: 'flow_title', fieldAuth: '3', maskMode: '' },
+        { name: '流转编号', code: 'flow_no', fieldAuth: '3', maskMode: '' },
+        { name: '流转类型', code: 'flow_type', fieldAuth: '3', maskMode: '' },
+        { name: '发起人', code: 'initiator', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '发起部门', code: 'init_dept', fieldAuth: '2', maskMode: 'MIDDLE' },
+        { name: '密级', code: 'security_level', fieldAuth: '1', maskMode: '' },
+        { name: '正文内容', code: 'content', fieldAuth: '3', maskMode: '' },
+        { name: '流转意见', code: 'flow_remark', fieldAuth: '3', maskMode: '' },
+        { name: '当前环节', code: 'current_step', fieldAuth: '3', maskMode: '' },
+        { name: '状态', code: 'status', fieldAuth: '3', maskMode: '' }
+      ],
+      '待办列表': [
+        { name: '待办标题', code: 'todo_title', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '待办类型', code: 'todo_type', fieldAuth: '3', maskMode: '' },
+        { name: '发起人', code: 'initiator', fieldAuth: '2', maskMode: 'LEFT' },
+        { name: '发起时间', code: 'init_time', fieldAuth: '3', maskMode: '' },
+        { name: '优先级', code: 'priority', fieldAuth: '3', maskMode: '' },
+        { name: '当前环节', code: 'current_step', fieldAuth: '3', maskMode: '' },
+        { name: '处理人', code: 'handler', fieldAuth: '2', maskMode: 'MIDDLE' },
+        { name: '处理时间', code: 'handle_time', fieldAuth: '3', maskMode: '' },
+        { name: '备注', code: 'remark', fieldAuth: '1', maskMode: '' },
+        { name: '状态', code: 'status', fieldAuth: '3', maskMode: '' }
+      ]
+    };
+
+    function renderColumns(menu) {
+      var columnData = columnDataMap[menu] || [];
+      var tb = document.getElementById('colTbody');
+      tb.innerHTML = columnData.map(function (c, i) {
+        var isEnc = c.fieldAuth === '2';
+        var maskDis = isEnc ? '' : ' disabled';
+        var maskStyle = isEnc ? '' : ' style="background:#f1f5f9;color:#94a3b8;cursor:not-allowed;"';
+        return '<tr>' +
+          '<td>' + c.name + '</td>' +
+          '<td><code>' + c.code + '</code></td>' +
+          '<td><select class="col-select" onchange="onColTypeChange(' + i + ', this)">' + buildColOptions(fieldTypes, c.fieldType || 'general') + '</select></td>' +
+          '<td><select class="col-select" onchange="onColAuthChange(' + i + ', this)">' + buildColOptions(fieldAuths, c.fieldAuth) + '</select></td>' +
+          '<td><select class="col-select mask-select"' + maskStyle + maskDis + ' onchange="onMaskChange(' + i + ', this)">' + buildColOptions(maskModes, c.maskMode || '') + '</select></td>' +
+          '</tr>';
+      }).join('');
+      updateColCount();
+    }
+
+    window.onColTypeChange = function (idx, el) {
+      var menu = document.getElementById('colMenuSelect').value;
+      var data = columnDataMap[menu];
+      if (!data || !data[idx]) return;
+      data[idx].fieldType = el.value;
+    };
+
+    window.onColAuthChange = function (idx, el) {
+      var menu = document.getElementById('colMenuSelect').value;
+      var data = columnDataMap[menu];
+      if (!data || !data[idx]) return;
+      data[idx].fieldAuth = el.value;
+      if (el.value !== '2') data[idx].maskMode = '';
+      else if (!data[idx].maskMode) data[idx].maskMode = 'LEFT';
+      renderColumns(menu);
+    };
+
+    window.onMaskChange = function (idx, el) {
+      var menu = document.getElementById('colMenuSelect').value;
+      var data = columnDataMap[menu];
+      if (!data || !data[idx]) return;
+      data[idx].maskMode = el.value;
+      updateColCount();
+    };
+    window.updateColCount = function () {
+      var rows = document.querySelectorAll('#colTbody tr');
+      var invisible = 0, encrypted = 0, readonly = 0;
+      rows.forEach(function (row) {
+        var selects = row.querySelectorAll('select.col-select');
+        if (selects.length >= 1) {
+          var authVal = selects[0].value;
+          if (authVal === '1') invisible++;
+          else if (authVal === '2') encrypted++;
+          else if (authVal === '3') readonly++;
+        }
+      });
+      document.getElementById('colCount').innerHTML =
+        '不可视 <b style="color:#ef4444;">' + invisible + '</b> 个，' +
+        '部分加密 <b style="color:#10b981;">' + encrypted + '</b> 个，' +
+        '不可修改 <b style="color:#f59e0b;">' + readonly + '</b> 个';
+    };
+
+    /* ===== 部门数据权限（菜单级） ===== */
+    var deptMenuData = {
+      '发文管理': [
+        { name: '发文管理', code: 't100-doc-out', deptScope: '0', desc: '不管制，所有部门均可查改删' },
+        { name: '发文审核', code: 't100-doc-audit', deptScope: '3', desc: '不同部门间仅可查询' },
+        { name: '发文归档', code: 't100-doc-archive', deptScope: '7', desc: '相关部门群组仅可查询' }
+      ],
+      '收文管理': [
+        { name: '收文管理', code: 't100-doc-in', deptScope: '1', desc: '不同部门间可查改' },
+        { name: '收文登记', code: 't100-doc-reg', deptScope: '0', desc: '不管制' },
+        { name: '收文分发', code: 't100-doc-disp', deptScope: '5', desc: '相关部门群组可查改' }
+      ],
+      '文件流转': [
+        { name: '文件流转', code: 't100-doc-flow', deptScope: '0', desc: '不管制' },
+        { name: '流转监控', code: 't100-flow-mon', deptScope: '4', desc: '不同部门间不可查改删' }
+      ],
+      '待办列表': [
+        { name: '待办列表', code: 't100-todo', deptScope: '3', desc: '不同部门间仅查询' },
+        { name: '已办列表', code: 't100-done', deptScope: '7', desc: '相关部门群组仅查询' }
+      ]
+    };
+
+    window.onDeptMenuChange = function () {
+      var menu = document.getElementById('deptMenuSelect').value;
+      var data = deptMenuData[menu] || [];
+      var tb = document.getElementById('deptTbody');
+      tb.innerHTML = data.map(function (d, i) {
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td><code>' + d.code + '</code></td>' +
+          '<td><select class="col-select" onchange="deptMenuData[\'' + menu + '\'][' + i + '].deptScope=this.value">' + buildColOptions(deptScopes, d.deptScope) + '</select></td>' +
+          '<td style="font-size:12px;color:var(--text-secondary);">' + (d.desc || '-') + '</td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    /* ===== 个人数据权限（菜单级） ===== */
+    var personMenuData = {
+      '发文管理': [
+        { name: '发文管理', code: 't100-doc-out', personScope: '0', desc: '仅本人可操作' },
+        { name: '发文审核', code: 't100-doc-audit', personScope: '1', desc: '可查询他人资料' },
+        { name: '发文归档', code: 't100-doc-archive', personScope: '3', desc: '可查改删他人资料' }
+      ],
+      '收文管理': [
+        { name: '收文管理', code: 't100-doc-in', personScope: '1', desc: '可查询他人' },
+        { name: '收文登记', code: 't100-doc-reg', personScope: '0', desc: '仅本人' },
+        { name: '收文分发', code: 't100-doc-disp', personScope: '2', desc: '可查改他人' }
+      ],
+      '文件流转': [
+        { name: '文件流转', code: 't100-doc-flow', personScope: '0', desc: '仅本人' },
+        { name: '流转监控', code: 't100-flow-mon', personScope: '4', desc: '仅查本人' }
+      ],
+      '待办列表': [
+        { name: '待办列表', code: 't100-todo', personScope: '1', desc: '可查他人' },
+        { name: '已办列表', code: 't100-done', personScope: '0', desc: '仅本人' }
+      ]
+    };
+
+    window.onPersonMenuChange = function () {
+      var menu = document.getElementById('personMenuSelect').value;
+      var data = personMenuData[menu] || [];
+      var tb = document.getElementById('personTbody');
+      tb.innerHTML = data.map(function (d, i) {
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td><code>' + d.code + '</code></td>' +
+          '<td><select class="col-select" onchange="personMenuData[\'' + menu + '\'][' + i + '].personScope=this.value">' + buildColOptions(personScopes, d.personScope) + '</select></td>' +
+          '<td style="font-size:12px;color:var(--text-secondary);">' + (d.desc || '-') + '</td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    /* ===== 单据日期管控方式（菜单级） ===== */
+    var dateMenuData = {
+      '发文管理': [
+        { name: '发文管理', code: 't100-doc-out', ctrl: '1' },
+        { name: '发文审核', code: 't100-doc-audit', ctrl: '0' },
+        { name: '发文归档', code: 't100-doc-archive', ctrl: '0' }
+      ],
+      '收文管理': [
+        { name: '收文管理', code: 't100-doc-in', ctrl: '1' },
+        { name: '收文登记', code: 't100-doc-reg', ctrl: '1' },
+        { name: '收文分发', code: 't100-doc-disp', ctrl: '0' }
+      ],
+      '文件流转': [
+        { name: '文件流转', code: 't100-doc-flow', ctrl: '1' },
+        { name: '流转监控', code: 't100-flow-mon', ctrl: '0' }
+      ],
+      '待办列表': [
+        { name: '待办列表', code: 't100-todo', ctrl: '1' },
+        { name: '已办列表', code: 't100-done', ctrl: '0' }
+      ]
+    };
+
+    /* ===== 扣账日期管控方式（菜单级） ===== */
+    var accDateMenuData = {
+      '发文管理': [
+        { name: '发文管理', code: 't100-doc-out', ctrl: '1' },
+        { name: '发文审核', code: 't100-doc-audit', ctrl: '0' },
+        { name: '发文归档', code: 't100-doc-archive', ctrl: '0' }
+      ],
+      '收文管理': [
+        { name: '收文管理', code: 't100-doc-in', ctrl: '1' },
+        { name: '收文登记', code: 't100-doc-reg', ctrl: '0' },
+        { name: '收文分发', code: 't100-doc-disp', ctrl: '0' }
+      ],
+      '文件流转': [
+        { name: '文件流转', code: 't100-doc-flow', ctrl: '1' },
+        { name: '流转监控', code: 't100-flow-mon', ctrl: '0' }
+      ],
+      '待办列表': [
+        { name: '待办列表', code: 't100-todo', ctrl: '1' },
+        { name: '已办列表', code: 't100-done', ctrl: '0' }
+      ]
+    };
+
+    var dateCtrlOpts = '<option value="0">不可修改</option><option value="1">可修改</option>';
+
+    window.onDateMenuChange = function () {
+      var menu = document.getElementById('dateMenuSelect').value;
+      var data = dateMenuData[menu] || [];
+      var tb = document.getElementById('dateTbody');
+      tb.innerHTML = data.map(function (d, i) {
+        var opts = dateCtrlOpts.replace('value="' + d.ctrl + '">', 'value="' + d.ctrl + '" selected>');
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td><code>' + d.code + '</code></td>' +
+          '<td><select class="filter-select" style="width:100%;" onchange="onDateCtrlChange(\'' + menu + '\',' + i + ', this)">' + opts + '</select></td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    window.onDateCtrlChange = function (menu, idx, sel) {
+      var data = dateMenuData[menu];
+      if (!data || !data[idx]) return;
+      data[idx].ctrl = sel.value;
+    };
+
+    window.onAccDateMenuChange = function () {
+      var menu = document.getElementById('accDateMenuSelect').value;
+      var data = accDateMenuData[menu] || [];
+      var tb = document.getElementById('accDateTbody');
+      tb.innerHTML = data.map(function (d, i) {
+        var opts = dateCtrlOpts.replace('value="' + d.ctrl + '">', 'value="' + d.ctrl + '" selected>');
+        return '<tr>' +
+          '<td>' + d.name + '</td>' +
+          '<td><code>' + d.code + '</code></td>' +
+          '<td><select class="filter-select" style="width:100%;" onchange="onAccDateCtrlChange(\'' + menu + '\',' + i + ', this)">' + opts + '</select></td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    window.onAccDateCtrlChange = function (menu, idx, sel) {
+      var data = accDateMenuData[menu];
+      if (!data || !data[idx]) return;
+      data[idx].ctrl = sel.value;
+    };
+
+    /* ===== 重置全部配置 ===== */
+    window.resetConfig = function () {
+      resetTree();
+      renderButtons(document.getElementById('menuSelect').value);
+      renderColumns();
+      showToast('配置已重置为初始状态', 'info');
+    };
+
+    /* ===== 业务系统Tab切换 ===== */
+    window.switchSystem = function (sys) {
+      document.querySelectorAll('.sys-tab').forEach(function (t) {
+        t.classList.toggle('active', t.getAttribute('data-sys') === sys);
+      });
+      var root = document.getElementById('treeRootLabel');
+      if (root) root.textContent = sys + '系统';
+
+      // 只有T100系统时，单据日期管控、扣账日期管控和单身明细可编辑；其他系统置灰
+      var isT100 = (sys === 'T100');
+      var dateTab = document.querySelector('.tab-item[data-tab="date"]');
+      var accDateTab = document.querySelector('.tab-item[data-tab="accdate"]');
+      var detailTab = document.querySelector('.tab-item[data-tab="detail"]');
+      if (dateTab) {
+        dateTab.style.opacity = isT100 ? '1' : '0.4';
+        dateTab.style.pointerEvents = isT100 ? '' : 'none';
+        dateTab.title = isT100 ? '' : '仅T100系统支持';
+      }
+      if (accDateTab) {
+        accDateTab.style.opacity = isT100 ? '1' : '0.4';
+        accDateTab.style.pointerEvents = isT100 ? '' : 'none';
+        accDateTab.title = isT100 ? '' : '仅T100系统支持';
+      }
+      if (detailTab) {
+        detailTab.style.opacity = isT100 ? '1' : '0.4';
+        detailTab.style.pointerEvents = isT100 ? '' : 'none';
+        detailTab.title = isT100 ? '' : '仅T100系统支持单身明细';
+      }
+
+      // 如果当前在单据日期管控、扣账日期管控或单身明细Tab上，切到非T100时自动切回按钮权限
+      if (!isT100) {
+        var activeTab = document.querySelector('.tab-item.active');
+        if (activeTab && (activeTab.getAttribute('data-tab') === 'date' || activeTab.getAttribute('data-tab') === 'accdate' || activeTab.getAttribute('data-tab') === 'detail')) {
+          switchTab('button');
+        }
+      }
+
+      showToast('已切换至 ' + sys + ' 系统菜单', 'info');
+    };
+
+    /* ===== 单身明细数据 ===== */
+    var detailPermissionMap = {
+      '发文管理': { code: 'dt:doc_out', val: '0' },
+      '收文管理': { code: 'dt:doc_in', val: '1' },
+      '文件流转': { code: 'dt:file_flow', val: '2' },
+      '待办列表': { code: 'dt:todo', val: '0' }
+    };
+    var detailEnumOptions = [
+      { val: '0', label: '0 - 功能不控制' },
+      { val: '1', label: '1 - 允许新增，不允许删除' },
+      { val: '2', label: '2 - 不允许新增，允许删除' },
+      { val: '3', label: '3 - 不允许新增/删除' }
+    ];
+
+    function renderDetail(menuName) {
+      var data = detailPermissionMap[menuName] || { code: '-', val: '0' };
+      var tbody = document.getElementById('detailTbody');
+      var optionsHtml = detailEnumOptions.map(function(o) {
+        return '<option value="' + o.val + '"' + (o.val === data.val ? ' selected' : '') + '>' + o.label + '</option>';
+      }).join('');
+      tbody.innerHTML = '<tr><td>' + menuName + '</td><td style="font-family:Menlo,monospace;font-size:12px;color:var(--text-secondary);">' + data.code + '</td>' +
+        '<td><select class="filter-select" style="width:100%;">' + optionsHtml + '</select></td></tr>';
+    }
+
+    window.onDetailMenuChange = function () {
+      var sel = document.getElementById('detailMenuSelect');
+      if (!sel) return;
+      renderDetail(sel.value);
+    };
+
+    /* ===== 初始化 ===== */
+    initTree();
+    renderButtons('发文管理');
+    document.getElementById('menuSelect').value = '发文管理';
+    document.getElementById('colMenuSelect').value = '发文管理';
+    renderColumns('发文管理');
+    onDeptMenuChange();
+    onPersonMenuChange();
+    onDateMenuChange();
+    onAccDateMenuChange();
+    onDetailMenuChange();
+    // 初始化时非T100系统的单据日期管控、扣账日期管控和单身明细置灰
+    var dateTab0 = document.querySelector('.tab-item[data-tab="date"]');
+    var accDateTab0 = document.querySelector('.tab-item[data-tab="accdate"]');
+    var detailTab0 = document.querySelector('.tab-item[data-tab="detail"]');
+    if (dateTab0) { dateTab0.style.opacity = '0.4'; dateTab0.style.pointerEvents = 'none'; dateTab0.title = '仅T100系统支持'; }
+    if (accDateTab0) { accDateTab0.style.opacity = '0.4'; accDateTab0.style.pointerEvents = 'none'; accDateTab0.title = '仅T100系统支持'; }
+    if (detailTab0) { detailTab0.style.opacity = '0.4'; detailTab0.style.pointerEvents = 'none'; detailTab0.title = '仅T100系统支持单身明细'; }
+  })();
+  </script>
+
+
+
+<script>
+/* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
+</script>
+</body></html>

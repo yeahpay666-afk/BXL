@@ -332,29 +332,361 @@
     }
 
 
-  </style>
+  
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+
+</style>
 </head>
 <body>
   <!-- 顶部导航栏 -->
   <header class="header">
-    <div class="header-logo">
-      <div class="header-logo-icon">B</div>
-      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
     </div>
+
     <nav class="header-nav">
       <a href="index.html" class="header-nav-item active">首页</a>
-      <div class="header-nav-item">T100</div>
-      <div class="header-nav-item">HR</div>
-      <div class="header-nav-item">OA</div>
-      <div class="header-nav-item">CRM</div>
-      <div class="header-nav-item">SRM</div>
-      <div class="header-nav-item">BI</div>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
     </nav>
+
     <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
       <div class="header-info">
-        <div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div>
-        <div class="header-bell">🔔<span class="badge">5</span></div>
-        <div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div>
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
+          🔔
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
       </div>
     </div>
   </header>
@@ -476,10 +808,15 @@
         </div>
       </div>
       <div class="card-body" style="padding: 0;">
+        <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid #f1f5f9;">
+          <span id="selectedRoleCount" style="font-size:13px;color:#64748b;">已选 0 个角色</span>
+          <button class="btn btn-primary" onclick="syncSelectedRolePermissions()" style="background:#059669;padding:6px 14px;font-size:13px;">⇩ 同步权限</button>
+        </div>
         <div class="table-container">
           <table class="table" id="roleTable">
             <thead>
               <tr>
+                <th style="width:44px;text-align:center;"><input type="checkbox" id="roleSelectAll" onchange="toggleRoleAllSelect(this)" style="accent-color:#059669;cursor:pointer;"></th>
                 <th>角色名称</th>
                 <th style="width: 170px;">角色编码</th>
                 <th>描述</th>
@@ -493,6 +830,7 @@
             <tbody>
               <tr data-name="超级管理员" data-code="ROLE_SUPER_ADMIN" data-status="启用">
 
+                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">👑 超级管理员</div></td>
                 <td class="role-code-cell">ROLE_SUPER_ADMIN</td>
                 <td class="role-desc-cell">拥有所有系统全部权限</td>
@@ -509,6 +847,7 @@
               </tr>
               <tr data-name="HR管理员" data-code="ROLE_HR_ADMIN" data-status="启用">
 
+                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">HR管理员</div></td>
                 <td class="role-code-cell">ROLE_HR_ADMIN</td>
                 <td class="role-desc-cell">管理HR模块全部功能</td>
@@ -525,6 +864,7 @@
               </tr>
               <tr data-name="OA审批人" data-code="ROLE_OA_APPROVER" data-status="启用">
 
+                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">OA审批人</div></td>
                 <td class="role-code-cell">ROLE_OA_APPROVER</td>
                 <td class="role-desc-cell">OA流程审批、发文管理</td>
@@ -541,6 +881,7 @@
               </tr>
               <tr data-name="CRM销售经理" data-code="ROLE_CRM_MANAGER" data-status="启用">
 
+                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">CRM销售经理</div></td>
                 <td class="role-code-cell">ROLE_CRM_MANAGER</td>
                 <td class="role-desc-cell">客户管理、合同审批、商机管理</td>
@@ -557,6 +898,7 @@
               </tr>
               <tr data-name="SRM采购员" data-code="ROLE_SRM_BUYER" data-status="启用">
 
+                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">SRM采购员</div></td>
                 <td class="role-code-cell">ROLE_SRM_BUYER</td>
                 <td class="role-desc-cell">供应商管理、采购订单创建</td>
@@ -573,6 +915,7 @@
               </tr>
               <tr data-name="T100生产主管" data-code="ROLE_T100_PROD" data-status="启用">
 
+                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">T100生产主管</div></td>
                 <td class="role-code-cell">ROLE_T100_PROD</td>
                 <td class="role-desc-cell">生产工单管理、报工确认</td>
@@ -589,6 +932,7 @@
               </tr>
               <tr data-name="BI报表查看者" data-code="ROLE_BI_VIEWER" data-status="启用">
 
+                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">BI报表查看者</div></td>
                 <td class="role-code-cell">ROLE_BI_VIEWER</td>
                 <td class="role-desc-cell">仅查看报表数据，不可编辑</td>
@@ -605,6 +949,7 @@
               </tr>
               <tr data-name="临时访客" data-code="ROLE_GUEST" data-status="禁用">
 
+                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">临时访客</div></td>
                 <td class="role-code-cell">ROLE_GUEST</td>
                 <td class="role-desc-cell">只读权限，仅查看首页</td>
@@ -821,6 +1166,70 @@
       t.className = 'toast show ' + (type || '');
       clearTimeout(t._tid);
       t._tid = setTimeout(function () { t.className = 'toast ' + (type || ''); }, 2200);
+    }
+
+    /* ===== 权限同步 ===== */
+    var permSyncRunning = false;
+
+    // 全选/取消全选
+    function toggleRoleAllSelect(cb) {
+      document.querySelectorAll('.role-row-cb').forEach(function(el) {
+        el.checked = cb.checked;
+      });
+      updateRoleSelectCount();
+    }
+    function updateRoleSelectCount() {
+      var checked = document.querySelectorAll('.role-row-cb:checked');
+      document.getElementById('selectedRoleCount').textContent = '已选 ' + checked.length + ' 个角色';
+    }
+
+    // 同步选中的角色权限
+    function syncSelectedRolePermissions() {
+      if (permSyncRunning) { showToast('已有同步任务进行中'); return; }
+      var checked = document.querySelectorAll('.role-row-cb:checked');
+      if (checked.length === 0) { showToast('请先勾选要同步的角色'); return; }
+      var roles = [];
+      checked.forEach(function(cb) {
+        roles.push(cb.closest('tr').dataset.name);
+      });
+      runPermSync(roles, false);
+    }
+
+    // 同步所有角色权限
+    function syncAllRolePermissions() {
+      if (permSyncRunning) { showToast('已有同步任务进行中'); return; }
+      var roles = ['超级管理员', 'HR管理员', 'OA审批人', 'CRM销售经理', 'SRM采购员', 'T100生产主管', 'BI报表查看者'];
+      runPermSync(roles, true);
+    }
+
+    // 通用权限同步执行
+    function runPermSync(roles, isAll) {
+      permSyncRunning = true;
+      var modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2000;';
+      modal.innerHTML = '<div style="background:#fff;border-radius:12px;padding:28px 32px;width:440px;text-align:center;">' +
+        '<div style="font-size:18px;font-weight:600;margin-bottom:16px;">正在同步角色权限</div>' +
+        '<div style="font-size:13px;color:#64748b;margin-bottom:20px;">从外部系统拉取并应用 ' + roles.length + ' 个角色的权限配置</div>' +
+        '<div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:12px;"><div id="permSyncFill" style="height:100%;background:#059669;width:0%;transition:width 0.3s;"></div></div>' +
+        '<div id="permSyncText" style="font-size:13px;color:#64748b;">准备中...</div>' +
+        '</div>';
+      document.body.appendChild(modal);
+
+      var i = 0;
+      function step() {
+        if (i >= roles.length) {
+          permSyncRunning = false;
+          modal.remove();
+          showToast('权限同步完成，共 ' + roles.length + ' 个角色', 'success');
+          return;
+        }
+        var roleName = roles[i];
+        document.getElementById('permSyncText').textContent = '同步中 ' + (i + 1) + '/' + roles.length + ' · ' + roleName;
+        document.getElementById('permSyncFill').style.width = Math.round((i + 1) / roles.length * 100) + '%';
+        i++;
+        setTimeout(step, 600);
+      }
+      step();
     }
 
     /* ===== 所属系统多选 ===== */
@@ -1404,5 +1813,69 @@
       }
     });
   </script>
+
+<script>
+/* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
+</script>
 </body>
 </html>

@@ -154,36 +154,359 @@
     .device-option:hover { border-color: #2563eb; }
     .device-option.checked { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
     .device-option input { display: none; }
-  </style>
+  
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+
+</style>
 </head>
 <body>
   <header class="header">
-    <div class="header-logo">
-      <div class="header-logo-icon">B</div>
-      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
     </div>
+
     <nav class="header-nav">
       <a href="index.html" class="header-nav-item active">首页</a>
-      <div class="header-nav-item">T100</div>
-      <div class="header-nav-item">HR</div>
-      <div class="header-nav-item">OA</div>
-      <div class="header-nav-item">CRM</div>
-      <div class="header-nav-item">SRM</div>
-      <div class="header-nav-item">BI</div>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
     </nav>
+
     <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
       <div class="header-info">
         <div class="header-weather">
           <span>☀️</span>
-          <span>2026-09-16 周二 晴 26°</span>
+          <span>晴 26°C</span>
         </div>
-        <div class="header-bell">
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
           🔔
-          <span class="badge">5</span>
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
         </div>
         <div class="header-user">
           <div class="header-avatar">张</div>
           <span>张建国</span>
+          <span>▼</span>
         </div>
       </div>
     </div>
@@ -215,9 +538,9 @@
           <span class="sidebar-menu-icon">📢</span>
           <span>公告管理</span>
         </a>
-        <a href="baishi-service-config.html" class="sidebar-menu-item">
+        <a href="baishi-service-list.html" class="sidebar-menu-item">
           <span class="sidebar-menu-icon">🛎️</span>
-          <span>柏事服务配置</span>
+          <span>柏事服务管理</span>
         </a>
         <a href="quick-entry.html" class="sidebar-menu-item">
           <span class="sidebar-menu-icon">🔲</span>
@@ -239,14 +562,6 @@
     </aside>
 
     <main class="main-content">
-      <div class="breadcrumb">
-        <a href="index.html">首页</a>
-        <span class="separator">/</span>
-        <a href="news-manage.html">内容管理</a>
-        <span class="separator">/</span>
-        <span class="current">会议室管理</span>
-      </div>
-
       <div class="page-header">
         <div>
           <div class="page-title">会议室管理</div>
@@ -275,28 +590,23 @@
         </div>
       </div>
 
-      <div class="filter-bar">
-        <input type="text" class="filter-input" placeholder="搜索会议室名称/编号" style="width:220px;" id="searchInput">
-        <select class="filter-select" id="filterStatus">
-          <option value="">全部状态</option>
-          <option value="on">启用</option>
-          <option value="maintain">维护中</option>
-          <option value="off">停用</option>
-        </select>
-        <button class="btn btn-default" onclick="resetFilter()">重置</button>
-      </div>
-
       <div class="table-card">
-        <div class="table-toolbar">
-          <div class="table-toolbar-left">
-            <span>共 <b id="totalCount">6</b> 条</span>
+        <div class="table-toolbar" style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid #f3f4f6;">
+          <div class="table-toolbar-left" style="font-size:15px; font-weight:600; color:#1f2937; display:flex; align-items:center; gap:10px;">
+            <span style="color:#2563eb; margin-right:4px;">▎</span>会议室列表 <span style="background:#dbeafe; color:#2563eb; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:400;">共 <b id="totalCount">6</b> 条</span>
+            <button id="batchDeleteBtn" onclick="batchDelete()" style="padding:4px 12px; border-radius:6px; font-size:12px; border:none; background:#f3f4f6; color:#9ca3af; cursor:not-allowed;">批量删除</button>
           </div>
-          <div class="table-toolbar-right">
-            <button class="btn-tiny primary" onclick="batchEnable(1)">批量启用</button>
-            <button class="btn-tiny primary" onclick="batchEnable(0)">批量停用</button>
-            <button class="btn-tiny danger" onclick="batchDelete()">批量删除</button>
+          <div class="table-toolbar-right" style="display:flex; gap:8px; align-items:center;">
+            <input type="text" class="filter-input" placeholder="搜索会议室名称/编号" style="width:180px; padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" id="searchInput">
+            <select class="filter-select" id="filterStatus" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+              <option value="">全部状态</option>
+              <option value="on">启用</option>
+              <option value="maintain">维护中</option>
+              <option value="off">停用</option>
+            </select>
           </div>
         </div>
+
         <table>
           <thead>
             <tr>
@@ -470,7 +780,7 @@
         var st = statusMap[r.status] || statusMap.on;
         var devices = r.devices.map(function(d) { return '<span class="device-tag">' + escAttr(d) + '</span>'; }).join('');
         return '<tr>' +
-          '<td class="row-cb"><input type="checkbox" class="row-cb-input" data-id="' + r.id + '"></td>' +
+          '<td class="row-cb"><input type="checkbox" class="row-cb-input" data-id="' + r.id + '" onchange="updateBatchBar()"></td>' +
           '<td><div class="room-name-cell">' + renderPhoto(r) + '<div><div class="room-name-text">' + escAttr(r.name) + '</div><div class="room-code">' + escAttr(r.code) + '</div></div></div></td>' +
           '<td><span style="font-weight:500;color:#1f2937;">' + escAttr(r.doorSign) + '</span><div style="font-size:11px;color:#9ca3af;margin-top:2px;">同步至门口电子屏</div></td>' +
           '<td style="text-align:center;">' + r.capacity + ' 人</td>' +
@@ -505,6 +815,25 @@
 
     function toggleAll(el) {
       document.querySelectorAll('.row-cb-input').forEach(function(cb) { cb.checked = el.checked; });
+      updateBatchBar();
+    }
+
+    function updateBatchBar() {
+      var boxes = document.querySelectorAll('.row-cb-input:checked');
+      var count = boxes.length;
+      var btn = document.getElementById('batchDeleteBtn');
+      var checkAll = document.getElementById('checkAll');
+      var allBoxes = document.querySelectorAll('.row-cb-input');
+      if (count > 0) {
+        btn.style.background = '#dc2626'; btn.style.color = '#fff'; btn.style.cursor = 'pointer';
+      } else {
+        btn.style.background = '#f3f4f6'; btn.style.color = '#9ca3af'; btn.style.cursor = 'not-allowed';
+      }
+      if (allBoxes.length > 0) {
+        checkAll.checked = count === allBoxes.length;
+      } else {
+        checkAll.checked = false;
+      }
     }
 
     function getSelectedIds() {
@@ -694,7 +1023,8 @@
       });
     }
 
-    function batchEnable(on) {
+    /* batchEnable 已移除 */
+    function _batchEnable(on) {
       var ids = getSelectedIds();
       if (!ids.length) { showToast('请先勾选要操作的会议室', 'error'); return; }
       var label = on ? '启用' : '停用';
@@ -734,5 +1064,69 @@
     renderTable();
     updateStats();
   </script>
+
+<script>
+/* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
+</script>
 </body>
 </html>

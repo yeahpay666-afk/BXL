@@ -175,16 +175,362 @@
     .sync-btn-tiny:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
 
     .field-rowCheckbox { width: 32px; text-align: center; }
-  </style>
+  
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+
+
+/* ===== 顶部导航栏 ===== */
+.header {
+  height: 56px;
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-nav-item {
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 200px;
+}
+
+.header-search input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex: 1;
+  font-size: 13px;
+}
+
+.header-search input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.header-search-icon {
+  color: rgba(255,255,255,0.6);
+  margin-right: 8px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.header-weather {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 消息通知下拉面板 */
+.notify-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: none;
+  overflow: hidden;
+}
+.notify-panel.show { display: block; }
+.notify-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notify-panel-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.notify-panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.notify-mark-all { font-size: 12px; color: #3b82f6; cursor: pointer; }
+.notify-mark-all:hover { text-decoration: underline; }
+.notify-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid #f1f5f9; }
+.notify-tab {
+  padding: 10px 0; margin-right: 20px; font-size: 13px; color: #64748b;
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.notify-tab.active { color: #1e293b; border-bottom-color: #3b82f6; font-weight: 500; }
+.notify-tab .tab-count { background: #ef4444; color: #fff; font-size: 10px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.notify-list { max-height: 360px; overflow-y: auto; }
+.notify-item {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f8fafc;
+}
+.notify-item:hover { background: #f8fafc; }
+.notify-item.unread { background: #eff6ff; }
+.notify-item-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.notify-item-icon.meeting { background: #dbeafe; }
+.notify-item-icon.system { background: #fef3c7; }
+.notify-item-icon.approval { background: #dcfce7; }
+.notify-item-content { flex: 1; min-width: 0; }
+.notify-item-title { font-size: 13px; font-weight: 500; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.notify-item-title .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+.notify-item-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.notify-item-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.notify-empty { padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+.notify-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 13px;
+  color: #3b82f6;
+  cursor: pointer;
+}
+.notify-panel-footer:hover { background: #f8fafc; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===== 二级导航 ===== */
+
+</style>
 </head>
 <body>
   <header class="header">
-    <div class="header-logo"><div class="header-logo-icon">B</div><span class="header-logo-text">柏星龙业务数字化中台</span></div>
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+
     <nav class="header-nav">
       <a href="index.html" class="header-nav-item active">首页</a>
-      <div class="header-nav-item">T100</div><div class="header-nav-item">HR</div><div class="header-nav-item">OA</div><div class="header-nav-item">CRM</div><div class="header-nav-item">SRM</div><div class="header-nav-item">BI</div>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
     </nav>
-    <div class="header-right"><div class="header-info"><div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div><div class="header-bell">🔔<span class="badge">5</span></div><div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div></div></div>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell" onclick="toggleNotifyPanel(event)">
+          🔔
+          <span class="badge" id="notifyBadge">5</span>
+          <div class="notify-panel" id="notifyPanel" onclick="event.stopPropagation()">
+            <div class="notify-panel-header">
+              <div class="notify-panel-title"><span class="dot"></span>消息通知</div>
+              <span class="notify-mark-all" onclick="markAllNotifyRead()">全部已读</span>
+            </div>
+            <div class="notify-tabs">
+              <div class="notify-tab active" onclick="switchNotifyTab(this,'all')">全部 <span class="tab-count" id="tabCountAll">5</span></div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'meeting')">会议</div>
+              <div class="notify-tab" onclick="switchNotifyTab(this,'system')">系统</div>
+            </div>
+            <div class="notify-list" id="notifyList"></div>
+            <div class="notify-panel-footer" onclick="showToast('查看全部消息')">查看全部消息 →</div>
+          </div>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
   </header>
   <div class="sub-header"><div class="sub-header-nav">
     <a href="index.html" class="sub-nav-item">首页概览</a><a href="content-study.html" class="sub-nav-item">内容管理</a><div class="sub-nav-item">流程中心</div><div class="sub-nav-item">API中心</div><div class="sub-nav-item active">系统设置</div>
@@ -277,8 +623,7 @@
             <div class="menu-table-toolbar">
               <span class="label">菜单列表</span>
               <button class="btn-tiny primary" onclick="openAddMenuModal()">+ 新增菜单</button>
-              <button class="sync-btn-tiny field" id="syncMenuFieldBtn" onclick="syncMenuBatch('field')">⇩ 同步字段</button>
-              <button class="sync-btn-tiny btn" id="syncMenuButtonBtn" onclick="syncMenuBatch('button')">⇩ 同步按钮</button>
+              <button class="sync-btn-tiny menu" id="syncMenuListBtn" onclick="syncMenuList()" style="background:#ecfdf5;color:#059669;border-color:#a7f3d0;">⇩ 同步菜单</button>
             </div>
             <div class="sync-progress-bar" id="menuSyncProgress">
               <div class="sync-progress-spinner"></div>
@@ -294,8 +639,7 @@
                   <th>菜单编码</th>
                   <th>排序</th>
                   <th style="width:70px;">状态</th>
-                  <th style="width:100px;">字段同步状态</th>
-                  <th style="width:100px;">按钮同步状态</th>
+                  <th style="width:100px;">菜单同步状态</th>
                   <th style="width:200px;">操作</th>
                 </tr></thead>
                 <tbody id="menuTbody"></tbody>
@@ -605,26 +949,26 @@
 
     /* ===== 菜单配置 ===== */
     var menuData = [
-      { id: 1, name: '01 企业基础数据管理', code: 't100-base', type: 'menu', sort: 1, level: 1, status: 'on', fieldStatus: 'synced', buttonStatus: 'unsynced', children: [
-        { id: 2, name: '02 整体基本数据', code: 't100-base-overall', type: 'menu', sort: 2, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
-          { id: 3, name: '料件基本数据维护', code: 'axmt500', type: 'job', sort: 3, level: 3, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'unsynced', children: [] }
+      { id: 1, name: '01 企业基础数据管理', code: 't100-base', type: 'menu', sort: 1, level: 1, status: 'on', menuStatus: 'synced', children: [
+        { id: 2, name: '02 整体基本数据', code: 't100-base-overall', type: 'menu', sort: 2, level: 2, status: 'on', menuStatus: 'synced', children: [
+          { id: 3, name: '料件基本数据维护', code: 'axmt500', type: 'job', sort: 3, level: 3, status: 'on', menuStatus: 'unsynced', children: [] }
         ]},
-        { id: 6, name: '03 集团基础应用设置', code: 't100-base-group', type: 'menu', sort: 3, level: 2, status: 'on', fieldStatus: 'failed', buttonStatus: 'synced', failReason: '外部系统连接超时', children: [
-          { id: 7, name: '组织架构管理', code: 'axri200', type: 'job', sort: 5, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'unsynced', children: [] }
+        { id: 6, name: '03 集团基础应用设置', code: 't100-base-group', type: 'menu', sort: 3, level: 2, status: 'on', menuStatus: 'failed', menuFailReason: '外部系统连接超时', children: [
+          { id: 7, name: '组织架构管理', code: 'axri200', type: 'job', sort: 5, level: 3, status: 'on', menuStatus: 'synced', children: [] }
         ]}
       ]},
-      { id: 8, name: '003 供应链管理', code: 't100-supply', type: 'menu', sort: 10, level: 1, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
-        { id: 9, name: '采购管理', code: 't100-purchase', type: 'menu', sort: 11, level: 2, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'unsynced', children: [
-          { id: 10, name: '采购订单管理', code: 'axmt400', type: 'job', sort: 10, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] },
-          { id: 11, name: '供应商管理', code: 'apmt200', type: 'job', sort: 20, level: 3, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'synced', children: [] }
+      { id: 8, name: '003 供应链管理', code: 't100-supply', type: 'menu', sort: 10, level: 1, status: 'on', menuStatus: 'synced', children: [
+        { id: 9, name: '采购管理', code: 't100-purchase', type: 'menu', sort: 11, level: 2, status: 'on', menuStatus: 'unsynced', children: [
+          { id: 10, name: '采购订单管理', code: 'axmt400', type: 'job', sort: 10, level: 3, status: 'on', menuStatus: 'synced', children: [] },
+          { id: 11, name: '供应商管理', code: 'apmt200', type: 'job', sort: 20, level: 3, status: 'on', menuStatus: 'unsynced', children: [] }
         ]},
-        { id: 12, name: '销售管理', code: 't100-sales', type: 'menu', sort: 12, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'unsynced', children: [
-          { id: 13, name: '销售订单管理', code: 'axmt300', type: 'job', sort: 10, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] }
+        { id: 12, name: '销售管理', code: 't100-sales', type: 'menu', sort: 12, level: 2, status: 'on', menuStatus: 'synced', children: [
+          { id: 13, name: '销售订单管理', code: 'axmt300', type: 'job', sort: 10, level: 3, status: 'on', menuStatus: 'synced', children: [] }
         ]}
       ]},
-      { id: 14, name: '004 料件管理', code: 't100-item', type: 'menu', sort: 11, level: 1, status: 'on', fieldStatus: 'unsynced', buttonStatus: 'failed', buttonFailReason: '菜单编号不存在', children: [
-        { id: 15, name: '料件基本维护', code: 't100-item-maint', type: 'menu', sort: 1, level: 2, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [
-          { id: 16, name: '料件基本数据维护', code: 'axmi200', type: 'job', sort: 0, level: 3, status: 'on', fieldStatus: 'synced', buttonStatus: 'synced', children: [] }
+      { id: 14, name: '004 料件管理', code: 't100-item', type: 'menu', sort: 11, level: 1, status: 'on', menuStatus: 'failed', menuFailReason: '菜单编号不存在', children: [
+        { id: 15, name: '料件基本维护', code: 't100-item-maint', type: 'menu', sort: 1, level: 2, status: 'on', menuStatus: 'synced', children: [
+          { id: 16, name: '料件基本数据维护', code: 'axmi200', type: 'job', sort: 0, level: 3, status: 'on', menuStatus: 'synced', children: [] }
         ]}
       ]}
     ];
@@ -746,14 +1090,11 @@
           '<td><code style="font-size:12px;color:var(--text-secondary);">' + r.code + '</code></td>' +
           '<td style="text-align:center;">' + r.sort + '</td>' +
           '<td><span class="menu-status-tag ' + (r.status === 'on' ? 'menu-status-on' : 'menu-status-off') + '">' + (r.status === 'on' ? '启用' : '停用') + '</span></td>' +
-          '<td>' + renderSyncTag(r.fieldStatus, r.failReason) + '</td>' +
-          '<td>' + renderSyncTag(r.buttonStatus, r.buttonFailReason) + '</td>' +
+          '<td>' + renderSyncTag(r.menuStatus, r.menuFailReason) + '</td>' +
           '<td style="white-space:nowrap;">' +
             (canAddChild ? '<span class="action-link" onclick="addSubMenu(' + r.id + ',' + r.level + ')">添加子菜单</span>' : '') +
             '<span class="action-link" onclick="openFieldModal(\'' + r.name + '\',' + r.id + ')">字段</span>' +
             '<span class="action-link" onclick="openButtonModal(\'' + r.name + '\',' + r.id + ')">按钮</span>' +
-            (r.fieldStatus === 'failed' ? '<span class="action-link" style="color:#dc2626;" onclick="retryMenuSync(' + r.id + ',\'field\')">重试字段</span>' : '') +
-            (r.buttonStatus === 'failed' ? '<span class="action-link" style="color:#dc2626;" onclick="retryMenuSync(' + r.id + ',\'button\')">重试按钮</span>' : '') +
             '<span class="action-link" style="color:#ef4444;" onclick="deleteMenu(' + r.id + ')">删除</span>' +
           '</td></tr>';
       }).join('');
@@ -782,98 +1123,87 @@
 
     /* 菜单级批量同步（异步任务，按菜单轮询展示进度） */
     var menuSyncRunning = false;
-    function syncMenuBatch(type) {
-      var ids = getSelectedMenuIds();
-      if (ids.length === 0) { showToast('请先勾选要同步的菜单'); return; }
+    /* 菜单同步：从外部系统拉取最新菜单结构并合并 */
+    function syncMenuList() {
       if (menuSyncRunning) { showToast('已有同步任务进行中'); return; }
       menuSyncRunning = true;
 
-      var statusKey = type === 'field' ? 'fieldStatus' : 'buttonStatus';
-      var failKey = type === 'field' ? 'failReason' : 'buttonFailReason';
-      // 标记所选菜单为同步中
-      ids.forEach(function(id) {
-        var node = findMenuNode(menuData, id);
-        if (node) {
-          node[statusKey] = 'syncing';
-          if (node[failKey]) delete node[failKey];
-        }
-      });
-      renderMenuTable();
+      // 模拟从外部系统拉取的菜单数据
+      var remoteMenus = [
+        { name: '01 企业基础数据管理', code: 't100-base', level: 1, parent: null },
+        { name: '02 整体基本数据', code: 't100-base-overall', level: 2, parent: 't100-base' },
+        { name: '03 集团基础应用设置', code: 't100-base-group', level: 2, parent: 't100-base' },
+        { name: '003 供应链管理', code: 't100-supply', level: 1, parent: null },
+        { name: '采购管理', code: 't100-purchase', level: 2, parent: 't100-supply' },
+        { name: '销售管理', code: 't100-sale', level: 2, parent: 't100-supply' },
+        { name: '004 料件管理', code: 't100-material', level: 1, parent: null }
+      ];
 
-      // 显示进度条
       var bar = document.getElementById('menuSyncProgress');
       var text = document.getElementById('menuSyncText');
       var fill = document.getElementById('menuSyncFill');
       bar.classList.add('show');
       var done = 0;
-      text.textContent = '同步中 ' + done + '/' + ids.length + ' ...';
+      text.textContent = '同步中 0/' + remoteMenus.length + ' · 正在拉取菜单...';
       fill.style.width = '0%';
 
-      // 模拟逐个菜单同步（实际为异步任务前端轮询效果）
       var i = 0;
       function step() {
-        if (i >= ids.length) {
-          // 全部完成
+        if (i >= remoteMenus.length) {
           menuSyncRunning = false;
           bar.classList.remove('show');
-          var failedCount = ids.filter(function(id) {
-            var n = findMenuNode(menuData, id);
-            return n && n[statusKey] === 'failed';
-          }).length;
-          if (failedCount > 0) {
-            showToast('同步完成：' + (ids.length - failedCount) + ' 成功，' + failedCount + ' 失败');
-          } else {
-            showToast('同步完成：' + ids.length + ' 个菜单全部成功');
-          }
           renderMenuTable();
+          renderMenuTree();
+          showToast('菜单同步完成：新增 ' + remoteMenus.length + ' 个菜单');
           return;
         }
-        var id = ids[i];
-        var node = findMenuNode(menuData, id);
-        // 模拟同步请求（部分失败）
+        var m = remoteMenus[i];
         setTimeout(function() {
-          if (node) {
-            // 演示失败场景：id 为 6/14 模拟失败
-            if (id === 6 && type === 'field') {
-              node[statusKey] = 'failed';
-              node[failKey] = '外部系统连接超时';
-            } else if (id === 14 && type === 'button') {
-              node[statusKey] = 'failed';
-              node[failKey] = '菜单编号不存在';
+          // 模拟合并：检查本地是否存在该菜单编码，不存在则新增
+          var exists = findMenuByCode(menuData, m.code);
+          if (!exists) {
+            // 新增到对应父级或根级
+            var newNode = {
+              id: Date.now() + i,
+              name: m.name,
+              code: m.code,
+              level: m.level,
+              sort: 99,
+              status: 'enabled',
+              menuStatus: 'synced'
+            };
+            if (m.parent) {
+              var parent = findMenuByCode(menuData, m.parent);
+              if (parent) {
+                if (!parent.children) parent.children = [];
+                parent.children.push(newNode);
+              } else {
+                menuData.push(newNode);
+              }
             } else {
-              node[statusKey] = 'synced';
-              if (node[failKey]) delete node[failKey];
+              menuData.push(newNode);
             }
           }
           i++;
           done = i;
-          var pct = Math.round(done / ids.length * 100);
-          text.textContent = '同步中 ' + done + '/' + ids.length + ' · ' + (node ? node.name : '');
+          var pct = Math.round(done / remoteMenus.length * 100);
+          text.textContent = '同步中 ' + done + '/' + remoteMenus.length + ' · ' + m.name;
           fill.style.width = pct + '%';
           renderMenuTable();
-          // 同步过程中保留选中状态展示进度条，下一轮
           step();
-        }, 600);
+        }, 500);
       }
       step();
     }
-
-    /* 单菜单重试 */
-    function retryMenuSync(menuId, type) {
-      var node = findMenuNode(menuData, menuId);
-      if (!node) return;
-      var statusKey = type === 'field' ? 'fieldStatus' : 'buttonStatus';
-      var failKey = type === 'field' ? 'failReason' : 'buttonFailReason';
-      node[statusKey] = 'syncing';
-      if (node[failKey]) delete node[failKey];
-      renderMenuTable();
-      // 模拟同步请求
-      setTimeout(function() {
-        // 演示重试成功
-        node[statusKey] = 'synced';
-        renderMenuTable();
-        showToast('重试同步成功');
-      }, 800);
+    function findMenuByCode(nodes, code) {
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].code === code) return nodes[i];
+        if (nodes[i].children && nodes[i].children.length > 0) {
+          var found = findMenuByCode(nodes[i].children, code);
+          if (found) return found;
+        }
+      }
+      return null;
     }
 
     function flattenMenu(nodes, result) {
@@ -988,8 +1318,8 @@
       // 根据菜单已有同步状态初始化按钮数据
       var initStatus = 'synced';
       var menuNode = menuId ? findMenuNode(menuData, menuId) : null;
-      if (menuNode && menuNode.buttonStatus === 'synced') initStatus = 'synced';
-      else if (menuNode && menuNode.buttonStatus === 'failed') initStatus = 'failed';
+      if (menuNode && menuNode.menuStatus === 'synced') initStatus = 'synced';
+      else if (menuNode && menuNode.menuStatus === 'failed') initStatus = 'failed';
       else initStatus = 'unsynced';
       buttonData = presetButtons.slice(0, 6).map(function(b) {
         return {
@@ -998,7 +1328,7 @@
           icon: b.icon,
           enabled: b.enabled,
           syncStatus: initStatus === 'failed' && (b.code === 'btn_import' || b.code === 'btn_delete') ? 'failed' : initStatus,
-          failReason: initStatus === 'failed' && (b.code === 'btn_import' || b.code === 'btn_delete') ? (menuNode && menuNode.buttonFailReason) || '按钮权限拉取失败' : ''
+          failReason: initStatus === 'failed' && (b.code === 'btn_import' || b.code === 'btn_delete') ? (menuNode && menuNode.menuFailReason) || '按钮权限拉取失败' : ''
         };
       });
       renderButtonTable();
@@ -1125,16 +1455,16 @@
       }, 600);
     }
 
-    /* 按钮同步完成后回写菜单的按钮同步状态（聚合规则） */
+    /* 按钮同步完成后回写菜单的同步状态（聚合规则） */
     function updateMenuButtonStatus() {
       if (!currentButtonMenuId) return;
       var node = findMenuNode(menuData, currentButtonMenuId);
       if (!node) return;
-      node.buttonStatus = aggregateStatus(buttonData);
-      if (node.buttonStatus !== 'failed') delete node.buttonFailReason;
+      node.menuStatus = aggregateStatus(buttonData);
+      if (node.menuStatus !== 'failed') delete node.menuFailReason;
       else {
         var failedItem = buttonData.find(function(b) { return b.syncStatus === 'failed'; });
-        if (failedItem) node.buttonFailReason = failedItem.failReason;
+        if (failedItem) node.menuFailReason = failedItem.failReason;
       }
       renderMenuTable();
     }
@@ -1289,11 +1619,11 @@
       // 根据菜单已有同步状态初始化字段数据
       var initStatus = 'synced';
       var menuNode = menuId ? findMenuNode(menuData, menuId) : null;
-      if (menuNode && menuNode.fieldStatus === 'synced') initStatus = 'synced';
-      else if (menuNode && menuNode.fieldStatus === 'failed') initStatus = 'failed';
+      if (menuNode && menuNode.menuStatus === 'synced') initStatus = 'synced';
+      else if (menuNode && menuNode.menuStatus === 'failed') initStatus = 'failed';
       else initStatus = 'unsynced';
       fieldData = [
-        { code: 'material_no', name: '料号', syncStatus: initStatus, failReason: initStatus === 'failed' ? (menuNode && menuNode.failReason) || '字段拉取失败' : '' },
+        { code: 'material_no', name: '料号', syncStatus: initStatus, failReason: initStatus === 'failed' ? (menuNode && menuNode.menuFailReason) || '字段拉取失败' : '' },
         { code: 'material_name', name: '品名', syncStatus: initStatus, failReason: '' },
         { code: 'supplier', name: '供应商', syncStatus: 'synced', failReason: '' },
         { code: 'unit_price', name: '单价', syncStatus: 'unsynced', failReason: '' },
@@ -1431,16 +1761,16 @@
       }, 600);
     }
 
-    /* 字段同步完成后回写菜单的字段同步状态（聚合规则） */
+    /* 字段同步完成后回写菜单的同步状态（聚合规则） */
     function updateMenuFieldStatus() {
       if (!currentFieldMenuId) return;
       var node = findMenuNode(menuData, currentFieldMenuId);
       if (!node) return;
-      node.fieldStatus = aggregateStatus(fieldData);
-      if (node.fieldStatus !== 'failed') delete node.failReason;
+      node.menuStatus = aggregateStatus(fieldData);
+      if (node.menuStatus !== 'failed') delete node.menuFailReason;
       else {
         var failedItem = fieldData.find(function(f) { return f.syncStatus === 'failed'; });
-        if (failedItem) node.failReason = failedItem.failReason;
+        if (failedItem) node.menuFailReason = failedItem.failReason;
       }
       renderMenuTable();
     }
@@ -1818,5 +2148,69 @@ fieldType: '配置字段类型：一般作业、报表作业（与字段权限�
       setTimeout(function() { t.classList.remove('show'); }, 2000);
     }
   </script>
+
+<script>
+/* ===== 消息通知系统 ===== */
+    var notifications = [
+      { id: 101, type: 'meeting', icon: '📅', title: '会议邀请：产品需求评审会', desc: '李明轩 邀请您参加 09-11 10:30-12:00 研发会议室的产品需求评审会', time: '10分钟前', read: false },
+      { id: 102, type: 'meeting', icon: '📅', title: '会议提醒：客户项目沟通会', desc: '您有一场会议将在30分钟后开始 · 二号会议室', time: '30分钟前', read: false },
+      { id: 103, type: 'meeting', icon: '📅', title: '会议取消：团队建设讨论', desc: '刘雅婷 取消了原定于 09-07 的团队建设讨论会', time: '1小时前', read: false },
+      { id: 104, type: 'approval', icon: '✅', title: '审批通过：差旅费报销', desc: '您提交的差旅费报销单已审批通过', time: '2小时前', read: false },
+      { id: 105, type: 'system', icon: '🔔', title: '系统通知：OA系统升级', desc: 'OA系统将于今晚22:00进行升级维护，预计1小时', time: '3小时前', read: true }
+    ];
+    var currentNotifyTab = 'all';
+
+    function toggleNotifyPanel(e) {
+      e.stopPropagation();
+      var panel = document.getElementById('notifyPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) renderNotifyList();
+    }
+    document.addEventListener('click', function() {
+      document.getElementById('notifyPanel').classList.remove('show');
+    });
+
+    function switchNotifyTab(el, type) {
+      document.querySelectorAll('.notify-tab').forEach(function(t){ t.classList.remove('active'); });
+      el.classList.add('active');
+      currentNotifyTab = type;
+      renderNotifyList();
+    }
+
+    function renderNotifyList() {
+      var list = currentNotifyTab === 'all' ? notifications : notifications.filter(function(n){ return n.type === currentNotifyTab; });
+      var html = list.map(function(n){
+        return '<div class="notify-item' + (n.read ? '' : ' unread') + '" onclick="readNotify(' + n.id + ')">' +
+          '<div class="notify-item-icon ' + n.type + '">' + n.icon + '</div>' +
+          '<div class="notify-item-content">' +
+            '<div class="notify-item-title">' + (n.read ? '' : '<span class="unread-dot"></span>') + n.title + '</div>' +
+            '<div class="notify-item-desc">' + n.desc + '</div>' +
+            '<div class="notify-item-time">' + n.time + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('notifyList').innerHTML = html || '<div class="notify-empty">暂无消息</div>';
+      updateNotifyBadge();
+    }
+
+    function readNotify(id) {
+      var n = notifications.find(function(x){ return x.id === id; });
+      if (n) { n.read = true; renderNotifyList(); }
+    }
+
+    function markAllNotifyRead() {
+      notifications.forEach(function(n){ n.read = true; });
+      renderNotifyList();
+      showToast('已全部标记为已读', 'success');
+    }
+
+    function updateNotifyBadge() {
+      var unread = notifications.filter(function(n){ return !n.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (unread > 0) { badge.style.display = ''; badge.textContent = unread > 99 ? '99+' : unread; }
+      else { badge.style.display = 'none'; }
+      document.getElementById('tabCountAll').textContent = unread;
+    }
+</script>
 </body>
 </html>
