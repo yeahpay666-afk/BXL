@@ -3375,7 +3375,7 @@ input, select {
   <div class="modal-mask" id="meetingCreateModal" onclick="if(event.target===this)closeMeetingCreateModal()">
     <div class="modal-container meeting-create-modal">
       <div class="modal-header">
-        <h2>新建会议</h2>
+        <h2>预定会议室</h2>
         <button class="modal-close" onclick="closeMeetingCreateModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -3447,8 +3447,8 @@ input, select {
           <div class="mc-label">提醒方式</div>
           <div class="mc-field">
             <div class="mc-notify-group">
-              <label class="mc-notify-item"><input type="checkbox" value="sms" checked> 短信</label>
-              <label class="mc-notify-item"><input type="checkbox" value="email" checked> 邮件</label>
+              <label class="mc-notify-item"><input type="checkbox" value="sms" disabled> 短信</label>
+              <label class="mc-notify-item"><input type="checkbox" value="email" disabled> 邮件</label>
               <label class="mc-notify-item"><input type="checkbox" value="msg" checked> 消息中心</label>
             </div>
           </div>
@@ -3493,7 +3493,6 @@ input, select {
             <select class="mc-select" id="mcVisible">
               <option value="all" selected>所有参会人可见</option>
               <option value="organizer">仅召集人可见</option>
-              <option value="custom">指定人员可见</option>
             </select>
           </div>
         </div>
@@ -4454,8 +4453,8 @@ input, select {
         '<div class="mc-row">' +
           '<div class="mc-label">提醒方式</div>' +
           '<div class="mc-field"><div class="mc-notify-group">' +
-            '<label class="mc-notify-item"><input type="checkbox" value="sms" checked> 短信</label>' +
-            '<label class="mc-notify-item"><input type="checkbox" value="email" checked> 邮件</label>' +
+            '<label class="mc-notify-item"><input type="checkbox" value="sms" disabled> 短信</label>' +
+            '<label class="mc-notify-item"><input type="checkbox" value="email" disabled> 邮件</label>' +
             '<label class="mc-notify-item"><input type="checkbox" value="msg" checked> 消息中心</label>' +
           '</div></div>' +
         '</div>' +
@@ -4493,7 +4492,6 @@ input, select {
           '<div class="mc-field"><select class="mc-select" id="meVisible">' +
             '<option value="all" selected>所有参会人可见</option>' +
             '<option value="organizer">仅召集人可见</option>' +
-            '<option value="custom">指定人员可见</option>' +
           '</select></div>' +
         '</div>' +
       '</div>';
