@@ -3649,7 +3649,6 @@ input, select {
               <tr>
                 <th>会议名称</th>
                 <th>召集人</th>
-                <th>会议类型</th>
                 <th>会议地点</th>
                 <th>开始日期</th>
                 <th>结束日期</th>
@@ -4876,14 +4875,13 @@ input, select {
         return '<tr>' +
           '<td>' + d.name + '</td>' +
           '<td>' + d.organizer + '</td>' +
-          '<td>' + d.type + '</td>' +
           '<td>' + d.room + '</td>' +
           '<td>' + d.start + '</td>' +
           '<td>' + d.end + '</td>' +
           '<td><span class="ru-status-badge ' + d.status + '">' + (d.status === 'occupied' ? '占用' : '冲突') + '</span></td>' +
         '</tr>';
       }).join('');
-      document.getElementById('ruDetailBody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:#94a3b8;">暂无会议明细</td></tr>';
+      document.getElementById('ruDetailBody').innerHTML = html || '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8;">暂无会议明细</td></tr>';
       document.getElementById('ruPageInfo').textContent = '共 ' + filtered.length + ' 条';
     }
 
