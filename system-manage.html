@@ -1227,6 +1227,21 @@ function findMenuByCode(nodes, code) {
       renderMenuTable();
       showToast('菜单已删除');
     }
+    function editMenu(id) {
+      var node = findMenuNode(menuData, id);
+      if (!node) return;
+      var name = prompt('编辑菜单名称', node.name);
+      if (name === null) return;
+      name = name.trim();
+      if (!name) { showToast('菜单名称不能为空'); return; }
+      node.name = name;
+      renderMenuTree(); renderMenuTable();
+      showToast('菜单已更新');
+    }
+    function editField(idx) {
+      var rows = document.querySelectorAll('.field-table tbody tr');
+      if (rows[idx]) { var input = rows[idx].querySelector('input.field-input'); if (input) { input.focus(); input.select(); } }
+    }
 
     /* ===== 按钮配置 ===== */
     var buttonData = [];
@@ -1557,6 +1572,7 @@ function findMenuByCode(nodes, code) {
             '<td><input type="text" class="field-input" value="' + escAttr(f.name) + '" onchange="markFieldUnsynced(' + i + ',this,\'name\')"></td>' +
             '<td>' + renderSyncTag(f.syncStatus, f.failReason) + '</td>' +
             '<td style="white-space:nowrap;">' +
+              '<span class="action-link" onclick="editField(' + i + ')">编辑</span>' +
               (f.syncStatus === 'failed' ? '<span class="action-link" style="color:#dc2626;" onclick="retryFieldSync(' + i + ')">重试</span>' : '') +
               '<span class="action-link" style="color:#ef4444;" onclick="deleteField(' + i + ')">删除</span>' +
             '</td>' +
