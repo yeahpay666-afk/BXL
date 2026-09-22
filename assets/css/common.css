@@ -51,6 +51,9 @@ select option {
 select:invalid {
   color: var(--text-muted);
 }
+select option[value=""] {
+  color: var(--text-muted);
+}
 
 /* ===== 颜色变量 ===== */
 :root {

@@ -797,6 +797,15 @@
         <option>启用</option>
         <option>禁用</option>
       </select>
+      <select class="filter-select" id="systemFilter" onchange="filterTable()" required>
+        <option value="">全部系统</option>
+        <option>T100</option>
+        <option>HR</option>
+        <option>OA</option>
+        <option>CRM</option>
+        <option>SRM</option>
+        <option>BI</option>
+      </select>
     </div>
 
     <!-- 角色列表卡片 -->
@@ -817,6 +826,7 @@
               <tr>
                 <th>角色名称</th>
                 <th style="width: 170px;">角色编码</th>
+                <th style="width: 120px;">所属系统</th>
                 <th>描述</th>
                 <th style="width: 90px;">关联岗位数</th>
                 <th style="width: 90px;">关联用户数</th>
@@ -826,11 +836,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr data-name="超级管理员" data-code="ROLE_SUPER_ADMIN" data-status="启用">
+              <tr data-name="超级管理员" data-system="T100,HR,OA,CRM,SRM,BI" data-code="ROLE_SUPER_ADMIN" data-status="启用">
 
                 <td><div class="role-name-cell">👑 超级管理员</div></td>
                 <td class="role-code-cell">ROLE_SUPER_ADMIN</td>
-                <td class="role-desc-cell">拥有所有系统全部权限</td>
+                <td>T100、HR、OA、CRM、SRM、BI</td>
+拥有所有系统全部权限</td>
                 <td><a href="position-manage.html?role=超级管理员" class="user-count">3个</a></td>
                 <td><a href="user-role.html?role=超级管理员" class="user-count">1人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
@@ -843,11 +854,12 @@
                   <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="HR管理员" data-code="ROLE_HR_ADMIN" data-status="启用">
+              <tr data-name="HR管理员" data-system="HR" data-code="ROLE_HR_ADMIN" data-status="启用">
 
                 <td><div class="role-name-cell">HR管理员</div></td>
                 <td class="role-code-cell">ROLE_HR_ADMIN</td>
-                <td class="role-desc-cell">管理HR模块全部功能</td>
+                <td>HR</td>
+管理HR模块全部功能</td>
                 <td><a href="position-manage.html?role=HR管理员" class="user-count">5个</a></td>
                 <td><a href="user-role.html?role=HR管理员" class="user-count">3人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
@@ -860,11 +872,12 @@
                   <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="OA审批人" data-code="ROLE_OA_APPROVER" data-status="启用">
+              <tr data-name="OA审批人" data-system="OA" data-code="ROLE_OA_APPROVER" data-status="启用">
 
                 <td><div class="role-name-cell">OA审批人</div></td>
                 <td class="role-code-cell">ROLE_OA_APPROVER</td>
-                <td class="role-desc-cell">OA流程审批、发文管理</td>
+                <td>OA</td>
+OA流程审批、发文管理</td>
                 <td><a href="position-manage.html?role=OA审批人" class="user-count">8个</a></td>
                 <td><a href="user-role.html?role=OA审批人" class="user-count">12人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
@@ -877,11 +890,12 @@
                   <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="CRM销售经理" data-code="ROLE_CRM_MANAGER" data-status="启用">
+              <tr data-name="CRM销售经理" data-system="CRM" data-code="ROLE_CRM_MANAGER" data-status="启用">
 
                 <td><div class="role-name-cell">CRM销售经理</div></td>
                 <td class="role-code-cell">ROLE_CRM_MANAGER</td>
-                <td class="role-desc-cell">客户管理、合同审批、商机管理</td>
+                <td>CRM</td>
+客户管理、合同审批、商机管理</td>
                 <td><a href="position-manage.html?role=CRM销售经理" class="user-count">4个</a></td>
                 <td><a href="user-role.html?role=CRM销售经理" class="user-count">8人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
@@ -894,11 +908,12 @@
                   <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="SRM采购员" data-code="ROLE_SRM_BUYER" data-status="启用">
+              <tr data-name="SRM采购员" data-system="SRM" data-code="ROLE_SRM_BUYER" data-status="启用">
 
                 <td><div class="role-name-cell">SRM采购员</div></td>
                 <td class="role-code-cell">ROLE_SRM_BUYER</td>
-                <td class="role-desc-cell">供应商管理、采购订单创建</td>
+                <td>SRM</td>
+供应商管理、采购订单创建</td>
                 <td><a href="position-manage.html?role=SRM采购员" class="user-count">3个</a></td>
                 <td><a href="user-role.html" class="user-count">6人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
@@ -911,11 +926,12 @@
                   <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="T100生产主管" data-code="ROLE_T100_PROD" data-status="启用">
+              <tr data-name="T100生产主管" data-system="T100" data-code="ROLE_T100_PROD" data-status="启用">
 
                 <td><div class="role-name-cell">T100生产主管</div></td>
                 <td class="role-code-cell">ROLE_T100_PROD</td>
-                <td class="role-desc-cell">生产工单管理、报工确认</td>
+                <td>T100</td>
+生产工单管理、报工确认</td>
                 <td><a href="position-manage.html?role=T100生产主管" class="user-count">6个</a></td>
                 <td><a href="user-role.html" class="user-count">5人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
@@ -928,11 +944,12 @@
                   <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="BI报表查看者" data-code="ROLE_BI_VIEWER" data-status="启用">
+              <tr data-name="BI报表查看者" data-system="BI" data-code="ROLE_BI_VIEWER" data-status="启用">
 
                 <td><div class="role-name-cell">BI报表查看者</div></td>
                 <td class="role-code-cell">ROLE_BI_VIEWER</td>
-                <td class="role-desc-cell">仅查看报表数据，不可编辑</td>
+                <td>BI</td>
+仅查看报表数据，不可编辑</td>
                 <td><a href="position-manage.html?role=BI报表查看者" class="user-count">10个</a></td>
                 <td><a href="user-role.html" class="user-count">15人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
@@ -945,11 +962,12 @@
                   <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="临时访客" data-code="ROLE_GUEST" data-status="禁用">
+              <tr data-name="临时访客" data-system="" data-code="ROLE_GUEST" data-status="禁用">
 
                 <td><div class="role-name-cell">临时访客</div></td>
                 <td class="role-code-cell">ROLE_GUEST</td>
-                <td class="role-desc-cell">只读权限，仅查看首页</td>
+                <td>-</td>
+只读权限，仅查看首页</td>
                 <td><a href="position-manage.html?role=临时访客" class="user-count">0个</a></td>
                 <td><a href="user-role.html" class="user-count">4人</a></td>
                 <td><span class="status-tag status-off">禁用</span></td>
@@ -1490,6 +1508,7 @@
     function filterTable() {
       var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
       var status = document.getElementById('statusFilter').value;
+      var system = document.getElementById('systemFilter').value;
       var rows = document.querySelectorAll('#roleTable tbody tr');
       var visibleCount = 0;
 
@@ -1497,11 +1516,13 @@
         var name = (row.dataset.name || '').toLowerCase();
         var code = (row.dataset.code || '').toLowerCase();
         var st = row.dataset.status;
+        var sys = row.dataset.system || '';
 
         var matchKeyword = !keyword || name.indexOf(keyword) > -1 || code.indexOf(keyword) > -1;
-        var matchStatus = status === '全部状态' || st === status;
+        var matchStatus = !status || st === status;
+        var matchSystem = !system || sys.split(',').indexOf(system) > -1;
 
-        if (matchKeyword && matchStatus) {
+        if (matchKeyword && matchStatus && matchSystem) {
           row.style.display = '';
           visibleCount++;
         } else {
