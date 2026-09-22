@@ -634,13 +634,13 @@
         </div>
         <div style="display:flex; gap:8px; align-items:center;">
           <input type="text" id="searchInput" placeholder="搜索课程名称、讲师、部门..." oninput="filterCourses()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px; width:220px;">
-          <select id="statusFilter" onchange="filterCourses()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+          <select id="statusFilter" onchange="filterCourses()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" required>
             <option value="">全部状态</option>
             <option value="已完成">已完成</option>
             <option value="学习中">学习中</option>
             <option value="未开始">未开始</option>
           </select>
-          <select id="sortFilter" onchange="filterCourses()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+          <select id="sortFilter" onchange="filterCourses()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" required>
             <option value="">默认排序</option>
             <option value="latest">最新发布</option>
             <option value="popular">学习人数最多</option>
@@ -1125,5 +1125,11 @@
       document.getElementById('tabCountAll').textContent = unread;
     }
 </script>
+
+  <!-- 右下角悬浮AI助手 -->
+  <div class="ai-assistant-float">
+    <a href="ai-chat.html" class="ai-assistant-btn" title="AI助手">🤖</a>
+  </div>
+
 </body>
 </html>

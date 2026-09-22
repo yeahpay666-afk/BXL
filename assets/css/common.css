@@ -41,6 +41,20 @@ input, select {
   font-family: inherit;
 }
 
+/* ===== 下拉框默认提示语置灰 ===== */
+select {
+  color: var(--text-primary);
+}
+select option {
+  color: var(--text-primary);
+}
+select:invalid {
+  color: var(--text-muted);
+}
+select option[value=""] {
+  color: var(--text-muted);
+}
+
 /* ===== 颜色变量 ===== */
 :root {
   --primary-color: #2563eb;

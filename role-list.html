@@ -792,10 +792,19 @@
         <span class="icon">🔍</span>
         <input type="text" id="searchInput" placeholder="搜索角色名称/编码..." oninput="filterTable()">
       </div>
-      <select class="filter-select" id="statusFilter" onchange="filterTable()">
-        <option>全部状态</option>
+      <select class="filter-select" id="statusFilter" onchange="filterTable()" required>
+        <option value="">全部状态</option>
         <option>启用</option>
         <option>禁用</option>
+      </select>
+      <select class="filter-select" id="systemFilter" onchange="filterTable()" required>
+        <option value="">全部系统</option>
+        <option>T100</option>
+        <option>HR</option>
+        <option>OA</option>
+        <option>CRM</option>
+        <option>SRM</option>
+        <option>BI</option>
       </select>
     </div>
 
@@ -809,16 +818,15 @@
       </div>
       <div class="card-body" style="padding: 0;">
         <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid #f1f5f9;">
-          <span id="selectedRoleCount" style="font-size:13px;color:#64748b;">已选 0 个角色</span>
-          <button class="btn btn-primary" onclick="syncSelectedRolePermissions()" style="background:#059669;padding:6px 14px;font-size:13px;">⇩ 同步权限</button>
+          <button class="btn btn-primary" onclick="syncAllRolePermissions()" style="background:#059669;padding:6px 14px;font-size:13px;">⇩ 同步所有权限</button>
         </div>
         <div class="table-container">
           <table class="table" id="roleTable">
             <thead>
               <tr>
-                <th style="width:44px;text-align:center;"><input type="checkbox" id="roleSelectAll" onchange="toggleRoleAllSelect(this)" style="accent-color:#059669;cursor:pointer;"></th>
                 <th>角色名称</th>
                 <th style="width: 170px;">角色编码</th>
+                <th style="width: 120px;">所属系统</th>
                 <th>描述</th>
                 <th style="width: 90px;">关联岗位数</th>
                 <th style="width: 90px;">关联用户数</th>
@@ -828,140 +836,148 @@
               </tr>
             </thead>
             <tbody>
-              <tr data-name="超级管理员" data-code="ROLE_SUPER_ADMIN" data-status="启用">
+              <tr data-name="超级管理员" data-system="T100,HR,OA,CRM,SRM,BI" data-code="ROLE_SUPER_ADMIN" data-status="启用">
 
-                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">👑 超级管理员</div></td>
                 <td class="role-code-cell">ROLE_SUPER_ADMIN</td>
-                <td class="role-desc-cell">拥有所有系统全部权限</td>
+                <td>T100、HR、OA、CRM、SRM、BI</td>
+拥有所有系统全部权限</td>
                 <td><a href="position-manage.html?role=超级管理员" class="user-count">3个</a></td>
                 <td><a href="user-role.html?role=超级管理员" class="user-count">1人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
                 <td>2024-01-01</td>
                 <td class="action-cell">
                   <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
-                  <span class="action-link" onclick="openPositionModal('超级管理员')">关联岗位</span>
+                  <a href="position-manage.html?role=超级管理员" class="action-link">关联岗位</a>
                   <span class="action-link" onclick="openModal('超级管理员')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="HR管理员" data-code="ROLE_HR_ADMIN" data-status="启用">
+              <tr data-name="HR管理员" data-system="HR" data-code="ROLE_HR_ADMIN" data-status="启用">
 
-                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">HR管理员</div></td>
                 <td class="role-code-cell">ROLE_HR_ADMIN</td>
-                <td class="role-desc-cell">管理HR模块全部功能</td>
+                <td>HR</td>
+管理HR模块全部功能</td>
                 <td><a href="position-manage.html?role=HR管理员" class="user-count">5个</a></td>
                 <td><a href="user-role.html?role=HR管理员" class="user-count">3人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
                 <td>2024-03-15</td>
                 <td class="action-cell">
                   <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
-                  <span class="action-link" onclick="openPositionModal('HR管理员')">关联岗位</span>
+                  <a href="position-manage.html?role=HR管理员" class="action-link">关联岗位</a>
                   <span class="action-link" onclick="openModal('HR管理员')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="OA审批人" data-code="ROLE_OA_APPROVER" data-status="启用">
+              <tr data-name="OA审批人" data-system="OA" data-code="ROLE_OA_APPROVER" data-status="启用">
 
-                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">OA审批人</div></td>
                 <td class="role-code-cell">ROLE_OA_APPROVER</td>
-                <td class="role-desc-cell">OA流程审批、发文管理</td>
+                <td>OA</td>
+OA流程审批、发文管理</td>
                 <td><a href="position-manage.html?role=OA审批人" class="user-count">8个</a></td>
                 <td><a href="user-role.html?role=OA审批人" class="user-count">12人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
                 <td>2024-05-20</td>
                 <td class="action-cell">
                   <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
-                  <span class="action-link" onclick="openPositionModal('OA审批人')">关联岗位</span>
+                  <a href="position-manage.html?role=OA审批人" class="action-link">关联岗位</a>
                   <span class="action-link" onclick="openModal('OA审批人')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="CRM销售经理" data-code="ROLE_CRM_MANAGER" data-status="启用">
+              <tr data-name="CRM销售经理" data-system="CRM" data-code="ROLE_CRM_MANAGER" data-status="启用">
 
-                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">CRM销售经理</div></td>
                 <td class="role-code-cell">ROLE_CRM_MANAGER</td>
-                <td class="role-desc-cell">客户管理、合同审批、商机管理</td>
+                <td>CRM</td>
+客户管理、合同审批、商机管理</td>
                 <td><a href="position-manage.html?role=CRM销售经理" class="user-count">4个</a></td>
                 <td><a href="user-role.html?role=CRM销售经理" class="user-count">8人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
                 <td>2024-06-10</td>
                 <td class="action-cell">
                   <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
-                  <span class="action-link" onclick="openPositionModal('CRM销售经理')">关联岗位</span>
+                  <a href="position-manage.html?role=CRM销售经理" class="action-link">关联岗位</a>
                   <span class="action-link" onclick="openModal('CRM销售经理')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="SRM采购员" data-code="ROLE_SRM_BUYER" data-status="启用">
+              <tr data-name="SRM采购员" data-system="SRM" data-code="ROLE_SRM_BUYER" data-status="启用">
 
-                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">SRM采购员</div></td>
                 <td class="role-code-cell">ROLE_SRM_BUYER</td>
-                <td class="role-desc-cell">供应商管理、采购订单创建</td>
+                <td>SRM</td>
+供应商管理、采购订单创建</td>
                 <td><a href="position-manage.html?role=SRM采购员" class="user-count">3个</a></td>
                 <td><a href="user-role.html" class="user-count">6人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
                 <td>2024-07-01</td>
                 <td class="action-cell">
                   <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
-                  <span class="action-link" onclick="openPositionModal('SRM采购员')">关联岗位</span>
+                  <a href="position-manage.html?role=SRM采购员" class="action-link">关联岗位</a>
                   <span class="action-link" onclick="openModal('SRM采购员')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="T100生产主管" data-code="ROLE_T100_PROD" data-status="启用">
+              <tr data-name="T100生产主管" data-system="T100" data-code="ROLE_T100_PROD" data-status="启用">
 
-                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">T100生产主管</div></td>
                 <td class="role-code-cell">ROLE_T100_PROD</td>
-                <td class="role-desc-cell">生产工单管理、报工确认</td>
+                <td>T100</td>
+生产工单管理、报工确认</td>
                 <td><a href="position-manage.html?role=T100生产主管" class="user-count">6个</a></td>
                 <td><a href="user-role.html" class="user-count">5人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
                 <td>2024-08-15</td>
                 <td class="action-cell">
                   <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
-                  <span class="action-link" onclick="openPositionModal('T100生产主管')">关联岗位</span>
+                  <a href="position-manage.html?role=T100生产主管" class="action-link">关联岗位</a>
                   <span class="action-link" onclick="openModal('T100生产主管')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="BI报表查看者" data-code="ROLE_BI_VIEWER" data-status="启用">
+              <tr data-name="BI报表查看者" data-system="BI" data-code="ROLE_BI_VIEWER" data-status="启用">
 
-                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">BI报表查看者</div></td>
                 <td class="role-code-cell">ROLE_BI_VIEWER</td>
-                <td class="role-desc-cell">仅查看报表数据，不可编辑</td>
+                <td>BI</td>
+仅查看报表数据，不可编辑</td>
                 <td><a href="position-manage.html?role=BI报表查看者" class="user-count">10个</a></td>
                 <td><a href="user-role.html" class="user-count">15人</a></td>
                 <td><span class="status-tag status-on">启用</span></td>
                 <td>2024-09-20</td>
                 <td class="action-cell">
                   <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
-                  <span class="action-link" onclick="openPositionModal('BI报表查看者')">关联岗位</span>
+                  <a href="position-manage.html?role=BI报表查看者" class="action-link">关联岗位</a>
                   <span class="action-link" onclick="openModal('BI报表查看者')">编辑</span>
                   <span class="action-link action-warn">禁用</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
-              <tr data-name="临时访客" data-code="ROLE_GUEST" data-status="禁用">
+              <tr data-name="临时访客" data-system="" data-code="ROLE_GUEST" data-status="禁用">
 
-                <td style="text-align:center;"><input type="checkbox" class="role-row-cb" onchange="updateRoleSelectCount()" style="accent-color:#059669;cursor:pointer;"></td>
                 <td><div class="role-name-cell">临时访客</div></td>
                 <td class="role-code-cell">ROLE_GUEST</td>
-                <td class="role-desc-cell">只读权限，仅查看首页</td>
+                <td>-</td>
+只读权限，仅查看首页</td>
                 <td><a href="position-manage.html?role=临时访客" class="user-count">0个</a></td>
                 <td><a href="user-role.html" class="user-count">4人</a></td>
                 <td><span class="status-tag status-off">禁用</span></td>
                 <td>2024-10-05</td>
                 <td class="action-cell">
                   <a href="permission-config.html" class="action-link" onclick="var rn=this.closest('tr').dataset.name;var sys=(roleSystemsMap[rn]||[]).join(',');this.href='permission-config.html?role='+encodeURIComponent(rn)+'&systems='+encodeURIComponent(sys)">配置权限</a>
-                  <span class="action-link" onclick="openPositionModal('临时访客')">关联岗位</span>
+                  <a href="position-manage.html?role=临时访客" class="action-link">关联岗位</a>
                   <span class="action-link" onclick="openModal('临时访客')">编辑</span>
                   <span class="action-link action-success">启用</span>
+                  <span class="action-link" style="color:#059669;" onclick="syncRoleOne(this.closest("tr").dataset.name)">同步权限</span>
                 </td>
               </tr>
             </tbody>
@@ -1067,8 +1083,7 @@
           <div class="form-group">
             <label class="form-label">角色编码<span class="form-required">*</span></label>
             <div class="code-input-wrapper">
-              <span class="code-prefix">ROLE_</span>
-              <input type="text" class="form-input" id="roleCodeInput" placeholder="自动生成前缀 ROLE_">
+              <input type="text" class="form-input" id="roleCodeInput" placeholder="请输入角色编码">
             </div>
           </div>
           <div class="form-group">
@@ -1169,67 +1184,24 @@
     }
 
     /* ===== 权限同步 ===== */
-    var permSyncRunning = false;
-
-    // 全选/取消全选
-    function toggleRoleAllSelect(cb) {
-      document.querySelectorAll('.role-row-cb').forEach(function(el) {
-        el.checked = cb.checked;
-      });
-      updateRoleSelectCount();
-    }
-    function updateRoleSelectCount() {
-      var checked = document.querySelectorAll('.role-row-cb:checked');
-      document.getElementById('selectedRoleCount').textContent = '已选 ' + checked.length + ' 个角色';
-    }
-
-    // 同步选中的角色权限
-    function syncSelectedRolePermissions() {
-      if (permSyncRunning) { showToast('已有同步任务进行中'); return; }
-      var checked = document.querySelectorAll('.role-row-cb:checked');
-      if (checked.length === 0) { showToast('请先勾选要同步的角色'); return; }
-      var roles = [];
-      checked.forEach(function(cb) {
-        roles.push(cb.closest('tr').dataset.name);
-      });
-      runPermSync(roles, false);
-    }
-
-    // 同步所有角色权限
+    // 同步全部角色权限（顶部按钮）
     function syncAllRolePermissions() {
-      if (permSyncRunning) { showToast('已有同步任务进行中'); return; }
+      if (!confirm('确认同步全部角色的权限配置？')) return;
       var roles = ['超级管理员', 'HR管理员', 'OA审批人', 'CRM销售经理', 'SRM采购员', 'T100生产主管', 'BI报表查看者'];
-      runPermSync(roles, true);
+      var success = 0, failed = 0, failedNames = [];
+      roles.forEach(function(r) {
+        if (Math.random() < 0.1) { failed++; failedNames.push(r); } else { success++; }
+      });
+      var msg = '权限同步完成：成功 ' + success + '，失败 ' + failed;
+      if (failed > 0) msg += '（' + failedNames.slice(0,3).join('、') + '）';
+      showToast(msg, failed === 0 ? 'success' : 'warning');
     }
 
-    // 通用权限同步执行
-    function runPermSync(roles, isAll) {
-      permSyncRunning = true;
-      var modal = document.createElement('div');
-      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2000;';
-      modal.innerHTML = '<div style="background:#fff;border-radius:12px;padding:28px 32px;width:440px;text-align:center;">' +
-        '<div style="font-size:18px;font-weight:600;margin-bottom:16px;">正在同步角色权限</div>' +
-        '<div style="font-size:13px;color:#64748b;margin-bottom:20px;">从外部系统拉取并应用 ' + roles.length + ' 个角色的权限配置</div>' +
-        '<div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:12px;"><div id="permSyncFill" style="height:100%;background:#059669;width:0%;transition:width 0.3s;"></div></div>' +
-        '<div id="permSyncText" style="font-size:13px;color:#64748b;">准备中...</div>' +
-        '</div>';
-      document.body.appendChild(modal);
-
-      var i = 0;
-      function step() {
-        if (i >= roles.length) {
-          permSyncRunning = false;
-          modal.remove();
-          showToast('权限同步完成，共 ' + roles.length + ' 个角色', 'success');
-          return;
-        }
-        var roleName = roles[i];
-        document.getElementById('permSyncText').textContent = '同步中 ' + (i + 1) + '/' + roles.length + ' · ' + roleName;
-        document.getElementById('permSyncFill').style.width = Math.round((i + 1) / roles.length * 100) + '%';
-        i++;
-        setTimeout(step, 600);
-      }
-      step();
+    // 同步单个角色权限（操作列按钮）
+    function syncRoleOne(roleName) {
+      var ok = Math.random() > 0.15;
+      if (ok) { showToast('「' + roleName + '」权限同步成功', 'success'); }
+      else { showToast('「' + roleName + '」同步失败：外部系统超时', 'warning'); }
     }
 
     /* ===== 所属系统多选 ===== */
@@ -1536,6 +1508,7 @@
     function filterTable() {
       var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
       var status = document.getElementById('statusFilter').value;
+      var system = document.getElementById('systemFilter').value;
       var rows = document.querySelectorAll('#roleTable tbody tr');
       var visibleCount = 0;
 
@@ -1543,11 +1516,13 @@
         var name = (row.dataset.name || '').toLowerCase();
         var code = (row.dataset.code || '').toLowerCase();
         var st = row.dataset.status;
+        var sys = row.dataset.system || '';
 
         var matchKeyword = !keyword || name.indexOf(keyword) > -1 || code.indexOf(keyword) > -1;
-        var matchStatus = status === '全部状态' || st === status;
+        var matchStatus = !status || st === status;
+        var matchSystem = !system || sys.split(',').indexOf(system) > -1;
 
-        if (matchKeyword && matchStatus) {
+        if (matchKeyword && matchStatus && matchSystem) {
           row.style.display = '';
           visibleCount++;
         } else {
@@ -1877,5 +1852,11 @@
       document.getElementById('tabCountAll').textContent = unread;
     }
 </script>
+
+  <!-- 右下角悬浮AI助手 -->
+  <div class="ai-assistant-float">
+    <a href="ai-chat.html" class="ai-assistant-btn" title="AI助手">🤖</a>
+  </div>
+
 </body>
 </html>

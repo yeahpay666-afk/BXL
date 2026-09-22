@@ -730,8 +730,8 @@ tbody tr:hover { background: #f9fafb; }
           <div class="table-title"><span class="title-icon">▎</span>智能体列表<span class="count-badge">12条</span></div>
         </div>
         <div class="toolbar-right">
-          <select class="filter-select"><option>全部分类</option><option>HR系统</option><option>OA系统</option><option>法务系统</option></select>
-          <select class="filter-select"><option>全部状态</option><option>已发布</option><option>草稿</option><option>已下架</option></select>
+          <select class="filter-select" required><option value="">全部分类</option><option>HR系统</option><option>OA系统</option><option>法务系统</option></select>
+          <select class="filter-select" required><option value="">全部状态</option><option>已发布</option><option>草稿</option><option>已下架</option></select>
           <input type="text" class="search-input" placeholder="搜索智能体..." oninput="renderTable(this.value)">
         </div>
       </div>
@@ -789,7 +789,7 @@ tbody tr:hover { background: #f9fafb; }
           </div>
         </div>
         <div class="form-item"><label class="form-label"><span class="req">*</span>来源系统</label>
-          <select class="form-select" id="pubSource"><option value="">请选择来源系统</option><option>HR系统</option><option>OA系统</option><option>法务系统</option><option>BI系统</option><option>知识库</option><option>RPA引擎</option></select>
+          <select class="form-select" id="pubSource" required><option value="">请选择来源系统</option><option>HR系统</option><option>OA系统</option><option>法务系统</option><option>BI系统</option><option>知识库</option><option>RPA引擎</option></select>
         </div>
         <div class="form-item"><label class="form-label">作者/团队</label><input class="form-input" placeholder="请输入作者或团队名称" id="pubAuthor"></div>
         <div class="form-item"><label class="form-label"><span class="req">*</span>功能描述</label><textarea class="form-textarea" placeholder="请描述智能体的功能、用途及适用场景..." id="pubDesc"></textarea></div>
@@ -812,7 +812,7 @@ tbody tr:hover { background: #f9fafb; }
             </div>
             <div class="api-item"><div class="api-label">API 地址</div><input class="form-input" placeholder="https://api.example.com/v1/agent"></div>
             <div class="api-item"><div class="api-label">认证方式</div>
-              <select class="form-select"><option>Bearer Token</option><option>API Key</option><option>无认证</option><option>OAuth 2.0</option></select>
+              <select class="form-select" required><option value="">Bearer Token</option><option>API Key</option><option>无认证</option><option>OAuth 2.0</option></select>
             </div>
           </div>
         </div>
@@ -881,7 +881,7 @@ tbody tr:hover { background: #f9fafb; }
             <input type="file" id="editIconFile" style="display:none" accept="image/*" onchange="previewIcon(this,'editIconPreview')">
           </div>
         </div>
-        <div class="form-item"><label class="form-label">来源系统</label><select class="form-select" id="editSource"><option>HR系统</option><option>OA系统</option><option>法务系统</option><option>BI系统</option></select></div>
+        <div class="form-item"><label class="form-label">来源系统</label><select class="form-select" id="editSource" required><option value="">HR系统</option><option>OA系统</option><option>法务系统</option><option>BI系统</option></select></div>
         <div class="form-item"><label class="form-label">作者/团队</label><input class="form-input" id="editAuthor"></div>
         <div class="form-item"><label class="form-label">功能描述</label><textarea class="form-textarea" id="editDesc"></textarea></div>
       </div>
@@ -893,7 +893,7 @@ tbody tr:hover { background: #f9fafb; }
           </div>
           <div class="api-item"><div class="api-label">API 地址</div><input class="form-input" value="https://hr-api.example.com/v1/resume-screening"></div>
           <div class="api-item"><div class="api-label">认证方式</div>
-            <select class="form-select"><option>Bearer Token</option><option>API Key</option></select>
+            <select class="form-select" required><option value="">Bearer Token</option><option>API Key</option></select>
           </div>
           <div class="api-item"><div class="api-label">自定义请求头</div>
             <div class="header-row"><input class="form-input" placeholder="Header Key" value="Authorization"><input class="form-input" placeholder="Header Value" value="Bearer xxx"><span class="header-remove" onclick="this.parentElement.remove()">🗑</span></div>
@@ -1521,5 +1521,11 @@ renderTable();
       document.getElementById('tabCountAll').textContent = unread;
     }
 </script>
+
+  <!-- 右下角悬浮AI助手 -->
+  <div class="ai-assistant-float">
+    <a href="ai-chat.html" class="ai-assistant-btn" title="AI助手">🤖</a>
+  </div>
+
 </body>
 </html>

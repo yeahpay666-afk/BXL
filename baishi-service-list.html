@@ -620,14 +620,14 @@
         </div>
         <div class="header-actions" style="display:flex; gap:8px; align-items:center;">
           <input type="text" class="search-input" id="svcSearch" placeholder="搜索服务名称..." oninput="filterServiceTable()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px; width:180px;">
-          <select class="filter-select" id="svcSystemFilter" onchange="filterServiceTable()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+          <select class="filter-select" id="svcSystemFilter" onchange="filterServiceTable()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" required>
             <option value="">全部系统</option>
             <option value="T100">T100</option>
             <option value="OA">OA</option>
             <option value="HR">HR</option>
             <option value="CRM">CRM</option>
           </select>
-          <select class="filter-select" id="svcStatusFilter" onchange="filterServiceTable()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+          <select class="filter-select" id="svcStatusFilter" onchange="filterServiceTable()" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" required>
             <option value="">全部状态</option>
             <option value="启用">启用</option>
             <option value="禁用">禁用</option>
@@ -679,7 +679,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">所属系统 <span style="color:#ef4444;">*</span></label>
-          <select class="form-input" id="svcSystemInput" style="appearance:auto;cursor:pointer;">
+          <select class="form-input" id="svcSystemInput" style="appearance:auto;cursor:pointer;" required>
             <option value="">请选择所属系统</option>
             <option value="T100">T100</option>
             <option value="OA">OA</option>
@@ -1024,5 +1024,11 @@
       document.getElementById('tabCountAll').textContent = unread;
     }
 </script>
+
+  <!-- 右下角悬浮AI助手 -->
+  <div class="ai-assistant-float">
+    <a href="ai-chat.html" class="ai-assistant-btn" title="AI助手">🤖</a>
+  </div>
+
 </body>
 </html>

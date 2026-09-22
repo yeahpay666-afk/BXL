@@ -492,11 +492,11 @@
 
       <div class="filter-bar">
         <input type="text" class="filter-input" placeholder="🔍 搜索智能体名称..." id="searchInput" oninput="filterAgents()">
-        <select class="filter-select" id="catFilter" onchange="filterAgents()">
+        <select class="filter-select" id="catFilter" onchange="filterAgents()" required>
           <option value="">全部分类</option>
           <option>HR系统</option><option>OA系统</option><option>法务系统</option><option>BI系统</option><option>RPA引擎</option>
         </select>
-        <select class="filter-select" id="statusFilter" onchange="filterAgents()">
+        <select class="filter-select" id="statusFilter" onchange="filterAgents()" required>
           <option value="">全部状态</option>
           <option value="online">已上线</option>
           <option value="offline">已下线</option>
@@ -516,7 +516,7 @@
         <button class="page-btn">‹</button>
         <button class="page-btn active">1</button>
         <button class="page-btn">›</button>
-        <select class="page-size"><option>6 条/页</option><option>12 条/页</option></select>
+        <select class="page-size" required><option value="">6 条/页</option><option>12 条/页</option></select>
       </div>
     </div>
   </div>
@@ -650,5 +650,11 @@
       document.getElementById('tabCountAll').textContent = unread;
     }
 </script>
+
+  <!-- 右下角悬浮AI助手 -->
+  <div class="ai-assistant-float">
+    <a href="ai-chat.html" class="ai-assistant-btn" title="AI助手">🤖</a>
+  </div>
+
 </body>
 </html>

@@ -550,7 +550,7 @@
           <div class="table-title" style="font-size:15px; font-weight:600; color:#1f2937;"><span style="color:#2563eb; margin-right:4px;">▎</span>快捷入口列表 <span class="count-badge" style="background:#dbeafe; color:#2563eb; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:400;">12条</span> <button id="batchDeleteBtn" onclick="batchDelete()" style="padding:4px 12px; border-radius:6px; font-size:12px; border:none; background:#f3f4f6; color:#9ca3af; cursor:not-allowed;">批量删除</button></div>
           <div class="table-filters" style="display:flex; gap:8px; align-items:center;">
             <input type="text" class="search-input" placeholder="搜索入口名称..." id="searchInput" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px; width:180px;">
-            <select class="filter-select" id="statusFilter" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+            <select class="filter-select" id="statusFilter" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" required>
               <option value="">全部状态</option>
               <option value="enabled">已启用</option>
               <option value="disabled">已禁用</option>
@@ -791,5 +791,11 @@
       document.getElementById('tabCountAll').textContent = unread;
     }
 </script>
+
+  <!-- 右下角悬浮AI助手 -->
+  <div class="ai-assistant-float">
+    <a href="ai-chat.html" class="ai-assistant-btn" title="AI助手">🤖</a>
+  </div>
+
 </body>
 </html>

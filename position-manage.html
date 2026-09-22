@@ -3472,7 +3472,7 @@ input, select {
           </div>
           <div style="display:flex; flex-direction:column; gap:4px;">
             <label style="font-size:13px; color:var(--text-secondary); font-weight:500;">状态</label>
-            <select id="filterStatus" class="form-input" style="width:120px; padding:6px 12px; font-size:13px;" onchange="filterTable()">
+            <select id="filterStatus" class="form-input" style="width:120px; padding:6px 12px; font-size:13px;" onchange="filterTable()" required>
               <option value="">请选择</option>
               <option value="active">正常</option>
               <option value="inactive">停用</option>
@@ -3493,9 +3493,9 @@ input, select {
           <thead>
             <tr>
               <th style="width:50px;">序号</th>
-              <th>岗位名称 <span style="font-size:10px; color:var(--text-muted);">▼▲</span></th>
-              <th>岗位代码 <span style="font-size:10px; color:var(--text-muted);">▼▲</span></th>
-              <th>岗位分类 <span style="font-size:10px; color:var(--text-muted);">▼▲</span></th>
+              <th>岗位名称</th>
+              <th>岗位代码</th>
+              <th>岗位分类</th>
               <th style="width:80px;">状态</th>
               <th style="width:140px;">更新时间</th>
               <th style="width:120px;">备注信息</th>
@@ -3663,7 +3663,7 @@ input, select {
           </div>
           <div class="form-group" style="flex:1;">
             <label class="form-label">状态</label>
-            <select class="form-input" id="posStatus" disabled="" style="background:#f8fafc;">
+            <select class="form-input" id="posStatus" disabled="" style="background:#f8fafc;" required>
               <option value="active">启用</option>
               <option value="inactive">停用</option>
             </select>
@@ -3869,4 +3869,10 @@ input, select {
       document.getElementById('tabCountAll').textContent = unread;
     }
 </script>
+
+  <!-- 右下角悬浮AI助手 -->
+  <div class="ai-assistant-float">
+    <a href="ai-chat.html" class="ai-assistant-btn" title="AI助手">🤖</a>
+  </div>
+
 </body></html>

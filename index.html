@@ -3375,7 +3375,7 @@ input, select {
   <div class="modal-mask" id="meetingCreateModal" onclick="if(event.target===this)closeMeetingCreateModal()">
     <div class="modal-container meeting-create-modal">
       <div class="modal-header">
-        <h2>新建会议</h2>
+        <h2>预定会议室</h2>
         <button class="modal-close" onclick="closeMeetingCreateModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -3432,7 +3432,7 @@ input, select {
         <div class="mc-row">
           <div class="mc-label">提醒</div>
           <div class="mc-field">
-            <select class="mc-select" id="mcRemind">
+            <select class="mc-select" id="mcRemind" required>
               <option value="0">不提醒</option>
               <option value="10">10分钟前</option>
               <option value="30" selected>30分钟前</option>
@@ -3447,8 +3447,8 @@ input, select {
           <div class="mc-label">提醒方式</div>
           <div class="mc-field">
             <div class="mc-notify-group">
-              <label class="mc-notify-item"><input type="checkbox" value="sms" checked> 短信</label>
-              <label class="mc-notify-item"><input type="checkbox" value="email" checked> 邮件</label>
+              <label class="mc-notify-item"><input type="checkbox" value="sms" disabled> 短信</label>
+              <label class="mc-notify-item"><input type="checkbox" value="email" disabled> 邮件</label>
               <label class="mc-notify-item"><input type="checkbox" value="msg" checked> 消息中心</label>
             </div>
           </div>
@@ -3457,7 +3457,7 @@ input, select {
         <div class="mc-row">
           <div class="mc-label">重复</div>
           <div class="mc-field">
-            <select class="mc-select" id="mcRepeat">
+            <select class="mc-select" id="mcRepeat" required>
               <option value="none" selected>不重复</option>
               <option value="daily">每天</option>
               <option value="weekly">每周</option>
@@ -3490,10 +3490,9 @@ input, select {
         <div class="mc-row">
           <div class="mc-label">可见范围</div>
           <div class="mc-field">
-            <select class="mc-select" id="mcVisible">
+            <select class="mc-select" id="mcVisible" required>
               <option value="all" selected>所有参会人可见</option>
               <option value="organizer">仅召集人可见</option>
-              <option value="custom">指定人员可见</option>
             </select>
           </div>
         </div>
@@ -3650,7 +3649,6 @@ input, select {
               <tr>
                 <th>会议名称</th>
                 <th>召集人</th>
-                <th>会议类型</th>
                 <th>会议地点</th>
                 <th>开始日期</th>
                 <th>结束日期</th>
@@ -4441,7 +4439,7 @@ input, select {
         // 提醒
         '<div class="mc-row">' +
           '<div class="mc-label">提醒</div>' +
-          '<div class="mc-field"><select class="mc-select" id="meRemind">' +
+          '<div class="mc-field"><select class="mc-select" id="meRemind" required>' +
             '<option value="0">不提醒</option>' +
             '<option value="10">10分钟前</option>' +
             '<option value="30" selected>30分钟前</option>' +
@@ -4454,15 +4452,15 @@ input, select {
         '<div class="mc-row">' +
           '<div class="mc-label">提醒方式</div>' +
           '<div class="mc-field"><div class="mc-notify-group">' +
-            '<label class="mc-notify-item"><input type="checkbox" value="sms" checked> 短信</label>' +
-            '<label class="mc-notify-item"><input type="checkbox" value="email" checked> 邮件</label>' +
+            '<label class="mc-notify-item"><input type="checkbox" value="sms" disabled> 短信</label>' +
+            '<label class="mc-notify-item"><input type="checkbox" value="email" disabled> 邮件</label>' +
             '<label class="mc-notify-item"><input type="checkbox" value="msg" checked> 消息中心</label>' +
           '</div></div>' +
         '</div>' +
         // 重复
         '<div class="mc-row">' +
           '<div class="mc-label">重复</div>' +
-          '<div class="mc-field"><select class="mc-select" id="meRepeat">' +
+          '<div class="mc-field"><select class="mc-select" id="meRepeat" required>' +
             '<option value="none" selected>不重复</option>' +
             '<option value="daily">每天</option>' +
             '<option value="weekly">每周</option>' +
@@ -4490,10 +4488,9 @@ input, select {
         // 可见范围
         '<div class="mc-row">' +
           '<div class="mc-label">可见范围</div>' +
-          '<div class="mc-field"><select class="mc-select" id="meVisible">' +
+          '<div class="mc-field"><select class="mc-select" id="meVisible" required>' +
             '<option value="all" selected>所有参会人可见</option>' +
             '<option value="organizer">仅召集人可见</option>' +
-            '<option value="custom">指定人员可见</option>' +
           '</select></div>' +
         '</div>' +
       '</div>';
@@ -4878,14 +4875,13 @@ input, select {
         return '<tr>' +
           '<td>' + d.name + '</td>' +
           '<td>' + d.organizer + '</td>' +
-          '<td>' + d.type + '</td>' +
           '<td>' + d.room + '</td>' +
           '<td>' + d.start + '</td>' +
           '<td>' + d.end + '</td>' +
           '<td><span class="ru-status-badge ' + d.status + '">' + (d.status === 'occupied' ? '占用' : '冲突') + '</span></td>' +
         '</tr>';
       }).join('');
-      document.getElementById('ruDetailBody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:#94a3b8;">暂无会议明细</td></tr>';
+      document.getElementById('ruDetailBody').innerHTML = html || '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8;">暂无会议明细</td></tr>';
       document.getElementById('ruPageInfo').textContent = '共 ' + filtered.length + ' 条';
     }
 
