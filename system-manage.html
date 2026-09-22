@@ -1764,23 +1764,25 @@ fieldType: '配置字段类型：一般作业、报表作业（与字段权限�
       var yn = function(val) { return val === 'Y' || val === true ? '<span style="color:#16a34a;">✓</span>' : '<span style="color:#ef4444;">✗</span>'; };
 
       if (tab === 'dept' || tab === 'person' || tab === 'date' || tab === 'accdate' || tab === 'detail') {
-        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:80px;">权限代码</th><th>权限名称</th><th>说明</th></tr>';
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:80px;">权限代码</th><th>权限名称</th><th>说明</th><th style="width:140px;">操作</th></tr>';
         tb.innerHTML = data.map(function(r, i) {
           return '<tr>' +
             '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
             '<td><code>' + r.code + '</code></td>' +
             '<td>' + r.name + '</td>' +
             '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+            '<td>' + actionCell(i) + '</td>' +
           '</tr>';
         }).join('');
       } else if (tab === 'field') {
-        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:80px;">权限代码</th><th>权限名称</th><th>说明</th></tr>';
+        thead.innerHTML = '<tr><th style="width:50px;">序号</th><th style="width:80px;">权限代码</th><th>权限名称</th><th>说明</th><th style="width:140px;">操作</th></tr>';
         tb.innerHTML = data.map(function(r, i) {
           return '<tr>' +
             '<td style="text-align:center;color:var(--text-muted);">' + (i+1) + '</td>' +
             '<td><code>' + r.code + '</code></td>' +
             '<td>' + r.name + '</td>' +
             '<td style="font-size:12px;color:var(--text-secondary);">' + (r.desc || '-') + '</td>' +
+            '<td>' + actionCell(i) + '</td>' +
           '</tr>';
         }).join('');
       } else if (tab === 'fieldType') {
