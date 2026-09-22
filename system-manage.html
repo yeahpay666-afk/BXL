@@ -633,7 +633,7 @@
         <div class="field-toolbar">
           <button class="btn-tiny primary" id="addFieldBtn" onclick="addFieldRow()">+ 新增字段</button>
           <button class="btn-tiny" id="batchUploadBtn" style="background:#f3e8ff;color:#9333ea;" onclick="toggleBatchUpload()">📥 批量上传</button>
-          <button class="sync-btn-tiny field" id="syncFieldBtn" onclick="syncFieldsSelected()">⇩ 同步所选字段</button>
+          <button class="sync-btn-tiny field" id="syncFieldBtn" onclick="syncFieldsAll()">⇩ 同步字段</button>
           <span style="flex:1;"></span>
           <span class="field-count" id="fieldCount">共 0 个字段</span>
         </div>
@@ -648,14 +648,13 @@
         <div style="overflow-x:auto;max-height:360px;overflow-y:auto;">
           <table class="field-table" id="fieldTable">
             <thead><tr>
-              <th class="field-rowCheckbox"><input type="checkbox" id="fieldSelectAll" onchange="toggleFieldAllSelect(this)"></th>
               <th>字段编码</th>
               <th>字段名称</th>
               <th style="width:120px;">同步状态</th>
               <th style="width:40px;">操作</th>
             </tr></thead>
             <tbody id="fieldTbody">
-              <tr><td colspan="5" class="empty-state">暂无数据，请新增字段或批量上传</td></tr>
+              <tr><td colspan="4" class="empty-state">暂无数据，请新增字段或批量上传</td></tr>
             </tbody>
           </table>
         </div>
@@ -671,14 +670,13 @@
       <div class="modal-body">
         <div class="field-toolbar">
           <button class="btn-tiny primary" id="addButtonBtn" onclick="addButtonRow()">+ 新增按钮</button>
-          <button class="sync-btn-tiny btn" id="syncBtnBtn" onclick="syncButtonsSelected()">⇩ 同步所选按钮</button>
+          <button class="sync-btn-tiny btn" id="syncBtnBtn" onclick="syncButtonsAll()">⇩ 同步按钮</button>
           <span style="flex:1;"></span>
           <span class="field-count" id="buttonCount">共 0 个按钮</span>
         </div>
         <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
           <table class="field-table" id="buttonTable">
             <thead><tr>
-              <th class="field-rowCheckbox"><input type="checkbox" id="buttonSelectAll" onchange="toggleButtonAllSelect(this)"></th>
               <th style="width:50px;">序号</th>
               <th style="width:120px;">按钮编码</th>
               <th>按钮名称</th>
@@ -688,7 +686,7 @@
               <th style="width:80px;">操作</th>
             </tr></thead>
             <tbody id="buttonTbody">
-              <tr><td colspan="8" class="empty-state">暂无数据，请新增按钮</td></tr>
+              <tr><td colspan="7" class="empty-state">暂无数据，请新增按钮</td></tr>
             </tbody>
           </table>
         </div>
@@ -1298,12 +1296,11 @@ function findMenuByCode(nodes, code) {
       var tb = document.getElementById('buttonTbody');
       document.getElementById('buttonCount').textContent = '共 ' + buttonData.length + ' 个按钮';
       if (buttonData.length === 0) {
-        tb.innerHTML = '<tr><td colspan="8" class="empty-state">暂无数据，请新增按钮</td></tr>';
+        tb.innerHTML = '<tr><td colspan="7" class="empty-state">暂无数据，请新增按钮</td></tr>';
         return;
       }
       tb.innerHTML = buttonData.map(function(b, i) {
         return '<tr>' +
-          '<td class="field-rowCheckbox"><input type="checkbox" class="button-row-cb" data-idx="' + i + '" onchange="toggleButtonRowSelect(this)"></td>' +
           '<td style="text-align:center;color:var(--text-muted);">' + (i + 1) + '</td>' +
           '<td><code style="font-size:12px;">' + b.code + '</code></td>' +
           '<td>' + b.icon + ' ' + b.name + '</td>' +
@@ -1316,8 +1313,6 @@ function findMenuByCode(nodes, code) {
             '<span class="action-link" style="color:#ef4444;" onclick="deleteButton(' + i + ')">删除</span>' +
           '</td></tr>';
       }).join('');
-      var selAll = document.getElementById('buttonSelectAll');
-      if (selAll) selAll.checked = false;
     }
 
     /* 按钮行勾选 */
@@ -1563,11 +1558,10 @@ function findMenuByCode(nodes, code) {
     function renderFieldTable() {
       var tb = document.getElementById('fieldTbody');
       if (fieldData.length === 0) {
-        tb.innerHTML = '<tr><td colspan="5" class="empty-state">暂无数据，请新增字段或批量上传</td></tr>';
+        tb.innerHTML = '<tr><td colspan="4" class="empty-state">暂无数据，请新增字段或批量上传</td></tr>';
       } else {
         tb.innerHTML = fieldData.map(function(f, i) {
           return '<tr>' +
-            '<td class="field-rowCheckbox"><input type="checkbox" class="field-row-cb" data-idx="' + i + '" onchange="toggleFieldRowSelect(this)"></td>' +
             '<td><input type="text" class="field-input" value="' + escAttr(f.code) + '" onchange="markFieldUnsynced(' + i + ',this,\'code\')"></td>' +
             '<td><input type="text" class="field-input" value="' + escAttr(f.name) + '" onchange="markFieldUnsynced(' + i + ',this,\'name\')"></td>' +
             '<td>' + renderSyncTag(f.syncStatus, f.failReason) + '</td>' +
@@ -1580,9 +1574,6 @@ function findMenuByCode(nodes, code) {
         }).join('');
       }
       document.getElementById('fieldCount').textContent = '共 ' + fieldData.length + ' 个字段';
-      // 重置全选
-      var selAll = document.getElementById('fieldSelectAll');
-      if (selAll) selAll.checked = false;
     }
 
     /* 字段行勾选 */
