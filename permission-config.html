@@ -3778,7 +3778,8 @@ input, select {
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
               <select class="filter-select" id="menuSelect" onchange="onMenuChange()" style="min-width: 180px;" required>
-                <option value="">发文管理</option>
+                <option value="" selected>请选择</option>
+                <option>发文管理</option>
                 <option>收文管理</option>
                 <option>文件流转</option>
                 <option>待办列表</option>
@@ -3805,7 +3806,8 @@ input, select {
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
               <select class="filter-select" id="colMenuSelect" onchange="onColMenuChange()" style="min-width: 180px;" required>
-                <option value="发文管理">发文管理</option>
+                <option value="" selected>请选择</option>
+                <option>发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
                 <option value="待办列表">待办列表</option>
@@ -3834,7 +3836,8 @@ input, select {
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
               <select class="filter-select" id="deptMenuSelect" onchange="onDeptMenuChange()" style="min-width: 180px;" required>
-                <option value="发文管理">发文管理</option>
+                <option value="" selected>请选择</option>
+                <option>发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
                 <option value="待办列表">待办列表</option>
@@ -3857,7 +3860,8 @@ input, select {
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
               <select class="filter-select" id="personMenuSelect" onchange="onPersonMenuChange()" style="min-width: 180px;" required>
-                <option value="发文管理">发文管理</option>
+                <option value="" selected>请选择</option>
+                <option>发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
                 <option value="待办列表">待办列表</option>
@@ -3880,7 +3884,8 @@ input, select {
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
               <select class="filter-select" id="dateMenuSelect" onchange="onDateMenuChange()" style="min-width: 180px;" required>
-                <option value="发文管理">发文管理</option>
+                <option value="" selected>请选择</option>
+                <option>发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
                 <option value="待办列表">待办列表</option>
@@ -3900,7 +3905,8 @@ input, select {
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
               <select class="filter-select" id="accDateMenuSelect" onchange="onAccDateMenuChange()" style="min-width: 180px;" required>
-                <option value="发文管理">发文管理</option>
+                <option value="" selected>请选择</option>
+                <option>发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
                 <option value="待办列表">待办列表</option>
@@ -3920,7 +3926,8 @@ input, select {
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
               <select class="filter-select" id="detailMenuSelect" onchange="onDetailMenuChange()" style="min-width: 180px;" required>
-                <option value="发文管理">发文管理</option>
+                <option value="" selected>请选择</option>
+                <option>发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
                 <option value="待办列表">待办列表</option>
@@ -4251,9 +4258,11 @@ input, select {
     ];
 
     function buildColOptions(arr, selected) {
-      return arr.map(function(o) {
+      var html = '<option value="">请选择</option>';
+      html += arr.map(function(o) {
         return '<option value="' + o.code + '"' + (o.code === selected ? ' selected' : '') + '>' + o.name + '</option>';
       }).join('');
+      return html;
     }
 
     var fieldTypes = [
@@ -4489,7 +4498,7 @@ input, select {
       ]
     };
 
-    var dateCtrlOpts = '<option value="0">不可修改</option><option value="1">可修改</option>';
+    var dateCtrlOpts = '<option value="">请选择</option><option value="0">不可修改</option><option value="1">可修改</option>';
 
     window.onDateMenuChange = function () {
       var menu = document.getElementById('dateMenuSelect').value;
@@ -4596,7 +4605,7 @@ input, select {
     function renderDetail(menuName) {
       var data = detailPermissionMap[menuName] || { code: '-', val: '0' };
       var tbody = document.getElementById('detailTbody');
-      var optionsHtml = detailEnumOptions.map(function(o) {
+      var optionsHtml = '<option value="">请选择</option>' + detailEnumOptions.map(function(o) {
         return '<option value="' + o.val + '"' + (o.val === data.val ? ' selected' : '') + '>' + o.label + '</option>';
       }).join('');
       tbody.innerHTML = '<tr><td>' + menuName + '</td><td style="font-family:Menlo,monospace;font-size:12px;color:var(--text-secondary);">' + data.code + '</td>' +
@@ -4612,8 +4621,6 @@ input, select {
     /* ===== 初始化 ===== */
     initTree();
     renderButtons('发文管理');
-    document.getElementById('menuSelect').value = '发文管理';
-    document.getElementById('colMenuSelect').value = '发文管理';
     renderColumns('发文管理');
     onDeptMenuChange();
     onPersonMenuChange();
