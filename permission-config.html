@@ -3777,8 +3777,8 @@ input, select {
             <div class="panel-desc">配置当前选中菜单下的按钮级权限，决定角色在该菜单中可执行的操作。</div>
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="menuSelect" onchange="onMenuChange()" style="min-width: 180px;">
-                <option>发文管理</option>
+              <select class="filter-select" id="menuSelect" onchange="onMenuChange()" style="min-width: 180px;" required>
+                <option value="">发文管理</option>
                 <option>收文管理</option>
                 <option>文件流转</option>
                 <option>待办列表</option>
@@ -3804,7 +3804,7 @@ input, select {
             <div class="panel-desc">配置字段级权限：字段授权（不可视/部分加密/不可修改）及加密方法</div>
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="colMenuSelect" onchange="onColMenuChange()" style="min-width: 180px;">
+              <select class="filter-select" id="colMenuSelect" onchange="onColMenuChange()" style="min-width: 180px;" required>
                 <option value="发文管理">发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
@@ -3833,7 +3833,7 @@ input, select {
             <div class="panel-desc">按菜单配置部门数据权限（9级），管控不同部门间及相关部门群组间的查询/修改/删除权限</div>
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="deptMenuSelect" onchange="onDeptMenuChange()" style="min-width: 180px;">
+              <select class="filter-select" id="deptMenuSelect" onchange="onDeptMenuChange()" style="min-width: 180px;" required>
                 <option value="发文管理">发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
@@ -3856,7 +3856,7 @@ input, select {
             <div class="panel-desc">按菜单配置个人数据权限（5级），管控按资料所有者的查询/修改/删除权限</div>
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="personMenuSelect" onchange="onPersonMenuChange()" style="min-width: 180px;">
+              <select class="filter-select" id="personMenuSelect" onchange="onPersonMenuChange()" style="min-width: 180px;" required>
                 <option value="发文管理">发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
@@ -3879,7 +3879,7 @@ input, select {
             <div class="panel-desc">按菜单配置单据日期管控方式</div>
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="dateMenuSelect" onchange="onDateMenuChange()" style="min-width: 180px;">
+              <select class="filter-select" id="dateMenuSelect" onchange="onDateMenuChange()" style="min-width: 180px;" required>
                 <option value="发文管理">发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
@@ -3899,7 +3899,7 @@ input, select {
             <div class="panel-desc">按菜单配置扣账日期管控方式</div>
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="accDateMenuSelect" onchange="onAccDateMenuChange()" style="min-width: 180px;">
+              <select class="filter-select" id="accDateMenuSelect" onchange="onAccDateMenuChange()" style="min-width: 180px;" required>
                 <option value="发文管理">发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
@@ -3919,7 +3919,7 @@ input, select {
             <div class="panel-desc">按菜单配置单身明细权限，控制明细行的新增和删除操作</div>
             <div class="panel-toolbar">
               <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="detailMenuSelect" onchange="onDetailMenuChange()" style="min-width: 180px;">
+              <select class="filter-select" id="detailMenuSelect" onchange="onDetailMenuChange()" style="min-width: 180px;" required>
                 <option value="发文管理">发文管理</option>
                 <option value="收文管理">收文管理</option>
                 <option value="文件流转">文件流转</option>
@@ -4323,9 +4323,9 @@ input, select {
         return '<tr>' +
           '<td>' + c.name + '</td>' +
           '<td><code>' + c.code + '</code></td>' +
-          '<td><select class="col-select" onchange="onColTypeChange(' + i + ', this)">' + buildColOptions(fieldTypes, c.fieldType || 'general') + '</select></td>' +
-          '<td><select class="col-select" onchange="onColAuthChange(' + i + ', this)">' + buildColOptions(fieldAuths, c.fieldAuth) + '</select></td>' +
-          '<td><select class="col-select mask-select"' + maskStyle + maskDis + ' onchange="onMaskChange(' + i + ', this)">' + buildColOptions(maskModes, c.maskMode || '') + '</select></td>' +
+          '<td><select class="col-select" onchange="onColTypeChange(' + i + ', this)" required>' + buildColOptions(fieldTypes, c.fieldType || 'general') + '</select></td>' +
+          '<td><select class="col-select" onchange="onColAuthChange(' + i + ', this)" required>' + buildColOptions(fieldAuths, c.fieldAuth) + '</select></td>' +
+          '<td><select class="col-select mask-select"' + maskStyle + maskDis + ' onchange="onMaskChange(' + i + ', this)" required>' + buildColOptions(maskModes, c.maskMode || '') + '</select></td>' +
           '</tr>';
       }).join('');
       updateColCount();
@@ -4403,7 +4403,7 @@ input, select {
         return '<tr>' +
           '<td>' + d.name + '</td>' +
           '<td><code>' + d.code + '</code></td>' +
-          '<td><select class="col-select" onchange="deptMenuData[\'' + menu + '\'][' + i + '].deptScope=this.value">' + buildColOptions(deptScopes, d.deptScope) + '</select></td>' +
+          '<td><select class="col-select" onchange="deptMenuData[\'' + menu + '\'][' + i + '].deptScope=this.value" required>' + buildColOptions(deptScopes, d.deptScope) + '</select></td>' +
           '<td style="font-size:12px;color:var(--text-secondary);">' + (d.desc || '-') + '</td>' +
           '</tr>';
       }).join('');
@@ -4439,7 +4439,7 @@ input, select {
         return '<tr>' +
           '<td>' + d.name + '</td>' +
           '<td><code>' + d.code + '</code></td>' +
-          '<td><select class="col-select" onchange="personMenuData[\'' + menu + '\'][' + i + '].personScope=this.value">' + buildColOptions(personScopes, d.personScope) + '</select></td>' +
+          '<td><select class="col-select" onchange="personMenuData[\'' + menu + '\'][' + i + '].personScope=this.value" required>' + buildColOptions(personScopes, d.personScope) + '</select></td>' +
           '<td style="font-size:12px;color:var(--text-secondary);">' + (d.desc || '-') + '</td>' +
           '</tr>';
       }).join('');
@@ -4500,7 +4500,7 @@ input, select {
         return '<tr>' +
           '<td>' + d.name + '</td>' +
           '<td><code>' + d.code + '</code></td>' +
-          '<td><select class="filter-select" style="width:100%;" onchange="onDateCtrlChange(\'' + menu + '\',' + i + ', this)">' + opts + '</select></td>' +
+          '<td><select class="filter-select" style="width:100%;" onchange="onDateCtrlChange(\'' + menu + '\',' + i + ', this)" required>' + opts + '</select></td>' +
           '</tr>';
       }).join('');
     };
@@ -4520,7 +4520,7 @@ input, select {
         return '<tr>' +
           '<td>' + d.name + '</td>' +
           '<td><code>' + d.code + '</code></td>' +
-          '<td><select class="filter-select" style="width:100%;" onchange="onAccDateCtrlChange(\'' + menu + '\',' + i + ', this)">' + opts + '</select></td>' +
+          '<td><select class="filter-select" style="width:100%;" onchange="onAccDateCtrlChange(\'' + menu + '\',' + i + ', this)" required>' + opts + '</select></td>' +
           '</tr>';
       }).join('');
     };
@@ -4600,7 +4600,7 @@ input, select {
         return '<option value="' + o.val + '"' + (o.val === data.val ? ' selected' : '') + '>' + o.label + '</option>';
       }).join('');
       tbody.innerHTML = '<tr><td>' + menuName + '</td><td style="font-family:Menlo,monospace;font-size:12px;color:var(--text-secondary);">' + data.code + '</td>' +
-        '<td><select class="filter-select" style="width:100%;">' + optionsHtml + '</select></td></tr>';
+        '<td><select class="filter-select" style="width:100%;" required>' + optionsHtml + '</select></td></tr>';
     }
 
     window.onDetailMenuChange = function () {

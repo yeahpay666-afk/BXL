@@ -533,7 +533,7 @@
         <label>系统名称</label>
         <input type="text" id="filterName" placeholder="请输入" style="width:160px;" oninput="filterTable()">
         <label>状态</label>
-        <select id="filterStatus" style="width:100px;" onchange="filterTable()">
+        <select id="filterStatus" style="width:100px;" onchange="filterTable()" required>
           <option value="">请选择</option>
           <option value="normal">正常</option>
           <option value="disabled">停用</option>
@@ -571,7 +571,7 @@
         <div class="form-group"><label class="form-label">系统描述</label><textarea class="form-input" id="sysDesc" placeholder="请输入系统描述"></textarea></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">排序</label><input type="number" class="form-input" id="sysSort" value="100" min="1"></div>
-          <div class="form-group"><label class="form-label">状态</label><select class="form-input" id="sysStatus"><option value="normal">正常</option><option value="disabled">停用</option></select></div>
+          <div class="form-group"><label class="form-label">状态</label><select class="form-input" id="sysStatus" required><option value="normal">正常</option><option value="disabled">停用</option></select></div>
         </div>
       </div>
       <div class="modal-footer">
@@ -793,7 +793,7 @@
           </div>
           <div class="form-item">
             <label class="form-label">上级菜单 <span style="color:#ef4444;">*</span></label>
-            <select class="form-select" id="newMenuParent" style="width:100%;"></select>
+            <select class="form-select" id="newMenuParent" style="width:100%;" required></select>
           </div>
           <div class="form-item">
             <label class="form-label">排序</label>
@@ -801,7 +801,7 @@
           </div>
           <div class="form-item">
             <label class="form-label">状态</label>
-            <select class="form-select" id="newMenuStatus" style="width:100%;">
+            <select class="form-select" id="newMenuStatus" style="width:100%;" required>
               <option value="on">启用</option>
               <option value="off">停用</option>
             </select>

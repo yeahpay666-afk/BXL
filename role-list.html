@@ -792,8 +792,8 @@
         <span class="icon">🔍</span>
         <input type="text" id="searchInput" placeholder="搜索角色名称/编码..." oninput="filterTable()">
       </div>
-      <select class="filter-select" id="statusFilter" onchange="filterTable()">
-        <option>全部状态</option>
+      <select class="filter-select" id="statusFilter" onchange="filterTable()" required>
+        <option value="">全部状态</option>
         <option>启用</option>
         <option>禁用</option>
       </select>

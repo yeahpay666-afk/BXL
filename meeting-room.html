@@ -598,7 +598,7 @@
           </div>
           <div class="table-toolbar-right" style="display:flex; gap:8px; align-items:center;">
             <input type="text" class="filter-input" placeholder="搜索会议室名称/编号" style="width:180px; padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" id="searchInput">
-            <select class="filter-select" id="filterStatus" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;">
+            <select class="filter-select" id="filterStatus" style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px;" required>
               <option value="">全部状态</option>
               <option value="on">启用</option>
               <option value="maintain">维护中</option>
@@ -709,7 +709,7 @@
             </div>
             <div class="form-item">
               <div class="form-label"><span class="req">*</span>状态</div>
-              <select class="form-select" id="fStatus">
+              <select class="form-select" id="fStatus" required>
                 <option value="on">启用</option>
                 <option value="maintain">维护中</option>
                 <option value="off">停用</option>

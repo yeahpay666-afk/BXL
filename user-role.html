@@ -3460,8 +3460,8 @@ input, select {
         <span class="icon">🔍</span>
         <input type="text" id="searchInput" placeholder="搜索用户姓名/工号..." oninput="filterTable()">
       </div>
-      <select class="filter-select" id="deptFilter" onchange="filterTable()">
-        <option>全部部门</option>
+      <select class="filter-select" id="deptFilter" onchange="filterTable()" required>
+        <option value="">全部部门</option>
         <option>信息部</option>
         <option>生产部</option>
         <option>人力资源部</option>
@@ -3469,8 +3469,8 @@ input, select {
         <option>市场部</option>
         <option>采购部</option>
       </select>
-      <select class="filter-select" id="positionFilter" onchange="filterTable()">
-        <option>全部岗位</option>
+      <select class="filter-select" id="positionFilter" onchange="filterTable()" required>
+        <option value="">全部岗位</option>
         <option>产品经理</option>
         <option>生产主管</option>
         <option>HR专员</option>
@@ -3481,8 +3481,8 @@ input, select {
         <option>会计</option>
         <option>后端工程师</option>
       </select>
-      <select class="filter-select" id="statusFilter" onchange="filterTable()">
-        <option>全部状态</option>
+      <select class="filter-select" id="statusFilter" onchange="filterTable()" required>
+        <option value="">全部状态</option>
         <option>启用</option>
         <option>禁用</option>
       </select>

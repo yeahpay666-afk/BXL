@@ -1034,14 +1034,14 @@
           <span class="icon">🔍</span>
           <input type="text" id="adminSearch" placeholder="搜索课程名称..." oninput="filterTable()">
         </div>
-        <select class="filter-select" id="adminCatFilter" onchange="filterTable()">
+        <select class="filter-select" id="adminCatFilter" onchange="filterTable()" required>
           <option value="">全部分类</option>
           <option value="制度规范">制度规范</option>
           <option value="产品知识">产品知识</option>
           <option value="职业技能">职业技能</option>
           <option value="系统操作">系统操作</option>
         </select>
-        <select class="filter-select" id="adminStatusFilter" onchange="filterTable()">
+        <select class="filter-select" id="adminStatusFilter" onchange="filterTable()" required>
           <option value="">全部状态</option>
           <option value="已发布">已发布</option>
           <option value="草稿">草稿</option>
@@ -1298,7 +1298,7 @@
             <span class="icon">🔍</span>
             <input type="text" id="examSearchInput" placeholder="搜索考试名称..." oninput="filterExamTable()">
           </div>
-          <select class="filter-select" id="examStatusFilter" onchange="filterExamTable()">
+          <select class="filter-select" id="examStatusFilter" onchange="filterExamTable()" required>
             <option value="">全部状态</option>
             <option value="已发布">已发布</option>
             <option value="草稿">草稿</option>
@@ -1613,7 +1613,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">完成条件 <span style="color:#ef4444;">*</span></label>
-            <select class="form-input" id="completeCondition" style="appearance:auto;">
+            <select class="form-input" id="completeCondition" style="appearance:auto;" required>
               <option value="watch_all">观看完视频即可</option>
               <option value="pass_test">考试通过即可</option>
             </select>
@@ -2777,7 +2777,7 @@
         var html = '<div class="exam-question-card">';
         html += '<div class="exam-q-header">';
         html += '<span class="exam-q-num">第' + (qi + 1) + '题</span>';
-        html += '<select class="exam-q-type" onchange="changeExamType(' + qi + ', this)">';
+        html += '<select class="exam-q-type" onchange="changeExamType(' + qi + ', this)" required>';
         html += '<option value="single"' + (q.type === 'single' ? ' selected' : '') + '>单选题</option>';
         html += '<option value="multi"' + (q.type === 'multi' ? ' selected' : '') + '>多选题</option>';
         html += '<option value="judge"' + (q.type === 'judge' ? ' selected' : '') + '>判断题</option>';

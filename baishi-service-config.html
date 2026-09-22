@@ -1012,7 +1012,7 @@
       <div style="display:grid;grid-template-columns:120px 1fr;gap:12px 16px;align-items:start;margin-bottom:22px;">
         <div style="text-align:right;padding-top:10px;font-size:14px;color:var(--text-primary);">所属系统 <span style="color:#ef4444;">*</span></div>
         <div>
-          <select id="serviceSystem" style="width:100%;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;background:#fff;appearance:auto;cursor:pointer;">
+          <select id="serviceSystem" style="width:100%;padding:9px 12px;border:1px solid #d9dce3;border-radius:6px;font-size:14px;outline:none;background:#fff;appearance:auto;cursor:pointer;" required>
             <option value="">请选择所属系统</option>
             <option value="T100">T100</option>
             <option value="OA">OA</option>
@@ -1126,7 +1126,7 @@
           <div class="form-group">
             <label class="form-label">课程分类 <span style="color:#ef4444;">*</span></label>
             <div style="display:flex;gap:8px;">
-              <select class="form-input" id="courseCategory" style="appearance:auto;flex:1;" onchange="onCategoryChange(this)">
+              <select class="form-input" id="courseCategory" style="appearance:auto;flex:1;" onchange="onCategoryChange(this)" required>
                 <option value="">请选择分类</option>
                 <option>制度规范</option>
                 <option>产品知识</option>
@@ -1247,7 +1247,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">完成条件 <span style="color:#ef4444;">*</span></label>
-            <select class="form-input" id="completeCondition" style="appearance:auto;">
+            <select class="form-input" id="completeCondition" style="appearance:auto;" required>
               <option value="watch_all">观看完视频即可</option>
               <option value="pass_test">考试通过即可</option>
             </select>
@@ -2359,7 +2359,7 @@
         var html = '<div class="exam-question-card">';
         html += '<div class="exam-q-header">';
         html += '<span class="exam-q-num">第' + (qi + 1) + '题</span>';
-        html += '<select class="exam-q-type" onchange="changeExamType(' + qi + ', this)">';
+        html += '<select class="exam-q-type" onchange="changeExamType(' + qi + ', this)" required>';
         html += '<option value="single"' + (q.type === 'single' ? ' selected' : '') + '>单选题</option>';
         html += '<option value="multi"' + (q.type === 'multi' ? ' selected' : '') + '>多选题</option>';
         html += '<option value="judge"' + (q.type === 'judge' ? ' selected' : '') + '>判断题</option>';
