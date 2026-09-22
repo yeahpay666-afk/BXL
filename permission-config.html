@@ -4023,9 +4023,13 @@ input, select {
       document.querySelectorAll('.tab-panel').forEach(function (p) {
         p.classList.toggle('active', p.id === 'panel-' + name);
       });
+      if (name === 'button') onMenuChange();
+      if (name === 'col') onColMenuChange();
       if (name === 'dept') onDeptMenuChange();
       if (name === 'person') onPersonMenuChange();
       if (name === 'date') onDateMenuChange();
+      if (name === 'accdate') onAccDateMenuChange();
+      if (name === 'detail') onDetailMenuChange();
     };
 
     /* ===== 权限树：三态复选框联动 ===== */
@@ -4207,8 +4211,14 @@ input, select {
       }).join('');
       updateBtnCount();
     }
-    window.onMenuChange = function () { renderButtons(document.getElementById('menuSelect').value); };
-    window.onColMenuChange = function () { renderColumns(document.getElementById('colMenuSelect').value); };
+    window.onMenuChange = function () { 
+      var menu = document.getElementById('menuSelect').value || '发文管理';
+      renderButtons(menu); 
+    };
+    window.onColMenuChange = function () { 
+      var menu = document.getElementById('colMenuSelect').value || '发文管理';
+      renderColumns(menu); 
+    };
     window.updateBtnCount = function () {
       var total = document.querySelectorAll('#btnTbody tr').length;
       var sel = document.querySelectorAll('#btnTbody input:checked').length;
@@ -4258,9 +4268,9 @@ input, select {
     ];
 
     function buildColOptions(arr, selected) {
-      var html = '<option value="">请选择</option>';
+      var html = '<option value="" selected>请选择</option>';
       html += arr.map(function(o) {
-        return '<option value="' + o.code + '"' + (o.code === selected ? ' selected' : '') + '>' + o.name + '</option>';
+        return '<option value="' + o.code + '">' + o.name + '</option>';
       }).join('');
       return html;
     }
@@ -4405,7 +4415,7 @@ input, select {
     };
 
     window.onDeptMenuChange = function () {
-      var menu = document.getElementById('deptMenuSelect').value;
+      var menu = document.getElementById('deptMenuSelect').value || '发文管理';
       var data = deptMenuData[menu] || [];
       var tb = document.getElementById('deptTbody');
       tb.innerHTML = data.map(function (d, i) {
@@ -4441,7 +4451,7 @@ input, select {
     };
 
     window.onPersonMenuChange = function () {
-      var menu = document.getElementById('personMenuSelect').value;
+      var menu = document.getElementById('personMenuSelect').value || '发文管理';
       var data = personMenuData[menu] || [];
       var tb = document.getElementById('personTbody');
       tb.innerHTML = data.map(function (d, i) {
@@ -4501,15 +4511,14 @@ input, select {
     var dateCtrlOpts = '<option value="">请选择</option><option value="0">不可修改</option><option value="1">可修改</option>';
 
     window.onDateMenuChange = function () {
-      var menu = document.getElementById('dateMenuSelect').value;
+      var menu = document.getElementById('dateMenuSelect').value || '发文管理';
       var data = dateMenuData[menu] || [];
       var tb = document.getElementById('dateTbody');
       tb.innerHTML = data.map(function (d, i) {
-        var opts = dateCtrlOpts.replace('value="' + d.ctrl + '">', 'value="' + d.ctrl + '" selected>');
         return '<tr>' +
           '<td>' + d.name + '</td>' +
           '<td><code>' + d.code + '</code></td>' +
-          '<td><select class="filter-select" style="width:100%;" onchange="onDateCtrlChange(\'' + menu + '\',' + i + ', this)" required>' + opts + '</select></td>' +
+          '<td><select class="filter-select" style="width:100%;" onchange="onDateCtrlChange(\'' + menu + '\',' + i + ', this)" required>' + dateCtrlOpts + '</select></td>' +
           '</tr>';
       }).join('');
     };
@@ -4521,15 +4530,14 @@ input, select {
     };
 
     window.onAccDateMenuChange = function () {
-      var menu = document.getElementById('accDateMenuSelect').value;
+      var menu = document.getElementById('accDateMenuSelect').value || '发文管理';
       var data = accDateMenuData[menu] || [];
       var tb = document.getElementById('accDateTbody');
       tb.innerHTML = data.map(function (d, i) {
-        var opts = dateCtrlOpts.replace('value="' + d.ctrl + '">', 'value="' + d.ctrl + '" selected>');
         return '<tr>' +
           '<td>' + d.name + '</td>' +
           '<td><code>' + d.code + '</code></td>' +
-          '<td><select class="filter-select" style="width:100%;" onchange="onAccDateCtrlChange(\'' + menu + '\',' + i + ', this)" required>' + opts + '</select></td>' +
+          '<td><select class="filter-select" style="width:100%;" onchange="onAccDateCtrlChange(\'' + menu + '\',' + i + ', this)" required>' + dateCtrlOpts + '</select></td>' +
           '</tr>';
       }).join('');
     };
@@ -4605,8 +4613,8 @@ input, select {
     function renderDetail(menuName) {
       var data = detailPermissionMap[menuName] || { code: '-', val: '0' };
       var tbody = document.getElementById('detailTbody');
-      var optionsHtml = '<option value="">请选择</option>' + detailEnumOptions.map(function(o) {
-        return '<option value="' + o.val + '"' + (o.val === data.val ? ' selected' : '') + '>' + o.label + '</option>';
+      var optionsHtml = '<option value="" selected>请选择</option>' + detailEnumOptions.map(function(o) {
+        return '<option value="' + o.val + '">' + o.label + '</option>';
       }).join('');
       tbody.innerHTML = '<tr><td>' + menuName + '</td><td style="font-family:Menlo,monospace;font-size:12px;color:var(--text-secondary);">' + data.code + '</td>' +
         '<td><select class="filter-select" style="width:100%;" required>' + optionsHtml + '</select></td></tr>';
@@ -4615,13 +4623,13 @@ input, select {
     window.onDetailMenuChange = function () {
       var sel = document.getElementById('detailMenuSelect');
       if (!sel) return;
-      renderDetail(sel.value);
+      renderDetail(sel.value || '发文管理');
     };
 
     /* ===== 初始化 ===== */
     initTree();
-    renderButtons('发文管理');
-    renderColumns('发文管理');
+    onMenuChange();
+    onColMenuChange();
     onDeptMenuChange();
     onPersonMenuChange();
     onDateMenuChange();
