@@ -3277,8 +3277,10 @@ input, select {
     .tree-icon { font-size: 15px; }
     .tree-label { cursor: pointer; user-select: none; color: var(--text-primary); }
     .tree-label:hover { color: var(--primary-color); }
-    .tree-row .leaf-label { cursor: default; }
-    .tree-row .leaf-label:hover { color: var(--text-primary); }
+    .tree-row .leaf-label { cursor: pointer; }
+    .tree-row .leaf-label:hover { color: var(--primary-color); }
+    .tree-row.tree-selected { background: #eff6ff; border-radius: 6px; }
+    .tree-row.tree-selected .leaf-label { color: var(--primary-color); font-weight: 600; }
 
     /* Tab 面板 */
     .tab-panel { display: none; }
@@ -3646,7 +3648,7 @@ input, select {
                         <span class="tree-toggle leaf">▾</span>
                         <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
                         <span class="tree-icon">📝</span>
-                        <span class="tree-label leaf-label">发文管理</span>
+                        <span class="tree-label leaf-label" onclick="onTreeMenuClick('发文管理')">发文管理</span>
                       </div>
                     </li>
                     <li class="tree-node">
@@ -3654,7 +3656,7 @@ input, select {
                         <span class="tree-toggle leaf">▾</span>
                         <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
                         <span class="tree-icon">📥</span>
-                        <span class="tree-label leaf-label">收文管理</span>
+                        <span class="tree-label leaf-label" onclick="onTreeMenuClick('收文管理')">收文管理</span>
                       </div>
                     </li>
                     <li class="tree-node">
@@ -3662,7 +3664,7 @@ input, select {
                         <span class="tree-toggle leaf">▾</span>
                         <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
                         <span class="tree-icon">🔄</span>
-                        <span class="tree-label leaf-label">文件流转</span>
+                        <span class="tree-label leaf-label" onclick="onTreeMenuClick('文件流转')">文件流转</span>
                       </div>
                     </li>
                     <li class="tree-node">
@@ -3689,7 +3691,7 @@ input, select {
                         <span class="tree-toggle leaf">▾</span>
                         <span class="tree-check checked" data-orig="checked" onclick="toggleCheck(this)"></span>
                         <span class="tree-icon">📋</span>
-                        <span class="tree-label leaf-label">待办列表</span>
+                        <span class="tree-label leaf-label" onclick="onTreeMenuClick('待办列表')">待办列表</span>
                       </div>
                     </li>
                     <li class="tree-node">
@@ -3762,6 +3764,15 @@ input, select {
       <!-- 右栏：权限详情 Tab -->
       <div class="card">
         <div class="card-body" style="padding: 20px;">
+          <div class="panel-toolbar" style="margin-bottom: 12px;">
+            <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
+            <select class="filter-select" id="globalMenuSelect" onchange="onGlobalMenuChange()" style="min-width: 180px;">
+              <option selected>发文管理</option>
+              <option>收文管理</option>
+              <option>文件流转</option>
+              <option>待办列表</option>
+            </select>
+          </div>
           <div class="tabs">
             <div class="tab-item active" data-tab="button" onclick="switchTab('button')">按钮权限</div>
             <div class="tab-item" data-tab="col" onclick="switchTab('col')">字段权限</div>
@@ -3775,16 +3786,6 @@ input, select {
           <!-- Tab1: 按钮权限 -->
           <div class="tab-panel active" id="panel-button">
             <div class="panel-desc">配置当前选中菜单下的按钮级权限，决定角色在该菜单中可执行的操作。</div>
-            <div class="panel-toolbar">
-              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="menuSelect" onchange="onMenuChange()" style="min-width: 180px;" required>
-                <option value="" selected>请选择</option>
-                <option>发文管理</option>
-                <option>收文管理</option>
-                <option>文件流转</option>
-                <option>待办列表</option>
-              </select>
-            </div>
             <div style="overflow-x: auto;">
               <table class="table perm-table">
                 <thead>
@@ -3803,16 +3804,6 @@ input, select {
           <!-- Tab2: 字段权限 -->
           <div class="tab-panel" id="panel-col">
             <div class="panel-desc">配置字段级权限：字段授权（不可视/部分加密/不可修改）及加密方法</div>
-            <div class="panel-toolbar">
-              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="colMenuSelect" onchange="onColMenuChange()" style="min-width: 180px;" required>
-                <option value="" selected>请选择</option>
-                <option>发文管理</option>
-                <option value="收文管理">收文管理</option>
-                <option value="文件流转">文件流转</option>
-                <option value="待办列表">待办列表</option>
-              </select>
-            </div>
             <div style="overflow-x: auto;">
               <table class="table perm-table">
                 <thead>
@@ -3833,16 +3824,6 @@ input, select {
           <!-- Tab3: 部门数据权限 -->
           <div class="tab-panel" id="panel-dept">
             <div class="panel-desc">按菜单配置部门数据权限（9级），管控不同部门间及相关部门群组间的查询/修改/删除权限</div>
-            <div class="panel-toolbar">
-              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="deptMenuSelect" onchange="onDeptMenuChange()" style="min-width: 180px;" required>
-                <option value="" selected>请选择</option>
-                <option>发文管理</option>
-                <option value="收文管理">收文管理</option>
-                <option value="文件流转">文件流转</option>
-                <option value="待办列表">待办列表</option>
-              </select>
-            </div>
             <div style="overflow-x:auto;">
               <table class="table perm-table">
                 <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">部门数据权限</th><th style="width:200px;">说明</th></tr></thead>
@@ -3857,16 +3838,6 @@ input, select {
           <!-- Tab4: 个人数据权限 -->
           <div class="tab-panel" id="panel-person">
             <div class="panel-desc">按菜单配置个人数据权限（5级），管控按资料所有者的查询/修改/删除权限</div>
-            <div class="panel-toolbar">
-              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="personMenuSelect" onchange="onPersonMenuChange()" style="min-width: 180px;" required>
-                <option value="" selected>请选择</option>
-                <option>发文管理</option>
-                <option value="收文管理">收文管理</option>
-                <option value="文件流转">文件流转</option>
-                <option value="待办列表">待办列表</option>
-              </select>
-            </div>
             <div style="overflow-x:auto;">
               <table class="table perm-table">
                 <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">个人数据权限</th><th style="width:200px;">说明</th></tr></thead>
@@ -3881,16 +3852,6 @@ input, select {
           <!-- Tab5: 单据日期管控方式 -->
           <div class="tab-panel" id="panel-date">
             <div class="panel-desc">按菜单配置单据日期管控方式</div>
-            <div class="panel-toolbar">
-              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="dateMenuSelect" onchange="onDateMenuChange()" style="min-width: 180px;" required>
-                <option value="" selected>请选择</option>
-                <option>发文管理</option>
-                <option value="收文管理">收文管理</option>
-                <option value="文件流转">文件流转</option>
-                <option value="待办列表">待办列表</option>
-              </select>
-            </div>
             <div style="overflow-x:auto;">
             <table class="table perm-table">
               <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">管控方式</th></tr></thead>
@@ -3902,16 +3863,6 @@ input, select {
           <!-- Tab5b: 扣账日期管控方式 -->
           <div class="tab-panel" id="panel-accdate">
             <div class="panel-desc">按菜单配置扣账日期管控方式</div>
-            <div class="panel-toolbar">
-              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="accDateMenuSelect" onchange="onAccDateMenuChange()" style="min-width: 180px;" required>
-                <option value="" selected>请选择</option>
-                <option>发文管理</option>
-                <option value="收文管理">收文管理</option>
-                <option value="文件流转">文件流转</option>
-                <option value="待办列表">待办列表</option>
-              </select>
-            </div>
             <div style="overflow-x:auto;">
             <table class="table perm-table">
               <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:180px;">管控方式</th></tr></thead>
@@ -3923,16 +3874,6 @@ input, select {
           <!-- Tab6: 单身明细 -->
           <div class="tab-panel" id="panel-detail">
             <div class="panel-desc">按菜单配置单身明细权限，控制明细行的新增和删除操作</div>
-            <div class="panel-toolbar">
-              <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">选择菜单</span>
-              <select class="filter-select" id="detailMenuSelect" onchange="onDetailMenuChange()" style="min-width: 180px;" required>
-                <option value="" selected>请选择</option>
-                <option>发文管理</option>
-                <option value="收文管理">收文管理</option>
-                <option value="文件流转">文件流转</option>
-                <option value="待办列表">待办列表</option>
-              </select>
-            </div>
             <div style="overflow-x:auto;">
               <table class="table perm-table">
                 <thead><tr><th>菜单名称</th><th>权限码</th><th style="width:140px;">明细权限</th></tr></thead>
@@ -4023,13 +3964,6 @@ input, select {
       document.querySelectorAll('.tab-panel').forEach(function (p) {
         p.classList.toggle('active', p.id === 'panel-' + name);
       });
-      if (name === 'button') onMenuChange();
-      if (name === 'col') onColMenuChange();
-      if (name === 'dept') onDeptMenuChange();
-      if (name === 'person') onPersonMenuChange();
-      if (name === 'date') onDateMenuChange();
-      if (name === 'accdate') onAccDateMenuChange();
-      if (name === 'detail') onDetailMenuChange();
     };
 
     /* ===== 权限树：三态复选框联动 ===== */
@@ -4211,14 +4145,35 @@ input, select {
       }).join('');
       updateBtnCount();
     }
-    window.onMenuChange = function () { 
-      var menu = document.getElementById('menuSelect').value || '发文管理';
-      renderButtons(menu); 
+    window.onGlobalMenuChange = function () {
+      var menu = document.getElementById('globalMenuSelect').value;
+      renderButtons(menu);
+      renderColumns(menu);
+      renderDept(menu);
+      renderPerson(menu);
+      renderDate(menu);
+      renderAccDate(menu);
+      renderDetail(menu);
+      highlightTreeMenu(menu);
     };
-    window.onColMenuChange = function () { 
-      var menu = document.getElementById('colMenuSelect').value || '发文管理';
-      renderColumns(menu); 
+    window.onTreeMenuClick = function (menu) {
+      var sel = document.getElementById('globalMenuSelect');
+      sel.value = menu;
+      onGlobalMenuChange();
     };
+    function highlightTreeMenu(menu) {
+      document.querySelectorAll('.tree-row.tree-selected').forEach(function (r) {
+        r.classList.remove('tree-selected');
+      });
+      if (!menu) return;
+      var labels = document.querySelectorAll('.tree-label.leaf-label');
+      for (var i = 0; i < labels.length; i++) {
+        if (labels[i].textContent.trim() === menu) {
+          labels[i].closest('.tree-row').classList.add('tree-selected');
+          break;
+        }
+      }
+    }
     window.updateBtnCount = function () {
       var total = document.querySelectorAll('#btnTbody tr').length;
       var sel = document.querySelectorAll('#btnTbody input:checked').length;
@@ -4351,14 +4306,14 @@ input, select {
     }
 
     window.onColTypeChange = function (idx, el) {
-      var menu = document.getElementById('colMenuSelect').value;
+      var menu = document.getElementById('globalMenuSelect').value;
       var data = columnDataMap[menu];
       if (!data || !data[idx]) return;
       data[idx].fieldType = el.value;
     };
 
     window.onColAuthChange = function (idx, el) {
-      var menu = document.getElementById('colMenuSelect').value;
+      var menu = document.getElementById('globalMenuSelect').value;
       var data = columnDataMap[menu];
       if (!data || !data[idx]) return;
       data[idx].fieldAuth = el.value;
@@ -4368,7 +4323,7 @@ input, select {
     };
 
     window.onMaskChange = function (idx, el) {
-      var menu = document.getElementById('colMenuSelect').value;
+      var menu = document.getElementById('globalMenuSelect').value;
       var data = columnDataMap[menu];
       if (!data || !data[idx]) return;
       data[idx].maskMode = el.value;
@@ -4414,8 +4369,7 @@ input, select {
       ]
     };
 
-    window.onDeptMenuChange = function () {
-      var menu = document.getElementById('deptMenuSelect').value || '发文管理';
+    window.renderDept = function (menu) {
       var data = deptMenuData[menu] || [];
       var tb = document.getElementById('deptTbody');
       tb.innerHTML = data.map(function (d, i) {
@@ -4450,8 +4404,7 @@ input, select {
       ]
     };
 
-    window.onPersonMenuChange = function () {
-      var menu = document.getElementById('personMenuSelect').value || '发文管理';
+    window.renderPerson = function (menu) {
       var data = personMenuData[menu] || [];
       var tb = document.getElementById('personTbody');
       tb.innerHTML = data.map(function (d, i) {
@@ -4510,8 +4463,7 @@ input, select {
 
     var dateCtrlOpts = '<option value="">请选择</option><option value="0">不可修改</option><option value="1">可修改</option>';
 
-    window.onDateMenuChange = function () {
-      var menu = document.getElementById('dateMenuSelect').value || '发文管理';
+    window.renderDate = function (menu) {
       var data = dateMenuData[menu] || [];
       var tb = document.getElementById('dateTbody');
       tb.innerHTML = data.map(function (d, i) {
@@ -4529,8 +4481,7 @@ input, select {
       data[idx].ctrl = sel.value;
     };
 
-    window.onAccDateMenuChange = function () {
-      var menu = document.getElementById('accDateMenuSelect').value || '发文管理';
+    window.renderAccDate = function (menu) {
       var data = accDateMenuData[menu] || [];
       var tb = document.getElementById('accDateTbody');
       tb.innerHTML = data.map(function (d, i) {
@@ -4551,8 +4502,7 @@ input, select {
     /* ===== 重置全部配置 ===== */
     window.resetConfig = function () {
       resetTree();
-      renderButtons(document.getElementById('menuSelect').value);
-      renderColumns();
+      onGlobalMenuChange();
       showToast('配置已重置为初始状态', 'info');
     };
 
@@ -4620,21 +4570,9 @@ input, select {
         '<td><select class="filter-select" style="width:100%;" required>' + optionsHtml + '</select></td></tr>';
     }
 
-    window.onDetailMenuChange = function () {
-      var sel = document.getElementById('detailMenuSelect');
-      if (!sel) return;
-      renderDetail(sel.value || '发文管理');
-    };
-
     /* ===== 初始化 ===== */
     initTree();
-    onMenuChange();
-    onColMenuChange();
-    onDeptMenuChange();
-    onPersonMenuChange();
-    onDateMenuChange();
-    onAccDateMenuChange();
-    onDetailMenuChange();
+    onGlobalMenuChange();
     // 初始化时非T100系统的单据日期管控、扣账日期管控和单身明细置灰
     var dateTab0 = document.querySelector('.tab-item[data-tab="date"]');
     var accDateTab0 = document.querySelector('.tab-item[data-tab="accdate"]');

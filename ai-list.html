@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI智能体 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #1f2937; font-size: 14px; }
@@ -22,7 +23,7 @@
     .top-right .avatar { width: 30px; height: 30px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
 
     /* 主体布局 */
-    .layout { display: flex; min-height: calc(100vh - 52px); }
+    .layout { display: flex; min-height: calc(100vh - 100px); margin-top: 100px; }
     .sidebar { width: 180px; background: #fff; border-right: 1px solid #e5e7eb; padding: 12px 0; }
     .side-title { padding: 8px 20px; font-size: 12px; color: #9ca3af; font-weight: 500; }
     .side-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: #4b5563; cursor: pointer; transition: all 0.15s; }
@@ -450,17 +451,16 @@
         </div>
       </div>
     </div>
-  </header>柏星龙业务数字化中台</div>
-    <div class="top-nav">
-      <a href="index.html">首页概览</a>
-      <a href="content-study.html" class="active">内容管理</a>
-      <a href="system-manage.html">系统管理</a>
-    </div>
-    <div class="top-right">
-      <div class="user">
-        <div class="avatar">张</div>
-        <span>张建国</span>
-      </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
     </div>
   </div>
 
