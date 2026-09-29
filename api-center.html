@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API中心 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    /* ===== API 中心页面样式 ===== */
+    .api-content { padding: 20px 24px 48px; min-width:0; }
+
+    /* KPI 卡片 */
+    .ov-kpi { display:flex; gap:12px; margin-bottom:14px; }
+    .ov-kpi .kpi { flex:1; min-width:0; background:#fff; border:1px solid #e5e6eb; border-radius:8px; padding:12px 14px; display:flex; align-items:center; gap:10px; }
+    .ov-kpi .kpi .ic { width:30px; height:30px; border-radius:6px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .ov-kpi .kpi .ic.i-blue { background:#e8f3ff; color:#1677ff; }
+    .ov-kpi .kpi .ic.i-green { background:#e8ffea; color:#00b42a; }
+    .ov-kpi .kpi .ic.i-red { background:#ffece8; color:#f53f3f; }
+    .ov-kpi .kpi .num { font-size:20px; font-weight:700; line-height:1.15; }
+    .ov-kpi .kpi .num.alert { color:#f53f3f; }
+    .ov-kpi .kpi .lbl { color:#86909c; font-size:12px; }
+
+    /* 工具栏 */
+    .ov-toolbar { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
+    .ov-toolbar .search { position:relative; flex:1; min-width:0; }
+    .ov-toolbar .search input { width:100%; padding:6px 10px 6px 28px; border:1px solid #dcdfe6; border-radius:6px; font-size:12.5px; background:#fff; color:#1f2329; }
+    .ov-toolbar .search:before { content:"🔍"; position:absolute; left:8px; top:6px; font-size:12px; opacity:.5; }
+    .ov-toolbar select { padding:6px 8px; border:1px solid #dcdfe6; border-radius:6px; font-size:12px; background:#fff; color:#1f2329; white-space:nowrap; }
+    .ov-toolbar .btn { flex-shrink:0; white-space:nowrap; }
+
+    /* 左右布局 */
+    .ov-grid { display:flex; gap:14px; align-items:flex-start; }
+    .ov-left { width:340px; flex-shrink:0; }
+    .ov-right { flex:1; min-width:0; }
+
+    /* 接口树 */
+    .tree { border:1px solid #e5e6eb; border-radius:8px; padding:6px; background:#fff; }
+    .tree .grp { padding:7px 8px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; cursor:pointer; border-radius:6px; }
+    .tree .grp.on { background:#e8f3ff; }
+    .tree .grp .arw { color:#86909c; font-size:10px; }
+    .tree .grp .arw:before { content:"▾"; }
+    .tree .gnode.col .grp .arw:before { content:"▸"; }
+    .tree .gnode.col .leaf { display:none; }
+    .tree .leaf { padding:6px 8px 6px 28px; border-radius:6px; cursor:pointer; display:flex; align-items:flex-start; gap:8px; color:#4e5969; }
+    .tree .leaf:hover { background:#f7f8fa; }
+    .tree .leaf.on { background:#e8f3ff; }
+    .tree .leaf .m { margin-top:1px; flex-shrink:0; }
+    .tree .leaf .linfo { flex:1; min-width:0; }
+    .tree .leaf .lname { color:#1f2329; line-height:1.35; }
+    .tree .leaf .lpath { color:#86909c; font-size:11px; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tree .st { font-size:11px; display:flex; align-items:center; gap:4px; margin-top:1px; white-space:nowrap; flex-shrink:0; }
+    .tree .st i { width:6px; height:6px; border-radius:50%; display:block; }
+    .tree .st.ok { color:#00b42a; } .tree .st.ok i { background:#00b42a; }
+    .tree .st.dly { color:#ff7d00; } .tree .st.dly i { background:#ff7d00; }
+    .tree .st.err { color:#f53f3f; } .tree .st.err i { background:#f53f3f; }
+    .tree .cnt { margin-left:auto; color:#86909c; font-size:11px; }
+
+    /* 详情面板 */
+    .api-card { background:#fff; border-radius:8px; border:1px solid #e5e6eb; padding:16px; }
+    .dtl-head { display:flex; align-items:center; gap:10px; padding-bottom:12px; border-bottom:1px solid #f2f3f5; margin-bottom:12px; }
+    .dtl-head .ic { width:30px; height:30px; border-radius:8px; background:#e8f3ff; color:#1677ff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .dtl-head .nm { font-size:15px; font-weight:600; display:flex; align-items:center; gap:6px; }
+    .dtl-head .pt { color:#86909c; font-size:12px; margin-top:2px; font-family:Menlo,Consolas,monospace; }
+    .dtl-head .en { display:flex; align-items:center; gap:6px; color:#4e5969; font-size:12px; margin-left:auto; }
+
+    .seg { border:1px solid #f2f3f5; border-radius:8px; padding:12px 14px; margin-bottom:10px; }
+    .seg h4 { font-size:13px; color:#4e5969; margin-bottom:8px; display:flex; align-items:center; }
+    .seg h4 .more { margin-left:auto; font-weight:400; font-size:12px; color:#1677ff; cursor:pointer; }
+    .seg .kv { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:4px 18px; font-size:12px; }
+    .seg .kv span { color:#86909c; }
+    .sub-head { font-size:12px; color:#4e5969; display:flex; align-items:center; margin:0 0 8px; }
+    .sub-head .more { margin-left:auto; font-weight:400; font-size:12px; color:#1677ff; cursor:pointer; }
+
+    /* 方法标签 */
+    .m { display:inline-block; padding:1px 6px; border-radius:4px; font-size:10px; font-weight:600; line-height:16px; }
+    .m-get { background:#e8f3ff; color:#1677ff; border:1px solid #bedaff; }
+    .m-post { background:#e8ffea; color:#00b42a; border:1px solid #aff0b5; }
+    .m-put { background:#fff7e8; color:#ff7d00; border:1px solid #ffd591; }
+    .m-del { background:#ffece8; color:#f53f3f; border:1px solid #fdcdc5; }
+
+    /* 徽章 */
+    .badge { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; line-height:18px; white-space:nowrap; }
+    .b-green { background:#e8ffea; color:#00b42a; border:1px solid #aff0b5; }
+    .b-red { background:#ffece8; color:#f53f3f; border:1px solid #fdcdc5; }
+    .b-orange { background:#fff7e8; color:#ff7d00; border:1px solid #ffd591; }
+    .b-gray { background:#f2f3f5; color:#86909c; border:1px solid #e5e6eb; }
+    .b-blue { background:#e8f3ff; color:#1677ff; border:1px solid #bedaff; }
+    .b-purple { background:#f5e8ff; color:#722ed1; border:1px solid #d3adf7; }
+
+    /* 按钮 */
+    .btn { display:inline-block; padding:6px 14px; border-radius:6px; border:1px solid #dcdfe6; background:#fff; color:#4e5969; cursor:pointer; font-size:13px; user-select:none; white-space:nowrap; text-decoration:none; }
+    .btn:hover { border-color:#1677ff; color:#1677ff; }
+    .btn.primary { background:#1677ff; border-color:#1677ff; color:#fff; }
+    .btn.primary:hover { background:#3c89ff; }
+    .btn.danger { color:#f53f3f; }
+    .btn.danger:hover { border-color:#f53f3f; }
+    .btn.sm { padding:2px 8px; font-size:12px; border-radius:4px; }
+    .btn[disabled] { color:#86909c; background:#f7f8fa; border-color:#e5e6eb; cursor:not-allowed; }
+    .btn + .btn { margin-left:6px; }
+    .btn.red { background:#f53f3f; border-color:#f53f3f; color:#fff; }
+    .btn.red:hover { background:#ff7875; border-color:#ff7875; color:#fff; }
+
+    /* 开关 */
+    .switch { position:relative; display:inline-block; width:38px; height:20px; vertical-align:middle; }
+    .switch input { opacity:0; width:0; height:0; }
+    .switch .sl { position:absolute; inset:0; background:#c9cdd4; border-radius:20px; transition:.2s; cursor:pointer; }
+    .switch .sl:before { content:""; position:absolute; width:16px; height:16px; left:2px; top:2px; background:#fff; border-radius:50%; transition:.2s; }
+    .switch input:checked + .sl { background:#1677ff; }
+    .switch input:checked + .sl:before { transform:translateX(18px); }
+
+    /* IP 标签 */
+    .chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    .chip { display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid #dcdfe6; border-radius:4px; padding:2px 7px; font-size:12px; color:#4e5969; font-family:Menlo,Consolas,monospace; }
+    .chip b { color:#86909c; cursor:pointer; font-weight:400; }
+    .chip b:hover { color:#f53f3f; }
+
+    /* IP 调用条 */
+    .bar-row { display:flex; align-items:center; gap:10px; margin:6px 0; font-size:12px; }
+    .bar-row .ip { width:104px; flex-shrink:0; font-family:Menlo,Consolas,monospace; color:#4e5969; }
+    .bar-row .bar { flex:1; height:14px; background:#f2f3f5; border-radius:4px; overflow:hidden; }
+    .bar-row .bar i { display:block; height:100%; background:linear-gradient(90deg,#1677ff,#69b1ff); }
+    .bar-row .n { width:70px; text-align:right; color:#4e5969; flex-shrink:0; }
+
+    /* 日志表格 */
+    table.mini { width:100%; border-collapse:collapse; }
+    table.mini th, table.mini td { padding:6px 8px; font-size:12px; }
+    table.mini th { text-align:left; font-weight:600; color:#4e5969; background:#f7f8fa; border-bottom:1px solid #e5e6eb; white-space:nowrap; }
+    table.mini td { border-bottom:1px solid #f2f3f5; color:#1f2329; vertical-align:middle; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; font-weight:600; color:#4e5969; background:#f7f8fa; padding:9px 12px; border-bottom:1px solid #e5e6eb; white-space:nowrap; }
+    td { padding:9px 12px; border-bottom:1px solid #f2f3f5; color:#1f2329; vertical-align:middle; }
+    tr:hover td { background:#fafbfc; }
+    .mono { font-family:Menlo,Consolas,monospace; }
+    .dim { color:#86909c; }
+    .code { font-family:Menlo,Consolas,monospace; font-weight:600; }
+    .code.ok { color:#00b42a; } .code.err { color:#f53f3f; }
+    .err-text { color:#f53f3f; }
+
+    /* 弹窗 */
+    .mask { display:none; position:fixed; inset:0; background:rgba(29,33,41,.45); z-index:2000; align-items:flex-start; justify-content:center; overflow:auto; padding:5vh 16px; }
+    .mask.on { display:flex; }
+    .modal { background:#fff; border-radius:10px; width:640px; max-width:100%; box-shadow:0 8px 40px rgba(0,0,0,.18); }
+    .modal.wide { width:860px; }
+    .modal .mh { padding:16px 20px; border-bottom:1px solid #e5e6eb; font-size:15px; font-weight:600; display:flex; }
+    .modal .mh .x { margin-left:auto; cursor:pointer; color:#86909c; font-weight:400; }
+    .modal .mb { padding:18px 20px; max-height:64vh; overflow:auto; }
+    .modal .mf { padding:12px 20px; border-top:1px solid #e5e6eb; text-align:right; background:#fafbfc; border-radius:0 0 10px 10px; }
+
+    /* IP黑名单弹窗 */
+    .modal .mh.bl-hd { align-items:flex-start; gap:11px; }
+    .bl-hd .hd-ic { width:36px; height:36px; border-radius:9px; background:#ffece8; color:#f53f3f; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .bl-hd .hd-tx b { display:block; font-size:15.5px; font-weight:600; color:#1f2329; line-height:1.3; }
+    .bl-hd .hd-tx small { display:block; color:#86909c; font-size:11.5px; font-weight:400; margin-top:3px; }
+    .bl-sec { font-size:13px; font-weight:600; color:#1f2329; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+    .bl-sec .bl-srch { margin-left:auto; position:relative; font-weight:400; }
+    .bl-sec .bl-srch input { width:210px; padding:6px 10px 6px 27px; border:1px solid #dcdfe6; border-radius:6px; font-size:12.5px; color:#1f2329; font-weight:400; }
+    .bl-sec .bl-srch:before { content:"🔍"; position:absolute; left:9px; top:6px; font-size:11px; opacity:.55; }
+    .bl-add { display:flex; gap:8px; align-items:center; margin-bottom:20px; flex-wrap:wrap; }
+    .bl-add input[type=text] { flex:1 1 190px; min-width:0; padding:7px 11px; border:1px solid #dcdfe6; border-radius:6px; font-size:12.5px; color:#1f2329; }
+    .bl-add select { flex:0 0 116px; padding:7px 9px; border:1px solid #dcdfe6; border-radius:6px; font-size:12.5px; background:#fff; color:#1f2329; }
+    .bl-tbl td:nth-child(1) { color:#f53f3f; }
+    .bl-tbl td:nth-child(2), .bl-tbl td:nth-child(5), .bl-tbl td:nth-child(6) { white-space:nowrap; }
+    .bl-st { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+    .bl-st i { width:6px; height:6px; border-radius:50%; display:inline-block; flex-shrink:0; }
+    .bl-st.on  { color:#f53f3f; } .bl-st.on i  { background:#f53f3f; }
+    .bl-st.due { color:#ff7d00; } .bl-st.due i { background:#ff7d00; }
+    .bl-st.off { color:#86909c; } .bl-st.off i { background:#c9cdd4; }
+    .bl-link { border:1px solid #e5e6eb; border-radius:8px; padding:2px 14px; }
+    .bl-link .li { display:flex; align-items:center; gap:9px; padding:11px 0; font-size:12.5px; color:#1f2329; flex-wrap:wrap; }
+    .bl-link .li + .li { border-top:1px solid #f2f3f5; }
+    .bl-link .li input[type=number] { width:70px; padding:5px 8px; border:1px solid #dcdfe6; border-radius:5px; font-size:12.5px; text-align:center; color:#1f2329; }
+    .bl-link .li.dim { color:#86909c; }
+    .modal .mf.bl-foot { display:flex; align-items:center; text-align:left; }
+    .bl-foot .fx { margin-left:auto; }
+    .btn.btn-ic { display:inline-flex; align-items:center; gap:5px; }
+    .switch.gr input:checked + .sl { background:#00b42a; }
+
+    /* Toast */
+    .toast { display:none; position:fixed; top:70px; left:50%; transform:translateX(-50%); background:#00b42a; color:#fff; padding:8px 18px; border-radius:6px; z-index:200; font-size:13px; box-shadow:0 4px 16px rgba(0,0,0,.2); }
+    .toast.on { display:block; }
+
+    /* 面包屑 */
+    .api-breadcrumb { color:#86909c; font-size:13px; margin-bottom:16px; }
+    .api-breadcrumb b { color:#1f2329; }
+    .api-page-title { font-size:17px; font-weight:600; margin-bottom:14px; }
+
+    /* API 中心左侧菜单 */
+    .api-layout { display:flex; min-height:calc(100vh - 100px); margin-top: 100px; }
+    .api-sidebar { width:208px; flex-shrink:0; background:#fff; border-right:1px solid #e5e6eb; display:flex; flex-direction:column; }
+    .api-sidebar-nav { flex:1; overflow-y:auto; padding:8px 0 24px; }
+    .api-nav-group { margin-top:10px; }
+    .api-nav-group-title { padding:6px 18px 4px; font-size:11px; color:#86909c; letter-spacing:1px; }
+    .api-nav-item { display:flex; align-items:center; justify-content:space-between; padding:8px 18px; color:#4e5969; cursor:pointer; text-decoration:none; border-left:3px solid transparent; font-size:13px; }
+    .api-nav-item:hover { background:#f7f8fa; color:#1f2329; }
+    .api-nav-item.active { color:#1677ff; background:#e8f3ff; border-left-color:#1677ff; font-weight:600; }
+    .api-nav-item .star { color:#1677ff; font-size:10px; }
+    .api-main { flex:1; min-width:0; }
+
+    /* ===== 各子页面共用样式 ===== */
+    .page-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .page-header h2 { font-size:17px; font-weight:600; margin:0; }
+    .page-header .spacer { flex:1; }
+    .card { background:#fff; border:1px solid #e5e6eb; border-radius:8px; padding:14px; margin-bottom:14px; }
+    .filter { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    .filter .search { position:relative; flex:1; min-width:120px; }
+    .filter .search input { width:100%; padding:6px 10px 6px 28px; border:1px solid #dcdfe6; border-radius:6px; font-size:12.5px; }
+    .filter .search:before { content:"🔍"; position:absolute; left:8px; top:6px; font-size:12px; opacity:.5; }
+    /* 分页 */
+    .pager { display:flex; align-items:center; justify-content:space-between; padding:12px 0 0; font-size:12px; color:#86909c; }
+    .pager .pages { display:flex; gap:4px; }
+    .pager .pages a { display:inline-block; min-width:28px; height:28px; line-height:28px; text-align:center; border:1px solid #dcdfe6; border-radius:4px; padding:0 6px; cursor:pointer; color:#4e5969; text-decoration:none; }
+    .pager .pages a:hover { border-color:#1677ff; color:#1677ff; }
+    .pager .pages a.on { background:#1677ff; border-color:#1677ff; color:#fff; }
+    .pager .pages a.disabled { color:#c9cdd4; cursor:not-allowed; }
+    .pager .pages a.disabled:hover { border-color:#dcdfe6; color:#c9cdd4; }
+    .filter select, .filter input[type=text] { padding:6px 8px; border:1px solid #dcdfe6; border-radius:6px; font-size:12px; background:#fff; color:#1f2329; }
+    .stat-cards { display:flex; gap:12px; margin-bottom:14px; }
+    .stat-cards .sc { flex:1; background:#fff; border:1px solid #e5e6eb; border-radius:8px; padding:12px 14px; }
+    .stat-cards .sc .lbl { color:#86909c; font-size:12px; margin-bottom:4px; }
+    .stat-cards .sc .num { font-size:22px; font-weight:700; }
+    .stat-cards .sc .num.alert { color:#f53f3f; }
+    .stat-cards .sc .delta { color:#86909c; font-size:11px; margin-top:2px; }
+    .tabs { display:flex; gap:0; border-bottom:1px solid #e5e6eb; margin-bottom:14px; }
+    .tabs .t { padding:8px 16px; cursor:pointer; font-size:13px; color:#4e5969; border-bottom:2px solid transparent; }
+    .tabs .t.on { color:#1677ff; border-bottom-color:#1677ff; font-weight:600; }
+    .tabpane { display:none; }
+    .tabpane.on { display:block; }
+    .frow { display:flex; gap:16px; margin-bottom:12px; flex-wrap:wrap; }
+    .fi { flex:1; min-width:200px; }
+    .fi label { display:block; font-size:12px; color:#4e5969; margin-bottom:4px; }
+    .fi input, .fi select, .fi textarea { width:100%; padding:7px 10px; border:1px solid #dcdfe6; border-radius:6px; font-size:13px; color:#1f2329; background:#fff; box-sizing:border-box; }
+    .fi textarea { min-height:60px; resize:vertical; font-family:inherit; }
+    .fi .hint { color:#86909c; font-size:11px; margin-top:3px; }
+    .sec-title { font-size:13px; font-weight:600; color:#1f2329; margin:14px 0 8px; }
+    .req { color:#f53f3f; }
+    .radio-cards { display:flex; gap:8px; flex-wrap:wrap; }
+    .rc { border:1px solid #dcdfe6; border-radius:6px; padding:8px 12px; cursor:pointer; font-size:12px; color:#4e5969; min-width:80px; }
+    .rc b { display:block; font-size:13px; }
+    .rc small { display:block; color:#86909c; font-size:11px; margin-top:2px; }
+    .rc.on { border-color:#1677ff; background:#e8f3ff; color:#1677ff; }
+    .rc.on b { color:#1677ff; }
+    .checkline { display:flex; align-items:center; gap:6px; font-size:12px; color:#4e5969; flex-wrap:wrap; }
+    .checkline label { display:inline-flex; align-items:center; gap:4px; margin:0; }
+    .note { background:#fffbe6; border:1px solid #ffe58f; border-radius:6px; padding:8px 12px; font-size:12px; color:#6b450c; margin-bottom:12px; }
+    .note.blue { background:#e8f3ff; border-color:#bedaff; color:#1c4e8a; }
+    .spec-bar { display:flex; gap:12px; flex-wrap:wrap; background:#f7f8fa; border:1px solid #e5e6eb; border-radius:6px; padding:8px 12px; margin-bottom:12px; font-size:12px; color:#4e5969; }
+    .spec-bar b { color:#1f2329; }
+    .tlink { color:#1677ff; cursor:pointer; text-decoration:none; }
+    .tlink:hover { text-decoration:underline; }
+    .rowhead { cursor:pointer; }
+    .rowhead .tw { color:#86909c; font-size:10px; }
+    .expander { background:#fafbfc; }
+    .expander-in { padding:14px 18px; }
+    .expander-in .blk { margin-bottom:16px; }
+    .expander-in .blk h5 { font-size:13px; font-weight:600; margin:0 0 8px; display:flex; align-items:center; }
+    .expander-in .blk h5 .more { margin-left:auto; font-weight:400; font-size:12px; color:#1677ff; cursor:pointer; }
+    .timeline { padding-left:20px; }
+    .tl { position:relative; padding:8px 0 8px 16px; font-size:12px; color:#4e5969; border-left:2px solid #e5e6eb; }
+    .tl i { position:absolute; left:-6px; top:12px; width:10px; height:10px; border-radius:50%; background:#e5e6eb; display:block; }
+    .tl.fail i { background:#f53f3f; }
+    .tl.wait i { background:#ff7d00; }
+    .tl b { color:#1f2329; }
+    .map-legend { display:flex; gap:16px; margin-top:10px; font-size:11px; color:#86909c; flex-wrap:wrap; }
+    .map-legend span { display:inline-flex; align-items:center; gap:4px; }
+    .map-legend i { width:12px; height:12px; border:1px solid #dcdfe6; border-radius:3px; display:inline-block; }
+    .sub-head .more { margin-left:auto; font-weight:400; font-size:12px; color:#1677ff; cursor:pointer; }
+    .btn.sm.danger { color:#f53f3f; border-color:#fdd; }
+    .btn.sm.danger:hover { border-color:#f53f3f; }
+    .page-content { display:none; }
+    .page-content.on { display:block; }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
+    </nav>
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell">🔔<span class="badge">5</span></div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <div class="sub-nav-item active">API中心</div>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="api-layout">
+    <!-- API 中心左侧菜单 -->
+    <aside class="api-sidebar">
+      <nav class="api-sidebar-nav">
+        <div class="api-nav-group">
+          <div class="api-nav-group-title">API 中心</div>
+          <div class="api-nav-item active" onclick="switchPage('overview',this)">API概览</div>
+          <div class="api-nav-item" onclick="switchPage('api-manage',this)">接口管理</div>
+        </div>
+        <div class="api-nav-group">
+          <div class="api-nav-group-title">规则配置</div>
+          <div class="api-nav-item" onclick="switchPage('auth',this)">鉴权规则</div>
+          <div class="api-nav-item" onclick="switchPage('rate-limit',this)">限流规则</div>
+          <div class="api-nav-item" onclick="switchPage('circuit',this)">熔断规则</div>
+          <div class="api-nav-item" onclick="switchPage('blacklist',this)">IP 黑名单</div>
+        </div>
+        <div class="api-nav-group">
+          <div class="api-nav-group-title">监控告警</div>
+          <div class="api-nav-item" onclick="switchPage('logs',this)">调用日志</div>
+          <div class="api-nav-item" onclick="switchPage('alert-rules',this)">告警规则</div>
+          <div class="api-nav-item" onclick="switchPage('alert-records',this)">告警记录</div>
+        </div>
+      </nav>
+    </aside>
+    <!-- 右侧内容区 -->
+    <div class="api-main">
+  <!-- ===== API概览 ===== -->
+  <div class="api-content page-content on" id="page-overview">
+    <div class="api-breadcrumb">BXL 业务数字中台 / <b>API 中心 · 总览</b></div>
+    <div class="api-page-title">总览</div>
+
+    <!-- KPI 卡片 -->
+    <div class="ov-kpi">
+      <div class="kpi"><span class="ic i-blue"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="4" cy="4.5" r="2"/><circle cx="12" cy="4.5" r="2"/><circle cx="8" cy="12" r="2"/><path d="M5.3 5.9 7 10.3M10.7 5.9 9 10.3"/></svg></span>
+        <div><div class="num">156</div><div class="lbl">接口总数</div></div></div>
+      <div class="kpi"><span class="ic i-green"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="9" width="3" height="5" rx="1"/><rect x="6.5" y="5" width="3" height="9" rx="1"/><rect x="11" y="2" width="3" height="12" rx="1"/></svg></span>
+        <div><div class="num">284万</div><div class="lbl">今日调用</div></div></div>
+      <div class="kpi"><span class="ic i-red"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M8 2.2a4 4 0 0 1 4 4v3.1l1.3 2.2H2.7L4 9.3V6.2a4 4 0 0 1 4-4Z"/><path d="M6.6 13.1a1.5 1.5 0 0 0 2.8 0"/></svg></span>
+        <div><div class="num alert">3</div><div class="lbl">异常告警</div></div></div>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="ov-toolbar">
+      <div class="search"><input type="text" placeholder="搜索接口路径或名称..."></div>
+      <select><option>全部系统</option><option>T100</option><option>OA</option><option>CRM</option><option>SRM</option><option>聚水潭</option><option>HR</option><option>BI</option></select>
+      <button class="btn">导出报告</button>
+    </div>
+
+    <!-- 左右布局：接口树 + 详情面板 -->
+    <div class="ov-grid">
+      <div class="ov-left">
+        <div class="tree" id="apiTree">
+          <div class="gnode">
+            <div class="grp" onclick="acTreeClick(this,'T100')"><span class="arw"></span><span class="badge b-blue">T100</span>ERP 核心系统<span class="cnt">32个接口</span></div>
+            <div class="leaf on" onclick="acPickApi(this,'API-0001','获取订单列表','GET','/api/v1/orders/list','T100')"><span class="m m-get">GET</span><div class="linfo"><div class="lname">获取订单列表</div><div class="lpath">/api/v1/orders/list</div></div><span class="st ok"><i></i>正常</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0002','商品库存查询','GET','/api/v1/product/stock','T100')"><span class="m m-get">GET</span><div class="linfo"><div class="lname">商品库存查询</div><div class="lpath">/api/v1/product/stock</div></div><span class="st dly"><i></i>延迟</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0003','采购入库单同步','POST','/api/v1/purchase/inbound','T100')"><span class="m m-post">POST</span><div class="linfo"><div class="lname">采购入库单同步</div><div class="lpath">/api/v1/purchase/inbound</div></div><span class="st ok"><i></i>正常</span></div>
+          </div>
+          <div class="gnode">
+            <div class="grp" onclick="acTreeClick(this,'OA')"><span class="arw"></span><span class="badge b-purple">OA</span>协同办公系统<span class="cnt">28个接口</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0011','报销单审批流程','POST','/api/v1/expense/approve','OA')"><span class="m m-post">POST</span><div class="linfo"><div class="lname">报销单审批流程</div><div class="lpath">/api/v1/expense/approve</div></div><span class="st ok"><i></i>正常</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0012','考勤数据查询','GET','/api/v1/attendance/query','OA')"><span class="m m-get">GET</span><div class="linfo"><div class="lname">考勤数据查询</div><div class="lpath">/api/v1/attendance/query</div></div><span class="st ok"><i></i>正常</span></div>
+          </div>
+          <div class="gnode">
+            <div class="grp" onclick="acTreeClick(this,'CRM')"><span class="arw"></span><span class="badge b-green">CRM</span>客户关系管理<span class="cnt">21个接口</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0021','客户信息查询','GET','/api/v1/crm/customer','CRM')"><span class="m m-get">GET</span><div class="linfo"><div class="lname">客户信息查询</div><div class="lpath">/api/v1/crm/customer</div></div><span class="st ok"><i></i>正常</span></div>
+          </div>
+          <div class="gnode">
+            <div class="grp" onclick="acTreeClick(this,'SRM')"><span class="arw"></span><span class="badge b-orange">SRM</span>供应商关系管理<span class="cnt">18个接口</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0031','供应商评估查询','GET','/api/v1/supplier/eval','SRM')"><span class="m m-get">GET</span><div class="linfo"><div class="lname">供应商评估查询</div><div class="lpath">/api/v1/supplier/eval</div></div><span class="st ok"><i></i>正常</span></div>
+          </div>
+          <div class="gnode">
+            <div class="grp" onclick="acTreeClick(this,'聚水潭')"><span class="arw"></span><span class="badge b-purple">聚水潭</span>电商ERP<span class="cnt">15个接口</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0041','物流轨迹查询','GET','/api/v1/logistics/track','聚水潭')"><span class="m m-get">GET</span><div class="linfo"><div class="lname">物流轨迹查询</div><div class="lpath">/api/v1/logistics/track</div></div><span class="st err"><i></i>异常</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0042','支付回调通知','POST','/api/v1/payment/callback','聚水潭')"><span class="m m-post">POST</span><div class="linfo"><div class="lname">支付回调通知</div><div class="lpath">/api/v1/payment/callback</div></div><span class="st err"><i></i>异常</span></div>
+          </div>
+          <div class="gnode col">
+            <div class="grp" onclick="acTreeClick(this,'HR')"><span class="arw"></span><span class="badge b-blue">HR</span>人力资源系统<span class="cnt">12个接口</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0051','员工档案查询','GET','/api/v1/hr/employee','HR')"><span class="m m-get">GET</span><div class="linfo"><div class="lname">员工档案查询</div><div class="lpath">/api/v1/hr/employee</div></div><span class="st ok"><i></i>正常</span></div>
+          </div>
+          <div class="gnode col">
+            <div class="grp" onclick="acTreeClick(this,'BI')"><span class="arw"></span><span class="badge b-blue">BI</span>商业智能分析<span class="cnt">8个接口</span></div>
+            <div class="leaf" onclick="acPickApi(this,'API-0061','经营看板数据','GET','/api/v1/bi/dashboard','BI')"><span class="m m-get">GET</span><div class="linfo"><div class="lname">经营看板数据</div><div class="lpath">/api/v1/bi/dashboard</div></div><span class="st ok"><i></i>正常</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="ov-right">
+        <div class="api-card">
+          <div class="dtl-head">
+            <span class="ic"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="4" cy="4.5" r="2"/><circle cx="12" cy="4.5" r="2"/><circle cx="8" cy="12" r="2"/><path d="M5.3 5.9 7 10.3M10.7 5.9 9 10.3"/></svg></span>
+            <div>
+              <div class="nm" id="dtl-name">获取订单列表 <span class="m m-get">GET</span> <span class="badge b-blue">T100</span></div>
+              <div class="pt" id="dtl-path">/api/v1/orders/list</div>
+            </div>
+            <div class="en">已启用 <label class="switch"><input type="checkbox" checked><span class="sl"></span></label></div>
+          </div>
+          <div class="seg"><h4>路由转发</h4><div class="kv" id="dtl-route">
+            <div><span>上游路径</span> /api/v1/orders/list</div><div><span>下游服务</span> t100-order-svc</div>
+            <div><span>下游路径</span> /internal/orders</div><div><span>超时时间</span> 30s</div>
+            <div><span>重试次数</span> 3 次</div></div></div>
+          <div class="seg"><h4>统一鉴权</h4><div class="kv" id="dtl-auth">
+            <div><span>认证方式</span> JWT Token</div><div><span>Token 有效期</span> 7200s</div>
+            <div><span>权限校验</span> <span class="badge b-green">已开启</span></div></div></div>
+          <div class="seg"><h4>流量限流</h4><div class="kv" id="dtl-rate">
+            <div><span>限流策略</span> <span class="badge b-orange">令牌桶</span></div><div><span>QPS 上限</span> 1000/s</div><div><span>突发容量</span> 200</div></div></div>
+          <div class="seg"><h4>服务熔断</h4><div class="kv" id="dtl-circuit">
+            <div><span>错误率阈值</span> 50%</div><div><span>熔断时长</span> 60s</div>
+            <div><span>半开探测</span> <span class="badge b-green">已开启</span></div></div></div>
+          <div class="seg"><h4>安全管理</h4>
+            <div class="sub-head">IP 黑名单<span class="more" onclick="openModal('m-bl-add')">＋ 添加</span></div>
+            <div class="chips" id="ov-blacklist">
+              <span class="chip">192.168.1.105 <b onclick="acRemoveIp(this)">✕</b></span>
+              <span class="chip">10.0.23.88 <b onclick="acRemoveIp(this)">✕</b></span>
+              <span class="chip">172.16.5.42 <b onclick="acRemoveIp(this)">✕</b></span>
+            </div>
+            <div class="sub-head" style="margin-top:14px">最近调用 IP（近 1 小时）<span class="more" id="dtl-ipcnt">共 47 个 IP</span></div>
+            <div id="dtl-ips"><div class="bar-row"><span class="ip">192.168.1.23</span><div class="bar"><i style="width:82%"></i></div><span class="n">23,891次</span><button class="btn sm danger" onclick="acBlack(this,'192.168.1.23')">拉黑</button></div>
+            <div class="bar-row"><span class="ip">10.0.12.56</span><div class="bar"><i style="width:60%"></i></div><span class="n">17,452次</span><button class="btn sm danger" onclick="acBlack(this,'10.0.12.56')">拉黑</button></div>
+            <div class="bar-row"><span class="ip">172.16.8.99</span><div class="bar"><i style="width:41%"></i></div><span class="n">12,108次</span><button class="btn sm danger" onclick="acBlack(this,'172.16.8.99')">拉黑</button></div></div></div>
+          <div class="seg"><h4>全链路日志审计<span class="more" onclick="switchPage('logs',document.querySelectorAll('.api-nav-item')[6])">查看全部 →</span></h4>
+            <table class="mini" id="dtl-logs">
+              <tr><td>01-15 14:32:18</td><td><span class="code ok">200</span></td><td>145ms</td><td class="mono">192.168.1.23</td><td class="mono dim">token: eyJhbG...xYz8</td></tr>
+              <tr><td>01-15 14:32:15</td><td><span class="code ok">200</span></td><td>132ms</td><td class="mono">10.0.12.56</td><td class="mono dim">token: eyJhbG...mN2Q</td></tr>
+              <tr><td>01-15 14:32:10</td><td><span class="code err">403</span></td><td>8ms</td><td class="mono">192.168.1.105</td><td class="err-text">黑名单拦截</td></tr>
+            </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ===== 接口管理 ===== -->
+  <div class="api-content page-content" id="page-api-manage">
+    <div class="page-header"><h2>接口管理</h2><span class="spacer"></span><button class="btn" onclick="toast('已导出接口清单 CSV')">导出</button><button class="btn primary" onclick="openModal('m-api-add')">＋ 新建接口</button></div>
+    <div class="stat-cards"><div class="sc"><div class="lbl">接口总数</div><div class="num">156</div></div><div class="sc"><div class="lbl">已发布</div><div class="num" style="color:#00b42a">142</div></div><div class="sc"><div class="lbl">草稿</div><div class="num">8</div></div><div class="sc"><div class="lbl">已下架</div><div class="num">6</div></div></div>
+    <div class="card">
+      <div class="filter"><div class="search"><input type="text" placeholder="搜索接口名称 / 编码 / 路径"></div><select><option>全部系统</option><option>T100</option><option>OA</option><option>CRM</option><option>SRM</option><option>聚水潭</option><option>HR</option><option>BI</option></select><select><option>全部方法</option><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select><select><option>全部状态</option><option>已发布</option><option>草稿</option><option>已下架</option></select></div>
+      <table>
+        <tr><th>接口编码</th><th>接口名称</th><th>方法</th><th>路径</th><th>所属系统</th><th>版本</th><th>状态</th><th>更新时间</th><th>操作</th></tr>
+        <tr><td class="mono">API-0001</td><td>获取订单列表</td><td><span class="badge b-green">GET</span></td><td class="mono">/api/v1/orders/list</td><td><span class="badge b-blue">T100</span></td><td class="mono">v1</td><td><span class="badge b-green">已发布</span></td><td>09-28 14:58</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已下架')">下架</button></td></tr>
+        <tr><td class="mono">API-0002</td><td>商品库存查询</td><td><span class="badge b-green">GET</span></td><td class="mono">/api/v1/product/stock</td><td><span class="badge b-blue">T100</span></td><td class="mono">v1</td><td><span class="badge b-green">已发布</span></td><td>09-28 14:30</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已下架')">下架</button></td></tr>
+        <tr><td class="mono">API-0003</td><td>采购入库单同步</td><td><span class="badge b-orange">POST</span></td><td class="mono">/api/v1/purchase/inbound</td><td><span class="badge b-blue">T100</span></td><td class="mono">v1</td><td><span class="badge b-green">已发布</span></td><td>09-27 16:12</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已下架')">下架</button></td></tr>
+        <tr><td class="mono">API-0011</td><td>报销单审批流程</td><td><span class="badge b-orange">POST</span></td><td class="mono">/api/v1/expense/approve</td><td><span class="badge b-purple">OA</span></td><td class="mono">v2</td><td><span class="badge b-green">已发布</span></td><td>09-28 10:05</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已下架')">下架</button></td></tr>
+        <tr><td class="mono">API-0012</td><td>考勤数据查询</td><td><span class="badge b-green">GET</span></td><td class="mono">/api/v1/attendance/query</td><td><span class="badge b-purple">OA</span></td><td class="mono">v1</td><td><span class="badge b-green">已发布</span></td><td>09-26 09:22</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已下架')">下架</button></td></tr>
+        <tr><td class="mono">API-0021</td><td>客户信息查询</td><td><span class="badge b-green">GET</span></td><td class="mono">/api/v1/crm/customer</td><td><span class="badge b-green">CRM</span></td><td class="mono">v1</td><td><span class="badge b-green">已发布</span></td><td>09-28 11:40</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已下架')">下架</button></td></tr>
+        <tr><td class="mono">API-0031</td><td>供应商评估查询</td><td><span class="badge b-green">GET</span></td><td class="mono">/api/v1/supplier/eval</td><td><span class="badge b-orange">SRM</span></td><td class="mono">v1</td><td><span class="badge b-green">已发布</span></td><td>09-27 15:30</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已下架')">下架</button></td></tr>
+        <tr><td class="mono">API-0041</td><td>物流轨迹查询</td><td><span class="badge b-green">GET</span></td><td class="mono">/api/v1/logistics/track</td><td><span class="badge b-purple">聚水潭</span></td><td class="mono">v1</td><td><span class="badge b-red">已下架</span></td><td>09-25 18:00</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已发布')">发布</button></td></tr>
+        <tr><td class="mono">API-0042</td><td>支付回调通知</td><td><span class="badge b-orange">POST</span></td><td class="mono">/api/v1/payment/callback</td><td><span class="badge b-purple">聚水潭</span></td><td class="mono">v1</td><td><span class="badge b-red">已下架</span></td><td>09-25 18:00</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已发布')">发布</button></td></tr>
+        <tr><td class="mono">API-0099</td><td>获取订单详情</td><td><span class="badge b-green">GET</span></td><td class="mono">/api/v1/orders/detail</td><td><span class="badge b-blue">T100</span></td><td class="mono">v1</td><td><span class="badge b-gray">草稿</span></td><td>09-28 15:00</td><td><button class="btn sm" onclick="toast('查看接口详情')">查看</button><button class="btn sm" onclick="toast('编辑接口')">编辑</button><button class="btn sm" onclick="toast('接口已发布')">发布</button></td></tr>
+      </table>
+      <div class="pager">
+        <span>共 156 条，每页 10 条，第 1 / 16 页</span>
+        <div class="pages">
+          <a class="disabled">‹</a>
+          <a class="on">1</a>
+          <a onclick="toast('跳转到第 2 页')">2</a>
+          <a onclick="toast('跳转到第 3 页')">3</a>
+          <a onclick="toast('跳转到第 4 页')">4</a>
+          <a onclick="toast('跳转到第 5 页')">5</a>
+          <a>…</a>
+          <a onclick="toast('跳转到第 16 页')">16</a>
+          <a onclick="toast('跳转到第 2 页')">›</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="api-content page-content" id="page-auth">
+    <div class="page-header"><h2>鉴权规则</h2><span class="spacer"></span><button class="btn primary" onclick="openModal('m-auth')">鉴权配置</button></div>
+    <div class="card">
+      <div class="filter"><div class="search"><input type="text" placeholder="搜索接口"></div><select><option>全部认证方式</option><option>JWT Token</option><option>OAuth 2.0</option><option>API Key</option></select></div>
+      <table>
+        <tr><th>接口</th><th>认证方式</th><th>Token 有效期</th><th>权限校验</th><th>IP 白名单</th><th>状态</th><th>最近生效</th></tr>
+        <tr><td class="tlink" onclick="openModal('m-auth')">获取订单列表</td><td>JWT Token</td><td>7200s</td><td><span class="badge b-green">已开启</span></td><td>10.0.0.0/8</td><td><span class="badge b-green">启用</span></td><td>14:58:03</td></tr>
+        <tr><td class="tlink" onclick="openModal('m-auth')">报销单审批流程</td><td>JWT Token</td><td>7200s</td><td><span class="badge b-gray">关闭</span></td><td>—</td><td><span class="badge b-green">启用</span></td><td>13:20:41</td></tr>
+        <tr><td class="tlink" onclick="openModal('m-auth')">供应商评估查询</td><td>API Key</td><td>—</td><td><span class="badge b-green">已开启</span></td><td>172.16.0.0/12</td><td><span class="badge b-green">启用</span></td><td>11:02:17</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 限流规则 ===== -->
+  <div class="api-content page-content" id="page-rate-limit">
+    <div class="page-header"><h2>限流规则</h2><span class="spacer"></span><button class="btn primary" onclick="openModal('m-rate')">＋ 新建限流规则</button></div>
+    <div class="stat-cards">
+      <div class="sc"><div class="lbl">已配置限流的接口</div><div class="num">112</div></div>
+      <div class="sc"><div class="lbl">全局规则</div><div class="num">1</div></div>
+      <div class="sc"><div class="lbl">今日触发限流次数</div><div class="num" style="color:#ff7d00">2,041</div></div>
+    </div>
+    <div class="card">
+      <div class="filter"><select><option>全部系统</option><option>T100</option><option>SRM</option></select><select><option>全部维度</option><option>全局</option><option>单接口</option><option>按调用方</option><option>按用户</option><option>按 IP</option></select><select><option>全部状态</option><option>启用</option><option>停用</option></select></div>
+      <table>
+        <tr><th>接口</th><th>维度</th><th>算法</th><th>档位</th><th>QPS / 突发</th><th>白名单</th><th>状态</th><th>最近生效</th><th>操作</th></tr>
+        <tr><td class="tlink" onclick="openModal('m-rate')">获取订单列表</td><td><span class="badge b-blue">单接口</span></td><td>令牌桶</td><td><span class="badge b-blue">中档</span></td><td>1000 / 200</td><td>0</td><td><span class="badge b-green">启用</span></td><td>14:58:03</td><td><button class="btn sm" onclick="openModal('m-rate')">编辑</button><button class="btn sm">规则快照</button></td></tr>
+        <tr><td class="tlink" onclick="openModal('m-rate')">客户信息查询</td><td><span class="badge b-blue">单接口</span></td><td>滑动窗口</td><td><span class="badge b-green">低档</span></td><td>100 / —</td><td>0</td><td><span class="badge b-green">启用</span></td><td>12:40:55</td><td><button class="btn sm" onclick="openModal('m-rate')">编辑</button><button class="btn sm">规则快照</button></td></tr>
+        <tr><td class="tlink" onclick="openModal('m-rate')">— 全局默认 —</td><td><span class="badge b-purple">全局</span></td><td>令牌桶</td><td><span class="badge b-orange">自定义</span></td><td>5000 / 1000</td><td>2（OA、HR 内部系统）</td><td><span class="badge b-green">启用</span></td><td>09:00:12</td><td><button class="btn sm" onclick="openModal('m-rate')">编辑</button><button class="btn sm">规则快照</button></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 熔断规则 ===== -->
+  <div class="api-content page-content" id="page-circuit">
+    <div class="page-header"><h2>熔断规则</h2><span class="spacer"></span><button class="btn primary" onclick="openCircuit()">＋ 新建熔断规则</button></div>
+    <div class="stat-cards">
+      <div class="sc"><div class="lbl">当前熔断中</div><div class="num alert">1</div></div>
+      <div class="sc"><div class="lbl">半开探测中</div><div class="num" style="color:#ff7d00">0</div></div>
+      <div class="sc"><div class="lbl">今日熔断事件</div><div class="num">3</div><div class="delta">打开 2 次 / 恢复 1 次</div></div>
+    </div>
+    <div class="card">
+      <div class="filter"><select><option>全部状态</option><option>关闭</option><option>熔断中</option><option>半开探测</option></select><select><option>全部系统</option><option>SRM</option><option>T100</option></select></div>
+      <table>
+        <tr><th>接口</th><th>当前状态</th><th>窗口 / 错误率 / 最小样本</th><th>响应时长 / 慢调用比例</th><th>熔断时长</th><th>半开探测</th><th>降级方式</th><th>操作</th></tr>
+        <tr><td class="tlink" onclick="openCircuit('API-0031')">供应商评估查询</td><td><span class="badge b-red">● 熔断中</span><br><small style="color:#86909c">15:00 起 · 60s</small></td><td>10s / 50% / ≥20</td><td>60s / 60%</td><td>60s</td><td>开启 · 5 次</td><td>固定兜底报文</td><td><button class="btn sm" onclick="openCircuit('API-0031')">编辑</button><button class="btn sm">熔断事件记录</button></td></tr>
+        <tr><td class="tlink" onclick="openCircuit('API-0001')">获取订单列表</td><td><span class="badge b-green">● 关闭</span><br><small style="color:#86909c">上次恢复 09:41</small></td><td>10s / 50% / ≥20</td><td>60s / 60%</td><td>60s</td><td>开启 · 5 次</td><td>503 状态码</td><td><button class="btn sm" onclick="openCircuit('API-0001')">编辑</button><button class="btn sm">熔断事件记录</button></td></tr>
+        <tr><td class="tlink" onclick="openCircuit('API-0002')">商品库存查询</td><td><span class="badge b-green">● 关闭</span></td><td>10s / 50% / ≥20</td><td>60s / 60%</td><td>60s</td><td>关闭</td><td>空数据体</td><td><button class="btn sm" onclick="openCircuit('API-0002')">编辑</button><button class="btn sm">熔断事件记录</button></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== IP黑名单 ===== -->
+  <div class="api-content page-content" id="page-blacklist">
+    <div class="page-header"><h2>IP 黑名单</h2><span class="spacer"></span><button class="btn" onclick="openModal('m-bl-import')">批量导入</button><button class="btn" onclick="toast('已导出当前列表 CSV')">导出</button><button class="btn primary" onclick="openModal('m-bl-add')">＋ 新增</button></div>
+    <div class="stat-cards">
+      <div class="sc"><div class="lbl">黑名单条目</div><div class="num" id="bl-total-page">6</div></div>
+      <div class="sc"><div class="lbl">今日命中拦截</div><div class="num" style="color:#ff7d00">1,382</div></div>
+    </div>
+    <div class="card">
+      <div class="filter"><div class="search"><input type="text" id="bl-search-page" placeholder="搜索 IP / CIDR" oninput="blSearch(this.value)"></div><select id="bl-status-filter" onchange="blFilterStatus(this.value)"><option value="">全部状态</option><option value="on">生效中</option><option value="due">即将到期</option><option value="off">已解除</option></select></div>
+      <table class="bl-tbl">
+        <tr><th>IP 地址 / CIDR</th><th>封禁时长</th><th>封禁原因</th><th>生效时间</th><th>状态</th><th>操作</th></tr>
+        <tbody id="bl-page-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 调用日志 ===== -->
+  <div class="api-content page-content" id="page-logs">
+    <div class="page-header"><h2>调用日志</h2><span class="spacer"></span><button class="btn">导出 CSV（上限 10 万条）</button></div>
+    <div class="card">
+      <div class="filter"><input type="text" value="2026-09-24 14:00 ~ 15:00" style="width:210px"><select><option>全部接口</option><option>获取订单列表</option></select><select><option>全部调用方</option></select><select><option>全部状态</option><option>2xx</option><option>4xx</option><option>5xx</option></select><div class="search"><input type="text" placeholder="IP"></div></div>
+      <table>
+        <tr><th></th><th>时间</th><th>接口</th><th>方法 / 路径</th><th>调用方</th><th>IP</th><th>耗时</th><th>状态码</th><th>结果</th></tr>
+        <tr class="tlink" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'table-row':'none'"><td>▾</td><td>15:01:44</td><td>获取订单列表</td><td>GET /api/v1/orders/list</td><td>SRM 供应商协同</td><td>10.0.23.88</td><td>230ms</td><td><span class="badge b-green">200</span></td><td>成功</td></tr>
+        <tr style="display:none;background:#fafbfc"><td></td><td colspan="9"><b>traceId:</b> 8f2a91c4e7 · <b>请求 ID:</b> LOG-20260924-88231 · <b>用户:</b> 赵倩<br><b>请求头:</b> X-Sign: ****c7a1 · X-App-Id: SRM-COOP-01 · X-Timestamp: 1774682504<br><b>请求体:</b> {"pageNum":1,"pageSize":20,"cust****":"138****5678"} <span class="badge b-blue">脱敏</span><br><b>响应体:</b> {"code":0,"data":{"total":841,"list":[...]}} · <b>响应耗时:</b> 230ms · P95 参照: 480ms</td></tr>
+        <tr><td></td><td>15:01:12</td><td>供应商评估查询</td><td>GET /api/v1/supplier/eval</td><td>SRM 供应商协同</td><td>172.16.5.42</td><td>2ms</td><td><span class="badge b-red">503</span></td><td><span style="color:#f53f3f">熔断拒绝</span></td></tr>
+        <tr><td></td><td>15:00:58</td><td>供应商评估查询</td><td>GET /api/v1/supplier/eval</td><td>未知调用方</td><td>192.168.1.105</td><td>1ms</td><td><span class="badge b-red">403</span></td><td><span style="color:#f53f3f">IP_BLOCKED</span></td></tr>
+        <tr><td></td><td>14:59:30</td><td>报销单审批流程</td><td>POST /api/v1/expense/approve</td><td>OA 协同</td><td>10.0.8.21</td><td>412ms</td><td><span class="badge b-green">200</span></td><td>成功</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 告警规则 ===== -->
+  <div class="api-content page-content" id="page-alert-rules">
+    <div class="page-header"><h2>告警规则</h2><span class="spacer"></span><button class="btn primary" onclick="openModal('m-alert')">＋ 新建规则</button></div>
+    <div class="card">
+      <table>
+        <tr><th>规则名称</th><th>类型</th><th>触发条件</th><th>周期 / 连续命中</th><th>静默期</th><th>生效范围</th><th>渠道 / 接收人</th><th>状态</th><th>操作</th></tr>
+        <tr><td>异常 IP 高频调用</td><td><span class="badge b-purple">IP 高频</span></td><td>单 IP > 100 次/分钟</td><td>60s / 3 次</td><td>10 分钟</td><td>全局</td><td>站内信+企微 / 运维角色</td><td><label class="switch"><input type="checkbox" checked><span class="sl"></span></label></td><td><button class="btn sm" onclick="openModal('m-alert')">编辑</button></td></tr>
+        <tr><td>五系错误率超标</td><td><span class="badge b-red">错误率</span></td><td>5xx 占比 > 5%</td><td>60s / 3 次</td><td>10 分钟</td><td>全部接口（可单设）</td><td>站内信+企微 / 接口负责人</td><td><label class="switch"><input type="checkbox" checked><span class="sl"></span></label></td><td><button class="btn sm" onclick="openModal('m-alert')">编辑</button></td></tr>
+        <tr><td>熔断事件通知</td><td><span class="badge b-orange">熔断</span></td><td>发生熔断 / 恢复</td><td>— / 1 次</td><td>10 分钟</td><td>全部接口</td><td>企微 / 接口负责人 + 运维</td><td><label class="switch"><input type="checkbox" checked><span class="sl"></span></label></td><td><button class="btn sm" onclick="openModal('m-alert')">编辑</button></td></tr>
+        <tr><td>限流触发通知</td><td><span class="badge b-blue">限流</span></td><td>1 分钟内命中限流</td><td>60s / 1 次</td><td>10 分钟</td><td>全局</td><td>站内信 / 运维角色</td><td><label class="switch"><input type="checkbox"><span class="sl"></span></label></td><td><button class="btn sm" onclick="openModal('m-alert')">编辑</button></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 告警记录 ===== -->
+  <div class="api-content page-content" id="page-alert-records">
+    <div class="page-header"><h2>告警记录</h2></div>
+    <div class="card">
+      <div class="filter"><input type="text" value="2026-09-24 00:00 ~ 15:00" style="width:210px"><select><option>全部规则</option><option>异常 IP 高频调用</option></select><select><option>全部状态</option><option>待处理</option><option>已处理</option><option>已忽略</option></select></div>
+      <table>
+        <tr><th>告警时间</th><th>规则 / 类型</th><th>告警对象</th><th>触发值</th><th>渠道发送结果</th><th>处理状态</th><th>处理人</th><th>操作</th></tr>
+        <tr><td>15:00:03</td><td>熔断事件通知 / 熔断</td><td>供应商评估查询</td><td>错误率 63.2%（样本 41）</td><td><span class="badge b-green">企微 成功</span> <span class="badge b-green">站内信 成功</span></td><td><span class="badge b-red">待处理</span></td><td>—</td><td><button class="btn sm primary" onclick="openModal('m-handle')">标记处理</button><button class="btn sm" onclick="openModal('m-handle')">忽略</button></td></tr>
+        <tr><td>14:47:21</td><td>异常 IP 高频调用 / IP 高频</td><td>192.168.1.105</td><td>127 次/分钟</td><td><span class="badge b-green">企微 成功</span> <span class="badge b-red">站内信 失败</span> <button class="btn sm">重发</button></td><td><span class="badge b-red">待处理</span></td><td>—</td><td><button class="btn sm primary" onclick="openModal('m-handle')">标记处理</button><button class="btn sm" onclick="openModal('m-handle')">忽略</button></td></tr>
+        <tr><td>11:32:10</td><td>五系错误率超标 / 错误率</td><td>报销单审批流程</td><td>5xx 占比 6.8%</td><td><span class="badge b-green">企微 成功</span></td><td><span class="badge b-green">已处理</span></td><td>王强</td><td><small style="color:#86909c">下游 OA 服务重启，已恢复</small></td></tr>
+        <tr><td>09:41:55</td><td>五系错误率超标 / 错误率</td><td>获取订单列表</td><td>5xx 占比 5.4%</td><td><span class="badge b-green">企微 成功</span></td><td><span class="badge b-gray">已忽略</span></td><td>张伟</td><td><small style="color:#86909c">压测导致，属预期</small></td></tr>
+      </table>
+    </div>
+  </div>
+
+
+  </div><!-- /api-main -->
+  </div><!-- /api-layout -->
+
+  <!-- 鉴权规则配置弹窗 -->
+  <div class="mask" id="m-auth" onclick="if(event.target===this)closeModal('m-auth')"><div class="modal"><div class="mh">鉴权规则配置<span class="x" onclick="closeModal('m-auth')">✕</span></div><div class="mb">
+    <div class="radio-cards" data-radio><div class="rc on" onclick="rcPick(this)"><b>JWT Token</b><small>无状态令牌</small></div><div class="rc" onclick="rcPick(this)"><b>OAuth 2.0</b><small>第三方授权</small></div><div class="rc" onclick="rcPick(this)"><b>API Key</b><small>简单密钥</small></div></div>
+    <div class="frow"><div class="fi"><label>签名算法</label><select><option>HS256</option><option>RS256</option></select></div><div class="fi"><label>Token 有效期（秒）</label><input type="number" value="7200"></div><div class="fi"><label>刷新 Token 有效期（秒）</label><input type="number" value="86400"></div></div>
+    <div class="sec-title">权限校验规则</div>
+    <div class="checkline">要求角色：<label class="checkline"><input type="checkbox" checked>管理员</label><label class="checkline"><input type="checkbox" checked>运营专员</label><label class="checkline"><input type="checkbox">财务专员</label></div>
+    <div class="frow" style="margin-top:8px"><div class="fi"><label>IP 白名单（CIDR）</label><input type="text" value="10.0.0.0/8, 172.16.0.0/12"></div><div class="fi"><label>规则启用</label><div class="checkline"><label class="switch"><input type="checkbox" checked><span class="sl"></span></label></div></div></div>
+  </div><div class="mf"><button class="btn" onclick="closeModal('m-auth')">取消</button><button class="btn primary" onclick="closeModal('m-auth');toast('鉴权规则已保存')">保存配置</button></div></div></div>
+
+  <!-- 限流规则配置弹窗 -->
+  <div class="mask" id="m-rate" onclick="if(event.target===this)closeModal('m-rate')"><div class="modal"><div class="mh">限流规则配置<span class="x" onclick="closeModal('m-rate')">✕</span></div><div class="mb">
+    <div class="sec-title">限流维度</div>
+    <div class="radio-cards" data-radio><div class="rc" onclick="rcPick(this)"><b>全局</b></div><div class="rc on" onclick="rcPick(this)"><b>单接口</b></div><div class="rc" onclick="rcPick(this)"><b>按调用方</b></div><div class="rc" onclick="rcPick(this)"><b>按用户</b></div><div class="rc" onclick="rcPick(this)"><b>按 IP</b></div></div>
+    <div class="sec-title">算法与档位</div>
+    <div class="radio-cards" data-radio style="margin-bottom:10px"><div class="rc on" onclick="rcPick(this)"><b>令牌桶</b><small>支持突发容量</small></div><div class="rc" onclick="rcPick(this)"><b>漏桶</b><small>匀速流出</small></div><div class="rc" onclick="rcPick(this)"><b>滑动窗口</b></div></div>
+    <div class="radio-cards" data-radio><div class="rc" onclick="rcPick(this)"><b>高档</b><small>5000 QPS</small></div><div class="rc on" onclick="rcPick(this)"><b>中档</b><small>1000 QPS</small></div><div class="rc" onclick="rcPick(this)"><b>低档</b><small>100 QPS</small></div><div class="rc" onclick="rcPick(this)"><b>自定义</b></div></div>
+    <div class="frow" style="margin-top:12px"><div class="fi"><label>QPS 上限</label><input type="number" value="1000"></div><div class="fi"><label>突发容量 burst</label><input type="number" value="200"></div><div class="fi"><label>统计窗口时长 (s)</label><input type="number" value="1"></div></div>
+    <div class="sec-title">白名单豁免</div><div class="fi"><label>内部系统白名单</label><select multiple size="3" style="width:100%;padding:7px"><option>OA 协同办公系统</option><option>HR 人力资源系统</option></select></div>
+  </div><div class="mf"><button class="btn" onclick="closeModal('m-rate')">取消</button><button class="btn primary" onclick="closeModal('m-rate');toast('限流规则已保存')">保存配置</button></div></div></div>
+
+  <!-- 熔断规则配置弹窗 -->
+  <div class="mask" id="m-circuit" onclick="if(event.target===this)closeModal('m-circuit')"><div class="modal"><div class="mh">熔断规则配置<span class="x" onclick="closeModal('m-circuit')">✕</span></div><div class="mb">
+    <div class="sec-title">基础信息</div>
+    <div class="frow"><div class="fi"><label>目标接口</label><select id="cb-api"><option selected>API-0031 供应商评估查询</option><option>API-0001 获取订单列表</option><option>API-0002 商品库存查询</option></select></div><div class="fi"><label>所属系统</label><input type="text" value="SRM 供应商关系管理" disabled></div><div class="fi"><label>规则启用</label><div class="checkline"><label class="switch"><input type="checkbox" checked><span class="sl"></span></label></div></div></div>
+    <div class="sec-title">① 熔断触发条件</div>
+    <div class="frow"><div class="fi"><label>统计窗口时长 (s)</label><input type="number" value="10"></div><div class="fi"><label>最小样本数</label><input type="number" value="20"></div><div class="fi"><label>错误率阈值 (%)</label><input type="number" value="50"></div><div class="fi"><label>慢调用比例 (%)</label><input type="number" value="60"></div></div>
+    <div class="sec-title">② 熔断恢复 · 半开机制</div>
+    <div class="frow"><div class="fi"><label>熔断时长 (s)</label><input type="number" value="60"></div><div class="fi"><label>半开探测请求数</label><input type="number" value="5"></div></div>
+    <div class="sec-title">③ 降级响应</div>
+    <div class="radio-cards" data-radio style="margin-bottom:10px"><div class="rc" onclick="rcPick(this)"><b>503 状态码</b></div><div class="rc on" onclick="rcPick(this)"><b>固定兜底报文</b></div><div class="rc" onclick="rcPick(this)"><b>空数据体</b></div></div>
+  </div><div class="mf"><button class="btn" onclick="closeModal('m-circuit')">取消</button><button class="btn primary" onclick="closeModal('m-circuit');toast('熔断规则已保存')">保存配置</button></div></div></div>
+
+  <!-- 黑名单批量导入弹窗 -->
+  <div class="mask" id="m-bl-import" onclick="if(event.target===this)closeModal('m-bl-import')"><div class="modal" style="width:560px"><div class="mh">批量导入<span class="x" onclick="closeModal('m-bl-import')">✕</span></div><div class="mb">
+    <div class="fi" style="margin-bottom:12px"><label>CSV 文件（首列 IP/CIDR，次列原因）</label><div style="border:1px dashed #c9cdd4;border-radius:6px;padding:22px;text-align:center;color:#86909c;cursor:pointer" onclick="toast('已选择文件：blacklist_240924.csv（36 行）')">点击或拖拽文件到此处上传</div></div>
+    <table><tr><th>预检结果</th><th>行数</th></tr><tr><td>校验通过</td><td><b style="color:#00b42a">34</b></td></tr><tr><td>格式错误（非法 CIDR：第 8、21 行）</td><td><b style="color:#f53f3f">2</b></td></tr></table>
+  </div><div class="mf"><button class="btn" onclick="closeModal('m-bl-import')">取消</button><button class="btn primary" onclick="closeModal('m-bl-import');toast('导入完成：成功 34 条，失败 2 条')">跳过错误行并导入</button></div></div></div>
+
+  <!-- 告警规则配置弹窗 -->
+  <div class="mask" id="m-alert" onclick="if(event.target===this)closeModal('m-alert')"><div class="modal"><div class="mh">告警规则配置<span class="x" onclick="closeModal('m-alert')">✕</span></div><div class="mb">
+    <div class="fi" style="margin-bottom:12px"><label><span class="req">*</span>规则名称</label><input type="text" value="五系错误率超标"></div>
+    <div class="sec-title">规则类型</div>
+    <div class="radio-cards" data-radio><div class="rc" onclick="rcPick(this)"><b>IP 高频</b></div><div class="rc on" onclick="rcPick(this)"><b>错误率</b></div><div class="rc" onclick="rcPick(this)"><b>限流触发</b></div><div class="rc" onclick="rcPick(this)"><b>熔断事件</b></div></div>
+    <div class="frow" style="margin-top:12px"><div class="fi"><label>阈值</label><input type="number" value="5"></div><div class="fi"><label>统计周期 (s)</label><input type="number" value="60"></div><div class="fi"><label>连续命中次数</label><input type="number" value="3"></div><div class="fi"><label>静默期 (s)</label><input type="number" value="600"></div></div>
+    <div class="sec-title">渠道与接收人</div>
+    <div class="checkline"><label class="checkline"><input type="checkbox" checked>站内信</label><label class="checkline"><input type="checkbox" checked>企业微信</label></div>
+  </div><div class="mf"><button class="btn" onclick="closeModal('m-alert')">取消</button><button class="btn primary" onclick="closeModal('m-alert');toast('告警规则已保存')">保存配置</button></div></div></div>
+
+  <!-- 告警处理弹窗 -->
+  <div class="mask" id="m-handle" onclick="if(event.target===this)closeModal('m-handle')"><div class="modal" style="width:480px"><div class="mh">标记处理<span class="x" onclick="closeModal('m-handle')">✕</span></div><div class="mb">
+    <div class="fi" style="margin-bottom:12px"><label><span class="req">*</span>处理状态</label><div class="radio-cards" data-radio><div class="rc on" onclick="rcPick(this)"><b>已处理</b></div><div class="rc" onclick="rcPick(this)"><b>忽略</b></div></div></div>
+    <div class="fi"><label><span class="req">*</span>处理说明</label><textarea placeholder="填写处理动作与结论"></textarea></div>
+  </div><div class="mf"><button class="btn" onclick="closeModal('m-handle')">取消</button><button class="btn primary" onclick="closeModal('m-handle');toast('已标记处理')">确认</button></div></div></div>
+
+  <div class="mask" id="m-bl-add" onclick="if(event.target===this)closeModal('m-bl-add')">
+    <div class="modal" style="width:920px">
+      <div class="mh bl-hd">
+        <span class="hd-ic"><svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.1"/><path d="M3.7 3.7 12.3 12.3"/></svg></span>
+        <span class="hd-tx"><b>IP 黑名单管理</b><small>全局黑名单 · 当前共 <span id="bl-total-modal">6</span> 条规则</small></span>
+        <span class="x" onclick="closeModal('m-bl-add')">✕</span>
+      </div>
+      <div class="mb">
+        <div class="bl-sec">添加黑名单</div>
+        <div class="bl-add">
+          <input type="text" id="bl-new-ip" placeholder="例：192.168.1.100 或 10.0.0.0/24">
+          <select id="bl-new-dur"><option>永久封禁</option><option>1 天</option><option>7 天</option><option>30 天</option></select>
+          <input type="text" id="bl-new-reason" placeholder="选填">
+          <button class="btn red" onclick="blAdd()">＋ 加入黑名单</button>
+        </div>
+        <div class="bl-sec">黑名单列表<span class="bl-srch"><input type="text" id="bl-search-modal" placeholder="搜索 IP..." oninput="blSearch(this.value)"></span></div>
+        <table class="bl-tbl">
+          <tr><th>IP 地址 / CIDR</th><th>封禁时长</th><th>封禁原因</th><th>生效时间</th><th>状态</th><th>操作</th></tr>
+          <tbody id="bl-modal-body"></tbody>
+        </table>
+        <div class="bl-sec" style="margin:20px 0 10px">异常请求告警联动</div>
+        <div class="bl-link">
+          <div class="li"><label class="switch gr"><input type="checkbox" checked><span class="sl"></span></label><span>单 IP 1 分钟内请求超过</span><input type="number" value="200"><span>次 → 自动拉黑并告警</span></div>
+          <div class="li"><label class="switch gr"><input type="checkbox" checked><span class="sl"></span></label><span>单 IP 5 分钟内错误率超过</span><input type="number" value="30"><span>% → 自动拉黑并告警</span></div>
+          <div class="li dim"><label class="switch gr"><input type="checkbox"><span class="sl"></span></label><span>检测到 SQL 注入 / XSS 攻击特征 → 自动拉黑并告警</span></div>
+        </div>
+      </div>
+      <div class="mf bl-foot">
+        <button class="btn btn-ic" onclick="toast('已导出黑名单列表 CSV')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v7.3"/><path d="M4.9 6.9 8 10l3.1-3.1"/><path d="M2.9 12.8h10.2"/></svg>导出列表</button>
+        <span class="fx"><button class="btn" onclick="closeModal('m-bl-add')">关闭</button><button class="btn red" onclick="closeModal('m-bl-add');toast('黑名单配置已保存，即时生效')">保存配置</button></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新建接口弹窗 -->
+  <div class="mask" id="m-api-add" onclick="if(event.target===this)closeModal('m-api-add')">
+    <div class="modal" style="width:860px">
+      <div class="mh">新建接口<span class="x" onclick="closeModal('m-api-add')">✕</span></div>
+      <div class="mb">
+        <!-- 基本信息 -->
+        <div class="sec-title">基本信息</div>
+        <div class="frow">
+          <div class="fi"><label><span class="req">*</span>接口名称</label><input type="text" placeholder="例：获取订单列表"></div>
+          <div class="fi"><label><span class="req">*</span>接口编码</label><input type="text" placeholder="例：API-0001" value="API-0099"></div>
+          <div class="fi"><label><span class="req">*</span>所属系统</label>
+            <select required>
+              <option value="">请选择</option>
+              <option>T100 ERP 核心系统</option>
+              <option>OA 协同办公系统</option>
+              <option>CRM 客户关系管理</option>
+              <option>SRM 供应商关系管理</option>
+              <option>聚水潭 电商ERP</option>
+              <option>HR 人力资源系统</option>
+              <option>BI 商业智能分析</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fi"><label><span class="req">*</span>请求方法</label>
+            <div class="radio-cards" data-radio>
+              <div class="rc on" onclick="rcPick(this)"><b>GET</b><small>查询</small></div>
+              <div class="rc" onclick="rcPick(this)"><b>POST</b><small>新增</small></div>
+              <div class="rc" onclick="rcPick(this)"><b>PUT</b><small>更新</small></div>
+              <div class="rc" onclick="rcPick(this)"><b>DELETE</b><small>删除</small></div>
+            </div>
+          </div>
+          <div class="fi" style="flex:2"><label><span class="req">*</span>接口路径</label><input type="text" placeholder="例：/api/v1/orders/list" style="font-family:Menlo,Consolas,monospace"></div>
+        </div>
+        <div class="fi" style="margin-bottom:14px"><label>接口描述</label><textarea placeholder="简要描述接口用途、入参与返回..."></textarea></div>
+
+        <!-- 鉴权配置 -->
+        <div class="sec-title">鉴权配置</div>
+        <div class="radio-cards" data-radio style="margin-bottom:10px">
+          <div class="rc on" onclick="rcPick(this)"><b>JWT Token</b><small>无状态令牌</small></div>
+          <div class="rc" onclick="rcPick(this)"><b>OAuth 2.0</b><small>第三方授权</small></div>
+          <div class="rc" onclick="rcPick(this)"><b>API Key</b><small>简单密钥</small></div>
+          <div class="rc" onclick="rcPick(this)"><b>免鉴权</b><small>公开接口</small></div>
+        </div>
+        <div class="frow">
+          <div class="fi"><label>Token 有效期（秒）</label><input type="number" value="7200"></div>
+          <div class="fi"><label>刷新 Token 有效期（秒）</label><input type="number" value="86400"></div>
+          <div class="fi"><label>IP 白名单（CIDR）</label><input type="text" placeholder="例：10.0.0.0/8"></div>
+        </div>
+
+        <!-- 限流配置 -->
+        <div class="sec-title">限流配置</div>
+        <div class="frow">
+          <div class="fi"><label>限流维度</label>
+            <select>
+              <option>全局</option>
+              <option selected>单接口</option>
+              <option>按调用方</option>
+              <option>按用户</option>
+              <option>按 IP</option>
+            </select>
+          </div>
+          <div class="fi"><label>限流算法</label>
+            <select>
+              <option selected>令牌桶</option>
+              <option>漏桶</option>
+              <option>滑动窗口</option>
+            </select>
+          </div>
+          <div class="fi"><label>QPS 上限</label><input type="number" value="1000"></div>
+          <div class="fi"><label>突发容量 burst</label><input type="number" value="200"></div>
+        </div>
+
+        <!-- 熔断配置 -->
+        <div class="sec-title">熔断配置</div>
+        <div class="frow">
+          <div class="fi"><label>错误率阈值 (%)</label><input type="number" value="50"></div>
+          <div class="fi"><label>慢调用比例 (%)</label><input type="number" value="60"></div>
+          <div class="fi"><label>熔断时长 (s)</label><input type="number" value="60"></div>
+          <div class="fi"><label>半开探测请求数</label><input type="number" value="5"></div>
+        </div>
+
+        <!-- 降级响应 -->
+        <div class="sec-title">降级响应</div>
+        <div class="radio-cards" data-radio style="margin-bottom:10px">
+          <div class="rc" onclick="rcPick(this)"><b>503 状态码</b></div>
+          <div class="rc on" onclick="rcPick(this)"><b>固定兜底报文</b></div>
+          <div class="rc" onclick="rcPick(this)"><b>空数据体</b></div>
+        </div>
+
+        <!-- 其他 -->
+        <div class="sec-title">其他</div>
+        <div class="frow">
+          <div class="fi"><label>接口状态</label>
+            <div class="checkline"><label class="switch"><input type="checkbox" checked><span class="sl"></span></label><span>启用</span></div>
+          </div>
+          <div class="fi"><label>是否公开</label>
+            <div class="checkline"><label class="switch"><input type="checkbox"><span class="sl"></span></label><span>公开到 API 市场</span></div>
+          </div>
+          <div class="fi"><label>版本号</label><input type="text" value="v1" style="font-family:Menlo,Consolas,monospace"></div>
+        </div>
+      </div>
+      <div class="mf">
+        <button class="btn" onclick="closeModal('m-api-add')">取消</button>
+        <button class="btn primary" onclick="closeModal('m-api-add');toast('接口已创建：API-0099，等待配置生效')">保存并发布</button>
+        <button class="btn" onclick="closeModal('m-api-add');toast('已存为草稿：API-0099')">存为草稿</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---------- 弹窗 ----------
+    function openModal(id){ document.getElementById(id).classList.add('on'); }
+    function closeModal(id){ document.getElementById(id).classList.remove('on'); }
+
+    // ---------- 页面切换 ----------
+    function switchPage(pageId, navEl){
+      document.querySelectorAll('.page-content').forEach(p => p.classList.remove('on'));
+      const target = document.getElementById('page-' + pageId);
+      if (target) target.classList.add('on');
+      document.querySelectorAll('.api-nav-item').forEach(n => n.classList.remove('active'));
+      if (navEl) navEl.classList.add('active');
+    }
+
+    // ---------- 单选卡片 ----------
+    function rcPick(el){
+      const group = el.closest('.radio-cards');
+      if (group) group.querySelectorAll('.rc').forEach(r => r.classList.remove('on'));
+      el.classList.add('on');
+    }
+
+    // ---------- Tab 切换 ----------
+    function tabClick(el){
+      const group = el.closest('.tabs');
+      if (group) group.querySelectorAll('.t').forEach(t => t.classList.remove('on'));
+      el.classList.add('on');
+      const paneId = el.getAttribute('data-pane');
+      if (paneId){
+        const tabgroup = group.getAttribute('data-tabgroup');
+        document.querySelectorAll('.tabpane').forEach(p => {
+          if (p.id && p.id.startsWith(tabgroup + '-')) p.classList.remove('on');
+        });
+        const pane = document.getElementById(paneId);
+        if (pane) pane.classList.add('on');
+      }
+    }
+
+    // ---------- 行展开/收起 ----------
+    function toggleRow(rowEl, expanderId){
+      const exp = document.getElementById(expanderId);
+      if (!exp) return;
+      exp.style.display = exp.style.display === 'none' ? 'table-row' : 'none';
+      const tw = rowEl.querySelector('.tw');
+      if (tw) tw.textContent = exp.style.display === 'none' ? '▾' : '▴';
+    }
+
+    // ---------- 熔断规则弹窗 ----------
+    function openCircuit(apiId){
+      openModal('m-circuit');
+      if (apiId){
+        const sel = document.getElementById('cb-api');
+        if (sel){
+          for (let i = 0; i < sel.options.length; i++){
+            if (sel.options[i].value.indexOf(apiId) > -1) sel.selectedIndex = i;
+          }
+        }
+      }
+    }
+
+    // ---------- 系统颜色映射 ----------
+    const sysColor = {'T100':'blue','OA':'purple','CRM':'green','SRM':'orange','聚水潭':'purple','HR':'blue','BI':'blue'};
+
+    // ---------- 接口树点击 ----------
+    function acTreeClick(el, sys){
+      document.querySelectorAll('#apiTree .grp').forEach(g => g.classList.remove('on'));
+      el.classList.add('on');
+      const node = el.closest('.gnode');
+      if (node) node.classList.toggle('col');
+      toast(sys + ' 分组已' + (node && node.classList.contains('col') ? '收起' : '展开'), 'info');
+    }
+
+    // ---------- 接口选中 ----------
+    function acPickApi(el, apiId, name, method, path, sys){
+      document.querySelectorAll('#apiTree .leaf').forEach(x => x.classList.remove('on'));
+      el.classList.add('on');
+      const node = el.closest('.gnode');
+      if (node){
+        node.classList.remove('col');
+        const grp = node.querySelector('.grp');
+        document.querySelectorAll('#apiTree .grp').forEach(g => g.classList.remove('on'));
+        if (grp) grp.classList.add('on');
+      }
+      const nm = document.getElementById('dtl-name');
+      if (nm) nm.innerHTML = name + ' <span class="m m-' + method.toLowerCase() + '">' + method + '</span> <span class="badge b-' + (sysColor[sys] || 'blue') + '">' + sys + '</span>';
+      const pt = document.getElementById('dtl-path');
+      if (pt) pt.textContent = path;
+      renderApiDetail(apiId);
+      toast('已切换接口：' + apiId + ' ' + name, 'info');
+    }
+
+    // ---------- 接口详情数据（11 个接口） ----------
+    const API_DETAIL = {
+      'API-0001': {route:['/api/v1/orders/list','t100-order-svc','/internal/orders','30s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','1000/s','200'],cb:['50%','60s',1],bl:['192.168.1.105','10.0.23.88','172.16.5.42'],ipc:47,ips:[['192.168.1.23',82,'23,891'],['10.0.12.56',60,'17,452'],['172.16.8.99',41,'12,108']],logs:[['01-15 14:32:18',200,'145ms','192.168.1.23','token: eyJhbG...xYz8'],['01-15 14:32:15',200,'132ms','10.0.12.56','token: eyJhbG...mN2Q'],['01-15 14:32:10',403,'8ms','192.168.1.105','黑名单拦截']]},
+      'API-0002': {route:['/api/v1/product/stock','t100-stock-svc','/internal/stock','10s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','800/s','160'],cb:['50%','60s',1],bl:['10.0.23.88'],ipc:31,ips:[['192.168.1.30',76,'19,204'],['10.0.12.61',52,'13,377'],['172.16.8.104',38,'9,825']],logs:[['01-15 14:31:58',200,'96ms','192.168.1.30','token: eyJhbG...aB3d'],['01-15 14:31:52',200,'88ms','10.0.12.61','token: eyJhbG...kL9m'],['01-15 14:31:47',429,'3ms','172.16.8.104','QPS 超限']]},
+      'API-0003': {route:['/api/v1/purchase/inbound','t100-purchase-svc','/internal/purchase/inbound','60s','2 次'],auth:['JWT Token','3600s',1],rate:['令牌桶','200/s','50'],cb:['50%','60s',1],bl:['172.16.5.42'],ipc:12,ips:[['10.0.12.33',68,'4,102'],['192.168.1.77',45,'2,715']],logs:[['01-15 14:30:41',200,'1,204ms','10.0.12.33','token: eyJhbG...qW7e'],['01-15 14:29:58',200,'987ms','192.168.1.77','token: eyJhbG...rT2u'],['01-15 14:28:12',504,'60,000ms','10.0.12.33','下游超时']]},
+      'API-0011': {route:['/api/v1/expense/approve','oa-expense-svc','/internal/expense/approve','30s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','300/s','60'],cb:['50%','60s',1],bl:['192.168.2.10'],ipc:19,ips:[['192.168.2.21',71,'6,308'],['10.0.31.7',48,'4,259']],logs:[['01-15 14:33:02',200,'210ms','192.168.2.21','token: eyJhbG...zX5c'],['01-15 14:32:44',200,'187ms','10.0.31.7','token: eyJhbG...vB8n'],['01-15 14:32:20',200,'203ms','192.168.2.21','token: eyJhbG...zX5c']]},
+      'API-0012': {route:['/api/v1/attendance/query','oa-attendance-svc','/internal/attendance','10s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','500/s','100'],cb:['50%','60s',1],bl:[],ipc:26,ips:[['192.168.2.35',64,'8,517'],['10.0.31.12',51,'6,804'],['172.16.9.20',33,'4,401']],logs:[['01-15 14:31:30',200,'75ms','192.168.2.35','token: eyJhbG...mK4p'],['01-15 14:31:22',200,'69ms','10.0.31.12','token: eyJhbG...nJ6q'],['01-15 14:31:05',401,'5ms','172.16.9.20','Token 过期']]},
+      'API-0021': {route:['/api/v1/crm/customer','crm-customer-svc','/internal/crm/customer','20s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','600/s','120'],cb:['50%','60s',1],bl:['10.0.44.9'],ipc:23,ips:[['192.168.3.14',77,'12,466'],['10.0.44.21',55,'8,917']],logs:[['01-15 14:32:50',200,'112ms','192.168.3.14','token: eyJhbG...pL3a'],['01-15 14:32:38',200,'98ms','10.0.44.21','token: eyJhbG...sD7f'],['01-15 14:32:15',403,'6ms','10.0.44.9','黑名单拦截']]},
+      'API-0031': {route:['/api/v1/supplier/eval','srm-eval-svc','/internal/supplier/eval','30s','2 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','200/s','40'],cb:['40%','45s',1],bl:[],ipc:8,ips:[['192.168.4.8',62,'2,341'],['10.0.52.3',49,'1,857']],logs:[['01-15 14:30:15',503,'12ms','192.168.4.8','熔断降级'],['01-15 14:29:47',200,'355ms','10.0.52.3','token: eyJhbG...wQ9r'],['01-15 14:29:12',502,'10,012ms','192.168.4.8','下游异常']]},
+      'API-0041': {route:['/api/v1/logistics/track','jst-logistics-svc','/open/jst/logistics/track','15s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','400/s','80'],cb:['50%','60s',1],bl:['203.0.113.45'],ipc:15,ips:[['192.168.5.19',66,'5,723'],['10.0.63.4',44,'3,814']],logs:[['01-15 14:28:33',502,'15,001ms','192.168.5.19','下游异常'],['01-15 14:27:51',502,'15,004ms','10.0.63.4','下游异常'],['01-15 14:26:40',200,'214ms','192.168.5.19','token: eyJhbG...yU2i']]},
+      'API-0042': {route:['/api/v1/payment/callback','jst-payment-svc','/open/jst/payment/callback','10s','0 次'],auth:['HMAC 签名验签','—',1],rate:['令牌桶','200/s','40'],cb:['50%','60s',1],bl:['203.0.113.88'],ipc:9,ips:[['203.0.113.7',81,'3,204'],['198.51.100.22',58,'2,297']],logs:[['01-15 14:27:12',500,'245ms','203.0.113.7','回调处理失败'],['01-15 14:26:35',200,'131ms','198.51.100.22','token: eyJhbG...eV6o'],['01-15 14:25:50',500,'287ms','203.0.113.7','回调处理失败']]},
+      'API-0051': {route:['/api/v1/hr/employee','hr-employee-svc','/internal/hr/employee','10s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','300/s','60'],cb:['50%','60s',1],bl:[],ipc:14,ips:[['192.168.6.11',59,'3,318'],['10.0.71.5',47,'2,644']],logs:[['01-15 14:31:15',200,'92ms','192.168.6.11','token: eyJhbG...hG8t'],['01-15 14:30:58',200,'85ms','10.0.71.5','token: eyJhbG...jF1u'],['01-15 14:30:31',200,'79ms','192.168.6.11','token: eyJhbG...hG8t']]},
+      'API-0061': {route:['/api/v1/bi/dashboard','bi-dashboard-svc','/internal/bi/dashboard','60s','2 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','150/s','30'],cb:['50%','60s',1],bl:[],ipc:6,ips:[['192.168.7.2',72,'1,864'],['10.0.82.9',53,'1,372']],logs:[['01-15 14:29:05',200,'1,842ms','192.168.7.2','token: eyJhbG...kR5w'],['01-15 14:28:21',200,'1,755ms','10.0.82.9','token: eyJhbG...lT8x'],['01-15 14:27:44',429,'4ms','192.168.7.2','QPS 超限']]}
+    };
+
+    function renderApiDetail(apiId){
+      const d = API_DETAIL[apiId]; if (!d) return;
+      const set = (id, html) => { const e = document.getElementById(id); if (e) e.innerHTML = html; };
+      set('dtl-route', '<div><span>上游路径</span> ' + d.route[0] + '</div><div><span>下游服务</span> ' + d.route[1] + '</div><div><span>下游路径</span> ' + d.route[2] + '</div><div><span>超时时间</span> ' + d.route[3] + '</div><div><span>重试次数</span> ' + d.route[4] + '</div>');
+      set('dtl-auth', '<div><span>认证方式</span> ' + d.auth[0] + '</div><div><span>Token 有效期</span> ' + d.auth[1] + '</div><div><span>权限校验</span> <span class="badge ' + (d.auth[2] ? 'b-green' : 'b-gray') + '">' + (d.auth[2] ? '已开启' : '未开启') + '</span></div>');
+      set('dtl-rate', '<div><span>限流策略</span> <span class="badge b-orange">' + d.rate[0] + '</span></div><div><span>QPS 上限</span> ' + d.rate[1] + '</div><div><span>突发容量</span> ' + d.rate[2] + '</div>');
+      set('dtl-circuit', '<div><span>错误率阈值</span> ' + d.cb[0] + '</div><div><span>熔断时长</span> ' + d.cb[1] + '</div><div><span>半开探测</span> <span class="badge ' + (d.cb[2] ? 'b-green' : 'b-gray') + '">' + (d.cb[2] ? '已开启' : '未开启') + '</span></div>');
+      set('ov-blacklist', d.bl.map(ip => '<span class="chip">' + ip + ' <b onclick="acRemoveIp(this)">✕</b></span>').join(''));
+      set('dtl-ipcnt', '共 ' + d.ipc + ' 个 IP');
+      set('dtl-ips', d.ips.map(p => '<div class="bar-row"><span class="ip">' + p[0] + '</span><div class="bar"><i style="width:' + p[1] + '%"></i></div><span class="n">' + p[2] + '次</span><button class="btn sm danger" onclick="acBlack(this,\'' + p[0] + '\')">拉黑</button></div>').join(''));
+      set('dtl-logs', d.logs.map(l => '<tr><td>' + l[0] + '</td><td><span class="code ' + (l[1] === 200 ? 'ok' : 'err') + '">' + l[1] + '</span></td><td>' + l[2] + '</td><td class="mono">' + l[3] + '</td><td class="' + (String(l[4]).indexOf('token:') === 0 ? 'mono dim' : 'err-text') + '">' + l[4] + '</td></tr>').join(''));
+    }
+
+    // ---------- 拉黑 / 移除 IP ----------
+    function acBlack(btn, ip){
+      const box = document.getElementById('ov-blacklist');
+      if (box && box.textContent.indexOf(ip) === -1){
+        const s = document.createElement('span');
+        s.className = 'chip';
+        s.appendChild(document.createTextNode(ip + ' '));
+        const b = document.createElement('b');
+        b.textContent = '✕';
+        b.onclick = function(){ acRemoveIp(b); };
+        s.appendChild(b);
+        box.appendChild(s);
+      }
+      btn.outerHTML = '<button class="btn sm" disabled>已拉黑</button>';
+      toast('已将 ' + ip + ' 加入黑名单', 'warn');
+    }
+    function acRemoveIp(el){
+      const chip = el.closest('.chip');
+      const ip = chip ? chip.textContent.replace('✕', '').trim() : '';
+      if (chip) chip.remove();
+      toast('已从黑名单移除：' + ip, 'info');
+    }
+
+    // ---------- IP 黑名单数据 ----------
+    const BL_DATA = [
+      {ip:'192.168.1.105',  dur:'永久封禁', reason:'频繁 403 异常请求',      at:'01-14 16:22:05', st:'on',  days:0},
+      {ip:'10.0.23.88',     dur:'永久封禁', reason:'疑似爬虫高频调用',       at:'01-13 09:15:32', st:'on',  days:0},
+      {ip:'172.16.5.42',    dur:'7 天',     reason:'短时间内大量 5xx 错误',  at:'01-15 08:03:11', st:'due', days:6},
+      {ip:'192.168.2.0/24', dur:'永久封禁', reason:'内网段异常流量',         at:'01-10 14:50:00', st:'on',  days:0},
+      {ip:'45.202.100.66',  dur:'30 天',    reason:'疑似 CC 攻击',          at:'01-12 20:47:18', st:'due', days:24},
+      {ip:'203.0.113.77',   dur:'永久封禁', reason:'越权探测（申诉后已解除）', at:'01-08 10:26:40', st:'off', days:0}
+    ];
+    let blQuery = '', blSt = '';
+    function blNow(){
+      const d = new Date(), p = n => String(n).padStart(2, '0');
+      return p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    }
+    function blStHtml(r){
+      if (r.st === 'off') return '<span class="bl-st off"><i></i>已解除</span>';
+      return '<span class="bl-st on"><i></i>生效中</span>';
+    }
+    function blOpsHtml(r){
+      if (r.st === 'off') return '<button class="btn sm" onclick="blReblock(\'' + r.ip + '\')">重新封禁</button><button class="btn sm danger" onclick="blDel(\'' + r.ip + '\')">删除</button>';
+      return '<button class="btn sm" onclick="blRelease(\'' + r.ip + '\')">解除</button>';
+    }
+    function blRowsHtml(){
+      let list = BL_DATA;
+      if (blQuery) list = list.filter(r => r.ip.toLowerCase().indexOf(blQuery) > -1 || r.reason.toLowerCase().indexOf(blQuery) > -1);
+      if (blSt) list = list.filter(r => r.st === blSt);
+      if (!list.length) return '<tr><td colspan="6" style="text-align:center;color:#86909c;padding:20px">无匹配的黑名单条目</td></tr>';
+      return list.map(r => '<tr><td>' + r.ip + '</td><td>' + r.dur + '</td><td>' + r.reason + '</td><td>' + r.at + '</td><td>' + blStHtml(r) + '</td><td>' + blOpsHtml(r) + '</td></tr>').join('');
+    }
+    function blRender(){
+      const html = blRowsHtml();
+      ['bl-page-body', 'bl-modal-body'].forEach(id => { const tb = document.getElementById(id); if (tb) tb.innerHTML = html; });
+      const n = BL_DATA.filter(r => r.st !== 'off').length;
+      ['bl-total-page', 'bl-total-modal'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = n; });
+    }
+    function blSearch(v){
+      blQuery = (v || '').trim().toLowerCase();
+      ['bl-search-page', 'bl-search-modal'].forEach(id => { const el = document.getElementById(id); if (el && el.value !== v) el.value = v || ''; });
+      blRender();
+    }
+    function blAdd(){
+      const ipEl = document.getElementById('bl-new-ip'), durEl = document.getElementById('bl-new-dur'), rsEl = document.getElementById('bl-new-reason');
+      const ip = (ipEl.value || '').trim();
+      if (!ip){ toast('请先填写 IP 地址或 CIDR 段', 'warn'); return; }
+      if (!/^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/.test(ip)){ toast('格式校验未通过：' + ip + ' 不是合法 IP 或 CIDR 段', 'warn'); return; }
+      if (BL_DATA.some(r => r.ip === ip)){ toast('该 IP 已在黑名单中：' + ip, 'warn'); return; }
+      const dur = durEl.value, perm = dur.indexOf('永久') === 0;
+      BL_DATA.unshift({ip:ip, dur:dur, reason:(rsEl.value || '').trim() || '手动加入', at:blNow(), st:'on', days: perm ? 0 : (parseInt(dur, 10) || 0)});
+      ipEl.value = ''; rsEl.value = '';
+      blRender();
+      toast('已加入黑名单：' + ip + '（' + dur + '），即时生效', 'warn');
+    }
+    function blFind(ip){ return BL_DATA.filter(r => r.ip === ip)[0]; }
+    function blRelease(ip){ const r = blFind(ip); if (!r) return; r.st = 'off'; r.days = 0; blRender(); toast('已解除封禁：' + ip, 'info'); }
+    function blReblock(ip){ const r = blFind(ip); if (!r) return; r.st = 'on'; blRender(); toast('已重新封禁：' + ip + '（' + r.dur + '）', 'warn'); }
+    function blDel(ip){ const i = BL_DATA.findIndex(r => r.ip === ip); if (i < 0) return; BL_DATA.splice(i, 1); blRender(); toast('已删除黑名单条目：' + ip, 'info'); }
+    blRender();
+
+    // ---------- Toast ----------
+    let toastTimer;
+    function toast(msg, type){
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.style.background = type === 'warn' ? '#ff7d00' : (type === 'info' ? '#1677ff' : '#00b42a');
+      t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2600);
+    }
+
+    // 初始化默认接口详情
+    renderApiDetail('API-0001');
+  </script>
+</body>
+</html>

@@ -2836,7 +2836,7 @@ input, select {
       <a href="index.html" class="sub-nav-item">首页概览</a>
       <div class="sub-nav-item active">内容管理</div>
       <div class="sub-nav-item">流程中心</div>
-      <div class="sub-nav-item">API中心</div>
+      <a href="api-center.html" class="sub-nav-item">API中心</a>
       <a href="role-list.html" class="sub-nav-item">系统设置</a>
     </div>
   </div>
@@ -2883,44 +2883,6 @@ input, select {
         <button class="modal-close" onclick="closeRoomUsageModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="ru-header-info">
-          <div class="ru-view-tabs">
-            <button class="ru-view-tab active" onclick="switchRuView(this,'day')">日</button>
-            <button class="ru-view-tab" onclick="switchRuView(this,'week')">周</button>
-            <button class="ru-view-tab" onclick="switchRuView(this,'month')">月</button>
-          </div>
-          <div class="ru-date-nav">
-            <button onclick="changeRuDate(-1)">‹</button>
-            <span class="date-text" id="ruDateText" onclick="document.getElementById('ruDatePicker').showPicker && document.getElementById('ruDatePicker').showPicker()" style="cursor:pointer;border-bottom:2px solid #f59e0b;padding:2px 4px;">2026年09月11日</span>
-            <input type="date" id="ruDatePicker" onchange="ruPickDate(this.value)" style="position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;">
-            <input type="month" id="ruMonthPicker" onchange="ruPickMonth(this.value)" style="position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;">
-            <button onclick="changeRuDate(1)">›</button>
-            <button class="ru-today-btn" onclick="ruGoToday()">今天</button>
-          </div>
-          <div class="ru-search-box">
-            <span class="ru-search-icon">🔍</span>
-            <input type="text" id="ruSearchInput" placeholder="搜索会议室" oninput="renderRoomUsageGrid();renderRuDetail()">
-          </div>
-          <div class="ru-legend">
-            <div class="ru-legend-item"><span class="ru-legend-dot occupied"></span>占用</div>
-            <div class="ru-legend-item"><span class="ru-legend-dot conflict"></span>冲突</div>
-          </div>
-        </div>
-        <div class="ru-grid">
-          <div class="ru-grid-header">
-            <div class="ru-grid-header-cell room-col">会议室</div>
-            <div class="ru-grid-header-cell">09:00</div>
-            <div class="ru-grid-header-cell">10:00</div>
-            <div class="ru-grid-header-cell">11:00</div>
-            <div class="ru-grid-header-cell">12:00</div>
-            <div class="ru-grid-header-cell">14:00</div>
-            <div class="ru-grid-header-cell">15:00</div>
-            <div class="ru-grid-header-cell">16:00</div>
-            <div class="ru-grid-header-cell">17:00</div>
-            <div class="ru-grid-header-cell">18:00</div>
-          </div>
-          <div class="ru-grid-body" id="ruGridBody"></div>
-        </div>
         <div class="ru-detail-section">
           <div class="ru-detail-title">会议明细</div>
           <table class="ru-detail-table">
