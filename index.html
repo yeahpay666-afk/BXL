@@ -407,16 +407,36 @@ input, select {
   line-height: 1.2;
 }
 
-/* 快捷入口"添加"卡片 — 与AI智能应用卡片样式一致 */
-.qe-add-icon {
-  background: #f1f5f9;
-  color: #94a3b8;
-  font-size: 20px;
+/* 快捷入口"添加"长条卡片 — 与AI智能顶部卡片样式一致 */
+.qe-add-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 20px 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+  cursor: pointer;
 }
-.quick-entry-item.qe-add-item:hover .qe-add-icon {
-  background: #eff6ff;
-  color: var(--primary-color);
+.qe-add-bar:hover {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
 }
+.qe-add-bar-left { display: flex; align-items: center; gap: 12px; }
+.qe-add-bar-icon {
+  width: 40px; height: 40px; border-radius: 8px; background: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+}
+.qe-add-bar-title { font-size: 14px; font-weight: 600; color: #1f2937; }
+.qe-add-bar-sub { font-size: 12px; color: #6b7280; margin-top: 3px; }
+.qe-add-bar-arrow { color: #2563eb; font-size: 18px; font-weight: 600; }
 
 /* 快捷入口 header：标题靠左 / 按钮靠右 */
 .quick-entry-header {
@@ -3099,6 +3119,16 @@ input, select {
                   </div>
                 </div>
                 <div class="portal-card-body">
+                  <a class="qe-add-bar" onclick="openQuickEntryModal()">
+                    <div class="qe-add-bar-left">
+                      <div class="qe-add-bar-icon">＋</div>
+                      <div class="qe-add-bar-text">
+                        <div class="qe-add-bar-title">添加快捷入口</div>
+                        <div class="qe-add-bar-sub">点击添加常用功能到首页</div>
+                      </div>
+                    </div>
+                    <div class="qe-add-bar-arrow">→</div>
+                  </a>
                   <div class="quick-entry" id="quickEntryGrid"></div>
                 </div>
               </div>
@@ -5073,17 +5103,10 @@ function renderQuickEntry() {
       '</div>'
     );
   }).join("");
-  // 非编辑模式：末尾追加"添加"卡片
-  if (!editing) {
-    html += '<div class="quick-entry-item qe-add-item" onclick="openQuickEntryModal()">' +
-              '<div class="quick-entry-icon qe-add-icon">＋</div>' +
-              '<div class="quick-entry-name">添加</div>' +
-            '</div>';
-  }
   grid.innerHTML = html;
   // 非编辑模式：点击跳转
   if (!editing) {
-    grid.querySelectorAll(".quick-entry-item:not(.qe-add-item)").forEach(function(el){
+    grid.querySelectorAll(".quick-entry-item").forEach(function(el){
       el.addEventListener("click", function(){
         var href = this.getAttribute("data-href");
         if (href && href !== "#") window.location.href = href;
