@@ -407,20 +407,11 @@ input, select {
   line-height: 1.2;
 }
 
-/* 快捷入口"添加"卡片 */
-.quick-entry-item.qe-add-item {
-  background: transparent;
-  border: 1px dashed #cbd5e1;
-}
-.quick-entry-item.qe-add-item:hover {
-  background: #f8fafc;
-  border-color: var(--primary-color);
-}
+/* 快捷入口"添加"卡片 — 与AI智能应用卡片样式一致 */
 .qe-add-icon {
   background: #f1f5f9;
   color: #94a3b8;
-  font-size: 22px;
-  font-weight: 300;
+  font-size: 20px;
 }
 .quick-entry-item.qe-add-item:hover .qe-add-icon {
   background: #eff6ff;
@@ -3104,7 +3095,7 @@ input, select {
                 <div class="portal-card-header quick-entry-header">
                   <div class="portal-card-title">快捷入口</div>
                   <div class="qe-header-actions" id="quickEntryActions">
-                    <div class="quick-entry-action-btn" id="quickEditBtn" onclick="toggleQuickEditMode()">✏️ 编辑</div>
+                    <div class="quick-entry-action-btn" id="quickEditBtn" onclick="toggleQuickEditMode()">编辑</div>
                   </div>
                 </div>
                 <div class="portal-card-body">
@@ -5060,7 +5051,7 @@ var APP_CATALOG = [
 ];
 
 // 默认快捷入口
-var quickEntryIds = ["expense-apply","asset-out","purchase-apply","contract-approve","seal-apply","leave-travel"];
+var quickEntryIds = ["expense-apply","asset-out","purchase-apply","contract-approve"];
 
 function getApp(id) {
   return APP_CATALOG.find(function(a){ return a.id === id; });
@@ -5158,7 +5149,7 @@ function toggleQuickEditMode() {
   var editing = !grid.classList.contains("editing");
   grid.classList.toggle("editing", editing);
   btn.classList.toggle("active", editing);
-  btn.textContent = editing ? "✓ 完成" : "✏️ 编辑";
+  btn.textContent = editing ? "完成" : "编辑";
   renderQuickEntry();
 }
 
