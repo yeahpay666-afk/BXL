@@ -368,7 +368,8 @@ input, select {
 .quick-entry {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 10px;
+  padding: 0 20px 16px;
 }
 
 .quick-entry-item {
@@ -376,9 +377,9 @@ input, select {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px 6px;
+  padding: 14px 8px;
   background: #f8fafc;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
@@ -390,20 +391,49 @@ input, select {
 }
 
 .quick-entry-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
-  margin-bottom: 4px;
+  font-size: 20px;
+  margin-bottom: 6px;
 }
 
 .quick-entry-name {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-primary);
   line-height: 1.2;
+}
+
+/* 快捷入口"添加"卡片 */
+.quick-entry-item.qe-add-item {
+  background: transparent;
+  border: 1px dashed #cbd5e1;
+}
+.quick-entry-item.qe-add-item:hover {
+  background: #f8fafc;
+  border-color: var(--primary-color);
+}
+.qe-add-icon {
+  background: #f1f5f9;
+  color: #94a3b8;
+  font-size: 22px;
+  font-weight: 300;
+}
+.quick-entry-item.qe-add-item:hover .qe-add-icon {
+  background: #eff6ff;
+  color: var(--primary-color);
+}
+
+/* 快捷入口 header：标题靠左 / 按钮靠右 */
+.quick-entry-header {
+  justify-content: space-between;
+}
+.quick-entry-header .qe-header-actions {
+  display: flex;
+  gap: 6px;
 }
 
 /* 不同颜色的图标背景 */
@@ -777,16 +807,16 @@ input, select {
 }
 
 .quick-entry-action-btn {
-  flex: 1;
   font-size: 11px;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 5px 0;
+  padding: 4px 10px;
   text-align: center;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
   background: #fff;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .quick-entry-action-btn:hover {
@@ -3001,15 +3031,14 @@ input, select {
         <div class="portal-layout">
       <div class="portal-card">
                 <div class="portal-card-header">
-                  <div class="portal-card-title">快捷入口</div>
+                  <div class="portal-card-title">公告通知</div>
+                  <a href="notice-list.html" class="portal-card-more">全部 →</a>
                 </div>
-                <div class="portal-card-body">
-                  <div class="quick-entry" id="quickEntryGrid"></div>
-                  <div class="quick-entry-actions" id="quickEntryActions">
-                    <div class="quick-entry-action-btn" onclick="openQuickEntryModal()">＋ 添加</div>
-                    <div class="quick-entry-action-btn" id="quickEditBtn" onclick="toggleQuickEditMode()">✏️ 编辑</div>
-                  </div>
+                <div class="notice-tabs">
+                  <div class="notice-tab active" onclick="switchNoticeTab('latest', this)">最新公告</div>
+                  <div class="notice-tab" onclick="switchNoticeTab('history', this)">历史公告</div>
                 </div>
+                <div class="notice-portal-list" id="noticePortalList"></div>
               </div>
       <div class="portal-card">
                 <div class="portal-card-header">
@@ -3072,15 +3101,15 @@ input, select {
                 </div>
               </div>
       <div class="portal-card">
-                <div class="portal-card-header">
-                  <div class="portal-card-title">公告通知</div>
-                  <a href="notice-list.html" class="portal-card-more">全部 →</a>
+                <div class="portal-card-header quick-entry-header">
+                  <div class="portal-card-title">快捷入口</div>
+                  <div class="qe-header-actions" id="quickEntryActions">
+                    <div class="quick-entry-action-btn" id="quickEditBtn" onclick="toggleQuickEditMode()">✏️ 编辑</div>
+                  </div>
                 </div>
-                <div class="notice-tabs">
-                  <div class="notice-tab active" onclick="switchNoticeTab('latest', this)">最新公告</div>
-                  <div class="notice-tab" onclick="switchNoticeTab('history', this)">历史公告</div>
+                <div class="portal-card-body">
+                  <div class="quick-entry" id="quickEntryGrid"></div>
                 </div>
-                <div class="notice-portal-list" id="noticePortalList"></div>
               </div>
       <div class="portal-card">
                 <div class="portal-card-header">
@@ -5042,7 +5071,7 @@ function renderQuickEntry() {
   var grid = document.getElementById("quickEntryGrid");
   if (!grid) return;
   var editing = grid.classList.contains("editing");
-  grid.innerHTML = quickEntryIds.map(function(id, idx){
+  var html = quickEntryIds.map(function(id, idx){
     var app = getApp(id);
     if (!app) return "";
     return (
@@ -5053,9 +5082,17 @@ function renderQuickEntry() {
       '</div>'
     );
   }).join("");
+  // 非编辑模式：末尾追加"添加"卡片
+  if (!editing) {
+    html += '<div class="quick-entry-item qe-add-item" onclick="openQuickEntryModal()">' +
+              '<div class="quick-entry-icon qe-add-icon">＋</div>' +
+              '<div class="quick-entry-name">添加</div>' +
+            '</div>';
+  }
+  grid.innerHTML = html;
   // 非编辑模式：点击跳转
   if (!editing) {
-    grid.querySelectorAll(".quick-entry-item").forEach(function(el){
+    grid.querySelectorAll(".quick-entry-item:not(.qe-add-item)").forEach(function(el){
       el.addEventListener("click", function(){
         var href = this.getAttribute("data-href");
         if (href && href !== "#") window.location.href = href;
