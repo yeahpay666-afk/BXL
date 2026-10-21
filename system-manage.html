@@ -512,9 +512,9 @@
   <aside class="sidebar">
     <div class="sidebar-title">系统设置</div><div class="sidebar-subtitle">系统配置管理</div>
     <div class="sidebar-menu">
-      <a href="role-list.html" class="sidebar-menu-item"><span class="sidebar-menu-icon">🔑</span><span>角色管理</span></a><a href="system-manage.html" class="sidebar-menu-item active"><span class="sidebar-menu-icon">🖥️</span><span>应用系统管理</span></a>
+      <a href="role-list.html" class="sidebar-menu-item"><span>角色管理</span></a><a href="system-manage.html" class="sidebar-menu-item active"><span>应用系统管理</span></a>
     </div>
-    <div class="sidebar-footer"><span>🏠</span><a href="index.html">返回门户首页</a></div>
+    <div class="sidebar-footer"><a href="index.html">返回门户首页</a></div>
   </aside>
 
   <main class="main-content" style="padding: 16px 20px;">
@@ -1849,7 +1849,7 @@ fieldType: '配置字段类型：一般作业、报表作业（与字段权限�
       // Section: 基本信息
       if (tab !== 'encrypt') {
         html += '<div class="form-section">' +
-          '<div class="form-section-title"><span class="icon">📋</span>基本信息</div>' +
+          '<div class="form-section-title">基本信息</div>' +
           '<div class="form-grid" style="grid-template-columns:1fr 1fr;">' +
             '<div class="form-item"><label class="form-label">权限代码 <span style="color:#ef4444;">*</span></label><input type="text" class="form-input" id="riCode" value="' + (item ? item.code : '') + '" placeholder="如 0、1、2..."' + dis + '></div>' +
             '<div class="form-item"><label class="form-label">权限名称 <span style="color:#ef4444;">*</span></label><input type="text" class="form-input" id="riName" value="' + (item ? item.name : '') + '" placeholder="如 不管制、不同部门间"' + dis + '></div>' +
@@ -1859,7 +1859,7 @@ fieldType: '配置字段类型：一般作业、报表作业（与字段权限�
 
       if (tab === 'encrypt') {
         html += '<div class="form-section">' +
-          '<div class="form-section-title"><span class="icon">🔐</span>加密配置</div>' +
+          '<div class="form-section-title">加密配置</div>' +
           '<div class="form-grid" style="grid-template-columns:1fr 1fr;">' +
             '<div class="form-item"><label class="form-label">权限码 <span style="color:#ef4444;">*</span></label>' +
               '<input type="text" class="form-input" id="riCode" value="' + (item ? item.code : '') + '" placeholder="请输入权限码"' + dis + '></div>' +
@@ -1884,7 +1884,7 @@ fieldType: '配置字段类型：一般作业、报表作业（与字段权限�
 
       // Section: 说明
       html += '<div class="form-section">' +
-        '<div class="form-section-title"><span class="icon">💬</span>说明</div>' +
+        '<div class="form-section-title">说明</div>' +
         '<textarea class="form-input" id="riDesc" placeholder="' + (tab === 'encrypt' ? '请输入遮罩样式说明' : '权限说明（选填）') + '"' + dis + ' style="resize:vertical;min-height:60px;">' + (item ? (item.desc || '') : '') + '</textarea>' +
       '</div>';
 

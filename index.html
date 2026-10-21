@@ -3214,7 +3214,7 @@ input, select {
                   <a href="news-list.html" class="portal-card-more">更多 →</a>
                 </div>
                 <div class="portal-card-body">
-                  <div class="news-portal-item">
+                  <div class="news-portal-item" onclick="location.href='news-detail.html'">
                     <div class="news-portal-thumb" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"></div>
                     <div class="news-portal-content">
                       <div class="news-portal-title">集团Q4营收同比增长15%，创历史新高</div>
@@ -3224,7 +3224,7 @@ input, select {
                       </div>
                     </div>
                   </div>
-                  <div class="news-portal-item">
+                  <div class="news-portal-item" onclick="location.href='news-detail.html'">
                     <div class="news-portal-thumb" style="background: linear-gradient(135deg, #10b981, #059669);"></div>
                     <div class="news-portal-content">
                       <div class="news-portal-title">柏星龙获评「制造业数字化转型标杆企业」</div>
@@ -3234,7 +3234,7 @@ input, select {
                       </div>
                     </div>
                   </div>
-                  <div class="news-portal-item">
+                  <div class="news-portal-item" onclick="location.href='news-detail.html'">
                     <div class="news-portal-thumb" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></div>
                     <div class="news-portal-content">
                       <div class="news-portal-title">柏星龙获评国家级专精特新"小巨人"企业</div>
@@ -3263,7 +3263,7 @@ input, select {
                 </div>
       
                 <div class="study-list">
-                  <div class="study-item">
+                  <div class="study-item" onclick="location.href='study-detail.html'">
                     <div class="study-content">
                       <div class="study-title">公司制度全集</div>
                       <div class="study-meta">
@@ -3276,7 +3276,7 @@ input, select {
                       </div>
                     </div>
                   </div>
-                  <div class="study-item">
+                  <div class="study-item" onclick="location.href='study-detail.html'">
                     <div class="study-content">
                       <div class="study-title">产品知识大全</div>
                       <div class="study-meta">
@@ -3289,7 +3289,7 @@ input, select {
                       </div>
                     </div>
                   </div>
-                  <div class="study-item">
+                  <div class="study-item" onclick="location.href='study-detail.html'">
                     <div class="study-info">
                       <div class="study-title">OA系统操作培训</div>
                       <div class="study-meta">
@@ -4931,7 +4931,7 @@ input, select {
     if (!box) return;
     var list = noticeData[type] || [];
     box.innerHTML = list.map(function(n) {
-      return '<div class="notice-portal-item-v2">' +
+      return '<div class="notice-portal-item-v2" onclick="location.href=\'notice-detail.html\'">' +
         '<div class="notice-icon ' + n.cls + '">' + n.icon + '</div>' +
         '<div class="notice-content">' +
           '<div class="notice-title">' + n.title + '</div>' +

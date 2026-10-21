@@ -416,6 +416,11 @@
     .sidebar-card-header { padding: 8px 12px; border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
     .sidebar-card-body { padding: 10px 12px; }
 
+    /* ===== 学习积分 ===== */
+    .points-card-value { font-size: 24px; font-weight: 700; color: #f59e0b; line-height: 1.1; font-family: Menlo, monospace; }
+    .points-rule { margin-top: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+    .points-rule b { color: #f59e0b; font-weight: 600; }
+
     /* 讲师信息 */
     .instructor-info { display: flex; align-items: center; gap: 10px; }
     .instructor-avatar { width: 34px; height: 34px; border-radius: 50%; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
@@ -745,9 +750,23 @@
 
       <!-- 右侧栏 -->
       <div>
+        <!-- 学习积分 -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-header">学习积分</div>
+          <div class="sidebar-card-body">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
+              <span style="font-size:12px; color:var(--text-secondary);">我的积分</span>
+              <span class="points-card-value" id="myPointsValue">1280</span>
+            </div>
+            <div class="points-rule">
+              完成每个课时 +2 积分，学完本课程共可得 <b id="courseTotalPoints">－</b> 积分
+            </div>
+          </div>
+        </div>
+
         <!-- 讲师信息 -->
         <div class="sidebar-card">
-          <div class="sidebar-card-header">👤 讲师信息</div>
+          <div class="sidebar-card-header">讲师信息</div>
           <div class="sidebar-card-body">
             <div class="instructor-info">
               <div class="instructor-avatar" id="insAvatar">刘</div>
@@ -764,7 +783,7 @@
 
         <!-- 课程数据 -->
         <div class="sidebar-card">
-          <div class="sidebar-card-header">📊 课程数据</div>
+          <div class="sidebar-card-header">课程数据</div>
           <div class="sidebar-card-body">
             <div class="stat-row"><span class="label">课程分类</span><span class="value" id="dataCategory">系统操作</span></div>
             <div class="stat-row"><span class="label">总课时</span><span class="value" id="dataLessons">18课时</span></div>
@@ -778,7 +797,7 @@
 
         <!-- 学习记录 -->
         <div class="sidebar-card">
-          <div class="sidebar-card-header">📝 学习记录</div>
+          <div class="sidebar-card-header">学习记录</div>
           <div class="sidebar-card-body" id="recordList" style="max-height:240px; overflow-y:auto;">
             <!-- 由JS按当前课程动态渲染 -->
           </div>
@@ -794,7 +813,7 @@
   <div class="exam-overlay" id="examOverlay">
     <div class="exam-modal">
       <div class="exam-modal-header">
-        <div class="exam-modal-title">📝 课后考试 — <span id="examCourseName"></span></div>
+        <div class="exam-modal-title">课后考试 — <span id="examCourseName"></span></div>
         <div style="display:flex;align-items:center;gap:12px;">
           <div class="exam-timer" id="examTimer">⏱ 30:00</div>
           <span class="exam-close" onclick="closeExam()">✕</span>
@@ -1100,6 +1119,39 @@
       '吴昊': { position: '市场经理', bio: '10年大客户销售与商务谈判经验，擅长客户关系管理实战。' }
     };
 
+    /* ===== 学习积分（与 study.html 共用 localStorage key，保证跨页一致） ===== */
+    var POINTS_KEY = 'bx_user_points';        // 累计积分
+    var AWARDED_KEY = 'bx_points_awarded';    // 已发放记录，避免同一课时重复计分
+    var POINTS_PER_LESSON = 2;                // 每课时积分，与后台「积分设置」默认值一致
+    var DEFAULT_POINTS = 1280;                // 无记录时的初始示例值
+
+    function getMyPoints() {
+      var v = parseInt(localStorage.getItem(POINTS_KEY), 10);
+      if (isNaN(v)) { v = DEFAULT_POINTS; localStorage.setItem(POINTS_KEY, v); }
+      return v;
+    }
+
+    function updateMyPointsDisplay() {
+      var el = document.getElementById('myPointsValue');
+      if (el) el.textContent = getMyPoints();
+    }
+
+    // 发放单个课时积分：每课时固定 +POINTS_PER_LESSON，同一课时只计一次
+    function awardLessonPoints(lessonIdx) {
+      var awarded = {};
+      try { awarded = JSON.parse(localStorage.getItem(AWARDED_KEY)) || {}; } catch (e) { awarded = {}; }
+      var flag = courseTitle + '#' + lessonIdx;
+      if (awarded[flag]) return false;
+      awarded[flag] = true;
+      localStorage.setItem(AWARDED_KEY, JSON.stringify(awarded));
+
+      var total = getMyPoints() + POINTS_PER_LESSON;
+      localStorage.setItem(POINTS_KEY, total);
+      updateMyPointsDisplay();
+      showToast('+' + POINTS_PER_LESSON + ' 积分，当前共 ' + total + ' 积分', 'success');
+      return true;
+    }
+
     // 初始化页面
     (function init() {
       var data = courseData[courseTitle] || courseData['ERP系统操作指南'];
@@ -1126,6 +1178,11 @@
 
       // 右侧「学习记录」
       renderLearningRecords(data);
+
+      // 「学习积分」：本课学完可获总积分 = 课时数 × 每课时积分；同时展示我的当前积分
+      var totalPointsEl = document.getElementById('courseTotalPoints');
+      if (totalPointsEl) totalPointsEl.textContent = (data.lessons || 0) * POINTS_PER_LESSON;
+      updateMyPointsDisplay();
 
       // 顶部「继续学习 / 开始学习」按钮文字
       var heroBtn = document.getElementById('heroBtn');
@@ -1258,7 +1315,8 @@
         showToast('请先完成前置课时');
         return;
       }
-      // 移除其他课时的高亮
+      // 移除其他课时的高亮；被取消高亮的原「当前」课时即视为本次已完成，用于发放积分
+      var justCompleted = null;
       document.querySelectorAll('.lesson-item').forEach(function(item) {
         item.classList.remove('current');
         var st = item.querySelector('.lesson-status');
@@ -1267,6 +1325,7 @@
           st.classList.add('done');
           st.textContent = '✓';
           item.classList.add('done');
+          if (item !== el) justCompleted = item;
         }
       });
       // 高亮当前
@@ -1292,6 +1351,12 @@
       }
 
       showToast('已切换到：' + lessonName);
+
+      // 本次切换使上一个课时完成时，发放该课时积分
+      if (justCompleted) {
+        var lessonItems = Array.from(document.querySelectorAll('.lesson-item'));
+        awardLessonPoints(lessonItems.indexOf(justCompleted));
+      }
     }
 
     // 完成当前课时
@@ -1301,6 +1366,8 @@
         showToast('请先选择一个课时');
         return;
       }
+      var allItems = Array.from(document.querySelectorAll('.lesson-item'));
+      var curIdx = allItems.indexOf(current);
       var status = current.querySelector('.lesson-status');
       status.classList.remove('current', 'locked');
       status.classList.add('done');
@@ -1323,6 +1390,9 @@
         // 完成最后一个课时，与 PDF 学习保持同一逻辑
         showToast('恭喜您已完成全部学习，参加并通过课后考试即可结课', 'success');
       }
+
+      // 发放本课时积分
+      if (curIdx >= 0) awardLessonPoints(curIdx);
     }
 
     function findNextLesson(current) {

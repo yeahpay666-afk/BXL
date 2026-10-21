@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新闻详情 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    .main-content { position: relative; }
+    /* 无侧边栏时，顶部需避开「顶部导航56px + 二级导航44px」 */
+    html { background: #f5f7fa; }
+    .main-content.no-sidebar { margin-top: 0; padding: 112px 16px 12px; min-height: 100vh; }
+
+    .detail-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 40px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    /* 卡片顶部：面包屑 + 返回入口 */
+    .detail-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .detail-topbar .breadcrumb { margin-bottom: 0; }
+    .detail-back {
+      flex-shrink: 0;
+      font-size: 13px;
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 5px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .detail-back:hover {
+      border-color: var(--primary-color);
+      background: #eff6ff;
+    }
+
+    /* 正文头部 */
+    .article-title {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.5;
+      color: var(--text-primary);
+      margin: 0 0 12px;
+    }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .article-meta .sep { color: var(--text-muted); }
+
+    /* 正文排版 */
+    .article-content p {
+      font-size: 15px;
+      line-height: 1.9;
+      color: #374151;
+      margin: 0 0 16px;
+    }
+    .article-end {
+      margin-top: 24px;
+      text-align: right;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* 上一篇 / 下一篇 */
+    .detail-pager {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+    .pager-item {
+      flex: 1;
+      min-width: 0;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pager-item:hover {
+      border-color: var(--primary-color);
+      background: #eff6ff;
+    }
+    .pager-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .pager-title {
+      font-size: 14px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pager-item:hover .pager-title { color: var(--primary-color); }
+    .pager-item.next { text-align: right; }
+
+    @media (max-width: 768px) {
+      .detail-wrap { padding: 20px 18px; }
+      .article-title { font-size: 20px; }
+      .detail-pager { flex-direction: column; }
+      .pager-item.next { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div>
+        <div class="header-bell">🔔<span class="badge">5</span></div>
+        <div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <a href="api-center.html" class="sub-nav-item">API中心</a>
+      <div class="sub-nav-item">系统设置</div>
+    </div>
+  </div>
+
+  <!-- 主内容区（详情页不展示左侧菜单，通过面包屑返回列表） -->
+  <main class="main-content no-sidebar">
+    <div class="detail-wrap">
+      <!-- 面包屑 + 返回首页 -->
+      <div class="detail-topbar">
+        <div class="breadcrumb">
+          <a href="index.html">首页</a>
+          <span class="separator">/</span>
+          <a href="index.html">集团新闻</a>
+          <span class="separator">/</span>
+          <span class="current">正文</span>
+        </div>
+        <a href="index.html" class="detail-back">返回首页</a>
+      </div>
+
+      <article>
+        <h1 class="article-title">柏星龙DMP项目启动大会</h1>
+        <div class="article-meta">
+          <span>集团</span>
+          <span class="sep">·</span>
+          <span>人力资源与行政中心</span>
+          <span class="sep">·</span>
+          <span>2026-10-16</span>
+          <span class="sep">·</span>
+          <span>阅读 32</span>
+        </div>
+
+        <!-- 封面图（原型使用渐变占位） -->
+        <div style="width:100%;height:280px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);margin:20px 0;"></div>
+
+        <div class="article-content">
+          <p>2026 年 10 月 16 日，柏星龙集团 DMP（Digital Management Platform）项目启动大会在集团总部召开。集团管理层、各业务中心负责人、项目组全体成员及合作方代表出席会议，共同启动集团业务数字化中台建设的新阶段。</p>
+          <p>会上，集团总裁在致辞中指出，DMP 项目是集团推进业务数字化转型的关键一步。项目将以统一的数据标准为基础，打通销售、供应链、生产与财务之间的业务链路，沉淀客户与产品资产，逐步形成覆盖经营全流程的数字化管理能力，为集团精细化运营和经营决策提供支撑。</p>
+          <p>项目负责人围绕项目范围、实施路径与阶段性目标作了专题汇报。按照规划，一期将完成组织架构、客户主数据与订单流程的梳理和上线，计划于 2027 年第一季度完成验收；二期重点推进供应链协同与经营分析看板建设，并逐步向各生产基地推广。</p>
+          <p>会议要求各业务部门指定专人参与需求调研与数据核对工作，严格按照计划推进节点交付。项目组将建立周例会与月度复盘机制，及时通报项目进展与风险事项，确保 DMP 项目按期、高质量落地。</p>
+          <p>（完）</p>
+        </div>
+
+        <!-- 上一篇 / 下一篇 -->
+        <div class="detail-pager">
+          <div class="pager-item" onclick="showToast('已是第一篇新闻')">
+            <div class="pager-label">上一篇</div>
+            <div class="pager-title">集团Q4营收同比增长15%，创历史新高</div>
+          </div>
+          <div class="pager-item next" onclick="showToast('已是最后一篇新闻')">
+            <div class="pager-label">下一篇</div>
+            <div class="pager-title">柏星龙获评「制造业数字化转型标杆企业」</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    // ===== 轻提示 =====
+    function showToast(msg, type) {
+      var t = document.getElementById('pageToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'pageToast';
+        t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:8px;font-size:14px;color:#fff;background:#1e293b;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:5000;opacity:0;transition:opacity 0.25s, top 0.25s;pointer-events:none;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      t.style.background = type === 'error' ? '#dc2626' : (type === 'success' ? '#16a34a' : '#1e293b');
+      t.style.opacity = '1';
+      t.style.top = '90px';
+      clearTimeout(t._tid);
+      t._tid = setTimeout(function() {
+        t.style.opacity = '0';
+        t.style.top = '80px';
+      }, 2200);
+    }
+  </script>
+</body>
+</html>

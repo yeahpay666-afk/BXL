@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公告详情 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    html { background: #f5f7fa; }
+    .main-content { position: relative; }
+    /* 顶部固定「导航56px + 二级导航44px」共100px，用内边距避让，避免整页多出100px空白 */
+    .main-content.no-sidebar { margin-top: 0; padding: 112px 16px 12px; min-height: 100vh; }
+
+    .detail-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 40px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    /* 卡片顶部：面包屑 + 返回入口 */
+    .detail-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .detail-topbar .breadcrumb { margin-bottom: 0; }
+    .detail-back {
+      flex-shrink: 0;
+      font-size: 13px;
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 5px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .detail-back:hover {
+      border-color: var(--primary-color);
+      background: #eff6ff;
+    }
+
+    /* 正文头部 */
+    .article-title {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.5;
+      color: var(--text-primary);
+      margin: 0 0 12px;
+    }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .article-meta .sep { color: var(--text-muted); }
+    .article-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 20px 0 24px;
+    }
+
+    /* 正文排版 */
+    .article-content p {
+      font-size: 15px;
+      line-height: 1.9;
+      color: #374151;
+      margin: 0 0 16px;
+    }
+    .article-sign {
+      margin-top: 28px;
+      text-align: right;
+      font-size: 15px;
+      line-height: 1.9;
+      color: #374151;
+    }
+    .article-sign .org { display: block; }
+    .article-sign .date { display: block; }
+
+    /* 附件区 */
+    .attachment-box {
+      margin-top: 28px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .attachment-box:hover {
+      border-color: var(--primary-color);
+      background: #f8fbff;
+    }
+    .attachment-label { font-size: 13px; color: var(--text-secondary); flex-shrink: 0; }
+    .attachment-name { flex: 1; font-size: 14px; color: var(--text-primary); }
+    .attachment-download { color: var(--primary-color); display: flex; align-items: center; flex-shrink: 0; }
+
+    /* 上一篇 / 下一篇 */
+    .detail-pager {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .pager-item {
+      flex: 1;
+      min-width: 0;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pager-item:hover {
+      border-color: var(--primary-color);
+      background: #eff6ff;
+    }
+    .pager-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .pager-title {
+      font-size: 14px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pager-item:hover .pager-title { color: var(--primary-color); }
+    .pager-item.next { text-align: right; }
+
+    @media (max-width: 768px) {
+      .detail-wrap { padding: 20px 18px; }
+      .article-title { font-size: 20px; }
+      .detail-pager { flex-direction: column; }
+      .pager-item.next { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon">B</div>
+      <span class="header-logo-text">柏星龙业务数字化中台</span>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <div class="header-nav-item">T100</div>
+      <div class="header-nav-item">HR</div>
+      <div class="header-nav-item">OA</div>
+      <div class="header-nav-item">CRM</div>
+      <div class="header-nav-item">SRM</div>
+      <div class="header-nav-item">BI</div>
+    </nav>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="header-weather"><span>☀️</span><span>2025-01-15 周三 晴 18°</span></div>
+        <div class="header-bell">🔔<span class="badge">5</span></div>
+        <div class="header-user"><div class="header-avatar">张</div><span>张建国</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <a href="api-center.html" class="sub-nav-item">API中心</a>
+      <div class="sub-nav-item">系统设置</div>
+    </div>
+  </div>
+
+  <!-- 主内容区（详情页不展示左侧菜单，通过面包屑返回列表） -->
+  <main class="main-content no-sidebar">
+    <div class="detail-wrap">
+      <!-- 面包屑 + 返回首页 -->
+      <div class="detail-topbar">
+        <div class="breadcrumb">
+          <a href="index.html">首页</a>
+          <span class="separator">/</span>
+          <a href="index.html">公告通知</a>
+          <span class="separator">/</span>
+          <span class="current">正文</span>
+        </div>
+        <a href="index.html" class="detail-back">返回首页</a>
+      </div>
+
+      <article>
+        <h1 class="article-title">[2026] 015关于魏伟人事任命的公告</h1>
+        <div class="article-meta">
+          <span>人力资源与行政中心</span>
+          <span class="sep">·</span>
+          <span>2026-10-14</span>
+          <span class="sep">·</span>
+          <span>阅读 14</span>
+        </div>
+
+        <div class="article-divider"></div>
+
+        <div class="article-content">
+          <p>经集团研究决定，聘任魏伟同志为柏星龙集团数字化中心总监，全面负责集团业务数字化中台的规划、建设与运营工作，统筹推进 T100、HR、OA、CRM、SRM、BI 等系统的数据打通与流程协同。</p>
+          <p>魏伟同志自即日起履行上述岗位职责，原任岗位工作由数字化中心另行安排交接。各中心、各部门在涉及系统建设、数据治理及流程优化等事项时，统一与数字化中心对接，确保需求归口清晰、推进有序。</p>
+          <p>本次任命自 2026 年 10 月 14 日起生效，任期三年。请各相关单位做好工作衔接与业务配合，保障各项经营管理工作平稳过渡。</p>
+          <p>特此公告。</p>
+        </div>
+
+        <div class="article-sign">
+          <span class="org">柏星龙集团人力资源与行政中心</span>
+          <span class="date">2026年10月14日</span>
+        </div>
+
+        <!-- 附件 -->
+        <div class="attachment-box" onclick="downloadWithWatermark('关于魏伟同志任命的决议文件')">
+          <span class="attachment-label">附件：</span>
+          <span class="attachment-name">关于魏伟同志任命的决议文件.docx</span>
+          <span class="attachment-download">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </span>
+        </div>
+
+        <!-- 上一篇 / 下一篇 -->
+        <div class="detail-pager">
+          <div class="pager-item" onclick="showToast('已是第一篇公告')">
+            <div class="pager-label">上一篇</div>
+            <div class="pager-title">[2026] 013关于李娜华人事任命的公告</div>
+          </div>
+          <div class="pager-item next" onclick="showToast('已是最后一篇公告')">
+            <div class="pager-label">下一篇</div>
+            <div class="pager-title">[2026] 012关于肖海涛人事任命的公告</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    // ===== 轻提示 =====
+    /**
+     * 生成带水印的公告文档图片并触发下载
+     * 水印内容：用户名 + 下载日期，以半透明平铺形式叠加在文档正文层
+     */
+    function downloadWithWatermark(fileName) {
+      // 模拟当前登录用户（原型阶段固定为张建国）
+      var userName = '张建国';
+      var now = new Date();
+      var dateStr = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0');
+      var watermarkText = '仅供 ' + userName + ' 于 ' + dateStr + ' 查阅';
+
+      // Canvas 尺寸（A4 比例，300dpi 下约 2480×3508）
+      var W = 2480;
+      var H = 3508;
+      var canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      var ctx = canvas.getContext('2d');
+
+      // 1. 白底
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, W, H);
+
+      // 2. 绘制文档标题
+      ctx.fillStyle = '#1f2937';
+      ctx.font = 'bold 72px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('[2026] 015关于魏伟人事任命的公告', W / 2, 200);
+
+      // 3. 绘制元信息
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '36px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillText('人力资源与行政中心', W / 2, 280);
+      ctx.fillText('2026-10-14', W / 2, 330);
+
+      // 4. 绘制分隔线
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(200, 370);
+      ctx.lineTo(W - 200, 370);
+      ctx.stroke();
+
+      // 5. 绘制正文（模拟公告内容，每行手动换行）
+      ctx.fillStyle = '#374151';
+      ctx.font = '38px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      var lines = [
+        '经集团研究决定，聘任魏伟同志为柏星龙集团数字化中心总监，全面负责集团业务数字化中台的规划、建设与运营工作，统筹推进 T100、HR、OA、CRM、SRM、BI 等系统的搭建与流程协同。',
+        '',
+        '魏伟同志自即日起履行上述岗位职责，原任职工作由数字化中心另行安排交接。各中心在涉及系统建设、数据治理及流程优化等事项时，统一与数字化中心对接，确保需求出口清晰、推进有序。',
+        '',
+        '本次任命自 2026 年 10 月 14 日起生效，任期三年。请各相关单位做好工作衔接与业务配合，保障各项经营管理工作平稳过渡。',
+        '',
+        '特此公告。'
+      ];
+      var y = 430;
+      var lineHeight = 60;
+      var maxWidth = W - 400;
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (!line.trim()) { y += lineHeight * 0.5; continue; }
+        // 手动按最大宽度换行（原型阶段简化实现）
+        var currentLine = '';
+        for (var j = 0; j < line.length; j++) {
+          var testLine = currentLine + line[j];
+          if (ctx.measureText(testLine).width > maxWidth) {
+            ctx.fillText(currentLine, 200, y);
+            currentLine = line[j];
+            y += lineHeight;
+          } else {
+            currentLine = testLine;
+          }
+        }
+        if (currentLine) { ctx.fillText(currentLine, 200, y); y += lineHeight; }
+      }
+
+      // 6. 绘制落款
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#374151';
+      ctx.font = '36px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillText('柏星龙集团人力资源与行政中心', W - 200, y + 200);
+      ctx.fillText('2026年10月14日', W - 200, y + 260);
+
+      // ===== 7. 叠加水印层（半透明平铺，倾斜 30 度）=====
+      ctx.save();
+      ctx.globalAlpha = 0.18;        // 半透明，不遮挡正文但清晰可见
+      ctx.fillStyle = '#ef4444';     // 红色水印，安全警示感
+      ctx.font = 'bold 56px -apple-system, "PingFang SC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // 旋转画布
+      ctx.translate(W / 2, H / 2);
+      ctx.rotate(-Math.PI / 6);      // -30 度倾斜
+      // 计算平铺网格间距
+      var tileW = 700;
+      var tileH = 320;
+      var rangeX = W + H;            // 覆盖旋转后超出的区域
+      var rangeY = W + H;
+      for (var gy = -rangeY / 2; gy < rangeY / 2; gy += tileH) {
+        for (var gx = -rangeX / 2; gx < rangeX / 2; gx += tileW) {
+          ctx.fillText(watermarkText, gx, gy);
+        }
+      }
+      ctx.restore();
+
+      // 8. 右下角额外叠一层高可见度水印（防止截屏时底部遗漏）
+      ctx.save();
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.5)';
+      ctx.font = 'bold 28px -apple-system, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(watermarkText + '  下载时间：' + dateStr, W - 60, H - 40);
+      ctx.restore();
+
+      // 9. 触发下载
+      canvas.toBlob(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = (fileName || '公告附件') + '_' + dateStr + '_水印.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('下载已开始（带水印）', 'success');
+      }, 'image/png');
+    }
+
+    function showToast(msg, type) {
+      var t = document.getElementById('pageToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'pageToast';
+        t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:8px;font-size:14px;color:#fff;background:#1e293b;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:5000;opacity:0;transition:opacity 0.25s, top 0.25s;pointer-events:none;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      t.style.background = type === 'error' ? '#dc2626' : (type === 'success' ? '#16a34a' : '#1e293b');
+      t.style.opacity = '1';
+      t.style.top = '90px';
+      clearTimeout(t._tid);
+      t._tid = setTimeout(function() {
+        t.style.opacity = '0';
+        t.style.top = '80px';
+      }, 2200);
+    }
+  </script>
+</body>
+</html>
