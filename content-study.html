@@ -347,6 +347,55 @@
     }
     .form-section-title:first-child { margin-top: 0; }
 
+    /* 适用人群：分组折叠展示 */
+    .aud-tags {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .aud-row { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 6px; }
+    .aud-names {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      padding-left: 2px;
+    }
+    .aud-names-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .aud-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 16px;
+      white-space: nowrap;
+      border: none;
+      font-family: inherit;
+      cursor: default;
+    }
+    .aud-tag.pos { background: #f3e8ff; color: #9333ea; }
+    .aud-tag.emp { background: #dcfce7; color: #16a34a; }
+    .aud-tag.emp.plain { background: #f0fdf4; color: #15803d; }
+    .aud-tag.group { cursor: pointer; }
+    .aud-tag.group:hover { filter: brightness(0.94); }
+    .aud-tag .x { cursor: pointer; opacity: 0.7; }
+    .aud-tag .x:hover { opacity: 1; }
+    .aud-more {
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 3px 4px;
+      line-height: 16px;
+    }
+    .aud-more:hover { color: var(--primary-color); text-decoration: underline; }
+
     /* 表格操作按钮 */
     .table-action {
       padding: 4px 10px;
@@ -1589,9 +1638,10 @@
           <label class="form-label">选择适用组织/岗位（支持多选）</label>
           <div style="display:flex;align-items:center;gap:8px;">
             <input type="text" class="form-input" id="audienceDisplay" placeholder="请选择适用人员" readonly style="cursor:pointer;flex:1;background:#f8fafc;" onclick="openOrgPicker()">
+            <button class="btn btn-outline btn-sm" type="button" id="audienceClearBtn" onclick="clearAudience()" style="white-space:nowrap;display:none;">清空</button>
             <button class="btn btn-outline btn-sm" type="button" onclick="openOrgPicker()" style="white-space:nowrap;">选择</button>
           </div>
-          <div id="audienceTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+          <div class="aud-tags" id="audienceTags"></div>
         </div>
 
         <!-- 课件上传 -->
@@ -2407,48 +2457,76 @@
       return html;
     }
 
-    function toggleOrgCheck(el) {
-      var id = el.value;
-      var name = el.dataset.name;
-      if (el.checked) {
-        if (selectedOrgIds.indexOf(id) < 0) selectedOrgIds.push(id);
-        if (id === 'all') {
-          orgData.forEach(function checkAll(node) {
-            if (node.id !== 'all' && selectedOrgIds.indexOf(node.id) < 0) {
-              selectedOrgIds.push(node.id);
-            }
-            var cb = document.querySelector('#orgTreeContainer input[value="' + node.id + '"]');
-            if (cb && node.id !== 'all') cb.checked = true;
-            if (node.children) node.children.forEach(checkAll);
-          });
-        }
-        if (id === 'pos_all') {
-          positionData.forEach(function(pos) {
-            if (pos.id !== 'pos_all' && selectedOrgIds.indexOf(pos.id) < 0) {
-              selectedOrgIds.push(pos.id);
-            }
-            var cb = document.querySelector('#posListContainer input[value="' + pos.id + '"]');
-            if (cb && pos.id !== 'pos_all') cb.checked = true;
-          });
-        }
-      } else {
-        selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== id; });
-        if (id === 'all') {
-          orgData.forEach(function uncheckAll(node) {
-            selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== node.id; });
-            var cb = document.querySelector('#orgTreeContainer input[value="' + node.id + '"]');
-            if (cb && node.id !== 'all') cb.checked = false;
-            if (node.children) node.children.forEach(uncheckAll);
-          });
-        }
-        if (id === 'pos_all') {
-          positionData.forEach(function(pos) {
-            selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== pos.id; });
-            var cb = document.querySelector('#posListContainer input[value="' + pos.id + '"]');
-            if (cb && pos.id !== 'pos_all') cb.checked = false;
-          });
+    function findOrgNode(id, nodes) {
+      nodes = nodes || orgData;
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].id === id) return nodes[i];
+        if (nodes[i].children) {
+          var found = findOrgNode(id, nodes[i].children);
+          if (found) return found;
         }
       }
+      return null;
+    }
+
+    // 收集某节点自身 + 所有子孙部门 + 各层级员工（用于一级级联选中）
+    function collectBranch(node) {
+      var ids = [node.id];
+      (orgEmployees[node.id] || []).forEach(function(n, i) {
+        ids.push('e_' + node.id + '_' + i);
+      });
+      if (node.children) {
+        node.children.forEach(function(child) {
+          ids = ids.concat(collectBranch(child));
+        });
+      }
+      return ids;
+    }
+
+    function toggleOrgCheck(el) {
+      var id = el.value;
+
+      if (id === 'pos_all') {
+        positionData.forEach(function(pos) {
+          if (pos.id === 'pos_all') return;
+          if (el.checked) {
+            if (selectedOrgIds.indexOf(pos.id) < 0) selectedOrgIds.push(pos.id);
+          } else {
+            selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== pos.id; });
+          }
+          var cb = document.querySelector('#posListContainer input[value="' + pos.id + '"]');
+          if (cb) cb.checked = el.checked;
+        });
+        updateOrgSelCount();
+        return;
+      }
+
+      var node = findOrgNode(id);
+      if (!node) {
+        if (el.checked) {
+          if (selectedOrgIds.indexOf(id) < 0) selectedOrgIds.push(id);
+        } else {
+          selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== id; });
+        }
+        updateOrgSelCount();
+        return;
+      }
+
+      // 一级（集团/中心/部门）勾选：其下所有部门与人员同步选中/取消
+      var branchIds = collectBranch(node);
+      if (el.checked) {
+        branchIds.forEach(function(x) {
+          if (selectedOrgIds.indexOf(x) < 0) selectedOrgIds.push(x);
+        });
+      } else {
+        selectedOrgIds = selectedOrgIds.filter(function(x) {
+          return branchIds.indexOf(x) < 0;
+        });
+      }
+      branchIds.forEach(function(x) {
+        var cb = document.querySelector('#orgTreeContainer input[value="' + x + '"]');
+        if (cb) cb.checked = el.checked;
+      });
       updateOrgSelCount();
     }
 
@@ -2473,41 +2551,134 @@
       if (el) el.textContent = selectedOrgIds.length;
     }
 
-    function confirmOrgSelection() {
-      var tags = document.getElementById('audienceTags');
-      var display = document.getElementById('audienceDisplay');
-      var selectedNames = [];
-      var tagHtml = '';
-      var isPos = false;
-      orgData.forEach(function traverse(node) {
-        if (selectedOrgIds.indexOf(node.id) >= 0) {
-          selectedNames.push(node.name);
-          tagHtml += '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#dbeafe;color:#2563eb;border-radius:6px;font-size:12px;">' + node.name + '<span style="cursor:pointer;color:#93c5fd;" onclick="removeOrgTag(\'' + node.id + '\')">✕</span></span>';
-        }
-        if (node.children) node.children.forEach(traverse);
+    // ===== 适用人群：摘要 + 分组折叠展示 =====
+    var audienceExpanded = {};
+
+    function getOrgNameById(id) {
+      var name = '';
+      orgData.forEach(function walk(n) {
+        if (n.id === id) name = n.name;
+        if (n.children) n.children.forEach(walk);
       });
-      positionData.forEach(function(pos) {
-        if (selectedOrgIds.indexOf(pos.id) >= 0) {
-          selectedNames.push(pos.name);
-          tagHtml += '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f3e8ff;color:#9333ea;border-radius:6px;font-size:12px;">' + pos.name + '<span style="cursor:pointer;color:#c4b5fd;" onclick="removeOrgTag(\'' + pos.id + '\')">✕</span></span>';
-        }
-      });
-      // 具体人员（部门/岗位下钻选择的人）
-      Object.keys(empNameById).forEach(function(empId) {
-        if (selectedOrgIds.indexOf(empId) >= 0) {
-          var nm = empNameById[empId];
-          selectedNames.push(nm);
-          tagHtml += '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#dcfce7;color:#16a34a;border-radius:6px;font-size:12px;">👤 ' + nm + '<span style="cursor:pointer;color:#86efac;" onclick="removeOrgTag(\'' + empId + '\')">✕</span></span>';
-        }
-      });
-      display.value = selectedNames.length ? selectedNames.join('、') : '';
-      tags.innerHTML = tagHtml;
-      closeOrgPicker();
+      return name;
     }
 
-    function removeOrgTag(id) {
+    function getPosNameById(id) {
+      for (var i = 0; i < positionData.length; i++) {
+        if (positionData[i].id === id) return positionData[i].name;
+      }
+      return '';
+    }
+
+    // 人员归组：e_d1_0 → 所属部门；ep_pos_4_0 → 所属岗位
+    function getEmpGroup(empId) {
+      var m = empId.match(/^e_(d\d+)_\d+$/);
+      if (m) return { key: 'dept_' + m[1], label: getOrgNameById(m[1]) || '未分组部门' };
+      var p = empId.match(/^ep_(pos_\d+)_\d+$/);
+      if (p) return { key: 'pos_' + p[1], label: getPosNameById(p[1]) || '未分组岗位' };
+      return { key: 'other', label: '其他' };
+    }
+
+    function buildAudienceData() {
+      var depts = [], poss = [], emps = [];
+      selectedOrgIds.forEach(function(id) {
+        if (empNameById[id]) {
+          emps.push({ id: id, name: empNameById[id] });
+        } else if (getPosNameById(id)) {
+          poss.push({ id: id, name: getPosNameById(id) });
+        } else {
+          depts.push({ id: id, name: getOrgNameById(id) || id });
+        }
+      });
+      var groupMap = {}, empGroups = [];
+      emps.forEach(function(e) {
+        var g = getEmpGroup(e.id);
+        if (!groupMap[g.key]) {
+          groupMap[g.key] = { key: g.key, label: g.label, items: [] };
+          empGroups.push(groupMap[g.key]);
+        }
+        groupMap[g.key].items.push(e);
+      });
+      return { depts: depts, poss: poss, empGroups: empGroups, empCount: emps.length };
+    }
+
+    function toggleAudienceExpand(key) {
+      audienceExpanded[key] = !audienceExpanded[key];
+      renderAudience();
+    }
+
+    function removeAudienceItem(id) {
       selectedOrgIds = selectedOrgIds.filter(function(x) { return x !== id; });
-      confirmOrgSelection();
+      renderAudience();
+    }
+
+    function clearAudience() {
+      selectedOrgIds = [];
+      audienceExpanded = {};
+      renderAudience();
+      updateOrgSelCount();
+    }
+
+    function renderAudience() {
+      var display = document.getElementById('audienceDisplay');
+      var tags = document.getElementById('audienceTags');
+      var clearBtn = document.getElementById('audienceClearBtn');
+      if (!display || !tags) return;
+
+      var data = buildAudienceData();
+      var total = data.depts.length + data.poss.length + data.empCount;
+
+      // 摘要只体现人数（部门已联动为具体人员，不再回显部门数量）
+      var parts = [];
+      if (data.empCount) parts.push(data.empCount + ' 人');
+      if (!data.empCount && data.poss.length) parts.push(data.poss.length + ' 个岗位');
+      display.value = parts.length ? '已选 ' + parts.join(' · ') : (total ? '已选 ' + total + ' 项' : '');
+      if (clearBtn) clearBtn.style.display = total ? '' : 'none';
+
+      var LIMIT = 6;
+      var html = '';
+
+      // 只展示「部门/岗位 + 人数」聚合标签，点击标签展开具体姓名
+      if (data.empGroups.length || data.poss.length) {
+        html += '<div class="aud-row">';
+        var empExpanded = !!audienceExpanded['人员'];
+        var groups = empExpanded ? data.empGroups : data.empGroups.slice(0, LIMIT);
+        groups.forEach(function(g) {
+          var openKey = 'person_' + g.key;
+          var isOpen = !!audienceExpanded[openKey];
+          html += '<button type="button" class="aud-tag emp group" onclick="toggleAudienceExpand(\'' + openKey + '\')">👤 ' +
+                  g.label + ' ' + g.items.length + ' 人 ' + (isOpen ? '▴' : '▾') + '</button>';
+        });
+        // 仅选了岗位、未下钻到人时，以岗位标签呈现
+        data.poss.forEach(function(p) {
+          html += '<span class="aud-tag pos">' + p.name +
+                  '<span class="x" onclick="removeAudienceItem(\'' + p.id + '\')">✕</span></span>';
+        });
+        var restGroups = data.empGroups.length - groups.length;
+        if (restGroups > 0) {
+          html += '<span class="aud-more" onclick="toggleAudienceExpand(\'人员\')">+ 还有 ' + restGroups + ' 组</span>';
+        } else if (empExpanded && data.empGroups.length > LIMIT) {
+          html += '<span class="aud-more" onclick="toggleAudienceExpand(\'人员\')">收起</span>';
+        }
+        // 展开的姓名统一换行展示在聚合标签下方
+        groups.forEach(function(g) {
+          if (!audienceExpanded['person_' + g.key]) return;
+          html += '<div class="aud-names"><span class="aud-names-label">' + g.label + '：</span>';
+          g.items.forEach(function(e) {
+            html += '<span class="aud-tag emp plain">' + e.name +
+                    '<span class="x" onclick="removeAudienceItem(\'' + e.id + '\')">✕</span></span>';
+          });
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+
+      tags.innerHTML = html;
+    }
+
+    function confirmOrgSelection() {
+      renderAudience();
+      closeOrgPicker();
     }
 
     // 自定义字段联动
