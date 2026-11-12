@@ -130,6 +130,9 @@
     th { text-align:left; font-weight:600; color:#4e5969; background:#f7f8fa; padding:9px 12px; border-bottom:1px solid #e5e6eb; white-space:nowrap; }
     td { padding:9px 12px; border-bottom:1px solid #f2f3f5; color:#1f2329; vertical-align:middle; }
     tr:hover td { background:#fafbfc; }
+    /* 鉴权规则表：长内容不折行 */
+    #page-auth th, #page-auth td { padding:9px 8px; font-size:13px; }
+    #page-auth td:first-child, #page-auth .mono, #page-auth .badge { white-space:nowrap; }
     .mono { font-family:Menlo,Consolas,monospace; }
     .dim { color:#86909c; }
     .code { font-family:Menlo,Consolas,monospace; font-weight:600; }
@@ -419,7 +422,9 @@
             <div><span>下游路径</span> /internal/orders</div><div><span>超时时间</span> 30s</div>
             <div><span>重试次数</span> 3 次</div></div></div>
           <div class="seg"><h4>统一鉴权</h4><div class="kv" id="dtl-auth">
-            <div><span>认证方式</span> JWT Token</div><div><span>Token 有效期</span> 7200s</div>
+            <div><span>签名算法</span> <span class="badge b-blue">HMAC-SHA256</span></div>
+            <div><span>密钥标识</span> <span class="mono">ak_t100_o****9f2c</span></div>
+            <div><span>时间戳容差</span> 30s</div>
             <div><span>权限校验</span> <span class="badge b-green">已开启</span></div></div></div>
           <div class="seg"><h4>流量限流</h4><div class="kv" id="dtl-rate">
             <div><span>限流策略</span> <span class="badge b-orange">令牌桶</span></div><div><span>QPS 上限</span> 1000/s</div><div><span>突发容量</span> 200</div></div></div>
@@ -439,8 +444,8 @@
             <div class="bar-row"><span class="ip">172.16.8.99</span><div class="bar"><i style="width:41%"></i></div><span class="n">12,108次</span><button class="btn sm danger" onclick="acBlack(this,'172.16.8.99')">拉黑</button></div></div></div>
           <div class="seg"><h4>全链路日志审计<span class="more" onclick="switchPage('logs',document.querySelectorAll('.api-nav-item')[6])">查看全部 →</span></h4>
             <table class="mini" id="dtl-logs">
-              <tr><td>01-15 14:32:18</td><td><span class="code ok">200</span></td><td>145ms</td><td class="mono">192.168.1.23</td><td class="mono dim">token: eyJhbG...xYz8</td></tr>
-              <tr><td>01-15 14:32:15</td><td><span class="code ok">200</span></td><td>132ms</td><td class="mono">10.0.12.56</td><td class="mono dim">token: eyJhbG...mN2Q</td></tr>
+              <tr><td>01-15 14:32:18</td><td><span class="code ok">200</span></td><td>145ms</td><td class="mono">192.168.1.23</td><td class="mono dim">sig: 6e21xYz8</td></tr>
+              <tr><td>01-15 14:32:15</td><td><span class="code ok">200</span></td><td>132ms</td><td class="mono">10.0.12.56</td><td class="mono dim">sig: 6e21mN2Q</td></tr>
               <tr><td>01-15 14:32:10</td><td><span class="code err">403</span></td><td>8ms</td><td class="mono">192.168.1.105</td><td class="err-text">黑名单拦截</td></tr>
             </table></div>
         </div>
@@ -484,14 +489,22 @@
   </div>
   <div class="api-content page-content" id="page-auth">
     <div class="page-header"><h2>鉴权规则</h2><span class="spacer"></span><button class="btn primary" onclick="openModal('m-auth')">鉴权配置</button></div>
+    <div class="stat-cards">
+      <div class="sc"><div class="lbl">已配置签名的接口</div><div class="num">108</div></div>
+      <div class="sc"><div class="lbl">使用 HMAC 系列</div><div class="num">86</div></div>
+      <div class="sc"><div class="lbl">使用国密 SM3</div><div class="num">12</div></div>
+      <div class="sc"><div class="lbl">今日验签失败</div><div class="num" style="color:#ff7d00">37</div></div>
+    </div>
     <div class="card">
-      <div class="filter"><div class="search"><input type="text" placeholder="搜索接口"></div><select><option>全部认证方式</option><option>JWT Token</option><option>OAuth 2.0</option><option>API Key</option></select></div>
+      <div class="filter"><div class="search"><input type="text" placeholder="搜索接口 / 密钥标识"></div><select><option>全部签名算法</option><option>HMAC-SHA256</option><option>HMAC-SHA1</option><option>RSA-SHA256</option><option>SM3-HMAC</option></select><select><option>全部状态</option><option>启用</option><option>停用</option></select></div>
       <table>
-        <tr><th>接口</th><th>认证方式</th><th>Token 有效期</th><th>权限校验</th><th>IP 白名单</th><th>状态</th><th>最近生效</th></tr>
-        <tr><td class="tlink" onclick="openModal('m-auth')">获取订单列表</td><td>JWT Token</td><td>7200s</td><td><span class="badge b-green">已开启</span></td><td>10.0.0.0/8</td><td><span class="badge b-green">启用</span></td><td>14:58:03</td></tr>
-        <tr><td class="tlink" onclick="openModal('m-auth')">报销单审批流程</td><td>JWT Token</td><td>7200s</td><td><span class="badge b-gray">关闭</span></td><td>—</td><td><span class="badge b-green">启用</span></td><td>13:20:41</td></tr>
-        <tr><td class="tlink" onclick="openModal('m-auth')">供应商评估查询</td><td>API Key</td><td>—</td><td><span class="badge b-green">已开启</span></td><td>172.16.0.0/12</td><td><span class="badge b-green">启用</span></td><td>11:02:17</td></tr>
+        <tr><th>接口</th><th>签名算法</th><th>密钥标识</th><th>时间戳容差</th><th>IP 白名单</th><th>状态</th><th>最近生效</th></tr>
+        <tr><td class="tlink" onclick="openModal('m-auth')">获取订单列表</td><td><span class="badge b-blue">HMAC-SHA256</span></td><td class="mono">ak_t100_o****9f2c</td><td>30s</td><td>10.0.0.0/8</td><td><span class="badge b-green">启用</span></td><td>14:58:03</td></tr>
+        <tr><td class="tlink" onclick="openModal('m-auth')">报销单审批流程</td><td><span class="badge b-blue">HMAC-SHA256</span></td><td class="mono">ak_oa_e****7d13</td><td>60s</td><td>—</td><td><span class="badge b-green">启用</span></td><td>13:20:41</td></tr>
+        <tr><td class="tlink" onclick="openModal('m-auth')">供应商评估查询</td><td><span class="badge b-purple">RSA-SHA256</span></td><td class="mono">ak_srm_e****3f76</td><td>60s</td><td>172.16.0.0/12</td><td><span class="badge b-green">启用</span></td><td>11:02:17</td></tr>
+        <tr><td class="tlink" onclick="openModal('m-auth')">聚水潭支付回调</td><td><span class="badge b-orange">SM3-HMAC</span></td><td class="mono">ak_jst_p****9d64</td><td>120s</td><td>203.0.113.88</td><td><span class="badge b-green">启用</span></td><td>10:47:52</td></tr>
       </table>
+      <div style="padding:10px 4px 2px;font-size:12px;color:#86909c;">每个接口可独立配置签名算法与密钥，互不影响。验签签名串 = 请求方法 + 请求路径 + 时间戳 + nonce + 请求体。</div>
     </div>
   </div>
 
@@ -572,11 +585,21 @@
 
   <!-- 鉴权规则配置弹窗 -->
   <div class="mask" id="m-auth" onclick="if(event.target===this)closeModal('m-auth')"><div class="modal"><div class="mh">鉴权规则配置<span class="x" onclick="closeModal('m-auth')">✕</span></div><div class="mb">
-    <div class="radio-cards" data-radio><div class="rc on" onclick="rcPick(this)"><b>JWT Token</b><small>无状态令牌</small></div><div class="rc" onclick="rcPick(this)"><b>OAuth 2.0</b><small>第三方授权</small></div><div class="rc" onclick="rcPick(this)"><b>API Key</b><small>简单密钥</small></div></div>
-    <div class="frow"><div class="fi"><label>签名算法</label><select><option>HS256</option><option>RS256</option></select></div><div class="fi"><label>Token 有效期（秒）</label><input type="number" value="7200"></div><div class="fi"><label>刷新 Token 有效期（秒）</label><input type="number" value="86400"></div></div>
-    <div class="sec-title">权限校验规则</div>
-    <div class="checkline">要求角色：<label class="checkline"><input type="checkbox" checked>管理员</label><label class="checkline"><input type="checkbox" checked>运营专员</label><label class="checkline"><input type="checkbox">财务专员</label></div>
-    <div class="frow" style="margin-top:8px"><div class="fi"><label>IP 白名单（CIDR）</label><input type="text" value="10.0.0.0/8, 172.16.0.0/12"></div><div class="fi"><label>规则启用</label><div class="checkline"><label class="switch"><input type="checkbox" checked><span class="sl"></span></label></div></div></div>
+    <div class="sec-title">目标接口</div>
+    <div class="frow"><div class="fi" style="flex:2"><label>接口</label><select><option>API-0001 获取订单列表</option><option>API-0011 报销单审批流程</option><option>API-0031 供应商评估查询</option><option>API-0042 聚水潭支付回调</option></select></div><div class="fi"><label>所属系统</label><input type="text" value="T100 生产制造" disabled></div></div>
+    <div class="sec-title">签名算法（每个接口可独立配置）</div>
+    <div class="radio-cards" data-radio><div class="rc on" onclick="rcPick(this)"><b>HMAC-SHA256</b><small>对称密钥 · 推荐</small></div><div class="rc" onclick="rcPick(this)"><b>HMAC-SHA1</b><small>对称密钥 · 兼容旧系统</small></div><div class="rc" onclick="rcPick(this)"><b>RSA-SHA256</b><small>非对称 · 公私钥对</small></div><div class="rc" onclick="rcPick(this)"><b>SM3-HMAC</b><small>国密算法</small></div></div>
+    <div class="frow" style="margin-top:12px;display:grid;grid-template-columns:1fr 1.5fr 0.8fr;gap:12px;"><div class="fi" style="min-width:0"><label>密钥标识（AppKey）</label><input type="text" value="ak_t100_o****9f2c" style="font-family:Menlo,Consolas,monospace"></div><div class="fi" style="min-width:0"><label>签名密钥（Secret）</label><input type="text" value="••••••••••••••••" style="font-family:Menlo,Consolas,monospace"><div style="display:flex;gap:6px;margin-top:6px;"><button class="btn sm" onclick="toast('密钥已复制')">复制</button><button class="btn sm" onclick="toast('已重新生成密钥，请同步更新调用方')">重新生成</button></div></div><div class="fi" style="min-width:0"><label>时间戳容差（秒）</label><input type="number" value="30"></div></div>
+    <div class="sec-title">签名串组成</div>
+    <div class="checkline"><label class="checkline"><input type="checkbox" checked>请求方法</label><label class="checkline"><input type="checkbox" checked>请求路径</label><label class="checkline"><input type="checkbox" checked>时间戳 timestamp</label><label class="checkline"><input type="checkbox" checked>随机串 nonce</label><label class="checkline"><input type="checkbox" checked>请求体 body</label></div>
+    <div class="fi" style="margin-top:10px"><label>签名串示例</label><div style="background:#0f1b2d;color:#8ab4f8;border-radius:8px;padding:10px 12px;font-family:Menlo,Consolas,monospace;font-size:12px;line-height:18px;white-space:pre-wrap;">POST
+/api/v1/orders/list
+1737101003
+6f1c8a93
+{"page":1,"size":20}</div></div>
+    <div class="sec-title">校验与访问控制</div>
+    <div class="checkline">权限校验规则：<label class="checkline"><input type="checkbox" checked>管理员</label><label class="checkline"><input type="checkbox" checked>运营专员</label><label class="checkline"><input type="checkbox">财务专员</label></div>
+    <div class="frow" style="margin-top:8px;display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:12px;"><div class="fi" style="min-width:0"><label>IP 白名单（CIDR）</label><input type="text" value="10.0.0.0/8, 172.16.0.0/12"></div><div class="fi" style="min-width:0"><label>防重放（nonce 去重）</label><div class="checkline"><label class="switch"><input type="checkbox" checked><span class="sl"></span></label></div></div><div class="fi" style="min-width:0"><label>规则启用</label><div class="checkline"><label class="switch"><input type="checkbox" checked><span class="sl"></span></label></div></div></div>
   </div><div class="mf"><button class="btn" onclick="closeModal('m-auth')">取消</button><button class="btn primary" onclick="closeModal('m-auth');toast('鉴权规则已保存')">保存配置</button></div></div></div>
 
   <!-- 限流规则配置弹窗 -->
@@ -679,18 +702,21 @@
         <div class="fi" style="margin-bottom:14px"><label>接口描述</label><textarea placeholder="简要描述接口用途、入参与返回..."></textarea></div>
 
         <!-- 鉴权配置 -->
-        <div class="sec-title">鉴权配置</div>
+        <div class="sec-title">鉴权配置（签名验签，每个接口独立配置）</div>
         <div class="radio-cards" data-radio style="margin-bottom:10px">
-          <div class="rc on" onclick="rcPick(this)"><b>JWT Token</b><small>无状态令牌</small></div>
-          <div class="rc" onclick="rcPick(this)"><b>OAuth 2.0</b><small>第三方授权</small></div>
-          <div class="rc" onclick="rcPick(this)"><b>API Key</b><small>简单密钥</small></div>
+          <div class="rc on" onclick="rcPick(this)"><b>HMAC-SHA256</b><small>对称密钥 · 推荐</small></div>
+          <div class="rc" onclick="rcPick(this)"><b>HMAC-SHA1</b><small>对称密钥 · 兼容旧系统</small></div>
+          <div class="rc" onclick="rcPick(this)"><b>RSA-SHA256</b><small>非对称 · 公私钥对</small></div>
+          <div class="rc" onclick="rcPick(this)"><b>SM3-HMAC</b><small>国密算法</small></div>
           <div class="rc" onclick="rcPick(this)"><b>免鉴权</b><small>公开接口</small></div>
         </div>
-        <div class="frow">
-          <div class="fi"><label>Token 有效期（秒）</label><input type="number" value="7200"></div>
-          <div class="fi"><label>刷新 Token 有效期（秒）</label><input type="number" value="86400"></div>
-          <div class="fi"><label>IP 白名单（CIDR）</label><input type="text" placeholder="例：10.0.0.0/8"></div>
+        <div class="frow" style="display:grid;grid-template-columns:1.1fr 1.2fr 0.7fr 1fr;gap:12px;">
+          <div class="fi" style="min-width:0"><label>密钥标识（AppKey）</label><input type="text" placeholder="系统自动生成" value="ak_t100_n****5e07" style="font-family:Menlo,Consolas,monospace"></div>
+          <div class="fi" style="min-width:0"><label>签名密钥（Secret）</label><input type="text" value="••••••••••••••••" style="font-family:Menlo,Consolas,monospace"></div>
+          <div class="fi" style="min-width:0"><label>时间戳容差（秒）</label><input type="number" value="30"></div>
+          <div class="fi" style="min-width:0"><label>IP 白名单（CIDR）</label><input type="text" placeholder="例：10.0.0.0/8"></div>
         </div>
+        <div style="margin-top:8px;"><button class="btn sm" onclick="toast('已生成新的 AppKey 与签名密钥，请复制给调用方')">生成 AppKey / 密钥</button><span style="margin-left:8px;font-size:12px;color:#86909c;">签名串 = 请求方法 + 请求路径 + 时间戳 + nonce + 请求体</span></div>
 
         <!-- 限流配置 -->
         <div class="sec-title">限流配置</div>
@@ -846,30 +872,30 @@
 
     // ---------- 接口详情数据（11 个接口） ----------
     const API_DETAIL = {
-      'API-0001': {route:['/api/v1/orders/list','t100-order-svc','/internal/orders','30s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','1000/s','200'],cb:['50%','60s',1],bl:['192.168.1.105','10.0.23.88','172.16.5.42'],ipc:47,ips:[['192.168.1.23',82,'23,891'],['10.0.12.56',60,'17,452'],['172.16.8.99',41,'12,108']],logs:[['01-15 14:32:18',200,'145ms','192.168.1.23','token: eyJhbG...xYz8'],['01-15 14:32:15',200,'132ms','10.0.12.56','token: eyJhbG...mN2Q'],['01-15 14:32:10',403,'8ms','192.168.1.105','黑名单拦截']]},
-      'API-0002': {route:['/api/v1/product/stock','t100-stock-svc','/internal/stock','10s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','800/s','160'],cb:['50%','60s',1],bl:['10.0.23.88'],ipc:31,ips:[['192.168.1.30',76,'19,204'],['10.0.12.61',52,'13,377'],['172.16.8.104',38,'9,825']],logs:[['01-15 14:31:58',200,'96ms','192.168.1.30','token: eyJhbG...aB3d'],['01-15 14:31:52',200,'88ms','10.0.12.61','token: eyJhbG...kL9m'],['01-15 14:31:47',429,'3ms','172.16.8.104','QPS 超限']]},
-      'API-0003': {route:['/api/v1/purchase/inbound','t100-purchase-svc','/internal/purchase/inbound','60s','2 次'],auth:['JWT Token','3600s',1],rate:['令牌桶','200/s','50'],cb:['50%','60s',1],bl:['172.16.5.42'],ipc:12,ips:[['10.0.12.33',68,'4,102'],['192.168.1.77',45,'2,715']],logs:[['01-15 14:30:41',200,'1,204ms','10.0.12.33','token: eyJhbG...qW7e'],['01-15 14:29:58',200,'987ms','192.168.1.77','token: eyJhbG...rT2u'],['01-15 14:28:12',504,'60,000ms','10.0.12.33','下游超时']]},
-      'API-0011': {route:['/api/v1/expense/approve','oa-expense-svc','/internal/expense/approve','30s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','300/s','60'],cb:['50%','60s',1],bl:['192.168.2.10'],ipc:19,ips:[['192.168.2.21',71,'6,308'],['10.0.31.7',48,'4,259']],logs:[['01-15 14:33:02',200,'210ms','192.168.2.21','token: eyJhbG...zX5c'],['01-15 14:32:44',200,'187ms','10.0.31.7','token: eyJhbG...vB8n'],['01-15 14:32:20',200,'203ms','192.168.2.21','token: eyJhbG...zX5c']]},
-      'API-0012': {route:['/api/v1/attendance/query','oa-attendance-svc','/internal/attendance','10s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','500/s','100'],cb:['50%','60s',1],bl:[],ipc:26,ips:[['192.168.2.35',64,'8,517'],['10.0.31.12',51,'6,804'],['172.16.9.20',33,'4,401']],logs:[['01-15 14:31:30',200,'75ms','192.168.2.35','token: eyJhbG...mK4p'],['01-15 14:31:22',200,'69ms','10.0.31.12','token: eyJhbG...nJ6q'],['01-15 14:31:05',401,'5ms','172.16.9.20','Token 过期']]},
-      'API-0021': {route:['/api/v1/crm/customer','crm-customer-svc','/internal/crm/customer','20s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','600/s','120'],cb:['50%','60s',1],bl:['10.0.44.9'],ipc:23,ips:[['192.168.3.14',77,'12,466'],['10.0.44.21',55,'8,917']],logs:[['01-15 14:32:50',200,'112ms','192.168.3.14','token: eyJhbG...pL3a'],['01-15 14:32:38',200,'98ms','10.0.44.21','token: eyJhbG...sD7f'],['01-15 14:32:15',403,'6ms','10.0.44.9','黑名单拦截']]},
-      'API-0031': {route:['/api/v1/supplier/eval','srm-eval-svc','/internal/supplier/eval','30s','2 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','200/s','40'],cb:['40%','45s',1],bl:[],ipc:8,ips:[['192.168.4.8',62,'2,341'],['10.0.52.3',49,'1,857']],logs:[['01-15 14:30:15',503,'12ms','192.168.4.8','熔断降级'],['01-15 14:29:47',200,'355ms','10.0.52.3','token: eyJhbG...wQ9r'],['01-15 14:29:12',502,'10,012ms','192.168.4.8','下游异常']]},
-      'API-0041': {route:['/api/v1/logistics/track','jst-logistics-svc','/open/jst/logistics/track','15s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','400/s','80'],cb:['50%','60s',1],bl:['203.0.113.45'],ipc:15,ips:[['192.168.5.19',66,'5,723'],['10.0.63.4',44,'3,814']],logs:[['01-15 14:28:33',502,'15,001ms','192.168.5.19','下游异常'],['01-15 14:27:51',502,'15,004ms','10.0.63.4','下游异常'],['01-15 14:26:40',200,'214ms','192.168.5.19','token: eyJhbG...yU2i']]},
-      'API-0042': {route:['/api/v1/payment/callback','jst-payment-svc','/open/jst/payment/callback','10s','0 次'],auth:['HMAC 签名验签','—',1],rate:['令牌桶','200/s','40'],cb:['50%','60s',1],bl:['203.0.113.88'],ipc:9,ips:[['203.0.113.7',81,'3,204'],['198.51.100.22',58,'2,297']],logs:[['01-15 14:27:12',500,'245ms','203.0.113.7','回调处理失败'],['01-15 14:26:35',200,'131ms','198.51.100.22','token: eyJhbG...eV6o'],['01-15 14:25:50',500,'287ms','203.0.113.7','回调处理失败']]},
-      'API-0051': {route:['/api/v1/hr/employee','hr-employee-svc','/internal/hr/employee','10s','3 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','300/s','60'],cb:['50%','60s',1],bl:[],ipc:14,ips:[['192.168.6.11',59,'3,318'],['10.0.71.5',47,'2,644']],logs:[['01-15 14:31:15',200,'92ms','192.168.6.11','token: eyJhbG...hG8t'],['01-15 14:30:58',200,'85ms','10.0.71.5','token: eyJhbG...jF1u'],['01-15 14:30:31',200,'79ms','192.168.6.11','token: eyJhbG...hG8t']]},
-      'API-0061': {route:['/api/v1/bi/dashboard','bi-dashboard-svc','/internal/bi/dashboard','60s','2 次'],auth:['JWT Token','7200s',1],rate:['令牌桶','150/s','30'],cb:['50%','60s',1],bl:[],ipc:6,ips:[['192.168.7.2',72,'1,864'],['10.0.82.9',53,'1,372']],logs:[['01-15 14:29:05',200,'1,842ms','192.168.7.2','token: eyJhbG...kR5w'],['01-15 14:28:21',200,'1,755ms','10.0.82.9','token: eyJhbG...lT8x'],['01-15 14:27:44',429,'4ms','192.168.7.2','QPS 超限']]}
+      'API-0001': {route:['/api/v1/orders/list','t100-order-svc','/internal/orders','30s','3 次'],auth:['HMAC-SHA256','ak_t100_o****9f2c','30s',1],rate:['令牌桶','1000/s','200'],cb:['50%','60s',1],bl:['192.168.1.105','10.0.23.88','172.16.5.42'],ipc:47,ips:[['192.168.1.23',82,'23,891'],['10.0.12.56',60,'17,452'],['172.16.8.99',41,'12,108']],logs:[['01-15 14:32:18',200,'145ms','192.168.1.23','sig: 6e21xYz8'],['01-15 14:32:15',200,'132ms','10.0.12.56','sig: 6e21mN2Q'],['01-15 14:32:10',403,'8ms','192.168.1.105','黑名单拦截']]},
+      'API-0002': {route:['/api/v1/product/stock','t100-stock-svc','/internal/stock','10s','3 次'],auth:['HMAC-SHA256','ak_t100_s****4b71','30s',1],rate:['令牌桶','800/s','160'],cb:['50%','60s',1],bl:['10.0.23.88'],ipc:31,ips:[['192.168.1.30',76,'19,204'],['10.0.12.61',52,'13,377'],['172.16.8.104',38,'9,825']],logs:[['01-15 14:31:58',200,'96ms','192.168.1.30','sig: 6e21aB3d'],['01-15 14:31:52',200,'88ms','10.0.12.61','sig: 6e21kL9m'],['01-15 14:31:47',429,'3ms','172.16.8.104','QPS 超限']]},
+      'API-0003': {route:['/api/v1/purchase/inbound','t100-purchase-svc','/internal/purchase/inbound','60s','2 次'],auth:['HMAC-SHA1','ak_t100_p****2c58','60s',1],rate:['令牌桶','200/s','50'],cb:['50%','60s',1],bl:['172.16.5.42'],ipc:12,ips:[['10.0.12.33',68,'4,102'],['192.168.1.77',45,'2,715']],logs:[['01-15 14:30:41',200,'1,204ms','10.0.12.33','sig: 6e21qW7e'],['01-15 14:29:58',200,'987ms','192.168.1.77','sig: 6e21rT2u'],['01-15 14:28:12',504,'60,000ms','10.0.12.33','下游超时']]},
+      'API-0011': {route:['/api/v1/expense/approve','oa-expense-svc','/internal/expense/approve','30s','3 次'],auth:['HMAC-SHA256','ak_oa_e****7d13','60s',1],rate:['令牌桶','300/s','60'],cb:['50%','60s',1],bl:['192.168.2.10'],ipc:19,ips:[['192.168.2.21',71,'6,308'],['10.0.31.7',48,'4,259']],logs:[['01-15 14:33:02',200,'210ms','192.168.2.21','sig: 6e21zX5c'],['01-15 14:32:44',200,'187ms','10.0.31.7','sig: 6e21vB8n'],['01-15 14:32:20',200,'203ms','192.168.2.21','sig: 6e21zX5c']]},
+      'API-0012': {route:['/api/v1/attendance/query','oa-attendance-svc','/internal/attendance','10s','3 次'],auth:['HMAC-SHA256','ak_oa_a****1e90','30s',1],rate:['令牌桶','500/s','100'],cb:['50%','60s',1],bl:[],ipc:26,ips:[['192.168.2.35',64,'8,517'],['10.0.31.12',51,'6,804'],['172.16.9.20',33,'4,401']],logs:[['01-15 14:31:30',200,'75ms','192.168.2.35','sig: 6e21mK4p'],['01-15 14:31:22',200,'69ms','10.0.31.12','sig: 6e21nJ6q'],['01-15 14:31:05',401,'5ms','172.16.9.20','验签失败 · 时间戳超时']]},
+      'API-0021': {route:['/api/v1/crm/customer','crm-customer-svc','/internal/crm/customer','20s','3 次'],auth:['RSA-SHA256','ak_crm_c****8a35','30s',1],rate:['令牌桶','600/s','120'],cb:['50%','60s',1],bl:['10.0.44.9'],ipc:23,ips:[['192.168.3.14',77,'12,466'],['10.0.44.21',55,'8,917']],logs:[['01-15 14:32:50',200,'112ms','192.168.3.14','sig: 6e21pL3a'],['01-15 14:32:38',200,'98ms','10.0.44.21','sig: 6e21sD7f'],['01-15 14:32:15',403,'6ms','10.0.44.9','黑名单拦截']]},
+      'API-0031': {route:['/api/v1/supplier/eval','srm-eval-svc','/internal/supplier/eval','30s','2 次'],auth:['RSA-SHA256','ak_srm_e****3f76','60s',1],rate:['令牌桶','200/s','40'],cb:['40%','45s',1],bl:[],ipc:8,ips:[['192.168.4.8',62,'2,341'],['10.0.52.3',49,'1,857']],logs:[['01-15 14:30:15',503,'12ms','192.168.4.8','熔断降级'],['01-15 14:29:47',200,'355ms','10.0.52.3','sig: 6e21wQ9r'],['01-15 14:29:12',502,'10,012ms','192.168.4.8','下游异常']]},
+      'API-0041': {route:['/api/v1/logistics/track','jst-logistics-svc','/open/jst/logistics/track','15s','3 次'],auth:['HMAC-SHA256','ak_jst_l****5b28','30s',1],rate:['令牌桶','400/s','80'],cb:['50%','60s',1],bl:['203.0.113.45'],ipc:15,ips:[['192.168.5.19',66,'5,723'],['10.0.63.4',44,'3,814']],logs:[['01-15 14:28:33',502,'15,001ms','192.168.5.19','下游异常'],['01-15 14:27:51',502,'15,004ms','10.0.63.4','下游异常'],['01-15 14:26:40',200,'214ms','192.168.5.19','sig: 6e21yU2i']]},
+      'API-0042': {route:['/api/v1/payment/callback','jst-payment-svc','/open/jst/payment/callback','10s','0 次'],auth:['SM3-HMAC','ak_jst_p****9d64','120s',1],rate:['令牌桶','200/s','40'],cb:['50%','60s',1],bl:['203.0.113.88'],ipc:9,ips:[['203.0.113.7',81,'3,204'],['198.51.100.22',58,'2,297']],logs:[['01-15 14:27:12',500,'245ms','203.0.113.7','回调处理失败'],['01-15 14:26:35',200,'131ms','198.51.100.22','sig: 6e21eV6o'],['01-15 14:25:50',500,'287ms','203.0.113.7','回调处理失败']]},
+      'API-0051': {route:['/api/v1/hr/employee','hr-employee-svc','/internal/hr/employee','10s','3 次'],auth:['HMAC-SHA256','ak_hr_e****6c02','30s',1],rate:['令牌桶','300/s','60'],cb:['50%','60s',1],bl:[],ipc:14,ips:[['192.168.6.11',59,'3,318'],['10.0.71.5',47,'2,644']],logs:[['01-15 14:31:15',200,'92ms','192.168.6.11','sig: 6e21hG8t'],['01-15 14:30:58',200,'85ms','10.0.71.5','sig: 6e21jF1u'],['01-15 14:30:31',200,'79ms','192.168.6.11','sig: 6e21hG8t']]},
+      'API-0061': {route:['/api/v1/bi/dashboard','bi-dashboard-svc','/internal/bi/dashboard','60s','2 次'],auth:['HMAC-SHA1','ak_bi_d****4a8e','60s',1],rate:['令牌桶','150/s','30'],cb:['50%','60s',1],bl:[],ipc:6,ips:[['192.168.7.2',72,'1,864'],['10.0.82.9',53,'1,372']],logs:[['01-15 14:29:05',200,'1,842ms','192.168.7.2','sig: 6e21kR5w'],['01-15 14:28:21',200,'1,755ms','10.0.82.9','sig: 6e21lT8x'],['01-15 14:27:44',429,'4ms','192.168.7.2','QPS 超限']]}
     };
 
     function renderApiDetail(apiId){
       const d = API_DETAIL[apiId]; if (!d) return;
       const set = (id, html) => { const e = document.getElementById(id); if (e) e.innerHTML = html; };
       set('dtl-route', '<div><span>上游路径</span> ' + d.route[0] + '</div><div><span>下游服务</span> ' + d.route[1] + '</div><div><span>下游路径</span> ' + d.route[2] + '</div><div><span>超时时间</span> ' + d.route[3] + '</div><div><span>重试次数</span> ' + d.route[4] + '</div>');
-      set('dtl-auth', '<div><span>认证方式</span> ' + d.auth[0] + '</div><div><span>Token 有效期</span> ' + d.auth[1] + '</div><div><span>权限校验</span> <span class="badge ' + (d.auth[2] ? 'b-green' : 'b-gray') + '">' + (d.auth[2] ? '已开启' : '未开启') + '</span></div>');
+      set('dtl-auth', '<div><span>签名算法</span> <span class="badge b-blue">' + d.auth[0] + '</span></div><div><span>密钥标识</span> <span class="mono">' + d.auth[1] + '</span></div><div><span>时间戳容差</span> ' + d.auth[2] + '</div><div><span>权限校验</span> <span class="badge ' + (d.auth[3] ? 'b-green' : 'b-gray') + '">' + (d.auth[3] ? '已开启' : '未开启') + '</span></div>');
       set('dtl-rate', '<div><span>限流策略</span> <span class="badge b-orange">' + d.rate[0] + '</span></div><div><span>QPS 上限</span> ' + d.rate[1] + '</div><div><span>突发容量</span> ' + d.rate[2] + '</div>');
       set('dtl-circuit', '<div><span>错误率阈值</span> ' + d.cb[0] + '</div><div><span>熔断时长</span> ' + d.cb[1] + '</div><div><span>半开探测</span> <span class="badge ' + (d.cb[2] ? 'b-green' : 'b-gray') + '">' + (d.cb[2] ? '已开启' : '未开启') + '</span></div>');
       set('ov-blacklist', d.bl.map(ip => '<span class="chip">' + ip + ' <b onclick="acRemoveIp(this)">✕</b></span>').join(''));
       set('dtl-ipcnt', '共 ' + d.ipc + ' 个 IP');
       set('dtl-ips', d.ips.map(p => '<div class="bar-row"><span class="ip">' + p[0] + '</span><div class="bar"><i style="width:' + p[1] + '%"></i></div><span class="n">' + p[2] + '次</span><button class="btn sm danger" onclick="acBlack(this,\'' + p[0] + '\')">拉黑</button></div>').join(''));
-      set('dtl-logs', d.logs.map(l => '<tr><td>' + l[0] + '</td><td><span class="code ' + (l[1] === 200 ? 'ok' : 'err') + '">' + l[1] + '</span></td><td>' + l[2] + '</td><td class="mono">' + l[3] + '</td><td class="' + (String(l[4]).indexOf('token:') === 0 ? 'mono dim' : 'err-text') + '">' + l[4] + '</td></tr>').join(''));
+      set('dtl-logs', d.logs.map(l => '<tr><td>' + l[0] + '</td><td><span class="code ' + (l[1] === 200 ? 'ok' : 'err') + '">' + l[1] + '</span></td><td>' + l[2] + '</td><td class="mono">' + l[3] + '</td><td class="' + (String(l[4]).indexOf('sig:') === 0 ? 'mono dim' : 'err-text') + '">' + l[4] + '</td></tr>').join(''));
     }
 
     // ---------- 拉黑 / 移除 IP ----------
