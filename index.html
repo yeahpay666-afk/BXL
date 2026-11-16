@@ -1060,6 +1060,13 @@ input, select {
   color: var(--primary-color);
 }
 
+.schedule-action-btn:disabled,
+.schedule-action-btn:disabled:hover {
+  background: #f1f5f9;
+  color: #cbd5e1;
+  cursor: not-allowed;
+}
+
 /* IT中心入口 */
 .it-entry {
   display: grid;
@@ -3196,7 +3203,12 @@ input, select {
               </div>
       <div class="portal-card">
                 <div class="portal-card-header">
-                  <div class="portal-card-title">我的日程</div>
+                  <div class="portal-card-title">我的日程
+                    <span class="todo-help-wrap">
+                      <span class="todo-help-icon" onclick="toggleScheduleHelp(event)">?</span>
+                      <span class="todo-bubble" id="scheduleBubble">日程暂未对接完成，会议室预定沿用当前的路径，在企业微信工作台-oa系统操作</span>
+                    </span>
+                  </div>
                 </div>
                 <div class="portal-card-body">
                   <div class="schedule-week">
@@ -3267,9 +3279,9 @@ input, select {
                   </div>
       
                   <div class="schedule-actions">
-                    <button class="schedule-action-btn" onclick="openMeetingCreateModal()">+ 预定会议室</button>
-                    <button class="schedule-action-btn" onclick="openMeetingManageModal()">会议管理</button>
-                    <button class="schedule-action-btn" onclick="openRoomUsageModal()">会议室使用</button>
+                    <button class="schedule-action-btn" disabled>+ 预定会议室</button>
+                    <button class="schedule-action-btn" disabled>会议管理</button>
+                    <button class="schedule-action-btn" disabled>会议室使用</button>
                   </div>
                 </div>
               </div>
@@ -4418,16 +4430,24 @@ input, select {
     }
 
 
-    /* 我的待办：同步范围说明（气泡弹窗） */
-    function toggleTodoHelp(e) {
+    /* 卡片标题旁的说明气泡弹窗 */
+    function toggleBubble(id, e) {
       if (e) e.stopPropagation();
-      var bubble = document.getElementById('todoBubble');
-      if (bubble) bubble.classList.toggle('show');
+      var bubbles = document.querySelectorAll('.todo-bubble.show');
+      for (var i = 0; i < bubbles.length; i++) {
+        if (bubbles[i].id !== id) bubbles[i].classList.remove('show');
+      }
+      var target = document.getElementById(id);
+      if (target) target.classList.toggle('show');
     }
+
+    function toggleTodoHelp(e) { toggleBubble('todoBubble', e); }
+    function toggleScheduleHelp(e) { toggleBubble('scheduleBubble', e); }
+
     document.addEventListener('click', function(e) {
-      var bubble = document.getElementById('todoBubble');
-      if (!bubble || !bubble.classList.contains('show')) return;
-      if (!e.target.closest || !e.target.closest('.todo-help-wrap')) bubble.classList.remove('show');
+      if (e.target.closest && e.target.closest('.todo-help-wrap')) return;
+      var bubbles = document.querySelectorAll('.todo-bubble.show');
+      for (var i = 0; i < bubbles.length; i++) bubbles[i].classList.remove('show');
     });
 
     /* Toast 轻提示 */
