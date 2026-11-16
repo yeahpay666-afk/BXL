@@ -570,6 +570,54 @@ input, select {
   cursor: pointer;
 }
 
+/* 我的待办：说明问号 */
+.todo-help-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.todo-help-icon {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+
+.todo-help-icon:hover {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.todo-help-tip {
+  display: none;
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 236px;
+  padding: 8px 10px;
+  background: #1f2937;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  z-index: 60;
+}
+
+.todo-help-tip.show { display: block; }
+
 .portal-card-more:hover {
   color: var(--primary-color);
 }
@@ -3053,6 +3101,10 @@ input, select {
                   <div class="portal-card-title">
                     我的待办
                     <span class="badge">5</span>
+                    <span class="todo-help-wrap">
+                      <span class="todo-help-icon" onclick="toggleTodoHelp(event)">?</span>
+                      <span class="todo-help-tip" id="todoHelpTip">我的待办目前只同步每刻和 T100 的数据，其他系统暂未同步</span>
+                    </span>
                   </div>
                   <a href="todo-list.html" class="portal-card-more">查看全部 →</a>
                 </div>
@@ -4352,6 +4404,18 @@ input, select {
       document.getElementById('mmList').innerHTML = html || '<div class="mm-empty">暂无会议记录</div>';
     }
 
+
+    /* 我的待办：说明气泡 */
+    function toggleTodoHelp(e) {
+      if (e) e.stopPropagation();
+      var tip = document.getElementById('todoHelpTip');
+      if (tip) tip.classList.toggle('show');
+    }
+    document.addEventListener('click', function(e) {
+      var tip = document.getElementById('todoHelpTip');
+      if (!tip || !tip.classList.contains('show')) return;
+      if (!e.target.closest || !e.target.closest('.todo-help-wrap')) tip.classList.remove('show');
+    });
 
     /* Toast 轻提示 */
     function showToast(msg, type) {
