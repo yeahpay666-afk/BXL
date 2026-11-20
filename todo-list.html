@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的待办 - 柏星龙业务数字化中台</title>
+  <link rel="stylesheet" href="assets/css/common.css">
+  <style>
+    .main-content.no-sidebar {
+      padding: 16px 16px 24px;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .page-head .page-title {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+
+    /* ===== 待办卡片 ===== */
+    .todo-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    /* Tab */
+    .todo-tabs {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .todo-tab {
+      padding: 13px 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .todo-tab:hover { color: var(--primary-color); }
+
+    .todo-tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    .todo-tab .num {
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 9px;
+      line-height: 16px;
+    }
+
+    .todo-tab.active .num {
+      background: #dbeafe;
+      color: var(--primary-color);
+    }
+
+    /* 状态快捷筛选 */
+    .status-filter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 12px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      background: #fcfdff;
+    }
+
+    .status-filter-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-right: 2px;
+    }
+
+    .status-chip {
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: #f1f5f9;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .status-chip:hover { background: #e2e8f0; }
+
+    .status-chip.active {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+      font-weight: 500;
+    }
+
+    .status-chip .cnt {
+      margin-left: 2px;
+      opacity: 0.7;
+    }
+
+    /* 筛选栏 */
+    .todo-filter {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      margin: 0;
+    }
+
+    .todo-filter select,
+    .todo-filter input[type="text"] {
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-primary);
+      background: #fff;
+      outline: none;
+    }
+
+    .todo-filter select:focus,
+    .todo-filter input[type="text"]:focus {
+      border-color: var(--primary-color);
+    }
+
+    .todo-filter input[type="text"] {
+      width: 200px;
+    }
+
+    .todo-filter .btn {
+      height: 34px;
+      padding: 0 16px;
+    }
+
+    /* ===== 表格 ===== */
+    .todo-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .todo-table th {
+      text-align: left;
+      padding: 11px 20px;
+      background: #f8fafc;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .todo-table td {
+      padding: 12px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    .todo-table tbody tr {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .todo-table tbody tr:hover td {
+      background: #f8fafc;
+    }
+
+    .cell-type {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .cell-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cell-sys { font-size: 12px; }
+    .cell-sys.maycur { color: #0369a1; }
+    .cell-sys.oa { color: #15803d; }
+
+    .cell-status { font-size: 12px; }
+    .cell-status.wait { color: #c2410c; }
+    .cell-status.mid { color: #2563eb; }
+    .cell-status.done { color: #15803d; }
+    .cell-status.reject { color: #dc2626; }
+    .cell-status.revoke { color: #64748b; }
+
+    .cell-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: pre;
+    }
+
+    .empty-row td {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 56px 0;
+      font-size: 13px;
+      cursor: default;
+    }
+
+    .todo-table tbody tr.empty-row:hover td { background: #fff; }
+
+    /* 分页 */
+    .todo-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 20px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .todo-pagination .pagination-info {
+      margin-right: auto;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .page-btn {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border: 1px solid var(--border-color);
+      background: #fff;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .page-btn.active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: #fff;
+    }
+
+    .page-btn:disabled {
+      cursor: not-allowed;
+      color: #cbd5e1;
+      background: #f8fafc;
+    }
+
+    @media (max-width: 900px) {
+      .todo-filter input[type="text"] { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-logo" onclick="location.href='index.html'">
+      <div class="header-logo-icon">柏</div>
+      <div class="header-logo-text">柏星龙业务数字化中台</div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item active">首页</a>
+      <a href="t100.html" class="header-nav-item">T100</a>
+      <a href="hr.html" class="header-nav-item">HR</a>
+      <a href="oa.html" class="header-nav-item">OA</a>
+      <a href="crm.html" class="header-nav-item">CRM</a>
+      <a href="srm.html" class="header-nav-item">SRM</a>
+      <a href="bi.html" class="header-nav-item">BI</a>
+      <a href="expense.html" class="header-nav-item">报销</a>
+      <a href="jushuitan.html" class="header-nav-item">聚水潭</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="text" placeholder="搜索应用、流程、文档...">
+      </div>
+      <div class="header-info">
+        <div class="header-weather">
+          <span>☀️</span>
+          <span>晴 26°C</span>
+        </div>
+        <div class="header-bell">
+          🔔
+          <span class="badge" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:10px;padding:1px 4px;border-radius:8px;min-width:16px;text-align:center;">5</span>
+        </div>
+        <div class="header-user">
+          <div class="header-avatar">张</div>
+          <span>张建国</span>
+          <span>▼</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 二级导航 -->
+  <div class="sub-header">
+    <div class="sub-header-nav">
+      <a href="index.html" class="sub-nav-item">首页概览</a>
+      <a href="content-study.html" class="sub-nav-item">内容管理</a>
+      <div class="sub-nav-item">流程中心</div>
+      <a href="api-center.html" class="sub-nav-item">API中心</a>
+      <a href="role-list.html" class="sub-nav-item">系统设置</a>
+    </div>
+  </div>
+
+  <!-- 主内容区 -->
+  <main class="main-content no-sidebar">
+    <div class="breadcrumb">
+      <a href="index.html">首页</a>
+      <span class="separator">/</span>
+      <span class="current">我的待办</span>
+    </div>
+
+    <div class="page-head">
+      <div>
+        <div class="page-title">我的待办</div>
+        <div class="page-desc">聚合每刻、泛微 OA 的审批待办，点击单据可跳转对应业务系统处理，业务系统流转后回推中台</div>
+      </div>
+    </div>
+
+    <div class="todo-card">
+      <div class="todo-tabs">
+        <div class="todo-tab active" data-tab="approval" onclick="switchTab('approval')">
+          待我审批 <span class="num" id="numApproval">0</span>
+        </div>
+        <div class="todo-tab" data-tab="mine" onclick="switchTab('mine')">
+          我发起的 <span class="num" id="numMine">0</span>
+        </div>
+      </div>
+
+      <div class="status-filter" id="statusFilter">
+        <span class="status-filter-label">单据状态：</span>
+        <span class="status-chip active" data-status="all" onclick="setStatus('all')">全部状态<span class="cnt" id="cntAll"></span></span>
+        <span class="status-chip" data-status="待审批" onclick="setStatus('待审批')">待审批<span class="cnt" id="cntWait"></span></span>
+        <span class="status-chip" data-status="审批中" onclick="setStatus('审批中')">审批中<span class="cnt" id="cntMid"></span></span>
+        <span class="status-chip" data-status="已通过" onclick="setStatus('已通过')">已通过<span class="cnt" id="cntDone"></span></span>
+        <span class="status-chip" data-status="已驳回" onclick="setStatus('已驳回')">已驳回<span class="cnt" id="cntReject"></span></span>
+        <span class="status-chip" data-status="已撤销" onclick="setStatus('已撤销')">已撤销<span class="cnt" id="cntRevoke"></span></span>
+      </div>
+
+      <div class="filter-bar todo-filter">
+        <select id="sysFilter" onchange="setSys(this.value)">
+          <option value="all">全部来源系统</option>
+          <option value="每刻">每刻</option>
+          <option value="OA">OA</option>
+        </select>
+        <input type="text" id="kwInput" placeholder="搜索单据标题" onkeydown="if(event.key==='Enter'){setKeyword(this.value)}">
+        <button class="btn btn-primary" onclick="setKeyword(document.getElementById('kwInput').value)">查询</button>
+        <button class="btn btn-outline" onclick="resetFilter()">重置</button>
+      </div>
+
+      <table class="todo-table">
+        <colgroup>
+          <col style="width:110px">
+          <col>
+          <col style="width:110px">
+          <col style="width:110px">
+          <col style="width:190px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>单据类型</th>
+            <th>单据标题</th>
+            <th>来源系统</th>
+            <th>单据状态</th>
+            <th>时间</th>
+          </tr>
+        </thead>
+        <tbody id="todoTbody"></tbody>
+      </table>
+
+      <div class="todo-pagination">
+        <div class="pagination-info" id="pageInfo"></div>
+        <div id="pageBtns" style="display:flex;gap:8px;"></div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(30,41,59,0.92);color:#fff;font-size:13px;padding:12px 22px;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,0.22);display:none;z-index:3000;max-width:80vw;text-align:center;line-height:1.6;"></div>
+
+  <script>
+    // ===== 演示数据：覆盖全部统一状态（待审批 / 审批中 / 已通过 / 已驳回 / 已撤销） =====
+    var TODO_DATA = {
+      approval: [
+        { type: '费用类', title: '差旅报销申请', sys: '每刻', status: '待审批', time: '2026/11/20   10:24:00' },
+        { type: '采购类', title: '采购合同用印申请', sys: 'OA', status: '待审批', time: '2026/11/20   9:15:00' },
+        { type: '费用类', title: '部门团建费用申请', sys: '每刻', status: '审批中', time: '2026/11/19   14:32:00' },
+        { type: '人事类', title: '员工入职流程', sys: 'OA', status: '已驳回', time: '2026/11/19   16:00:00' },
+        { type: '合同类', title: '供应商合作协议变更', sys: 'OA', status: '已通过', time: '2026/11/18   17:20:00' },
+        { type: '采购类', title: '生产设备维修申请', sys: 'OA', status: '已撤销', time: '2026/11/18   11:05:00' }
+      ],
+      mine: [
+        { type: '付款类', title: '供应商付款申请', sys: '每刻', status: '审批中', time: '2026/11/20   11:20:00' },
+        { type: '费用类', title: '差旅报销申请', sys: '每刻', status: '待审批', time: '2026/11/20   8:50:00' },
+        { type: '合同类', title: '年度框架协议审批', sys: 'OA', status: '审批中', time: '2026/11/19   15:40:00' },
+        { type: '采购类', title: '包装材料采购申请', sys: '每刻', status: '已驳回', time: '2026/11/16   13:25:00' },
+        { type: '人事类', title: '岗位编制调整申请', sys: 'OA', status: '已撤销', time: '2026/11/12   10:10:00' },
+        { type: '合同类', title: '设备租赁合同审批', sys: 'OA', status: '已通过', time: '2026/11/05   9:35:00' },
+        { type: '费用类', title: '客户招待费用申请', sys: '每刻', status: '审批中', time: '2026/11/04   16:45:00' },
+        { type: '采购类', title: '印刷油墨采购申请', sys: '每刻', status: '已通过', time: '2026/10/30   14:05:00' },
+        { type: '预算类', title: '部门预算调整申请', sys: 'OA', status: '已通过', time: '2026/10/28   9:00:00' },
+        { type: '费用类', title: '办公用品采购申请', sys: 'OA', status: '已驳回', time: '2026/10/22   11:15:00' },
+        { type: '人事类', title: '员工转正申请', sys: 'OA', status: '已通过', time: '2026/10/15   17:30:00' },
+        { type: '预算类', title: '年度预算编制申请', sys: 'OA', status: '待审批', time: '2026/10/09   9:20:00' }
+      ]
+    };
+
+    var STATUS_META = {
+      '待审批': { cls: 'wait' },
+      '审批中': { cls: 'mid' },
+      '已通过': { cls: 'done' },
+      '已驳回': { cls: 'reject' },
+      '已撤销': { cls: 'revoke' }
+    };
+
+    var PAGE_SIZE = 10;
+    var state = { tab: 'approval', status: 'all', sys: 'all', keyword: '', page: 1 };
+
+    function currentList() {
+      return TODO_DATA[state.tab] || [];
+    }
+
+    function filteredList() {
+      var kw = state.keyword.trim();
+      return currentList().filter(function (item) {
+        if (state.status !== 'all' && item.status !== state.status) return false;
+        if (state.sys !== 'all' && item.sys !== state.sys) return false;
+        if (kw && item.title.indexOf(kw) === -1) return false;
+        return true;
+      });
+    }
+
+    function updateCounts() {
+      var list = currentList();
+      document.getElementById('numApproval').textContent = TODO_DATA.approval.length;
+      document.getElementById('numMine').textContent = TODO_DATA.mine.length;
+
+      var counts = { all: list.length, '待审批': 0, '审批中': 0, '已通过': 0, '已驳回': 0, '已撤销': 0 };
+      list.forEach(function (item) { counts[item.status] = (counts[item.status] || 0) + 1; });
+
+      document.getElementById('cntAll').textContent = '(' + counts.all + ')';
+      document.getElementById('cntWait').textContent = '(' + counts['待审批'] + ')';
+      document.getElementById('cntMid').textContent = '(' + counts['审批中'] + ')';
+      document.getElementById('cntDone').textContent = '(' + counts['已通过'] + ')';
+      document.getElementById('cntReject').textContent = '(' + counts['已驳回'] + ')';
+      document.getElementById('cntRevoke').textContent = '(' + counts['已撤销'] + ')';
+    }
+
+    function renderTable() {
+      var list = filteredList();
+      var total = list.length;
+      var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      if (state.page > totalPages) state.page = totalPages;
+
+      var start = (state.page - 1) * PAGE_SIZE;
+      var rows = list.slice(start, start + PAGE_SIZE);
+      var tbody = document.getElementById('todoTbody');
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">暂无符合条件的待办</td></tr>';
+      } else {
+        tbody.innerHTML = rows.map(function (item) {
+          var meta = STATUS_META[item.status] || { cls: '' };
+          var sysCls = item.sys === '每刻' ? 'maycur' : 'oa';
+          return '<tr onclick="goBizSystem(\'' + item.sys + '\')">' +
+            '<td class="cell-type">' + item.type + '</td>' +
+            '<td class="cell-title" title="' + item.title + '">' + item.title + '</td>' +
+            '<td><span class="cell-sys ' + sysCls + '">' + item.sys + '</span></td>' +
+            '<td><span class="cell-status ' + meta.cls + '">' + item.status + '</span></td>' +
+            '<td class="cell-time">' + item.time + '</td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      // 分页信息与按钮
+      document.getElementById('pageInfo').textContent = '共 ' + total + ' 条记录，第 ' + state.page + ' / ' + totalPages + ' 页';
+      var btns = document.getElementById('pageBtns');
+      var html = '<button class="page-btn" onclick="goPage(' + (state.page - 1) + ')" ' + (state.page <= 1 ? 'disabled' : '') + '>上一页</button>';
+      for (var i = 1; i <= totalPages; i++) {
+        html += '<button class="page-btn ' + (i === state.page ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+      }
+      html += '<button class="page-btn" onclick="goPage(' + (state.page + 1) + ')" ' + (state.page >= totalPages ? 'disabled' : '') + '>下一页</button>';
+      btns.innerHTML = html;
+    }
+
+    function render() {
+      updateCounts();
+      renderTable();
+    }
+
+    function switchTab(tab) {
+      state.tab = tab;
+      state.page = 1;
+      document.querySelectorAll('.todo-tab').forEach(function (el) {
+        el.classList.toggle('active', el.dataset.tab === tab);
+      });
+      render();
+    }
+
+    function setStatus(status) {
+      state.status = status;
+      state.page = 1;
+      document.querySelectorAll('.status-chip').forEach(function (el) {
+        el.classList.toggle('active', el.dataset.status === status);
+      });
+      renderTable();
+    }
+
+    function setSys(sys) {
+      state.sys = sys;
+      state.page = 1;
+      renderTable();
+    }
+
+    function setKeyword(kw) {
+      state.keyword = kw || '';
+      state.page = 1;
+      renderTable();
+    }
+
+    function resetFilter() {
+      state.status = 'all';
+      state.sys = 'all';
+      state.keyword = '';
+      state.page = 1;
+      document.getElementById('sysFilter').value = 'all';
+      document.getElementById('kwInput').value = '';
+      document.querySelectorAll('.status-chip').forEach(function (el) {
+        el.classList.toggle('active', el.dataset.status === 'all');
+      });
+      renderTable();
+    }
+
+    function goPage(page) {
+      var totalPages = Math.max(1, Math.ceil(filteredList().length / PAGE_SIZE));
+      if (page < 1 || page > totalPages) return;
+      state.page = page;
+      renderTable();
+    }
+
+    function goBizSystem(sys) {
+      showToast('正在跳转至' + sys + '系统处理该单据');
+    }
+
+    var toastTimer = null;
+    function showToast(msg) {
+      var el = document.getElementById('toast');
+      el.textContent = msg;
+      el.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { el.style.display = 'none'; }, 2000);
+    }
+
+    render();
+  </script>
+</body>
+</html>
