@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单据详情 - 业务系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      background: #f2f4f8;
+      color: #1e293b;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* 业务系统顶栏 */
+    .biz-header {
+      height: 52px;
+      background: #fff;
+      border-bottom: 1px solid #e5eaf2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .biz-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .biz-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+    }
+
+    .biz-tag {
+      font-size: 11px;
+      font-weight: 400;
+      color: #64748b;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1px 8px;
+    }
+
+    .biz-header .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 内容 */
+    .wrap {
+      max-width: 920px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+
+    .crumb {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 22px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .card-head .title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .status-pill {
+      font-size: 12px;
+      padding: 3px 12px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    .status-pill.wait { background: #fff7ed; color: #c2410c; }
+    .status-pill.mid { background: #eff6ff; color: #2563eb; }
+    .status-pill.done { background: #f0fdf4; color: #15803d; }
+    .status-pill.reject { background: #fef2f2; color: #dc2626; }
+    .status-pill.revoke { background: #f8fafc; color: #64748b; }
+
+    .fields {
+      padding: 6px 22px 18px;
+    }
+
+    .field-row {
+      display: flex;
+      padding: 12px 0;
+      border-bottom: 1px dashed #eef2f7;
+      font-size: 13px;
+    }
+
+    .field-row:last-child { border-bottom: none; }
+
+    .field-label {
+      width: 110px;
+      flex-shrink: 0;
+      color: #94a3b8;
+    }
+
+    .field-value {
+      color: #1e293b;
+      word-break: break-all;
+    }
+
+    .tip {
+      margin-top: 14px;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      height: 34px;
+      padding: 0 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: #1d4ed8; }
+
+    .btn-plain {
+      background: #fff;
+      border-color: #e2e8f0;
+      color: #475569;
+    }
+
+    .btn-plain:hover { border-color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="biz-header">
+    <div class="biz-brand">
+      <div class="biz-logo" id="bizLogo">每</div>
+      <span id="bizName">每刻报销</span>
+      <span class="biz-tag">业务系统（原型演示）</span>
+    </div>
+    <div class="right">
+      <span>张建国</span>
+      <div class="avatar">张</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="crumb" id="bizCrumb">业务系统 / 单据详情</div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="title" id="docTitle">单据详情</div>
+        <span class="status-pill" id="docStatus">待审批</span>
+      </div>
+      <div class="fields">
+        <div class="field-row">
+          <div class="field-label">单据标题</div>
+          <div class="field-value" id="fTitle">-</div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">单据类型</div>
+          <div class="field-value" id="fType">-</div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">发起人</div>
+          <div class="field-value" id="fInitiator">-</div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">接收时间</div>
+          <div class="field-value" id="fTime">-</div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">来源系统</div>
+          <div class="field-value" id="fSys">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip" id="tipText">
+      当前页面为业务系统模拟页（原型演示）。实际环境中，点击「查看详情」将直接打开对应业务系统（每刻 / 泛微 OA）的单据页面，在中台不重复实现审批操作。
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="backToList()">返回我的待办</button>
+      <button class="btn btn-plain" onclick="window.close()">关闭本页</button>
+    </div>
+  </div>
+
+  <script>
+    var STATUS_CLS = { '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
+
+    function getParam(name) {
+      var match = new RegExp('[?&]' + name + '=([^&]*)').exec(location.search);
+      return match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : '';
+    }
+
+    var sys = getParam('sys') || '每刻';
+    var title = getParam('title') || '单据详情';
+    var type = getParam('type') || '-';
+    var status = getParam('status') || '待审批';
+    var initiator = getParam('initiator') || '-';
+    var time = getParam('time') || '-';
+
+    var isMaycur = sys === '每刻';
+    document.getElementById('bizLogo').textContent = isMaycur ? '每' : 'O';
+    document.getElementById('bizName').textContent = isMaycur ? '每刻报销' : '泛微 OA';
+    document.getElementById('bizLogo').style.background = isMaycur
+      ? 'linear-gradient(135deg, #38bdf8, #0284c7)'
+      : 'linear-gradient(135deg, #34d399, #059669)';
+    document.getElementById('bizCrumb').textContent = (isMaycur ? '每刻报销' : '泛微 OA') + ' / 单据详情';
+
+    document.getElementById('docTitle').textContent = title;
+    document.getElementById('fTitle').textContent = title;
+    document.getElementById('fType').textContent = type;
+    document.getElementById('fInitiator').textContent = initiator;
+    document.getElementById('fTime').textContent = time;
+    document.getElementById('fSys').textContent = isMaycur ? '每刻报销系统' : '泛微 OA 系统';
+
+    var pill = document.getElementById('docStatus');
+    pill.textContent = status;
+    pill.className = 'status-pill ' + (STATUS_CLS[status] || '');
+
+    document.getElementById('tipText').textContent =
+      '当前页面为业务系统模拟页（原型演示）。实际环境中，点击「查看详情」将直接打开' +
+      (isMaycur ? '每刻报销' : '泛微 OA') + '系统的单据页面，审批流转在业务系统内完成，中台只做聚合展示。';
+
+    function backToList() {
+      window.close();
+      setTimeout(function () { location.href = 'todo-list.html'; }, 120);
+    }
+  </script>
+</body>
+</html>
