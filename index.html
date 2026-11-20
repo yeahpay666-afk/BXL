@@ -1196,35 +1196,31 @@ input, select {
   font-size: 11px;
   color: var(--text-muted);
   flex-shrink: 0;
-  min-width: 48px;
+  min-width: 112px;
+  white-space: pre;
   text-align: right;
 }
 
+/* 我的待办：来源系统 */
+.todo-sys {
+  font-size: 11px;
+  flex-shrink: 0;
+  line-height: 16px;
+}
+.todo-sys.maycur { color: #0369a1; }
+.todo-sys.oa { color: #15803d; }
+
+/* 我的待办：统一状态 */
 .todo-status {
   font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
   flex-shrink: 0;
+  line-height: 16px;
 }
-
-/* 我的待办：来源系统徽标 */
-.todo-sys {
-  font-size: 10px;
-  padding: 2px 5px;
-  border-radius: 3px;
-  flex-shrink: 0;
-  font-weight: 500;
-  line-height: 14px;
-}
-.todo-sys.maycur { background: #e0f2fe; color: #0369a1; }
-.todo-sys.oa { background: #dcfce7; color: #15803d; }
-
-/* 我的待办：统一状态标签 */
-.todo-status.wait { background: #fff7ed; color: #c2410c; }
-.todo-status.mid { background: #eff6ff; color: #2563eb; }
-.todo-status.done { background: #dcfce7; color: #15803d; }
-.todo-status.reject { background: #fee2e2; color: #dc2626; }
-.todo-status.revoke { background: #f1f5f9; color: #64748b; }
+.todo-status.wait { color: #c2410c; }
+.todo-status.mid { color: #2563eb; }
+.todo-status.done { color: #15803d; }
+.todo-status.reject { color: #dc2626; }
+.todo-status.revoke { color: #64748b; }
 
 /* 新闻列表 */
 .news-portal-item {
@@ -3140,21 +3136,21 @@ input, select {
                     <span class="todo-row-title">差旅报销申请</span>
                     <span class="todo-sys maycur">每刻</span>
                     <span class="todo-status wait">待审批</span>
-                    <span class="todo-time">10:24</span>
+                    <span class="todo-time">2026/11/20   10:24:00</span>
                   </div>
                   <div class="todo-list-item" onclick="goBizSystem('OA')">
                     <span class="todo-type">采购类</span>
                     <span class="todo-row-title">采购合同用印申请</span>
                     <span class="todo-sys oa">OA</span>
                     <span class="todo-status wait">待审批</span>
-                    <span class="todo-time">09:15</span>
+                    <span class="todo-time">2026/11/20   9:15:00</span>
                   </div>
                   <div class="todo-list-item" onclick="goBizSystem('OA')">
                     <span class="todo-type">人事类</span>
                     <span class="todo-row-title">员工入职流程</span>
                     <span class="todo-sys oa">OA</span>
                     <span class="todo-status reject">已驳回</span>
-                    <span class="todo-time">昨天</span>
+                    <span class="todo-time">2026/11/19   16:00:00</span>
                   </div>
                 </div>
       
@@ -3164,21 +3160,21 @@ input, select {
                     <span class="todo-row-title">供应商付款申请</span>
                     <span class="todo-sys maycur">每刻</span>
                     <span class="todo-status mid">审批中</span>
-                    <span class="todo-time">11:20</span>
+                    <span class="todo-time">2026/11/20   11:20:00</span>
                   </div>
                   <div class="todo-list-item" onclick="goBizSystem('OA')">
                     <span class="todo-type">合同类</span>
                     <span class="todo-row-title">年度框架协议审批</span>
                     <span class="todo-sys oa">OA</span>
                     <span class="todo-status mid">审批中</span>
-                    <span class="todo-time">昨天</span>
+                    <span class="todo-time">2026/11/19   15:40:00</span>
                   </div>
                   <div class="todo-list-item" onclick="goBizSystem('OA')">
                     <span class="todo-type">预算类</span>
                     <span class="todo-row-title">部门预算调整申请</span>
                     <span class="todo-sys oa">OA</span>
                     <span class="todo-status done">已通过</span>
-                    <span class="todo-time">10-28</span>
+                    <span class="todo-time">2026/10/28   9:00:00</span>
                   </div>
                 </div>
               </div>
