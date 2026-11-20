@@ -518,6 +518,14 @@
           <option value="付款类">付款类</option>
           <option value="预算类">预算类</option>
         </select>
+        <select id="statusFilter" onchange="onFilter('status', this.value)">
+          <option value="all">全部状态</option>
+          <option value="待审批">待审批</option>
+          <option value="审批中">审批中</option>
+          <option value="已通过">已通过</option>
+          <option value="已驳回">已驳回</option>
+          <option value="已撤销">已撤销</option>
+        </select>
         <select id="prioFilter" onchange="onFilter('prio', this.value)">
           <option value="all">全部优先级</option>
           <option value="紧急">紧急</option>
@@ -598,7 +606,7 @@
     var PRIO_TEXT = { 'urgent': 'prio-urgent', 'important': 'prio-important', 'normal': 'prio-normal' };
     var TAB_TITLE = { pending: '待我处理事项', mine: '我提交的事项' };
 
-    var state = { tab: 'pending', type: 'all', prio: 'all', sys: 'all', kw: '' };
+    var state = { tab: 'pending', type: 'all', status: 'all', prio: 'all', sys: 'all', kw: '' };
 
     function listOfTab(tab) {
       return DATA.filter(function (item) { return item.tab === tab; });
@@ -608,6 +616,7 @@
       var kw = state.kw.trim();
       return listOfTab(state.tab).filter(function (item) {
         if (state.type !== 'all' && item.type !== state.type) return false;
+        if (state.status !== 'all' && item.status !== state.status) return false;
         if (state.prio !== 'all' && item.prio !== state.prio) return false;
         if (state.sys !== 'all' && item.sys !== state.sys) return false;
         if (kw && item.title.indexOf(kw) === -1) return false;
