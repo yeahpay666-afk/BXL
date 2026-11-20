@@ -567,7 +567,7 @@
             <th>待办标题</th>
             <th>类型</th>
             <th>来源系统</th>
-            <th>发起人</th>
+            <th id="thPerson">发起人</th>
             <th>接收时间</th>
             <th>截止时间</th>
             <th>操作</th>
@@ -600,6 +600,12 @@
       { id: 'm11', tab: 'mine', prio: '重要', title: '员工转正申请', type: '人事类', sys: 'OA', initiator: '张建国', receive: '2026/10/15   17:30:00', due: '2026/10/20   18:00:00', status: '已通过' },
       { id: 'm12', tab: 'mine', prio: '紧急', title: '年度预算编制申请', type: '预算类', sys: 'OA', initiator: '张建国', receive: '2026/10/09   9:20:00', due: '2026/10/15   18:00:00', status: '待审批' }
     ];
+
+    // 「我提交的」展示当前审批人（已结束的单据显示 —）
+    var APPROVER = {
+      m1: '王海涛', m2: '刘志强', m3: '陈雨欣', m4: '—', m5: '—', m6: '—',
+      m7: '赵鹏', m8: '—', m9: '—', m10: '—', m11: '—', m12: '周敏'
+    };
 
     var STATUS_CLS = { '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
     var PRIO_CLS = { '紧急': 'urgent', '重要': 'important', '普通': 'normal' };
@@ -640,6 +646,7 @@
       document.getElementById('legendNormal').textContent = legendBase.filter(function (i) { return i.prio === '普通'; }).length;
 
       document.getElementById('sectionTitle').textContent = TAB_TITLE[state.tab];
+      document.getElementById('thPerson').textContent = state.tab === 'mine' ? '当前审批人' : '发起人';
 
       var rows = filtered();
       var tbody = document.getElementById('todoTbody');
@@ -658,7 +665,7 @@
           '<td><div class="cell-title"><span class="t" title="' + item.title + '">' + item.title + '</span><span class="status-text ' + statusCls + '">' + item.status + '</span></div></td>' +
           '<td>' + item.type + '</td>' +
           '<td><span class="cell-sys ' + sysCls + '">' + item.sys + '</span></td>' +
-          '<td>' + item.initiator + '</td>' +
+          '<td>' + (state.tab === 'mine' ? (APPROVER[item.id] || '—') : item.initiator) + '</td>' +
           '<td class="cell-time">' + item.receive + '</td>' +
           '<td class="cell-time">' + item.due + '</td>' +
           '<td><span class="op-link" onclick="viewDetail(\'' + item.id + '\')">查看详情</span></td>' +
