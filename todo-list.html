@@ -239,30 +239,33 @@
 
     .filter-row select:focus { border-color: #2563eb; }
 
-    .legend {
-      margin-left: auto;
+    /* ===== L2 待办标记 ===== */
+    .tag-cell {
       display: flex;
       align-items: center;
-      gap: 14px;
-      font-size: 12px;
-      color: #64748b;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .tag {
+      font-size: 11px;
+      line-height: 16px;
+      padding: 0 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
-    .legend-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-
-    .dot-urgent { background: #ef4444; }
-    .dot-important { background: #f59e0b; }
-    .dot-normal { background: #3b82f6; }
+    .tag-unread { background: #eff6ff; color: #2563eb; }
+    .tag-timeout { background: #fef2f2; color: #dc2626; }
+    .tag-agent { background: #f5f3ff; color: #7c3aed; }
+    .tag-forward { background: #ecfeff; color: #0891b2; }
+    .tag-countersign { background: #f0fdf4; color: #16a34a; }
+    .tag-urge { background: #fffbeb; color: #d97706; }
+    .tag-abnormal { background: #fdf2f8; color: #db2777; }
+    .tag-more { color: #94a3b8; padding: 0 2px; }
+    .tag-empty { color: #cbd5e1; }
 
     /* ===== 列表卡片 ===== */
     .list-card {
@@ -320,20 +323,6 @@
     }
 
     .todo-table tbody tr:hover td { background: #f8fafc; }
-
-    .prio {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .prio .legend-dot { flex-shrink: 0; }
-
-    .prio-urgent { color: #dc2626; }
-    .prio-important { color: #d97706; }
-    .prio-normal { color: #2563eb; }
 
     .cell-title {
       display: flex;
@@ -395,7 +384,6 @@
     }
 
     @media (max-width: 760px) {
-      .legend { margin-left: 0; }
       .search-box { width: 100%; }
     }
   </style>
@@ -528,23 +516,11 @@
           <option value="已驳回">已驳回</option>
           <option value="已撤销">已撤销</option>
         </select>
-        <select id="prioFilter" onchange="onFilter('prio', this.value)">
-          <option value="all">全部优先级</option>
-          <option value="紧急">紧急</option>
-          <option value="重要">重要</option>
-          <option value="普通">普通</option>
-        </select>
         <select id="sysFilter" onchange="onFilter('sys', this.value)">
           <option value="all">全部系统</option>
           <option value="每刻">每刻</option>
           <option value="OA">OA</option>
         </select>
-
-        <div class="legend">
-          <span class="legend-item"><span class="legend-dot dot-urgent"></span>紧急 <span id="legendUrgent">0</span></span>
-          <span class="legend-item"><span class="legend-dot dot-important"></span>重要 <span id="legendImportant">0</span></span>
-          <span class="legend-item"><span class="legend-dot dot-normal"></span>普通 <span id="legendNormal">0</span></span>
-        </div>
       </div>
     </div>
 
@@ -554,7 +530,7 @@
       </div>
       <table class="todo-table">
         <colgroup>
-          <col style="width:92px">
+          <col style="width:118px">
           <col>
           <col style="width:96px">
           <col style="width:104px">
@@ -565,7 +541,7 @@
         </colgroup>
         <thead>
           <tr>
-            <th>优先级</th>
+            <th>标记</th>
             <th>待办标题</th>
             <th>类型</th>
             <th>来源系统</th>
@@ -585,22 +561,22 @@
   <script>
     // ===== 演示数据：待我处理 / 我提交的，状态沿用中台 L1 统一状态（待阅、待审批、审批中、已通过、已驳回、已撤销） =====
     var DATA = [
-      { id: 'p1', tab: 'pending', prio: '紧急', title: '差旅报销申请', type: '费用类', sys: '每刻', initiator: '李思远', receive: '2026/11/20   10:24:00', due: '2026/11/21   18:00:00', status: '待审批' },
-      { id: 'p2', tab: 'pending', prio: '重要', title: '采购合同用印申请', type: '采购类', sys: 'OA', initiator: '王海涛', receive: '2026/11/20   9:15:00', due: '2026/11/22   12:00:00', status: '待阅' },
-      { id: 'p3', tab: 'pending', prio: '重要', title: '员工入职流程', type: '人事类', sys: 'OA', initiator: '人事部', receive: '2026/11/19   16:00:00', due: '2026/11/20   18:00:00', status: '已驳回' },
+      { id: 'p1', tab: 'pending', tags: ['超时'], title: '差旅报销申请', type: '费用类', sys: '每刻', initiator: '李思远', receive: '2026/11/20   10:24:00', due: '2026/11/21   18:00:00', status: '待审批' },
+      { id: 'p2', tab: 'pending', tags: ['未读'], title: '采购合同用印申请', type: '采购类', sys: 'OA', initiator: '王海涛', receive: '2026/11/20   9:15:00', due: '2026/11/22   12:00:00', status: '待阅' },
+      { id: 'p3', tab: 'pending', tags: [], title: '员工入职流程', type: '人事类', sys: 'OA', initiator: '人事部', receive: '2026/11/19   16:00:00', due: '2026/11/20   18:00:00', status: '已驳回' },
 
-      { id: 'm1', tab: 'mine', prio: '紧急', title: '供应商付款申请', type: '付款类', sys: '每刻', initiator: '张建国', receive: '2026/11/20   11:20:00', due: '2026/11/21   12:00:00', status: '审批中' },
-      { id: 'm2', tab: 'mine', prio: '普通', title: '差旅报销申请', type: '费用类', sys: '每刻', initiator: '张建国', receive: '2026/11/20   8:50:00', due: '2026/11/24   18:00:00', status: '待审批' },
-      { id: 'm3', tab: 'mine', prio: '重要', title: '年度框架协议审批', type: '合同类', sys: 'OA', initiator: '张建国', receive: '2026/11/19   15:40:00', due: '2026/11/25   18:00:00', status: '审批中' },
-      { id: 'm4', tab: 'mine', prio: '普通', title: '包装材料采购申请', type: '采购类', sys: '每刻', initiator: '张建国', receive: '2026/11/16   13:25:00', due: '2026/11/20   18:00:00', status: '已驳回' },
-      { id: 'm5', tab: 'mine', prio: '普通', title: '岗位编制调整申请', type: '人事类', sys: 'OA', initiator: '张建国', receive: '2026/11/12   10:10:00', due: '2026/11/16   18:00:00', status: '已撤销' },
-      { id: 'm6', tab: 'mine', prio: '重要', title: '设备租赁合同审批', type: '合同类', sys: 'OA', initiator: '张建国', receive: '2026/11/05   9:35:00', due: '2026/11/10   18:00:00', status: '已通过' },
-      { id: 'm7', tab: 'mine', prio: '普通', title: '客户招待费用申请', type: '费用类', sys: '每刻', initiator: '张建国', receive: '2026/11/04   16:45:00', due: '2026/11/08   18:00:00', status: '审批中' },
-      { id: 'm8', tab: 'mine', prio: '普通', title: '印刷油墨采购申请', type: '采购类', sys: '每刻', initiator: '张建国', receive: '2026/10/30   14:05:00', due: '2026/11/03   18:00:00', status: '已通过' },
-      { id: 'm9', tab: 'mine', prio: '重要', title: '部门预算调整申请', type: '预算类', sys: 'OA', initiator: '张建国', receive: '2026/10/28   9:00:00', due: '2026/10/31   18:00:00', status: '已通过' },
-      { id: 'm10', tab: 'mine', prio: '普通', title: '办公用品采购申请', type: '费用类', sys: 'OA', initiator: '张建国', receive: '2026/10/22   11:15:00', due: '2026/10/26   18:00:00', status: '已驳回' },
-      { id: 'm11', tab: 'mine', prio: '重要', title: '员工转正申请', type: '人事类', sys: 'OA', initiator: '张建国', receive: '2026/10/15   17:30:00', due: '2026/10/20   18:00:00', status: '已通过' },
-      { id: 'm12', tab: 'mine', prio: '紧急', title: '年度预算编制申请', type: '预算类', sys: 'OA', initiator: '张建国', receive: '2026/10/09   9:20:00', due: '2026/10/15   18:00:00', status: '待审批' }
+      { id: 'm1', tab: 'mine', tags: ['加签'], title: '供应商付款申请', type: '付款类', sys: '每刻', initiator: '张建国', receive: '2026/11/20   11:20:00', due: '2026/11/21   12:00:00', status: '审批中' },
+      { id: 'm2', tab: 'mine', tags: [], title: '差旅报销申请', type: '费用类', sys: '每刻', initiator: '张建国', receive: '2026/11/20   8:50:00', due: '2026/11/24   18:00:00', status: '待审批' },
+      { id: 'm3', tab: 'mine', tags: ['转办'], title: '年度框架协议审批', type: '合同类', sys: 'OA', initiator: '张建国', receive: '2026/11/19   15:40:00', due: '2026/11/25   18:00:00', status: '审批中' },
+      { id: 'm4', tab: 'mine', tags: [], title: '包装材料采购申请', type: '采购类', sys: '每刻', initiator: '张建国', receive: '2026/11/16   13:25:00', due: '2026/11/20   18:00:00', status: '已驳回' },
+      { id: 'm5', tab: 'mine', tags: [], title: '岗位编制调整申请', type: '人事类', sys: 'OA', initiator: '张建国', receive: '2026/11/12   10:10:00', due: '2026/11/16   18:00:00', status: '已撤销' },
+      { id: 'm6', tab: 'mine', tags: [], title: '设备租赁合同审批', type: '合同类', sys: 'OA', initiator: '张建国', receive: '2026/11/05   9:35:00', due: '2026/11/10   18:00:00', status: '已通过' },
+      { id: 'm7', tab: 'mine', tags: ['超时'], title: '客户招待费用申请', type: '费用类', sys: '每刻', initiator: '张建国', receive: '2026/11/04   16:45:00', due: '2026/11/08   18:00:00', status: '审批中' },
+      { id: 'm8', tab: 'mine', tags: [], title: '印刷油墨采购申请', type: '采购类', sys: '每刻', initiator: '张建国', receive: '2026/10/30   14:05:00', due: '2026/11/03   18:00:00', status: '已通过' },
+      { id: 'm9', tab: 'mine', tags: [], title: '部门预算调整申请', type: '预算类', sys: 'OA', initiator: '张建国', receive: '2026/10/28   9:00:00', due: '2026/10/31   18:00:00', status: '已通过' },
+      { id: 'm10', tab: 'mine', tags: [], title: '办公用品采购申请', type: '费用类', sys: 'OA', initiator: '张建国', receive: '2026/10/22   11:15:00', due: '2026/10/26   18:00:00', status: '已驳回' },
+      { id: 'm11', tab: 'mine', tags: [], title: '员工转正申请', type: '人事类', sys: 'OA', initiator: '张建国', receive: '2026/10/15   17:30:00', due: '2026/10/20   18:00:00', status: '已通过' },
+      { id: 'm12', tab: 'mine', tags: ['超时'], title: '年度预算编制申请', type: '预算类', sys: 'OA', initiator: '张建国', receive: '2026/10/09   9:20:00', due: '2026/10/15   18:00:00', status: '待审批' }
     ];
 
     // 「我提交的」展示当前审批人（已结束的单据显示 —）
@@ -610,11 +586,23 @@
     };
 
     var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
-    var PRIO_CLS = { '紧急': 'urgent', '重要': 'important', '普通': 'normal' };
-    var PRIO_TEXT = { 'urgent': 'prio-urgent', 'important': 'prio-important', 'normal': 'prio-normal' };
+    // L2 待办标记：未读 / 超时 / 代办 / 转办 / 加签 / 催办 / 异常
+    var TAG_CLS = { '未读': 'unread', '超时': 'timeout', '代办': 'agent', '转办': 'forward', '加签': 'countersign', '催办': 'urge', '异常': 'abnormal' };
     var TAB_TITLE = { pending: '待我处理事项', mine: '我提交的事项' };
 
-    var state = { tab: 'pending', type: 'all', status: 'all', prio: 'all', sys: 'all', kw: '' };
+    function tagHtml(tags) {
+      if (!tags || !tags.length) return '<span class="tag-empty">—</span>';
+      var shown = tags.slice(0, 2);
+      var html = shown.map(function (t) {
+        return '<span class="tag tag-' + (TAG_CLS[t] || 'unread') + '">' + t + '</span>';
+      }).join('');
+      if (tags.length > 2) {
+        html += '<span class="tag tag-more">+' + (tags.length - 2) + '</span>';
+      }
+      return html;
+    }
+
+    var state = { tab: 'pending', type: 'all', status: 'all', sys: 'all', kw: '' };
 
     function listOfTab(tab) {
       return DATA.filter(function (item) { return item.tab === tab; });
@@ -625,7 +613,6 @@
       return listOfTab(state.tab).filter(function (item) {
         if (state.type !== 'all' && item.type !== state.type) return false;
         if (state.status !== 'all' && item.status !== state.status) return false;
-        if (state.prio !== 'all' && item.prio !== state.prio) return false;
         if (state.sys !== 'all' && item.sys !== state.sys) return false;
         if (kw && item.title.indexOf(kw) === -1) return false;
         return true;
@@ -635,17 +622,6 @@
     function render() {
       document.getElementById('countPending').textContent = listOfTab('pending').length;
       document.getElementById('countMine').textContent = listOfTab('mine').length;
-
-      // 图例：当前 Tab 下按其他条件过滤后的优先级分布
-      var legendBase = listOfTab(state.tab).filter(function (item) {
-        if (state.type !== 'all' && item.type !== state.type) return false;
-        if (state.sys !== 'all' && item.sys !== state.sys) return false;
-        if (state.kw.trim() && item.title.indexOf(state.kw.trim()) === -1) return false;
-        return true;
-      });
-      document.getElementById('legendUrgent').textContent = legendBase.filter(function (i) { return i.prio === '紧急'; }).length;
-      document.getElementById('legendImportant').textContent = legendBase.filter(function (i) { return i.prio === '重要'; }).length;
-      document.getElementById('legendNormal').textContent = legendBase.filter(function (i) { return i.prio === '普通'; }).length;
 
       document.getElementById('sectionTitle').textContent = TAB_TITLE[state.tab];
       document.getElementById('thPerson').textContent = state.tab === 'mine' ? '当前审批人' : '发起人';
@@ -659,11 +635,10 @@
       }
 
       tbody.innerHTML = rows.map(function (item) {
-        var prioCls = PRIO_CLS[item.prio];
         var statusCls = STATUS_CLS[item.status] || '';
         var sysCls = item.sys === '每刻' ? 'maycur' : 'oa';
         return '<tr>' +
-          '<td><span class="prio ' + PRIO_TEXT[prioCls] + '"><span class="legend-dot dot-' + prioCls + '"></span>' + item.prio + '</span></td>' +
+          '<td><div class="tag-cell">' + tagHtml(item.tags) + '</div></td>' +
           '<td><div class="cell-title"><span class="t" title="' + item.title + '">' + item.title + '</span><span class="status-text ' + statusCls + '">' + item.status + '</span></div></td>' +
           '<td>' + item.type + '</td>' +
           '<td><span class="cell-sys ' + sysCls + '">' + item.sys + '</span></td>' +
