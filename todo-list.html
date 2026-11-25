@@ -838,10 +838,7 @@
           timeCell(item.sub) +
           (isPending ? waitCell(item) : '<td class="cell-time-sm">' + (item.lastUpdate || '—') + '</td>') +
           '<td><span class="pill ' + statusCls + '">' + item.status + '</span></td>' +
-          '<td><div class="op-cell">' +
-            '<span class="op-link" onclick="viewDetail(\'' + item.id + '\')">详情</span>' +
-            (isPending ? '<span class="op-btn" onclick="processItem(\'' + item.id + '\')">去处理</span>' : '') +
-          '</div></td>' +
+          '<td><span class="op-link" onclick="viewDetail(\'' + item.id + '\')">查看详情</span></td>' +
           '</tr>';
       }).join('');
     }
@@ -905,10 +902,6 @@
 
     function viewDetail(id) {
       openBiz(findItem(id), 'view');
-    }
-
-    function processItem(id) {
-      openBiz(findItem(id), 'process');
     }
 
     var toastTimer = null;
