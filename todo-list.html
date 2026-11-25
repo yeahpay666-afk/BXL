@@ -354,6 +354,7 @@
       flex-shrink: 0;
     }
 
+    .status-text.read { color: #7c3aed; }
     .status-text.wait { color: #c2410c; }
     .status-text.mid { color: #2563eb; }
     .status-text.done { color: #15803d; }
@@ -520,6 +521,7 @@
         </select>
         <select id="statusFilter" onchange="onFilter('status', this.value)">
           <option value="all">全部状态</option>
+          <option value="待阅">待阅</option>
           <option value="待审批">待审批</option>
           <option value="审批中">审批中</option>
           <option value="已通过">已通过</option>
@@ -581,10 +583,10 @@
   <div id="toast" style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(30,41,59,0.92);color:#fff;font-size:13px;padding:12px 22px;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,0.22);display:none;z-index:3000;max-width:80vw;text-align:center;line-height:1.6;"></div>
 
   <script>
-    // ===== 演示数据：待我处理 / 我提交的，状态沿用中台统一状态（待审批、审批中、已通过、已驳回、已撤销） =====
+    // ===== 演示数据：待我处理 / 我提交的，状态沿用中台 L1 统一状态（待阅、待审批、审批中、已通过、已驳回、已撤销） =====
     var DATA = [
       { id: 'p1', tab: 'pending', prio: '紧急', title: '差旅报销申请', type: '费用类', sys: '每刻', initiator: '李思远', receive: '2026/11/20   10:24:00', due: '2026/11/21   18:00:00', status: '待审批' },
-      { id: 'p2', tab: 'pending', prio: '重要', title: '采购合同用印申请', type: '采购类', sys: 'OA', initiator: '王海涛', receive: '2026/11/20   9:15:00', due: '2026/11/22   12:00:00', status: '待审批' },
+      { id: 'p2', tab: 'pending', prio: '重要', title: '采购合同用印申请', type: '采购类', sys: 'OA', initiator: '王海涛', receive: '2026/11/20   9:15:00', due: '2026/11/22   12:00:00', status: '待阅' },
       { id: 'p3', tab: 'pending', prio: '重要', title: '员工入职流程', type: '人事类', sys: 'OA', initiator: '人事部', receive: '2026/11/19   16:00:00', due: '2026/11/20   18:00:00', status: '已驳回' },
 
       { id: 'm1', tab: 'mine', prio: '紧急', title: '供应商付款申请', type: '付款类', sys: '每刻', initiator: '张建国', receive: '2026/11/20   11:20:00', due: '2026/11/21   12:00:00', status: '审批中' },
@@ -607,7 +609,7 @@
       m7: '赵鹏', m8: '—', m9: '—', m10: '—', m11: '—', m12: '周敏'
     };
 
-    var STATUS_CLS = { '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
+    var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
     var PRIO_CLS = { '紧急': 'urgent', '重要': 'important', '普通': 'normal' };
     var PRIO_TEXT = { 'urgent': 'prio-urgent', 'important': 'prio-important', 'normal': 'prio-normal' };
     var TAB_TITLE = { pending: '待我处理事项', mine: '我提交的事项' };
