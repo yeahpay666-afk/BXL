@@ -267,6 +267,147 @@
     .tag-more { color: #94a3b8; padding: 0 2px; }
     .tag-empty { color: #cbd5e1; }
 
+    /* ===== 统计卡片 ===== */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    .stat-label { font-size: 13px; color: #64748b; }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.25;
+      margin-top: 8px;
+    }
+
+    .stat-value.blue { color: #2563eb; }
+    .stat-value.orange { color: #ea580c; }
+    .stat-value.green { color: #16a34a; }
+
+    .stat-sub { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+
+    /* ===== 列表单元格 ===== */
+    .doc-cell { display: flex; flex-direction: column; gap: 3px; }
+
+    .doc-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1e293b;
+      line-height: 1.35;
+    }
+
+    .doc-no { font-size: 11px; color: #94a3b8; letter-spacing: 0.2px; }
+
+    .sys-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .sys-badge::before { content: '✳'; font-size: 11px; }
+    .sys-badge.maycur { background: #eff6ff; color: #2563eb; }
+    .sys-badge.oa { background: #f5f3ff; color: #7c3aed; }
+
+    .node-cell { font-size: 13px; color: #334155; }
+
+    .person-cell { font-size: 13px; color: #334155; }
+    .person-sub { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+
+    .cell-amount {
+      text-align: right;
+      font-size: 13px;
+      color: #1e293b;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cell-time-sm {
+      font-size: 12px;
+      color: #475569;
+      white-space: nowrap;
+      line-height: 1.5;
+    }
+
+    .wait-text { font-size: 12px; color: #64748b; white-space: nowrap; }
+    .wait-text.timeout { color: #dc2626; }
+    .wait-text.near { color: #ea580c; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      padding: 2px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    .pill::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .pill.wait { background: #fff7ed; color: #c2410c; }
+    .pill.read { background: #f5f3ff; color: #7c3aed; }
+    .pill.mid { background: #eff6ff; color: #2563eb; }
+    .pill.done { background: #f0fdf4; color: #15803d; }
+    .pill.reject { background: #fef2f2; color: #dc2626; }
+    .pill.revoke { background: #f1f5f9; color: #64748b; }
+
+    .op-cell { display: flex; align-items: center; gap: 12px; }
+
+    .op-link { color: #2563eb; cursor: pointer; font-size: 13px; }
+    .op-link:hover { text-decoration: underline; }
+
+    .op-btn {
+      padding: 4px 12px;
+      border-radius: 6px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .op-btn:hover { background: #1d4ed8; }
+
+    .btn-reset {
+      height: 34px;
+      padding: 0 14px;
+      background: #fff;
+      border: 1px solid #dbe0e6;
+      border-radius: 6px;
+      color: #475569;
+      font-size: 13px;
+    }
+
+    .btn-reset:hover { border-color: #94a3b8; color: #1e293b; }
+
+    @media (max-width: 1200px) {
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .stat-grid { grid-template-columns: 1fr; }
+    }
+
     /* ===== 列表卡片 ===== */
     .list-card {
       background: #fff;
@@ -470,15 +611,27 @@
       <span class="current">我的待办</span>
     </div>
 
-    <div class="page-head">
-      <div>
-        <h1>我的待办</h1>
-        <div class="desc">查看和处理所有待办事项，支持按类型、优先级、状态筛选</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">待我处理</div>
+        <div class="stat-value blue" id="statPending">0</div>
+        <div class="stat-sub" id="statPendingSub">—</div>
       </div>
-      <button class="btn-refresh" onclick="refreshList()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
-        刷新
-      </button>
+      <div class="stat-card">
+        <div class="stat-label">即将超时 / 已超时</div>
+        <div class="stat-value orange" id="statOverdue">0</div>
+        <div class="stat-sub">已等待 ≥ 24 小时的单据</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">我提交的 · 进行中</div>
+        <div class="stat-value blue" id="statMineActive">0</div>
+        <div class="stat-sub">审批中 / 待审批</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">我提交的 · 已完成</div>
+        <div class="stat-value green" id="statMineDone">0</div>
+        <div class="stat-sub">已通过 / 已归档（统一口径）</div>
+      </div>
     </div>
 
     <div class="panel">
@@ -496,16 +649,12 @@
       <div class="filter-row">
         <div class="search-box">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-          <input type="text" id="kwInput" placeholder="搜索待办标题..." oninput="onKeyword(this.value)">
+          <input type="text" id="kwInput" placeholder="搜索单据名称 / 编号 / 人员" oninput="onKeyword(this.value)">
         </div>
-        <select id="typeFilter" onchange="onFilter('type', this.value)">
-          <option value="all">全部类型</option>
-          <option value="费用类">费用类</option>
-          <option value="采购类">采购类</option>
-          <option value="合同类">合同类</option>
-          <option value="人事类">人事类</option>
-          <option value="付款类">付款类</option>
-          <option value="预算类">预算类</option>
+        <select id="sysFilter" onchange="onFilter('sys', this.value)">
+          <option value="all">全部来源系统</option>
+          <option value="每刻">每刻</option>
+          <option value="OA">泛微 OA</option>
         </select>
         <select id="statusFilter" onchange="onFilter('status', this.value)">
           <option value="all">全部状态</option>
@@ -516,38 +665,48 @@
           <option value="已驳回">已驳回</option>
           <option value="已撤销">已撤销</option>
         </select>
-        <select id="sysFilter" onchange="onFilter('sys', this.value)">
-          <option value="all">全部系统</option>
-          <option value="每刻">每刻</option>
-          <option value="OA">OA</option>
+        <select id="typeFilter" onchange="onFilter('type', this.value)">
+          <option value="all">全部单据类型</option>
+          <option value="费用报销">费用报销</option>
+          <option value="采购">采购</option>
+          <option value="合同">合同</option>
+          <option value="人事">人事</option>
+          <option value="付款申请">付款申请</option>
+          <option value="预算">预算</option>
         </select>
+        <select id="sortFilter" onchange="onFilter('sort', this.value)">
+          <option value="wait">按等待时长排序</option>
+          <option value="time">按提交时间排序</option>
+        </select>
+        <button class="btn-reset" onclick="resetFilters()">重置</button>
       </div>
     </div>
 
     <div class="list-card">
-      <div class="section-head">
-        <span class="section-title" id="sectionTitle">待办事项</span>
-      </div>
-      <table class="todo-table">
+      <table class="todo-table" style="min-width:1120px">
         <colgroup>
-          <col style="width:118px">
           <col>
-          <col style="width:96px">
           <col style="width:104px">
           <col style="width:100px">
-          <col style="width:172px">
-          <col style="width:172px">
-          <col style="width:76px">
+          <col style="width:128px">
+          <col style="width:140px">
+          <col style="width:112px">
+          <col style="width:92px">
+          <col style="width:136px">
+          <col style="width:96px">
+          <col style="width:132px">
         </colgroup>
         <thead>
           <tr>
-            <th>标记</th>
-            <th>待办标题</th>
-            <th>类型</th>
+            <th>单据</th>
             <th>来源系统</th>
-            <th id="thPerson">发起人</th>
-            <th>接收时间</th>
-            <th>截止时间</th>
+            <th>类型</th>
+            <th>当前节点</th>
+            <th id="thPerson">提交人 / 部门</th>
+            <th style="text-align:right">金额</th>
+            <th>提交时间</th>
+            <th id="thWait">已等待</th>
+            <th>状态</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -559,50 +718,38 @@
   <div id="toast" style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(30,41,59,0.92);color:#fff;font-size:13px;padding:12px 22px;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,0.22);display:none;z-index:3000;max-width:80vw;text-align:center;line-height:1.6;"></div>
 
   <script>
-    // ===== 演示数据：待我处理 / 我提交的，状态沿用中台 L1 统一状态（待阅、待审批、审批中、已通过、已驳回、已撤销） =====
+    // ===== 演示数据：待我处理 12 条（每刻 7 / 泛微 OA 5）、我提交的 10 条 =====
     var DATA = [
-      { id: 'p1', tab: 'pending', tags: ['超时'], title: '差旅报销申请', type: '费用类', sys: '每刻', initiator: '李思远', receive: '2026/11/20   10:24:00', due: '2026/11/21   18:00:00', status: '待审批' },
-      { id: 'p2', tab: 'pending', tags: ['未读'], title: '采购合同用印申请', type: '采购类', sys: 'OA', initiator: '王海涛', receive: '2026/11/20   9:15:00', due: '2026/11/22   12:00:00', status: '待阅' },
-      { id: 'p3', tab: 'pending', tags: [], title: '员工入职流程', type: '人事类', sys: 'OA', initiator: '人事部', receive: '2026/11/19   16:00:00', due: '2026/11/20   18:00:00', status: '已驳回' },
+      // ---- 待我处理 ----
+      { id: 'p1', tab: 'pending', title: '供应商准入资质审批', docNo: 'OA-2026-11-0801', type: '采购', sys: 'OA', node: '法务审核', person: '王强', dept: '采购中心', initiator: '王强', amount: '', sub: '11-22 16:30', waitText: '3 天', waitMin: 4320, waitLevel: 'timeout', status: '待审批' },
+      { id: 'p2', tab: 'pending', title: '差旅费用报销单', docNo: 'MX-20261123-0017', type: '费用报销', sys: '每刻', node: '财务复核', person: '何璐', dept: '财务部', initiator: '何璐', amount: '980.00', sub: '11-23 09:05', waitText: '2 天 6 小时', waitMin: 3240, waitLevel: 'timeout', status: '待审批' },
+      { id: 'p3', tab: 'pending', title: '员工培训费用报销', docNo: 'MX-20261122-0005', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '赵敏', dept: '人力资源部', initiator: '赵敏', amount: '1,260.00', sub: '11-23 11:22', waitText: '2 天 4 小时', waitMin: 3120, waitLevel: 'timeout', status: '待审批' },
+      { id: 'p4', tab: 'pending', title: '客户招待费报销', docNo: 'MX-20261124-0033', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '郑涛', dept: '销售部', initiator: '郑涛', amount: '2,180.00', sub: '11-23 15:20', waitText: '2 天 1 小时', waitMin: 2940, waitLevel: 'timeout', status: '待审批' },
+      { id: 'p5', tab: 'pending', title: '项目费用预支申请', docNo: 'MX-20261124-0042', type: '费用报销', sys: '每刻', node: '分管副总审批', person: '周航', dept: '研发中心', initiator: '周航', amount: '15,000.00', sub: '11-24 08:30', waitText: '1 天 8 小时', waitMin: 1920, waitLevel: 'near', status: '待审批' },
+      { id: 'p6', tab: 'pending', title: '年度框架采购合同审批', docNo: 'OA-2026-11-0871', type: '合同', sys: 'OA', node: '法务审核', person: '陈曦', dept: '法务部', initiator: '陈曦', amount: '', sub: '11-24 14:02', waitText: '1 天 2 小时', waitMin: 1560, waitLevel: 'near', status: '待阅' },
+      { id: 'p7', tab: 'pending', title: '设备维修付款申请', docNo: 'MX-20261123-0009', type: '付款申请', sys: '每刻', node: '财务负责人', person: '马俊', dept: '生产中心', initiator: '马俊', amount: '46,500.00', sub: '11-24 10:48', waitText: '1 天 2 小时', waitMin: 1560, waitLevel: 'near', status: '待审批' },
+      { id: 'p8', tab: 'pending', title: '供应商付款申请单', docNo: 'MX-20261124-0011', type: '付款申请', sys: '每刻', node: '财务复核', person: '王强', dept: '采购中心', initiator: '王强', amount: '128,000.00', sub: '11-24 17:40', waitText: '22 小时', waitMin: 1320, waitLevel: 'normal', status: '待审批' },
+      { id: 'p9', tab: 'pending', title: '包装材料采购申请', docNo: 'MX-20261125-0006', type: '采购', sys: '每刻', node: '部门负责人审批', person: '刘敏', dept: '采购中心', initiator: '刘敏', amount: '8,600.00', sub: '11-25 09:20', waitText: '5 小时', waitMin: 300, waitLevel: 'normal', status: '待审批' },
+      { id: 'p10', tab: 'pending', title: '员工入职流程', docNo: 'OA-2026-11-0902', type: '人事', sys: 'OA', node: '人事专员', person: '李娜', dept: '人力资源部', initiator: '李娜', amount: '', sub: '11-25 08:40', waitText: '6 小时', waitMin: 360, waitLevel: 'normal', status: '待审批' },
+      { id: 'p11', tab: 'pending', title: '印刷油墨采购申请', docNo: 'OA-2026-11-0890', type: '采购', sys: 'OA', node: '财务复核', person: '赵敏', dept: '生产中心', initiator: '赵敏', amount: '23,800.00', sub: '11-24 15:10', waitText: '18 小时', waitMin: 1080, waitLevel: 'normal', status: '待审批' },
+      { id: 'p12', tab: 'pending', title: '设备租赁合同审批', docNo: 'OA-2026-11-0855', type: '合同', sys: 'OA', node: '法务审核', person: '周航', dept: '法务部', initiator: '周航', amount: '', sub: '11-24 11:30', waitText: '22 小时', waitMin: 1320, waitLevel: 'normal', status: '待审批' },
 
-      { id: 'm1', tab: 'mine', tags: ['加签'], title: '供应商付款申请', type: '付款类', sys: '每刻', initiator: '张建国', receive: '2026/11/20   11:20:00', due: '2026/11/21   12:00:00', status: '审批中' },
-      { id: 'm2', tab: 'mine', tags: [], title: '差旅报销申请', type: '费用类', sys: '每刻', initiator: '张建国', receive: '2026/11/20   8:50:00', due: '2026/11/24   18:00:00', status: '待审批' },
-      { id: 'm3', tab: 'mine', tags: ['转办'], title: '年度框架协议审批', type: '合同类', sys: 'OA', initiator: '张建国', receive: '2026/11/19   15:40:00', due: '2026/11/25   18:00:00', status: '审批中' },
-      { id: 'm4', tab: 'mine', tags: [], title: '包装材料采购申请', type: '采购类', sys: '每刻', initiator: '张建国', receive: '2026/11/16   13:25:00', due: '2026/11/20   18:00:00', status: '已驳回' },
-      { id: 'm5', tab: 'mine', tags: [], title: '岗位编制调整申请', type: '人事类', sys: 'OA', initiator: '张建国', receive: '2026/11/12   10:10:00', due: '2026/11/16   18:00:00', status: '已撤销' },
-      { id: 'm6', tab: 'mine', tags: [], title: '设备租赁合同审批', type: '合同类', sys: 'OA', initiator: '张建国', receive: '2026/11/05   9:35:00', due: '2026/11/10   18:00:00', status: '已通过' },
-      { id: 'm7', tab: 'mine', tags: ['超时'], title: '客户招待费用申请', type: '费用类', sys: '每刻', initiator: '张建国', receive: '2026/11/04   16:45:00', due: '2026/11/08   18:00:00', status: '审批中' },
-      { id: 'm8', tab: 'mine', tags: [], title: '印刷油墨采购申请', type: '采购类', sys: '每刻', initiator: '张建国', receive: '2026/10/30   14:05:00', due: '2026/11/03   18:00:00', status: '已通过' },
-      { id: 'm9', tab: 'mine', tags: [], title: '部门预算调整申请', type: '预算类', sys: 'OA', initiator: '张建国', receive: '2026/10/28   9:00:00', due: '2026/10/31   18:00:00', status: '已通过' },
-      { id: 'm10', tab: 'mine', tags: [], title: '办公用品采购申请', type: '费用类', sys: 'OA', initiator: '张建国', receive: '2026/10/22   11:15:00', due: '2026/10/26   18:00:00', status: '已驳回' },
-      { id: 'm11', tab: 'mine', tags: [], title: '员工转正申请', type: '人事类', sys: 'OA', initiator: '张建国', receive: '2026/10/15   17:30:00', due: '2026/10/20   18:00:00', status: '已通过' },
-      { id: 'm12', tab: 'mine', tags: ['超时'], title: '年度预算编制申请', type: '预算类', sys: 'OA', initiator: '张建国', receive: '2026/10/09   9:20:00', due: '2026/10/15   18:00:00', status: '待审批' }
+      // ---- 我提交的 ----
+      { id: 'm1', tab: 'mine', title: '差旅报销单', docNo: 'MX-20261125-0011', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '张磊', dept: '市场部', initiator: '张建国', amount: '3,200.00', sub: '11-25 09:12', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-25 10:05', status: '审批中' },
+      { id: 'm2', tab: 'mine', title: '客户合同用印申请', docNo: 'OA-2026-11-0763', type: '合同', sys: 'OA', node: '法务审核', person: '陈曦', dept: '法务部', initiator: '张建国', amount: '', sub: '11-21 10:15', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-24 16:20', status: '审批中' },
+      { id: 'm3', tab: 'mine', title: '项目付款申请单', docNo: 'MX-20261120-0022', type: '付款申请', sys: '每刻', node: '财务复核', person: '财务共享中心', dept: '', initiator: '张建国', amount: '260,000.00', sub: '11-20 14:30', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-24 09:40', status: '审批中' },
+      { id: 'm4', tab: 'mine', title: '采购订单审批', docNo: 'OA-2026-11-0705', type: '采购', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '32,000.00', sub: '11-18 09:00', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-18 16:42', status: '已通过' },
+      { id: 'm5', tab: 'mine', title: '市场活动费用报销', docNo: 'MX-20261115-0018', type: '费用报销', sys: '每刻', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '12,400.00', sub: '11-15 11:20', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-17 10:08', status: '已通过' },
+      { id: 'm6', tab: 'mine', title: '员工调岗审批', docNo: 'OA-2026-11-0650', type: '人事', sys: 'OA', node: '已退回发起人', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-13 15:40', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-14 09:30', status: '已驳回' },
+      { id: 'm7', tab: 'mine', title: '差旅费用报销单', docNo: 'MX-20261112-0007', type: '费用报销', sys: '每刻', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '4,600.00', sub: '11-12 08:50', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-13 14:02', status: '已通过' },
+      { id: 'm8', tab: 'mine', title: '办公租赁付款申请', docNo: 'MX-20261110-0002', type: '付款申请', sys: '每刻', node: '已撤回', person: '', dept: '', initiator: '张建国', amount: '18,000.00', sub: '11-10 16:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-10 17:05', status: '已撤销' },
+      { id: 'm9', tab: 'mine', title: '项目预算追加申请', docNo: 'OA-2026-11-0588', type: '预算', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-08 10:20', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-25 09:30', status: '已通过' },
+      { id: 'm10', tab: 'mine', title: '供应商准入申请', docNo: 'OA-2026-11-0521', type: '采购', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-05 09:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-07 15:20', status: '已通过' }
     ];
 
-    // 「我提交的」展示当前审批人（已结束的单据显示 —）
-    var APPROVER = {
-      m1: '王海涛', m2: '刘志强', m3: '陈雨欣', m4: '—', m5: '—', m6: '—',
-      m7: '赵鹏', m8: '—', m9: '—', m10: '—', m11: '—', m12: '周敏'
-    };
-
     var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
-    // L2 待办标记：未读 / 超时 / 代办 / 转办 / 加签 / 催办 / 异常
-    var TAG_CLS = { '未读': 'unread', '超时': 'timeout', '代办': 'agent', '转办': 'forward', '加签': 'countersign', '催办': 'urge', '异常': 'abnormal' };
-    var TAB_TITLE = { pending: '待我处理事项', mine: '我提交的事项' };
-
-    function tagHtml(tags) {
-      if (!tags || !tags.length) return '<span class="tag-empty">—</span>';
-      var shown = tags.slice(0, 2);
-      var html = shown.map(function (t) {
-        return '<span class="tag tag-' + (TAG_CLS[t] || 'unread') + '">' + t + '</span>';
-      }).join('');
-      if (tags.length > 2) {
-        html += '<span class="tag tag-more">+' + (tags.length - 2) + '</span>';
-      }
-      return html;
-    }
-
-    var state = { tab: 'pending', type: 'all', status: 'all', sys: 'all', kw: '' };
+    var SYS_TEXT = { '每刻': '每刻', 'OA': '泛微 OA' };
+    var state = { tab: 'pending', sys: 'all', status: 'all', type: 'all', sort: 'wait', kw: '' };
 
     function listOfTab(tab) {
       return DATA.filter(function (item) { return item.tab === tab; });
@@ -610,44 +757,107 @@
 
     function filtered() {
       var kw = state.kw.trim();
-      return listOfTab(state.tab).filter(function (item) {
+      var rows = listOfTab(state.tab).filter(function (item) {
         if (state.type !== 'all' && item.type !== state.type) return false;
         if (state.status !== 'all' && item.status !== state.status) return false;
         if (state.sys !== 'all' && item.sys !== state.sys) return false;
-        if (kw && item.title.indexOf(kw) === -1) return false;
+        if (kw) {
+          var hay = item.title + ' ' + item.docNo + ' ' + item.person + ' ' + item.dept + ' ' + item.initiator;
+          if (hay.indexOf(kw) === -1) return false;
+        }
         return true;
       });
+      rows.sort(function (a, b) {
+        if (state.sort === 'time') return b.sub.localeCompare(a.sub);
+        return b.waitMin - a.waitMin;
+      });
+      return rows;
+    }
+
+    function sysBadge(sys) {
+      return '<span class="sys-badge ' + (sys === '每刻' ? 'maycur' : 'oa') + '">' + (SYS_TEXT[sys] || sys) + '</span>';
+    }
+
+    function timeCell(t) {
+      var parts = String(t || '').split(' ');
+      return '<td class="cell-time-sm">' + (parts[0] || '—') + (parts[1] ? '<br>' + parts[1] : '') + '</td>';
+    }
+
+    function waitCell(item) {
+      var suffix = item.waitLevel === 'timeout' ? '（已超时）' : (item.waitLevel === 'near' ? '（临近超时）' : '');
+      return '<td><span class="wait-text ' + (item.waitLevel || '') + '">' + item.waitText + suffix + '</span></td>';
+    }
+
+    function personCell(item) {
+      return '<td><div class="person-cell">' + (item.person || '—') + '</div>' +
+        (item.dept ? '<div class="person-sub">' + item.dept + '</div>' : '') + '</td>';
     }
 
     function render() {
-      document.getElementById('countPending').textContent = listOfTab('pending').length;
-      document.getElementById('countMine').textContent = listOfTab('mine').length;
+      var pending = listOfTab('pending');
+      var mine = listOfTab('mine');
 
-      document.getElementById('sectionTitle').textContent = TAB_TITLE[state.tab];
-      document.getElementById('thPerson').textContent = state.tab === 'mine' ? '当前审批人' : '发起人';
+      document.getElementById('countPending').textContent = pending.length;
+      document.getElementById('countMine').textContent = mine.length;
+
+      var maycurCount = 0;
+      pending.forEach(function (i) { if (i.sys === '每刻') maycurCount++; });
+      document.getElementById('statPending').textContent = pending.length;
+      document.getElementById('statPendingSub').textContent = '每刻 ' + maycurCount + ' · 泛微 OA ' + (pending.length - maycurCount);
+      document.getElementById('statOverdue').textContent = pending.filter(function (i) {
+        return i.waitLevel === 'timeout' || i.waitLevel === 'near';
+      }).length;
+      document.getElementById('statMineActive').textContent = mine.filter(function (i) {
+        return i.status === '审批中' || i.status === '待审批';
+      }).length;
+      document.getElementById('statMineDone').textContent = mine.filter(function (i) {
+        return i.status === '已通过';
+      }).length;
+
+      var isPending = state.tab === 'pending';
+      document.getElementById('thPerson').textContent = isPending ? '提交人 / 部门' : '当前处理人';
+      document.getElementById('thWait').textContent = isPending ? '已等待' : '最后更新';
 
       var rows = filtered();
       var tbody = document.getElementById('todoTbody');
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="8">暂无待办数据</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="10">暂无待办数据</td></tr>';
         return;
       }
 
       tbody.innerHTML = rows.map(function (item) {
         var statusCls = STATUS_CLS[item.status] || '';
-        var sysCls = item.sys === '每刻' ? 'maycur' : 'oa';
         return '<tr>' +
-          '<td><div class="tag-cell">' + tagHtml(item.tags) + '</div></td>' +
-          '<td><div class="cell-title"><span class="t" title="' + item.title + '">' + item.title + '</span><span class="status-text ' + statusCls + '">' + item.status + '</span></div></td>' +
+          '<td><div class="doc-cell"><span class="doc-title">' + item.title + '</span><span class="doc-no">' + item.docNo + '</span></div></td>' +
+          '<td>' + sysBadge(item.sys) + '</td>' +
           '<td>' + item.type + '</td>' +
-          '<td><span class="cell-sys ' + sysCls + '">' + item.sys + '</span></td>' +
-          '<td>' + (state.tab === 'mine' ? (APPROVER[item.id] || '—') : item.initiator) + '</td>' +
-          '<td class="cell-time">' + item.receive + '</td>' +
-          '<td class="cell-time">' + item.due + '</td>' +
-          '<td><span class="op-link" onclick="viewDetail(\'' + item.id + '\')">查看详情</span></td>' +
+          '<td><div class="node-cell">' + item.node + '</div></td>' +
+          personCell(item) +
+          '<td class="cell-amount">' + (item.amount || '—') + '</td>' +
+          timeCell(item.sub) +
+          (isPending ? waitCell(item) : '<td class="cell-time-sm">' + (item.lastUpdate || '—') + '</td>') +
+          '<td><span class="pill ' + statusCls + '">' + item.status + '</span></td>' +
+          '<td><div class="op-cell">' +
+            '<span class="op-link" onclick="viewDetail(\'' + item.id + '\')">详情</span>' +
+            (isPending ? '<span class="op-btn" onclick="processItem(\'' + item.id + '\')">去处理</span>' : '') +
+          '</div></td>' +
           '</tr>';
       }).join('');
+    }
+
+    function resetFilters() {
+      state.sys = 'all';
+      state.status = 'all';
+      state.type = 'all';
+      state.sort = 'wait';
+      state.kw = '';
+      document.getElementById('kwInput').value = '';
+      document.getElementById('sysFilter').value = 'all';
+      document.getElementById('statusFilter').value = 'all';
+      document.getElementById('typeFilter').value = 'all';
+      document.getElementById('sortFilter').value = 'wait';
+      render();
     }
 
     function switchTab(tab) {
@@ -673,19 +883,32 @@
       showToast('列表已刷新');
     }
 
-    function viewDetail(id) {
-      var item = null;
+    function findItem(id) {
       for (var i = 0; i < DATA.length; i++) {
-        if (DATA[i].id === id) { item = DATA[i]; break; }
+        if (DATA[i].id === id) return DATA[i];
       }
+      return null;
+    }
+
+    function openBiz(item, mode) {
       if (!item) return;
       var qs = 'sys=' + encodeURIComponent(item.sys) +
         '&title=' + encodeURIComponent(item.title) +
+        '&no=' + encodeURIComponent(item.docNo) +
         '&type=' + encodeURIComponent(item.type) +
         '&status=' + encodeURIComponent(item.status) +
         '&initiator=' + encodeURIComponent(item.initiator) +
-        '&time=' + encodeURIComponent(item.receive);
+        '&time=' + encodeURIComponent(item.sub) +
+        '&mode=' + mode;
       window.open('biz-detail.html?' + qs, '_blank');
+    }
+
+    function viewDetail(id) {
+      openBiz(findItem(id), 'view');
+    }
+
+    function processItem(id) {
+      openBiz(findItem(id), 'process');
     }
 
     var toastTimer = null;
