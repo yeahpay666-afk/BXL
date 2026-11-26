@@ -327,7 +327,6 @@
 
     .mark-text { font-size: 12px; flex-shrink: 0; white-space: nowrap; }
     .mark-text.timeout { color: #dc2626; }
-    .mark-text.near { color: #ea580c; }
 
     .sys-badge {
       display: inline-flex;
@@ -638,9 +637,9 @@
         <div class="stat-sub" id="statPendingSub">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">即将超时 / 已超时</div>
+        <div class="stat-label">已超时</div>
         <div class="stat-value orange" id="statOverdue">0</div>
-        <div class="stat-sub">已等待 ≥ 24 小时的单据</div>
+        <div class="stat-sub">已等待 ≥ 48 小时的单据</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">我提交的 · 进行中</div>
@@ -820,7 +819,7 @@
       document.getElementById('statPending').textContent = pending.length;
       document.getElementById('statPendingSub').textContent = '每刻 ' + maycurCount + ' · 泛微 OA ' + (pending.length - maycurCount);
       document.getElementById('statOverdue').textContent = pending.filter(function (i) {
-        return i.waitLevel === 'timeout' || i.waitLevel === 'near';
+        return i.waitLevel === 'timeout';
       }).length;
       document.getElementById('statMineActive').textContent = mine.filter(function (i) {
         return i.status === '审批中' || i.status === '待审批';
@@ -848,8 +847,6 @@
         var timeoutText = '';
         if (isPending && item.waitLevel === 'timeout') {
           timeoutText = '<span class="mark-text timeout">已超时</span>';
-        } else if (isPending && item.waitLevel === 'near') {
-          timeoutText = '<span class="mark-text near">即将超时</span>';
         }
         // OA 待办默认未读，打开详情后置为已读
         var unreadDot = (isPending && item.sys === 'OA') ? '<span class="unread-dot" title="未读"></span>' : '';
