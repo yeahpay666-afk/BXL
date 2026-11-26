@@ -302,36 +302,6 @@
     .tag-more { color: #94a3b8; padding: 0 2px; }
     .tag-empty { color: #cbd5e1; }
 
-    /* ===== 统计卡片 ===== */
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .stat-card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 16px 18px;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-    }
-
-    .stat-label { font-size: 13px; color: #64748b; }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 600;
-      line-height: 1.25;
-      margin-top: 8px;
-    }
-
-    .stat-value.blue { color: #2563eb; }
-    .stat-value.orange { color: #ea580c; }
-    .stat-value.green { color: #16a34a; }
-
-    .stat-sub { font-size: 12px; color: #94a3b8; margin-top: 8px; }
-
     /* ===== 列表单元格 ===== */
     .doc-cell { display: flex; flex-direction: column; gap: 3px; }
 
@@ -453,14 +423,6 @@
     }
 
     .btn-reset:hover { border-color: #94a3b8; color: #1e293b; }
-
-    @media (max-width: 1200px) {
-      .stat-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 760px) {
-      .stat-grid { grid-template-columns: 1fr; }
-    }
 
     /* ===== 列表卡片 ===== */
     .list-card {
@@ -663,29 +625,6 @@
       <a href="index.html">首页</a>
       <span>›</span>
       <span class="current">我的待办</span>
-    </div>
-
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-label">待我处理</div>
-        <div class="stat-value blue" id="statPending">0</div>
-        <div class="stat-sub" id="statPendingSub">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">已超时</div>
-        <div class="stat-value orange" id="statOverdue">0</div>
-        <div class="stat-sub">已等待 ≥ 48 小时的单据</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">我发起的 · 进行中</div>
-        <div class="stat-value blue" id="statMineActive">0</div>
-        <div class="stat-sub">审批中 / 待审批</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">已办事项 · 近 90 天</div>
-        <div class="stat-value green" id="statDone">0</div>
-        <div class="stat-sub" id="statDoneSub">已通过 / 已驳回</div>
-      </div>
     </div>
 
     <div class="panel">
@@ -938,21 +877,6 @@
       document.getElementById('countPending').textContent = pending.length;
       document.getElementById('countMine').textContent = mine.length;
       document.getElementById('countDone').textContent = done.length;
-
-      var pendingMaycur = 0;
-      pending.forEach(function (i) { if (i.sys === '每刻') pendingMaycur++; });
-      var doneMaycur = 0;
-      done.forEach(function (i) { if (i.sys === '每刻') doneMaycur++; });
-      document.getElementById('statPending').textContent = pending.length;
-      document.getElementById('statPendingSub').textContent = '每刻 ' + pendingMaycur + ' · 泛微 OA ' + (pending.length - pendingMaycur);
-      document.getElementById('statOverdue').textContent = pending.filter(function (i) {
-        return i.waitLevel === 'timeout';
-      }).length;
-      document.getElementById('statMineActive').textContent = mine.filter(function (i) {
-        return i.status === '审批中' || i.status === '待审批';
-      }).length;
-      document.getElementById('statDone').textContent = done.length;
-      document.getElementById('statDoneSub').textContent = '泛微 OA ' + (done.length - doneMaycur) + ' · 每刻 ' + doneMaycur;
 
       var isPending = state.tab === 'pending';
       var isMine = state.tab === 'mine';
