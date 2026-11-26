@@ -674,7 +674,7 @@
             <th>单据</th>
             <th>来源系统</th>
             <th>类型</th>
-            <th>当前节点</th>
+            <th>当前环节</th>
             <th id="thPerson">提交人 / 部门</th>
             <th style="text-align:right">金额</th>
             <th>提交时间</th>
@@ -695,18 +695,18 @@
     // ===== 演示数据：待我处理 12 条（每刻 7 / 泛微 OA 5）、我提交的 10 条 =====
     var DATA = [
       // ---- 待我处理 ----
-      { id: 'p1', tab: 'pending', title: '供应商准入资质审批', docNo: 'OA-2026-11-0801', type: '采购', sys: 'OA', node: '法务审核', person: '王强', dept: '采购中心', initiator: '王强', amount: '', sub: '11-22 16:30', waitText: '3 天', waitMin: 4320, waitLevel: 'timeout', status: '待审批' },
-      { id: 'p2', tab: 'pending', title: '差旅费用报销单', docNo: 'MX-20261123-0017', type: '费用报销', sys: '每刻', node: '财务复核', person: '何璐', dept: '财务部', initiator: '何璐', amount: '980.00', sub: '11-23 09:05', waitText: '2 天 6 小时', waitMin: 3240, waitLevel: 'timeout', status: '待审批' },
-      { id: 'p3', tab: 'pending', title: '员工培训费用报销', docNo: 'MX-20261122-0005', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '赵敏', dept: '人力资源部', initiator: '赵敏', amount: '1,260.00', sub: '11-23 11:22', waitText: '2 天 4 小时', waitMin: 3120, waitLevel: 'timeout', status: '待审批' },
-      { id: 'p4', tab: 'pending', title: '客户招待费报销', docNo: 'MX-20261124-0033', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '郑涛', dept: '销售部', initiator: '郑涛', amount: '2,180.00', sub: '11-23 15:20', waitText: '2 天 1 小时', waitMin: 2940, waitLevel: 'timeout', status: '待审批' },
-      { id: 'p5', tab: 'pending', title: '项目费用预支申请', docNo: 'MX-20261124-0042', type: '费用报销', sys: '每刻', node: '分管副总审批', person: '周航', dept: '研发中心', initiator: '周航', amount: '15,000.00', sub: '11-24 08:30', waitText: '1 天 8 小时', waitMin: 1920, waitLevel: 'near', status: '待审批' },
+      { id: 'p1', tab: 'pending', title: '供应商准入资质审批', docNo: 'OA-2026-11-0801', type: '采购', sys: 'OA', node: '法务审核', person: '王强', dept: '采购中心', initiator: '王强', amount: '', sub: '11-22 16:30', waitText: '3 天', waitMin: 4320, waitLevel: 'timeout', status: '待我审批' },
+      { id: 'p2', tab: 'pending', title: '差旅费用报销单', docNo: 'MX-20261123-0017', type: '费用报销', sys: '每刻', node: '财务复核', person: '何璐', dept: '财务部', initiator: '何璐', amount: '980.00', sub: '11-23 09:05', waitText: '2 天 6 小时', waitMin: 3240, waitLevel: 'timeout', status: '待我审批' },
+      { id: 'p3', tab: 'pending', title: '员工培训费用报销', docNo: 'MX-20261122-0005', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '赵敏', dept: '人力资源部', initiator: '赵敏', amount: '1,260.00', sub: '11-23 11:22', waitText: '2 天 4 小时', waitMin: 3120, waitLevel: 'timeout', status: '待我审批' },
+      { id: 'p4', tab: 'pending', title: '客户招待费报销', docNo: 'MX-20261124-0033', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '郑涛', dept: '销售部', initiator: '郑涛', amount: '2,180.00', sub: '11-23 15:20', waitText: '2 天 1 小时', waitMin: 2940, waitLevel: 'timeout', status: '待我审批' },
+      { id: 'p5', tab: 'pending', title: '项目费用预支申请', docNo: 'MX-20261124-0042', type: '费用报销', sys: '每刻', node: '分管副总审批', person: '周航', dept: '研发中心', initiator: '周航', amount: '15,000.00', sub: '11-24 08:30', waitText: '1 天 8 小时', waitMin: 1920, waitLevel: 'near', status: '待我审批' },
       { id: 'p6', tab: 'pending', title: '年度框架采购合同审批', docNo: 'OA-2026-11-0871', type: '合同', sys: 'OA', node: '法务审核', person: '陈曦', dept: '法务部', initiator: '陈曦', amount: '', sub: '11-24 14:02', waitText: '1 天 2 小时', waitMin: 1560, waitLevel: 'near', status: '待阅' },
-      { id: 'p7', tab: 'pending', title: '设备维修付款申请', docNo: 'MX-20261123-0009', type: '付款申请', sys: '每刻', node: '财务负责人', person: '马俊', dept: '生产中心', initiator: '马俊', amount: '46,500.00', sub: '11-24 10:48', waitText: '1 天 2 小时', waitMin: 1560, waitLevel: 'near', status: '待审批' },
-      { id: 'p8', tab: 'pending', title: '供应商付款申请单', docNo: 'MX-20261124-0011', type: '付款申请', sys: '每刻', node: '财务复核', person: '王强', dept: '采购中心', initiator: '王强', amount: '128,000.00', sub: '11-24 17:40', waitText: '22 小时', waitMin: 1320, waitLevel: 'normal', status: '待审批' },
-      { id: 'p9', tab: 'pending', title: '包装材料采购申请', docNo: 'MX-20261125-0006', type: '采购', sys: '每刻', node: '部门负责人审批', person: '刘敏', dept: '采购中心', initiator: '刘敏', amount: '8,600.00', sub: '11-25 09:20', waitText: '5 小时', waitMin: 300, waitLevel: 'normal', status: '待审批' },
-      { id: 'p10', tab: 'pending', title: '员工入职流程', docNo: 'OA-2026-11-0902', type: '人事', sys: 'OA', node: '人事专员', person: '李娜', dept: '人力资源部', initiator: '李娜', amount: '', sub: '11-25 08:40', waitText: '6 小时', waitMin: 360, waitLevel: 'normal', status: '待审批' },
-      { id: 'p11', tab: 'pending', title: '印刷油墨采购申请', docNo: 'OA-2026-11-0890', type: '采购', sys: 'OA', node: '财务复核', person: '赵敏', dept: '生产中心', initiator: '赵敏', amount: '23,800.00', sub: '11-24 15:10', waitText: '18 小时', waitMin: 1080, waitLevel: 'normal', status: '待审批' },
-      { id: 'p12', tab: 'pending', title: '设备租赁合同审批', docNo: 'OA-2026-11-0855', type: '合同', sys: 'OA', node: '法务审核', person: '周航', dept: '法务部', initiator: '周航', amount: '', sub: '11-24 11:30', waitText: '22 小时', waitMin: 1320, waitLevel: 'normal', status: '待审批' },
+      { id: 'p7', tab: 'pending', title: '设备维修付款申请', docNo: 'MX-20261123-0009', type: '付款申请', sys: '每刻', node: '财务负责人', person: '马俊', dept: '生产中心', initiator: '马俊', amount: '46,500.00', sub: '11-24 10:48', waitText: '1 天 2 小时', waitMin: 1560, waitLevel: 'near', status: '待我审批' },
+      { id: 'p8', tab: 'pending', title: '供应商付款申请单', docNo: 'MX-20261124-0011', type: '付款申请', sys: '每刻', node: '财务复核', person: '王强', dept: '采购中心', initiator: '王强', amount: '128,000.00', sub: '11-24 17:40', waitText: '22 小时', waitMin: 1320, waitLevel: 'normal', status: '待我审批' },
+      { id: 'p9', tab: 'pending', title: '包装材料采购申请', docNo: 'MX-20261125-0006', type: '采购', sys: '每刻', node: '部门负责人审批', person: '刘敏', dept: '采购中心', initiator: '刘敏', amount: '8,600.00', sub: '11-25 09:20', waitText: '5 小时', waitMin: 300, waitLevel: 'normal', status: '待我审批' },
+      { id: 'p10', tab: 'pending', title: '员工入职流程', docNo: 'OA-2026-11-0902', type: '人事', sys: 'OA', node: '人事专员', person: '李娜', dept: '人力资源部', initiator: '李娜', amount: '', sub: '11-25 08:40', waitText: '6 小时', waitMin: 360, waitLevel: 'normal', status: '待我审批' },
+      { id: 'p11', tab: 'pending', title: '印刷油墨采购申请', docNo: 'OA-2026-11-0890', type: '采购', sys: 'OA', node: '财务复核', person: '赵敏', dept: '生产中心', initiator: '赵敏', amount: '23,800.00', sub: '11-24 15:10', waitText: '18 小时', waitMin: 1080, waitLevel: 'normal', status: '待我审批' },
+      { id: 'p12', tab: 'pending', title: '设备租赁合同审批', docNo: 'OA-2026-11-0855', type: '合同', sys: 'OA', node: '法务审核', person: '周航', dept: '法务部', initiator: '周航', amount: '', sub: '11-24 11:30', waitText: '22 小时', waitMin: 1320, waitLevel: 'normal', status: '待我审批' },
 
       // ---- 我提交的 ----
       { id: 'm1', tab: 'mine', title: '差旅报销单', docNo: 'MX-20261125-0011', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '张磊', dept: '市场部', initiator: '张建国', amount: '3,200.00', sub: '11-25 09:12', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-25 10:05', status: '审批中' },
@@ -759,7 +759,7 @@
       m6: '人事管理类', m7: '报销申请单', m8: '对公支付单', m9: '财务审批类', m10: '资源开发/管理类'
     };
 
-    var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke', '已同意': 'done', '已阅': 'mid', '已转办': 'revoke', '已退回': 'back' };
+    var STATUS_CLS = { '待阅': 'read', '待我审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke', '已同意': 'done', '已阅': 'mid', '已转办': 'revoke', '已退回': 'back' };
     var SYS_TEXT = { '每刻': '每刻', 'OA': '泛微 OA' };
     var state = { tab: 'pending', sub: 'all', sys: 'all', status: 'all', type: 'all', kw: '' };
 
@@ -796,16 +796,16 @@
     }
 
     var STATUS_BY_TAB = {
-      pending: ['待审批', '待阅'],
+      pending: ['待我审批', '待阅'],
       mine: ['审批中', '已通过', '已驳回', '已撤销'],
-      done: ['已同意', '已驳回', '已阅']
+      done: ['审批中', '已通过', '已驳回', '已撤销']
     };
 
     function buildStatusOptions() {
       var sel = document.getElementById('statusFilter');
       var opts = STATUS_BY_TAB[state.tab] || [];
       if (state.status !== 'all' && opts.indexOf(state.status) === -1) state.status = 'all';
-      var html = '<option value="all">' + (state.tab === 'done' ? '全部处理结果' : '全部状态') + '</option>';
+      var html = '<option value="all">' + (state.tab === 'done' ? '全部单据状态' : '全部状态') + '</option>';
       opts.forEach(function (s) {
         html += '<option value="' + s + '">' + s + '</option>';
       });
@@ -816,7 +816,10 @@
     function filtered() {      var kw = state.kw.trim();
       var rows = listOfTab(state.tab).filter(function (item) {
         if (state.type !== 'all' && catOf(item) !== state.type) return false;
-        if (state.status !== 'all' && item.status !== state.status) return false;
+        if (state.status !== 'all') {
+          var sv = state.tab === 'done' ? item.docStatus : item.status;
+          if (sv !== state.status) return false;
+        }
         if (state.sys !== 'all' && item.sys !== state.sys) return false;
         if (state.sub !== 'all') {
           if (state.sub === 'active') {
@@ -855,7 +858,7 @@
     }
 
     var SUB_TABS = {
-      pending: [['all', '全部'], ['待审批', '待审批'], ['待阅', '待阅'], ['退回', '被退回'], ['督办', '被督办']],
+      pending: [['all', '全部'], ['待我审批', '待我审批'], ['待阅', '待阅'], ['退回', '被退回'], ['督办', '被督办']],
       mine: [['all', '全部'], ['active', '进行中'], ['已通过', '已完成'], ['已驳回', '已驳回'], ['已撤销', '已撤销']],
       done: [['all', '全部'], ['已同意', '已同意'], ['已驳回', '已驳回'], ['已退回', '已退回'], ['已阅', '已阅']]
     };
