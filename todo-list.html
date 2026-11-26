@@ -738,10 +738,10 @@
     DATA.find(function (it) { return it.id === 'm8'; }).bizNo = 'BIZ-2026-1108';
     DATA.push({ id: 'm11', tab: 'mine', bizNo: 'BIZ-2026-1108', title: '办公租赁付款申请', docNo: 'MX-20261126-0003', type: '对公支付单', sys: '每刻', node: '财务复核', person: '财务共享中心', dept: '', initiator: '张建国', amount: '18,000.00', sub: '11-26 09:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-26 09:40', status: '审批中', srcStatus: '待办中' });
 
-    // L2 标记（仅演示：被退回 / 转办）
+    // L2 标记（仅演示：被退回 / 被督办）
     DATA.forEach(function (it) {
       if (it.id === 'p1') it.tag = '退回';
-      if (it.id === 'p12') it.tag = '转办';
+      if (it.id === 'p12') it.tag = '督办';
     });
 
     // 未读（三个 Tab 通用）：点击查看详情后清除红色标识
@@ -819,7 +819,7 @@
         if (state.sub !== 'all') {
           if (state.sub === 'active') {
             if (item.status !== '审批中' && item.status !== '待审批') return false;
-          } else if (state.sub === '退回' || state.sub === '转办') {
+          } else if (state.sub === '退回' || state.sub === '督办') {
             if (item.tag !== state.sub) return false;
           } else if (item.status !== state.sub) return false;
         }
@@ -853,7 +853,7 @@
     }
 
     var SUB_TABS = {
-      pending: [['all', '全部'], ['待审批', '待审批'], ['待阅', '待阅'], ['退回', '被退回'], ['转办', '转办']],
+      pending: [['all', '全部'], ['待审批', '待审批'], ['待阅', '待阅'], ['退回', '被退回'], ['督办', '被督办']],
       mine: [['all', '全部'], ['active', '进行中'], ['已通过', '已完成'], ['已驳回', '已驳回'], ['已撤销', '已撤销']],
       done: [['all', '全部'], ['已同意', '已同意'], ['已驳回', '已驳回'], ['已阅', '已阅']]
     };
@@ -918,7 +918,7 @@
           mark += '<span class="mark-text timeout">已超时</span>';
         }
         if (item.tag) {
-          mark += '<span class="mark-text tag">' + (item.tag === '退回' ? '被退回' : '转办') + '</span>';
+          mark += '<span class="mark-text tag">' + (item.tag === '退回' ? '被退回' : '被督办') + '</span>';
         }
         // 未读：三个 Tab 通用，红色标识，点击查看详情后清除
         var unreadDot = item.unread ? '<span class="unread-dot" title="未读"></span>' : '';
