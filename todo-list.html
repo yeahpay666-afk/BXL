@@ -395,6 +395,7 @@
     .pill.done { background: #f0fdf4; color: #15803d; }
     .pill.reject { background: #fef2f2; color: #dc2626; }
     .pill.revoke { background: #f1f5f9; color: #64748b; }
+    .pill.back { background: #fffbeb; color: #b45309; }
 
     .op-cell { display: flex; align-items: center; gap: 12px; }
 
@@ -725,7 +726,8 @@
       { id: 'd3', tab: 'done', title: '员工入职流程', docNo: 'OA-2026-11-0688', type: '人事管理类', sys: 'OA', node: '人事专员', person: '', dept: '', initiator: '陈雨欣', amount: '', sub: '11-11 14:00', handleTime: '11-12 11:40', status: '已同意', docStatus: '审批中', srcStatus: '未归档' },
       { id: 'd4', tab: 'done', title: '供应商准入资质审批', docNo: 'OA-2026-11-0662', type: '资源开发/管理类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '王强', amount: '', sub: '11-09 09:20', handleTime: '11-09 16:10', status: '已驳回', docStatus: '已驳回', srcStatus: '被退回' },
       { id: 'd5', tab: 'done', title: '采购付款申请单', docNo: 'MX-20261106-0008', type: '对公支付单', sys: '每刻', node: '财务负责人', person: '', dept: '', initiator: '马俊', amount: '56,000.00', sub: '11-06 15:30', handleTime: '11-07 10:20', status: '已同意', docStatus: '已通过', srcStatus: '已结束' },
-      { id: 'd6', tab: 'done', title: '年度框架采购合同审批', docNo: 'OA-2026-11-0601', type: '法务类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '陈曦', amount: '', sub: '11-04 11:10', handleTime: '11-05 09:50', status: '已阅', docStatus: '审批中', srcStatus: '已传阅' }
+      { id: 'd6', tab: 'done', title: '年度框架采购合同审批', docNo: 'OA-2026-11-0601', type: '法务类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '陈曦', amount: '', sub: '11-04 11:10', handleTime: '11-05 09:50', status: '已阅', docStatus: '审批中', srcStatus: '已传阅' },
+      { id: 'd7', tab: 'done', title: '采购订单审批', docNo: 'OA-2026-11-0722', type: '业务类', sys: 'OA', node: '采购总监', person: '', dept: '', initiator: '刘敏', amount: '86,000.00', sub: '11-10 10:00', handleTime: '11-10 15:30', status: '已退回', docStatus: '审批中', srcStatus: '已退回上一节点' }
     ];
 
     // 业务单号关联：同一业务单号只保留最新一条（撤回后重新提交的场景）
@@ -757,7 +759,7 @@
       m6: '人事管理类', m7: '报销申请单', m8: '对公支付单', m9: '财务审批类', m10: '资源开发/管理类'
     };
 
-    var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke', '已同意': 'done', '已阅': 'mid', '已转办': 'revoke' };
+    var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke', '已同意': 'done', '已阅': 'mid', '已转办': 'revoke', '已退回': 'back' };
     var SYS_TEXT = { '每刻': '每刻', 'OA': '泛微 OA' };
     var state = { tab: 'pending', sub: 'all', sys: 'all', status: 'all', type: 'all', kw: '' };
 
@@ -855,7 +857,7 @@
     var SUB_TABS = {
       pending: [['all', '全部'], ['待审批', '待审批'], ['待阅', '待阅'], ['退回', '被退回'], ['督办', '被督办']],
       mine: [['all', '全部'], ['active', '进行中'], ['已通过', '已完成'], ['已驳回', '已驳回'], ['已撤销', '已撤销']],
-      done: [['all', '全部'], ['已同意', '已同意'], ['已驳回', '已驳回'], ['已阅', '已阅']]
+      done: [['all', '全部'], ['已同意', '已同意'], ['已驳回', '已驳回'], ['已退回', '已退回'], ['已阅', '已阅']]
     };
 
     function buildSubTabs() {
