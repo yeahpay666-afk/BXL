@@ -316,18 +316,18 @@
 
     .doc-title-row .doc-title { flex: 0 1 auto; min-width: 0; }
 
-    .mark {
-      font-size: 11px;
-      line-height: 16px;
-      padding: 0 5px;
-      border-radius: 3px;
+    .unread-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #2563eb;
       flex-shrink: 0;
-      white-space: nowrap;
+      display: inline-block;
     }
 
-    .mark-unread { background: #eff6ff; color: #2563eb; }
-    .mark-timeout { background: #fef2f2; color: #dc2626; }
-    .mark-near { background: #fff7ed; color: #ea580c; }
+    .mark-text { font-size: 12px; flex-shrink: 0; white-space: nowrap; }
+    .mark-text.timeout { color: #dc2626; }
+    .mark-text.near { color: #ea580c; }
 
     .sys-badge {
       display: inline-flex;
@@ -712,7 +712,7 @@
           <col style="width:140px">
           <col style="width:112px">
           <col style="width:92px">
-          <col style="width:136px">
+          <col id="colWait" style="width:136px">
           <col style="width:96px">
           <col style="width:132px">
         </colgroup>
@@ -803,11 +803,6 @@
       return '<td class="cell-time-sm">' + (parts[0] || '—') + (parts[1] ? '<br>' + parts[1] : '') + '</td>';
     }
 
-    function waitCell(item) {
-      var suffix = item.waitLevel === 'timeout' ? '（已超时）' : (item.waitLevel === 'near' ? '（临近超时）' : '');
-      return '<td><span class="wait-text ' + (item.waitLevel || '') + '">' + item.waitText + suffix + '</span></td>';
-    }
-
     function personCell(item) {
       return '<td><div class="person-cell">' + (item.person || '—') + '</div>' +
         (item.dept ? '<div class="person-sub">' + item.dept + '</div>' : '') + '</td>';
@@ -836,37 +831,37 @@
 
       var isPending = state.tab === 'pending';
       document.getElementById('thPerson').textContent = isPending ? '提交人 / 部门' : '当前处理人';
-      document.getElementById('thWait').textContent = isPending ? '已等待' : '最后更新';
+      document.getElementById('thWait').textContent = '最后更新';
+      document.getElementById('thWait').style.display = isPending ? 'none' : '';
+      document.getElementById('colWait').style.display = isPending ? 'none' : '';
 
       var rows = filtered();
       var tbody = document.getElementById('todoTbody');
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="10">暂无待办数据</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="' + (isPending ? 9 : 10) + '">暂无待办数据</td></tr>';
         return;
       }
 
       tbody.innerHTML = rows.map(function (item) {
         var statusCls = STATUS_CLS[item.status] || '';
-        var marks = '';
+        var timeoutText = '';
         if (isPending && item.waitLevel === 'timeout') {
-          marks += '<span class="mark mark-timeout">超时</span>';
+          timeoutText = '<span class="mark-text timeout">已超时</span>';
         } else if (isPending && item.waitLevel === 'near') {
-          marks += '<span class="mark mark-near">即将超时</span>';
+          timeoutText = '<span class="mark-text near">即将超时</span>';
         }
         // OA 待办默认未读，打开详情后置为已读
-        if (isPending && item.sys === 'OA') {
-          marks += '<span class="mark mark-unread">未读</span>';
-        }
+        var unreadDot = (isPending && item.sys === 'OA') ? '<span class="unread-dot" title="未读"></span>' : '';
         return '<tr>' +
-          '<td><div class="doc-cell"><div class="doc-title-row"><span class="doc-title">' + item.title + '</span>' + marks + '</div><span class="doc-no">' + item.docNo + '</span></div></td>' +
+          '<td><div class="doc-cell"><div class="doc-title-row">' + unreadDot + '<span class="doc-title">' + item.title + '</span>' + timeoutText + '</div><span class="doc-no">' + item.docNo + '</span></div></td>' +
           '<td>' + sysBadge(item.sys) + '</td>' +
           '<td>' + item.type + '</td>' +
           '<td><div class="node-cell">' + item.node + '</div></td>' +
           personCell(item) +
           '<td class="cell-amount">' + (item.amount || '—') + '</td>' +
           timeCell(item.sub) +
-          (isPending ? waitCell(item) : '<td class="cell-time-sm">' + (item.lastUpdate || '—') + '</td>') +
+          (isPending ? '' : '<td class="cell-time-sm">' + (item.lastUpdate || '—') + '</td>') +
           '<td><span class="pill ' + statusCls + '">' + item.status + '</span></td>' +
           '<td><span class="op-link" onclick="viewDetail(\'' + item.id + '\')">查看详情</span></td>' +
           '</tr>';
