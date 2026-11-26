@@ -305,9 +305,29 @@
       font-weight: 500;
       color: #1e293b;
       line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .doc-no { font-size: 11px; color: #94a3b8; letter-spacing: 0.2px; }
+
+    .doc-title-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+
+    .doc-title-row .doc-title { flex: 0 1 auto; min-width: 0; }
+
+    .mark {
+      font-size: 11px;
+      line-height: 16px;
+      padding: 0 5px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .mark-unread { background: #eff6ff; color: #2563eb; }
+    .mark-timeout { background: #fef2f2; color: #dc2626; }
+    .mark-near { background: #fff7ed; color: #ea580c; }
 
     .sys-badge {
       display: inline-flex;
@@ -828,8 +848,18 @@
 
       tbody.innerHTML = rows.map(function (item) {
         var statusCls = STATUS_CLS[item.status] || '';
+        var marks = '';
+        if (isPending && item.waitLevel === 'timeout') {
+          marks += '<span class="mark mark-timeout">超时</span>';
+        } else if (isPending && item.waitLevel === 'near') {
+          marks += '<span class="mark mark-near">即将超时</span>';
+        }
+        // OA 待办默认未读，打开详情后置为已读
+        if (isPending && item.sys === 'OA') {
+          marks += '<span class="mark mark-unread">未读</span>';
+        }
         return '<tr>' +
-          '<td><div class="doc-cell"><span class="doc-title">' + item.title + '</span><span class="doc-no">' + item.docNo + '</span></div></td>' +
+          '<td><div class="doc-cell"><div class="doc-title-row"><span class="doc-title">' + item.title + '</span>' + marks + '</div><span class="doc-no">' + item.docNo + '</span></div></td>' +
           '<td>' + sysBadge(item.sys) + '</td>' +
           '<td>' + item.type + '</td>' +
           '<td><div class="node-cell">' + item.node + '</div></td>' +
