@@ -159,16 +159,6 @@
       border-bottom-color: #2563eb;
     }
 
-    .todo-tab svg {
-      width: 15px;
-      height: 15px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
     .todo-tab .count {
       font-size: 12px;
       color: #94a3b8;
@@ -631,15 +621,12 @@
     <div class="panel">
       <div class="todo-tabs">
         <div class="todo-tab active" data-tab="pending" onclick="switchTab('pending')">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           待办事项 <span class="count" id="countPending">0</span>
         </div>
         <div class="todo-tab" data-tab="mine" onclick="switchTab('mine')">
-          <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>
           我发起的 <span class="count" id="countMine">0</span>
         </div>
         <div class="todo-tab" data-tab="done" onclick="switchTab('done')">
-          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
           已办事项 <span class="count" id="countDone">0</span>
         </div>
       </div>
