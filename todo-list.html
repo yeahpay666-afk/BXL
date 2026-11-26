@@ -673,18 +673,7 @@
 
     <div class="list-card">
       <table class="todo-table" style="min-width:1120px">
-        <colgroup>
-          <col>
-          <col style="width:104px">
-          <col style="width:100px">
-          <col style="width:128px">
-          <col style="width:140px">
-          <col style="width:112px">
-          <col style="width:92px">
-          <col id="colWait" style="width:136px">
-          <col style="width:96px">
-          <col style="width:132px">
-        </colgroup>
+        <colgroup id="tableCols"></colgroup>
         <thead>
           <tr>
             <th>单据</th>
@@ -695,7 +684,8 @@
             <th style="text-align:right">金额</th>
             <th>提交时间</th>
             <th id="thWait">最后更新</th>
-            <th>状态</th>
+            <th id="thStatus">状态</th>
+            <th id="thDocStatus" style="display:none">单据状态</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -736,12 +726,12 @@
       { id: 'm10', tab: 'mine', title: '供应商准入申请', docNo: 'OA-2026-11-0521', type: '采购', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-05 09:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-07 15:20', status: '已通过' },
 
       // ---- 已办事项（近 90 天，我处理过的）----
-      { id: 'd1', tab: 'done', title: '客户合同用印申请', docNo: 'OA-2026-11-0740', type: '合同', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-14 09:00', handleTime: '11-14 15:20', status: '已通过', srcStatus: '已归档' },
-      { id: 'd2', tab: 'done', title: '差旅费用报销单', docNo: 'MX-20261112-0014', type: '报销申请单', sys: '每刻', node: '财务复核', person: '', dept: '', initiator: '李思远', amount: '2,860.00', sub: '11-12 10:30', handleTime: '11-13 09:05', status: '已通过', srcStatus: '已结束' },
-      { id: 'd3', tab: 'done', title: '员工入职流程', docNo: 'OA-2026-11-0688', type: '人事管理类', sys: 'OA', node: '人事专员', person: '', dept: '', initiator: '陈雨欣', amount: '', sub: '11-11 14:00', handleTime: '11-12 11:40', status: '已通过', srcStatus: '已归档' },
-      { id: 'd4', tab: 'done', title: '供应商准入资质审批', docNo: 'OA-2026-11-0662', type: '资源开发/管理类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '王强', amount: '', sub: '11-09 09:20', handleTime: '11-09 16:10', status: '已驳回', srcStatus: '被退回' },
-      { id: 'd5', tab: 'done', title: '采购付款申请单', docNo: 'MX-20261106-0008', type: '对公支付单', sys: '每刻', node: '财务负责人', person: '', dept: '', initiator: '马俊', amount: '56,000.00', sub: '11-06 15:30', handleTime: '11-07 10:20', status: '已通过', srcStatus: '已结束' },
-      { id: 'd6', tab: 'done', title: '年度框架采购合同审批', docNo: 'OA-2026-11-0601', type: '法务类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '陈曦', amount: '', sub: '11-04 11:10', handleTime: '11-05 09:50', status: '已通过', srcStatus: '已归档' }
+      { id: 'd1', tab: 'done', title: '客户合同用印申请', docNo: 'OA-2026-11-0740', type: '合同', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-14 09:00', handleTime: '11-14 15:20', status: '已同意', docStatus: '已通过', srcStatus: '已归档' },
+      { id: 'd2', tab: 'done', title: '差旅费用报销单', docNo: 'MX-20261112-0014', type: '报销申请单', sys: '每刻', node: '财务复核', person: '', dept: '', initiator: '李思远', amount: '2,860.00', sub: '11-12 10:30', handleTime: '11-13 09:05', status: '已同意', docStatus: '已通过', srcStatus: '已结束' },
+      { id: 'd3', tab: 'done', title: '员工入职流程', docNo: 'OA-2026-11-0688', type: '人事管理类', sys: 'OA', node: '人事专员', person: '', dept: '', initiator: '陈雨欣', amount: '', sub: '11-11 14:00', handleTime: '11-12 11:40', status: '已同意', docStatus: '审批中', srcStatus: '未归档' },
+      { id: 'd4', tab: 'done', title: '供应商准入资质审批', docNo: 'OA-2026-11-0662', type: '资源开发/管理类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '王强', amount: '', sub: '11-09 09:20', handleTime: '11-09 16:10', status: '已驳回', docStatus: '已驳回', srcStatus: '被退回' },
+      { id: 'd5', tab: 'done', title: '采购付款申请单', docNo: 'MX-20261106-0008', type: '对公支付单', sys: '每刻', node: '财务负责人', person: '', dept: '', initiator: '马俊', amount: '56,000.00', sub: '11-06 15:30', handleTime: '11-07 10:20', status: '已同意', docStatus: '已通过', srcStatus: '已结束' },
+      { id: 'd6', tab: 'done', title: '年度框架采购合同审批', docNo: 'OA-2026-11-0601', type: '法务类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '陈曦', amount: '', sub: '11-04 11:10', handleTime: '11-05 09:50', status: '已阅', docStatus: '审批中', srcStatus: '已传阅' }
     ];
 
     // 业务单号关联：同一业务单号只保留最新一条（撤回后重新提交的场景）
@@ -773,7 +763,7 @@
       m6: '人事管理类', m7: '报销申请单', m8: '对公支付单', m9: '财务审批类', m10: '资源开发/管理类'
     };
 
-    var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
+    var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke', '已同意': 'done', '已阅': 'mid', '已转办': 'revoke' };
     var SYS_TEXT = { '每刻': '每刻', 'OA': '泛微 OA' };
     var state = { tab: 'pending', sub: 'all', sys: 'all', status: 'all', type: 'all', kw: '' };
 
@@ -854,7 +844,7 @@
     var SUB_TABS = {
       pending: [['all', '全部'], ['待审批', '待审批'], ['待阅', '待阅'], ['退回', '被退回'], ['转办', '转办']],
       mine: [['all', '全部'], ['active', '进行中'], ['已通过', '已完成'], ['已驳回', '已驳回'], ['已撤销', '已撤销']],
-      done: [['all', '全部'], ['已通过', '已通过'], ['已驳回', '已驳回']]
+      done: [['all', '全部'], ['已同意', '已同意'], ['已驳回', '已驳回'], ['已阅', '已阅']]
     };
 
     function buildSubTabs() {
@@ -882,17 +872,30 @@
 
       var isPending = state.tab === 'pending';
       var isMine = state.tab === 'mine';
+      var isDone = state.tab === 'done';
       document.getElementById('thPerson').textContent = isPending ? '提交人 / 部门' : (isMine ? '当前处理人' : '发起人 / 部门');
       var waitHead = document.getElementById('thWait');
       waitHead.textContent = isMine ? '最后更新' : '处理时间';
       waitHead.style.display = isPending ? 'none' : '';
-      document.getElementById('colWait').style.display = isPending ? 'none' : '';
+      document.getElementById('thStatus').textContent = isDone ? '处理结果' : '状态';
+      document.getElementById('thDocStatus').style.display = isDone ? '' : 'none';
+
+      // 三个 Tab 的列宽不同：已办多一列「单据状态」
+      var COLS = {
+        pending: ['', 104, 100, 128, 140, 112, 92, 96, 132],
+        mine: ['', 104, 100, 128, 140, 112, 92, 136, 96, 132],
+        done: ['', 104, 100, 128, 140, 112, 92, 136, 96, 96, 132]
+      };
+      document.getElementById('tableCols').innerHTML = COLS[state.tab].map(function (w) {
+        return w ? '<col style="width:' + w + 'px">' : '<col>';
+      }).join('');
 
       var rows = filtered();
       var tbody = document.getElementById('todoTbody');
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="' + (isPending ? 9 : 10) + '">暂无数据</td></tr>';
+        var span = isPending ? 9 : (isMine ? 10 : 11);
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="' + span + '">暂无数据</td></tr>';
         return;
       }
 
@@ -920,6 +923,11 @@
         if (!isPending) {
           waitCell = '<td class="cell-time-sm">' + (isMine ? (item.lastUpdate || '—') : (item.handleTime || '—')) + '</td>';
         }
+        var docStatusCell = '';
+        if (isDone) {
+          var docCls = STATUS_CLS[item.docStatus] || '';
+          docStatusCell = '<td><span class="pill ' + docCls + '">' + (item.docStatus || '—') + '</span></td>';
+        }
         return '<tr>' +
           '<td><div class="doc-cell"><div class="doc-title-row">' + unreadDot + '<span class="doc-title">' + item.title + '</span>' + mark + '</div><span class="doc-no">' + item.docNo + '</span></div></td>' +
           '<td>' + sysBadge(item.sys) + '</td>' +
@@ -930,6 +938,7 @@
           timeCell(item.sub) +
           waitCell +
           '<td><span class="pill ' + statusCls + '" title="源系统原文：' + (item.srcStatus || item.status) + '">' + item.status + '</span></td>' +
+          docStatusCell +
           '<td><span class="op-link" onclick="viewDetail(\'' + item.id + '\')">查看详情</span></td>' +
           '</tr>';
       }).join('');
