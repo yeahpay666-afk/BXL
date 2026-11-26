@@ -657,12 +657,6 @@
         </select>
         <select id="statusFilter" onchange="onFilter('status', this.value)">
           <option value="all">全部状态</option>
-          <option value="待阅">待阅</option>
-          <option value="待审批">待审批</option>
-          <option value="审批中">审批中</option>
-          <option value="已通过">已通过</option>
-          <option value="已驳回">已驳回</option>
-          <option value="已撤销">已撤销</option>
         </select>
         <select id="typeFilter" onchange="onFilter('type', this.value)">
           <option value="all">全部单据类型</option>
@@ -799,8 +793,25 @@
       sel.value = state.type;
     }
 
-    function filtered() {
-      var kw = state.kw.trim();
+    var STATUS_BY_TAB = {
+      pending: ['待审批', '待阅'],
+      mine: ['审批中', '已通过', '已驳回', '已撤销'],
+      done: ['已同意', '已驳回', '已阅']
+    };
+
+    function buildStatusOptions() {
+      var sel = document.getElementById('statusFilter');
+      var opts = STATUS_BY_TAB[state.tab] || [];
+      if (state.status !== 'all' && opts.indexOf(state.status) === -1) state.status = 'all';
+      var html = '<option value="all">' + (state.tab === 'done' ? '全部处理结果' : '全部状态') + '</option>';
+      opts.forEach(function (s) {
+        html += '<option value="' + s + '">' + s + '</option>';
+      });
+      sel.innerHTML = html;
+      sel.value = state.status;
+    }
+
+    function filtered() {      var kw = state.kw.trim();
       var rows = listOfTab(state.tab).filter(function (item) {
         if (state.type !== 'all' && catOf(item) !== state.type) return false;
         if (state.status !== 'all' && item.status !== state.status) return false;
@@ -861,6 +872,7 @@
 
     function render() {
       buildTypeOptions();
+      buildStatusOptions();
       buildSubTabs();
       var pending = listOfTab('pending');
       var mine = listOfTab('mine');
