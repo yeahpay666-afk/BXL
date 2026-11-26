@@ -322,10 +322,10 @@
     .doc-title-row .doc-title { flex: 0 1 auto; min-width: 0; }
 
     .unread-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: #2563eb;
+      background: #ef4444;
       flex-shrink: 0;
       display: inline-block;
     }
@@ -764,6 +764,10 @@
       if (it.id === 'p12') it.tag = '转办';
     });
 
+    // 未读（三个 Tab 通用）：点击查看详情后清除红色标识
+    var UNREAD = { p1: 1, p6: 1, p10: 1, m1: 1, m2: 1, d1: 1, d3: 1 };
+    DATA.forEach(function (it) { it.unread = !!UNREAD[it.id]; });
+
     // 原系统分类：泛微按其流程分类，每刻按其单据类型（不做二次归并）
     var CAT = {
       p1: '资源开发/管理类', p2: '报销申请单', p3: '报销申请单', p4: '报销申请单', p5: '借款申请单',
@@ -903,8 +907,8 @@
         if (item.tag) {
           mark += '<span class="mark-text tag">' + (item.tag === '退回' ? '被退回' : '转办') + '</span>';
         }
-        // OA 待办默认未读，打开详情后置为已读
-        var unreadDot = (isPending && item.sys === 'OA') ? '<span class="unread-dot" title="未读"></span>' : '';
+        // 未读：三个 Tab 通用，红色标识，点击查看详情后清除
+        var unreadDot = item.unread ? '<span class="unread-dot" title="未读"></span>' : '';
         var personHtml;
         if (isPending) {
           personHtml = personCell(item);
@@ -993,7 +997,12 @@
     }
 
     function viewDetail(id) {
-      openBiz(findItem(id), 'view');
+      var item = findItem(id);
+      if (item && item.unread) {
+        item.unread = false;
+        render();
+      }
+      openBiz(item, 'view');
     }
 
     var toastTimer = null;
