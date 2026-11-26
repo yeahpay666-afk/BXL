@@ -177,6 +177,41 @@
 
     .todo-tab.active .count { color: #60a5fa; }
 
+    .sub-tabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 20px 0;
+    }
+
+    .sub-tab {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 14px;
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .sub-tab:hover { background: #e2e8f0; }
+
+    .sub-tab.active {
+      background: #e0edff;
+      color: #1d4ed8;
+      font-weight: 500;
+    }
+
+    .mark-text.tag {
+      font-size: 11px;
+      line-height: 16px;
+      padding: 0 6px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
     .filter-row {
       display: flex;
       align-items: center;
@@ -647,9 +682,9 @@
         <div class="stat-sub">审批中 / 待审批</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">我提交的 · 已完成</div>
-        <div class="stat-value green" id="statMineDone">0</div>
-        <div class="stat-sub">已通过 / 已归档（统一口径）</div>
+        <div class="stat-label">已办事项 · 近 90 天</div>
+        <div class="stat-value green" id="statDone">0</div>
+        <div class="stat-sub" id="statDoneSub">已通过 / 已驳回</div>
       </div>
     </div>
 
@@ -657,13 +692,19 @@
       <div class="todo-tabs">
         <div class="todo-tab active" data-tab="pending" onclick="switchTab('pending')">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-          待我处理 <span class="count" id="countPending">0</span>
+          待办事项 <span class="count" id="countPending">0</span>
         </div>
         <div class="todo-tab" data-tab="mine" onclick="switchTab('mine')">
           <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>
-          我提交的 <span class="count" id="countMine">0</span>
+          我发起的 <span class="count" id="countMine">0</span>
+        </div>
+        <div class="todo-tab" data-tab="done" onclick="switchTab('done')">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          已办事项 <span class="count" id="countDone">0</span>
         </div>
       </div>
+
+      <div class="sub-tabs" id="subTabs"></div>
 
       <div class="filter-row">
         <div class="search-box">
@@ -757,8 +798,32 @@
       { id: 'm7', tab: 'mine', title: '差旅费用报销单', docNo: 'MX-20261112-0007', type: '费用报销', sys: '每刻', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '4,600.00', sub: '11-12 08:50', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-13 14:02', status: '已通过' },
       { id: 'm8', tab: 'mine', title: '办公租赁付款申请', docNo: 'MX-20261110-0002', type: '付款申请', sys: '每刻', node: '已撤回', person: '', dept: '', initiator: '张建国', amount: '18,000.00', sub: '11-10 16:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-10 17:05', status: '已撤销' },
       { id: 'm9', tab: 'mine', title: '项目预算追加申请', docNo: 'OA-2026-11-0588', type: '预算', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-08 10:20', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-25 09:30', status: '已通过' },
-      { id: 'm10', tab: 'mine', title: '供应商准入申请', docNo: 'OA-2026-11-0521', type: '采购', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-05 09:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-07 15:20', status: '已通过' }
+      { id: 'm10', tab: 'mine', title: '供应商准入申请', docNo: 'OA-2026-11-0521', type: '采购', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-05 09:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-07 15:20', status: '已通过' },
+
+      // ---- 已办事项（近 90 天，我处理过的）----
+      { id: 'd1', tab: 'done', title: '客户合同用印申请', docNo: 'OA-2026-11-0740', type: '合同', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-14 09:00', handleTime: '11-14 15:20', status: '已通过', srcStatus: '已归档' },
+      { id: 'd2', tab: 'done', title: '差旅费用报销单', docNo: 'MX-20261112-0014', type: '报销申请单', sys: '每刻', node: '财务复核', person: '', dept: '', initiator: '李思远', amount: '2,860.00', sub: '11-12 10:30', handleTime: '11-13 09:05', status: '已通过', srcStatus: '已结束' },
+      { id: 'd3', tab: 'done', title: '员工入职流程', docNo: 'OA-2026-11-0688', type: '人事管理类', sys: 'OA', node: '人事专员', person: '', dept: '', initiator: '陈雨欣', amount: '', sub: '11-11 14:00', handleTime: '11-12 11:40', status: '已通过', srcStatus: '已归档' },
+      { id: 'd4', tab: 'done', title: '供应商准入资质审批', docNo: 'OA-2026-11-0662', type: '资源开发/管理类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '王强', amount: '', sub: '11-09 09:20', handleTime: '11-09 16:10', status: '已驳回', srcStatus: '被退回' },
+      { id: 'd5', tab: 'done', title: '采购付款申请单', docNo: 'MX-20261106-0008', type: '对公支付单', sys: '每刻', node: '财务负责人', person: '', dept: '', initiator: '马俊', amount: '56,000.00', sub: '11-06 15:30', handleTime: '11-07 10:20', status: '已通过', srcStatus: '已结束' },
+      { id: 'd6', tab: 'done', title: '年度框架采购合同审批', docNo: 'OA-2026-11-0601', type: '法务类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '陈曦', amount: '', sub: '11-04 11:10', handleTime: '11-05 09:50', status: '已通过', srcStatus: '已归档' }
     ];
+
+    // 业务单号关联：同一业务单号只保留最新一条（撤回后重新提交的场景）
+    DATA.forEach(function (it) {
+      it.bizNo = it.bizNo || it.docNo;
+      if (!it.srcStatus) {
+        it.srcStatus = it.status === '已通过' ? (it.sys === 'OA' ? '已归档' : '已结束') : it.status;
+      }
+    });
+    DATA.find(function (it) { return it.id === 'm8'; }).bizNo = 'BIZ-2026-1108';
+    DATA.push({ id: 'm11', tab: 'mine', bizNo: 'BIZ-2026-1108', title: '办公租赁付款申请', docNo: 'MX-20261126-0003', type: '对公支付单', sys: '每刻', node: '财务复核', person: '财务共享中心', dept: '', initiator: '张建国', amount: '18,000.00', sub: '11-26 09:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-26 09:40', status: '审批中', srcStatus: '待办中' });
+
+    // L2 标记（仅演示：被退回 / 转办）
+    DATA.forEach(function (it) {
+      if (it.id === 'p1') it.tag = '退回';
+      if (it.id === 'p12') it.tag = '转办';
+    });
 
     // 原系统分类：泛微按其流程分类，每刻按其单据类型（不做二次归并）
     var CAT = {
@@ -771,10 +836,18 @@
 
     var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
     var SYS_TEXT = { '每刻': '每刻', 'OA': '泛微 OA' };
-    var state = { tab: 'pending', sys: 'all', status: 'all', type: 'all', sort: 'wait', kw: '' };
+    var state = { tab: 'pending', sub: 'all', sys: 'all', status: 'all', type: 'all', sort: 'wait', kw: '' };
 
     function listOfTab(tab) {
-      return DATA.filter(function (item) { return item.tab === tab; });
+      var map = {};
+      DATA.filter(function (item) { return item.tab === tab; }).forEach(function (item) {
+        var key = item.bizNo || item.docNo;
+        var curT = item.lastUpdate || item.handleTime || item.sub;
+        var prev = map[key];
+        var prevT = prev ? (prev.lastUpdate || prev.handleTime || prev.sub) : '';
+        if (!prev || curT > prevT) map[key] = item;
+      });
+      return Object.keys(map).map(function (k) { return map[k]; });
     }
 
     function catOf(item) {
@@ -803,6 +876,13 @@
         if (state.type !== 'all' && catOf(item) !== state.type) return false;
         if (state.status !== 'all' && item.status !== state.status) return false;
         if (state.sys !== 'all' && item.sys !== state.sys) return false;
+        if (state.sub !== 'all') {
+          if (state.sub === 'active') {
+            if (item.status !== '审批中' && item.status !== '待审批') return false;
+          } else if (state.sub === '退回' || state.sub === '转办') {
+            if (item.tag !== state.sub) return false;
+          } else if (item.status !== state.sub) return false;
+        }
         if (kw) {
           var hay = item.title + ' ' + item.docNo + ' ' + item.person + ' ' + item.dept + ' ' + item.initiator + ' ' + catOf(item);
           if (hay.indexOf(kw) === -1) return false;
@@ -830,66 +910,107 @@
         (item.dept ? '<div class="person-sub">' + item.dept + '</div>' : '') + '</td>';
     }
 
+    var SUB_TABS = {
+      pending: [['all', '全部'], ['待审批', '待审批'], ['待阅', '待阅'], ['退回', '被退回'], ['转办', '转办']],
+      mine: [['all', '全部'], ['active', '进行中'], ['已通过', '已完成'], ['已驳回', '已驳回'], ['已撤销', '已撤销']],
+      done: [['all', '全部'], ['已通过', '已通过'], ['已驳回', '已驳回']]
+    };
+
+    function buildSubTabs() {
+      var wrap = document.getElementById('subTabs');
+      wrap.innerHTML = SUB_TABS[state.tab].map(function (p) {
+        return '<span class="sub-tab' + (state.sub === p[0] ? ' active' : '') + '" onclick="onSub(\'' + p[0] + '\')">' + p[1] + '</span>';
+      }).join('');
+    }
+
+    function onSub(v) {
+      state.sub = v;
+      render();
+    }
+
     function render() {
       buildTypeOptions();
+      buildSubTabs();
       var pending = listOfTab('pending');
       var mine = listOfTab('mine');
+      var done = listOfTab('done');
 
       document.getElementById('countPending').textContent = pending.length;
       document.getElementById('countMine').textContent = mine.length;
+      document.getElementById('countDone').textContent = done.length;
 
-      var maycurCount = 0;
-      pending.forEach(function (i) { if (i.sys === '每刻') maycurCount++; });
+      var pendingMaycur = 0;
+      pending.forEach(function (i) { if (i.sys === '每刻') pendingMaycur++; });
+      var doneMaycur = 0;
+      done.forEach(function (i) { if (i.sys === '每刻') doneMaycur++; });
       document.getElementById('statPending').textContent = pending.length;
-      document.getElementById('statPendingSub').textContent = '每刻 ' + maycurCount + ' · 泛微 OA ' + (pending.length - maycurCount);
+      document.getElementById('statPendingSub').textContent = '每刻 ' + pendingMaycur + ' · 泛微 OA ' + (pending.length - pendingMaycur);
       document.getElementById('statOverdue').textContent = pending.filter(function (i) {
         return i.waitLevel === 'timeout';
       }).length;
       document.getElementById('statMineActive').textContent = mine.filter(function (i) {
         return i.status === '审批中' || i.status === '待审批';
       }).length;
-      document.getElementById('statMineDone').textContent = mine.filter(function (i) {
-        return i.status === '已通过';
-      }).length;
+      document.getElementById('statDone').textContent = done.length;
+      document.getElementById('statDoneSub').textContent = '泛微 OA ' + (done.length - doneMaycur) + ' · 每刻 ' + doneMaycur;
 
       var isPending = state.tab === 'pending';
-      document.getElementById('thPerson').textContent = isPending ? '提交人 / 部门' : '当前处理人';
-      document.getElementById('thWait').textContent = '最后更新';
-      document.getElementById('thWait').style.display = isPending ? 'none' : '';
+      var isMine = state.tab === 'mine';
+      document.getElementById('thPerson').textContent = isPending ? '提交人 / 部门' : (isMine ? '当前处理人' : '发起人 / 部门');
+      var waitHead = document.getElementById('thWait');
+      waitHead.textContent = isMine ? '最后更新' : '处理时间';
+      waitHead.style.display = isPending ? 'none' : '';
       document.getElementById('colWait').style.display = isPending ? 'none' : '';
 
       var rows = filtered();
       var tbody = document.getElementById('todoTbody');
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="' + (isPending ? 9 : 10) + '">暂无待办数据</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="' + (isPending ? 9 : 10) + '">暂无数据</td></tr>';
         return;
       }
 
       tbody.innerHTML = rows.map(function (item) {
         var statusCls = STATUS_CLS[item.status] || '';
-        var timeoutText = '';
+        var mark = '';
         if (isPending && item.waitLevel === 'timeout') {
-          timeoutText = '<span class="mark-text timeout">已超时</span>';
+          mark += '<span class="mark-text timeout">已超时</span>';
+        }
+        if (item.tag) {
+          mark += '<span class="mark-text tag">' + (item.tag === '退回' ? '被退回' : '转办') + '</span>';
         }
         // OA 待办默认未读，打开详情后置为已读
         var unreadDot = (isPending && item.sys === 'OA') ? '<span class="unread-dot" title="未读"></span>' : '';
+        var personHtml;
+        if (isPending) {
+          personHtml = personCell(item);
+        } else if (isMine) {
+          personHtml = '<td><div class="person-cell">' + (item.person || '—') + '</div></td>';
+        } else {
+          personHtml = '<td><div class="person-cell">' + (item.initiator || '—') + '</div>' +
+            (item.dept ? '<div class="person-sub">' + item.dept + '</div>' : '') + '</td>';
+        }
+        var waitCell = '';
+        if (!isPending) {
+          waitCell = '<td class="cell-time-sm">' + (isMine ? (item.lastUpdate || '—') : (item.handleTime || '—')) + '</td>';
+        }
         return '<tr>' +
-          '<td><div class="doc-cell"><div class="doc-title-row">' + unreadDot + '<span class="doc-title">' + item.title + '</span>' + timeoutText + '</div><span class="doc-no">' + item.docNo + '</span></div></td>' +
+          '<td><div class="doc-cell"><div class="doc-title-row">' + unreadDot + '<span class="doc-title">' + item.title + '</span>' + mark + '</div><span class="doc-no">' + item.docNo + '</span></div></td>' +
           '<td>' + sysBadge(item.sys) + '</td>' +
           '<td>' + catOf(item) + '</td>' +
           '<td><div class="node-cell">' + item.node + '</div></td>' +
-          personCell(item) +
+          personHtml +
           '<td class="cell-amount">' + (item.amount || '—') + '</td>' +
           timeCell(item.sub) +
-          (isPending ? '' : '<td class="cell-time-sm">' + (item.lastUpdate || '—') + '</td>') +
-          '<td><span class="pill ' + statusCls + '">' + item.status + '</span></td>' +
+          waitCell +
+          '<td><span class="pill ' + statusCls + '" title="源系统原文：' + (item.srcStatus || item.status) + '">' + item.status + '</span></td>' +
           '<td><span class="op-link" onclick="viewDetail(\'' + item.id + '\')">查看详情</span></td>' +
           '</tr>';
       }).join('');
     }
 
     function resetFilters() {
+      state.sub = 'all';
       state.sys = 'all';
       state.status = 'all';
       state.type = 'all';
@@ -905,6 +1026,7 @@
 
     function switchTab(tab) {
       state.tab = tab;
+      state.sub = 'all';
       document.querySelectorAll('.todo-tab').forEach(function (el) {
         el.classList.toggle('active', el.dataset.tab === tab);
       });
