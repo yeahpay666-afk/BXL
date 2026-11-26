@@ -667,10 +667,6 @@
         <select id="typeFilter" onchange="onFilter('type', this.value)">
           <option value="all">全部单据类型</option>
         </select>
-        <select id="sortFilter" onchange="onFilter('sort', this.value)">
-          <option value="wait">按等待时长排序</option>
-          <option value="time">按提交时间排序</option>
-        </select>
         <button class="btn-reset" onclick="resetFilters()">重置</button>
       </div>
     </div>
@@ -779,7 +775,7 @@
 
     var STATUS_CLS = { '待阅': 'read', '待审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke' };
     var SYS_TEXT = { '每刻': '每刻', 'OA': '泛微 OA' };
-    var state = { tab: 'pending', sub: 'all', sys: 'all', status: 'all', type: 'all', sort: 'wait', kw: '' };
+    var state = { tab: 'pending', sub: 'all', sys: 'all', status: 'all', type: 'all', kw: '' };
 
     function listOfTab(tab) {
       var map = {};
@@ -833,8 +829,10 @@
         return true;
       });
       rows.sort(function (a, b) {
-        if (state.sort === 'time') return b.sub.localeCompare(a.sub);
-        return b.waitMin - a.waitMin;
+        if (state.tab === 'pending') return b.waitMin - a.waitMin;
+        var at = a.lastUpdate || a.handleTime || a.sub;
+        var bt = b.lastUpdate || b.handleTime || b.sub;
+        return bt.localeCompare(at);
       });
       return rows;
     }
@@ -942,13 +940,11 @@
       state.sys = 'all';
       state.status = 'all';
       state.type = 'all';
-      state.sort = 'wait';
       state.kw = '';
       document.getElementById('kwInput').value = '';
       document.getElementById('sysFilter').value = 'all';
       document.getElementById('statusFilter').value = 'all';
       document.getElementById('typeFilter').value = 'all';
-      document.getElementById('sortFilter').value = 'wait';
       render();
     }
 
