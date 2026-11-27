@@ -592,6 +592,43 @@
     .op-btn:hover { background: #2560cc; }
     .mark-text.timeout, .wait-text.timeout { color: #b42318; }
     .wait-text.near { color: #b45309; }
+
+    /* ===== 中台单据办理抽屉 ===== */
+    .apv-mask {
+      position: fixed; inset: 0; background: rgba(15,23,42,.35); opacity: 0; pointer-events: none;
+      transition: opacity .2s; z-index: 2000;
+    }
+    .apv-mask.show { opacity: 1; pointer-events: auto; }
+    .apv {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 96vw; background: #fff;
+      display: flex; flex-direction: column; transform: translateX(100%); transition: transform .22s ease;
+      box-shadow: -8px 0 24px rgba(15,23,42,.12); z-index: 2001;
+    }
+    .apv.show { transform: none; }
+    .apv-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; }
+    .apv-title { font-size: 15px; font-weight: 600; color: #1f2329; }
+    .apv-sub { font-size: 12px; color: #9aa1ab; margin-top: 4px; }
+    .apv-close { background: none; border: none; font-size: 20px; line-height: 1; color: #9aa1ab; cursor: pointer; }
+    .apv-close:hover { color: #1f2329; }
+    .apv-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+    .apv-sec { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #1f2329; margin: 16px 0 8px; }
+    .apv-sec:first-child { margin-top: 0; }
+    .apv-sec::before { content: ''; width: 3px; height: 13px; border-radius: 1px; background: #2f6fe4; }
+    .apv-kv { display: grid; grid-template-columns: 96px 1fr; gap: 9px 12px; font-size: 12.5px; }
+    .apv-kv span { color: #6b7280; }
+    .apv-kv b { font-weight: 500; color: #1f2329; }
+    .apv-opinion {
+      width: 100%; min-height: 96px; padding: 8px 10px; border: 1px solid #dcdfe5; border-radius: 3px;
+      font-size: 12.5px; line-height: 1.6; resize: vertical; box-sizing: border-box; font-family: inherit;
+    }
+    .apv-opinion:focus { border-color: #2f6fe4; outline: none; }
+    .apv-result { margin-top: 12px; padding: 10px 12px; background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 3px; font-size: 12.5px; color: #1f2329; }
+    .apv-foot { display: flex; gap: 8px; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid #e5e7eb; }
+    .btn-primary {
+      height: 30px; padding: 0 16px; border: 1px solid #2f6fe4; border-radius: 3px;
+      background: #2f6fe4; color: #fff; font-size: 12.5px; cursor: pointer;
+    }
+    .btn-primary:hover { background: #2560cc; border-color: #2560cc; }
   </style>
 </head>
 <body>
@@ -701,6 +738,7 @@
           <option value="all">全部来源系统</option>
           <option value="每刻">每刻</option>
           <option value="OA">泛微 OA</option>
+          <option value="中台">中台 BPM</option>
         </select>
         <select id="statusFilter" onchange="onFilter('status', this.value)">
           <option value="all">全部状态</option>
@@ -735,10 +773,29 @@
     </div>
   </main>
 
+  <!-- 中台单据办理抽屉 -->
+  <div class="apv-mask" id="apvMask" onclick="closeApproveDrawer()"></div>
+  <div class="apv" id="apvBox">
+    <div class="apv-head">
+      <div>
+        <div class="apv-title" id="apvTitle"></div>
+        <div class="apv-sub" id="apvSub"></div>
+      </div>
+      <button class="apv-close" onclick="closeApproveDrawer()">×</button>
+    </div>
+    <div class="apv-body" id="apvBody"></div>
+    <div class="apv-foot" id="apvFoot">
+      <button class="btn-reset" onclick="apvAction('暂存')">暂存</button>
+      <button class="btn-reset" onclick="apvAction('退回')">退回</button>
+      <button class="btn-reset" onclick="apvAction('驳回')">驳回</button>
+      <button class="btn-primary" onclick="apvAction('同意')">同意</button>
+    </div>
+  </div>
+
   <div id="toast" style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(30,41,59,0.92);color:#fff;font-size:13px;padding:12px 22px;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,0.22);display:none;z-index:3000;max-width:80vw;text-align:center;line-height:1.6;"></div>
 
   <script>
-    // ===== 演示数据：待我处理 12 条（每刻 7 / 泛微 OA 5）、我提交的 10 条 =====
+    // ===== 演示数据：待我处理 15 条（每刻 7 / 泛微 OA 5 / 中台 BPM 3）、我提交的 12 条 =====
     var DATA = [
       // ---- 待我处理 ----
       { id: 'p1', tab: 'pending', title: '供应商准入资质审批', docNo: 'OA-2026-11-0801', type: '采购', sys: 'OA', node: '法务审核', person: '王强', dept: '采购中心', initiator: '王强', amount: '', sub: '11-22 16:30', waitText: '3 天', waitMin: 4320, waitLevel: 'timeout', status: '待我审批' },
@@ -753,6 +810,9 @@
       { id: 'p10', tab: 'pending', title: '员工入职流程', docNo: 'OA-2026-11-0902', type: '人事', sys: 'OA', node: '人事专员', person: '李娜', dept: '人力资源部', initiator: '李娜', amount: '', sub: '11-25 08:40', waitText: '6 小时', waitMin: 360, waitLevel: 'normal', status: '待我审批' },
       { id: 'p11', tab: 'pending', title: '印刷油墨采购申请', docNo: 'OA-2026-11-0890', type: '采购', sys: 'OA', node: '财务复核', person: '赵敏', dept: '生产中心', initiator: '赵敏', amount: '23,800.00', sub: '11-24 15:10', waitText: '18 小时', waitMin: 1080, waitLevel: 'normal', status: '待我审批' },
       { id: 'p12', tab: 'pending', title: '设备租赁合同审批', docNo: 'OA-2026-11-0855', type: '合同', sys: 'OA', node: '法务审核', person: '周航', dept: '法务部', initiator: '周航', amount: '', sub: '11-24 11:30', waitText: '22 小时', waitMin: 1320, waitLevel: 'normal', status: '待我审批' },
+      { id: 'p13', tab: 'pending', title: '年度框架协议评审', docNo: 'HT-2026-11-0891', type: '合同评审', sys: '中台', node: '法务会签', person: '王强', dept: '法务部', initiator: '李娜', amount: '', sub: '11-27 09:20', waitText: '4 小时', waitMin: 240, waitLevel: 'normal', status: '待我审批' },
+      { id: 'p14', tab: 'pending', title: '客户拜访差旅预支', docNo: 'FY-2026-0451', type: '费用预支', sys: '中台', node: '财务审核', person: '赵磊', dept: '财务部', initiator: '赵磊', amount: '15,000.00', sub: '11-27 08:40', waitText: '5 小时', waitMin: 300, waitLevel: 'normal', status: '待我审批' },
+      { id: 'p15', tab: 'pending', title: '合同用印申请', docNo: 'YY-2026-0233', type: '用印申请', sys: '中台', node: '部门审核', person: '刘洋', dept: '商务部', initiator: '刘洋', amount: '', sub: '11-26 17:30', waitText: '20 小时', waitMin: 1200, waitLevel: 'near', status: '待我审批' },
 
       // ---- 我提交的 ----
       { id: 'm1', tab: 'mine', title: '差旅报销单', docNo: 'MX-20261125-0011', type: '费用报销', sys: '每刻', node: '部门负责人审批', person: '张磊', dept: '市场部', initiator: '张建国', amount: '3,200.00', sub: '11-25 09:12', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-25 10:05', status: '审批中' },
@@ -765,6 +825,7 @@
       { id: 'm8', tab: 'mine', title: '办公租赁付款申请', docNo: 'MX-20261110-0002', type: '付款申请', sys: '每刻', node: '已撤回', person: '', dept: '', initiator: '张建国', amount: '18,000.00', sub: '11-10 16:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-10 17:05', status: '已撤销' },
       { id: 'm9', tab: 'mine', title: '项目预算追加申请', docNo: 'OA-2026-11-0588', type: '预算', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-08 10:20', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-25 09:30', status: '已通过' },
       { id: 'm10', tab: 'mine', title: '供应商准入申请', docNo: 'OA-2026-11-0521', type: '采购', sys: 'OA', node: '已完成', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-05 09:10', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-07 15:20', status: '已通过' },
+      { id: 'm12', tab: 'mine', title: '供应商引入评审', docNo: 'GY-2026-11-0078', type: '供应商准入', sys: '中台', node: '质量部审核', person: '周敏', dept: '质量部', initiator: '张建国', amount: '', sub: '11-26 10:20', waitText: '—', waitMin: 0, waitLevel: 'normal', lastUpdate: '11-27 09:05', status: '审批中' },
 
       // ---- 已办事项（近 90 天，我处理过的）----
       { id: 'd1', tab: 'done', title: '客户合同用印申请', docNo: 'OA-2026-11-0740', type: '合同', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '张建国', amount: '', sub: '11-14 09:00', handleTime: '11-14 15:20', status: '已同意', docStatus: '已通过', srcStatus: '已归档' },
@@ -774,7 +835,8 @@
       { id: 'd5', tab: 'done', title: '采购付款申请单', docNo: 'MX-20261106-0008', type: '对公支付单', sys: '每刻', node: '财务负责人', person: '', dept: '', initiator: '马俊', amount: '56,000.00', sub: '11-06 15:30', handleTime: '11-07 10:20', status: '已同意', docStatus: '已通过', srcStatus: '已结束' },
       { id: 'd6', tab: 'done', title: '年度框架采购合同审批', docNo: 'OA-2026-11-0601', type: '法务类', sys: 'OA', node: '法务审核', person: '', dept: '', initiator: '陈曦', amount: '', sub: '11-04 11:10', handleTime: '11-05 09:50', status: '已阅', docStatus: '审批中', srcStatus: '已传阅' },
       { id: 'd7', tab: 'done', title: '采购订单审批', docNo: 'OA-2026-11-0722', type: '业务类', sys: 'OA', node: '采购总监', person: '', dept: '', initiator: '刘敏', amount: '86,000.00', sub: '11-10 10:00', handleTime: '11-10 15:30', status: '已退回', docStatus: '审批中', srcStatus: '已退回上一节点' },
-      { id: 'd8', tab: 'done', title: '合同付款申请', docNo: 'OA-2026-11-0588', type: '财务审批类', sys: 'OA', node: '财务经理', person: '', dept: '', initiator: '张建国', amount: '240,000.00', sub: '11-06 09:20', handleTime: '11-06 14:10', status: '已转办', docStatus: '审批中', srcStatus: '已转办给财务总监' }
+      { id: 'd8', tab: 'done', title: '合同付款申请', docNo: 'OA-2026-11-0588', type: '财务审批类', sys: 'OA', node: '财务经理', person: '', dept: '', initiator: '张建国', amount: '240,000.00', sub: '11-06 09:20', handleTime: '11-06 14:10', status: '已转办', docStatus: '审批中', srcStatus: '已转办给财务总监' },
+      { id: 'd9', tab: 'done', title: '合同评审-年度框架协议', docNo: 'HT-2026-11-0862', type: '合同评审', sys: '中台', node: '法务会签', person: '', dept: '', initiator: '陈曦', amount: '', sub: '11-14 09:30', handleTime: '11-14 15:20', status: '已同意', docStatus: '已通过', srcStatus: '已结束' }
     ];
 
     // 业务单号关联：同一业务单号只保留最新一条（撤回后重新提交的场景）
@@ -807,7 +869,7 @@
     };
 
     var STATUS_CLS = { '待阅': 'read', '待我审批': 'wait', '审批中': 'mid', '已通过': 'done', '已驳回': 'reject', '已撤销': 'revoke', '已同意': 'done', '已阅': 'mid', '已转办': 'revoke', '已退回': 'back' };
-    var SYS_TEXT = { '每刻': '每刻', 'OA': '泛微 OA' };
+    var SYS_TEXT = { '每刻': '每刻', 'OA': '泛微 OA', '中台': '中台 BPM' };
     var state = { tab: 'pending', sub: 'all', sys: 'all', status: 'all', type: 'all', kw: '' };
 
     function listOfTab(tab) {
@@ -1005,7 +1067,11 @@
           waitCell +
           '<td><span class="pill ' + statusCls + '" title="源系统原文：' + (item.srcStatus || item.status) + '">' + item.status + '</span></td>' +
           docStatusCell +
-          '<td><span class="op-link" onclick="viewDetail(\'' + item.id + '\')">查看详情</span></td>' +
+          '<td>' + (item.sys === '中台'
+            ? (isPending
+              ? '<span class="op-btn" onclick="openApproveDrawer(\'' + item.id + '\')">办理</span>'
+              : '<span class="op-link" onclick="openApproveDrawer(\'' + item.id + '\')">查看记录</span>')
+            : '<span class="op-link" onclick="viewDetail(\'' + item.id + '\')">查看详情</span>') + '</td>' +
           '</tr>';
       }).join('');
     }
@@ -1083,6 +1149,61 @@
       el.style.display = 'block';
       clearTimeout(toastTimer);
       toastTimer = setTimeout(function () { el.style.display = 'none'; }, 2000);
+    }
+
+    // ===== 中台单据：就地办理（不再跳转流程中心）=====
+    var apvId = null;
+
+    function openApproveDrawer(id) {
+      var it = findItem(id);
+      if (!it) return;
+      apvId = id;
+      var readOnly = it.tab !== 'pending';
+      document.getElementById('apvTitle').textContent = it.title;
+      document.getElementById('apvSub').textContent = it.docNo + ' · 中台 BPM · ' + it.node;
+      var rows = [
+        ['流程名称', it.type],
+        ['申请人 / 部门', (it.initiator || '—') + (it.dept ? ' / ' + it.dept : '')],
+        ['提交时间', it.sub],
+        ['当前处理人', it.person || '—'],
+        ['金额', it.amount || '—']
+      ].map(function (r) { return '<span>' + r[0] + '</span><b>' + r[1] + '</b>'; }).join('');
+      var html = '<div class="apv-sec">单据信息</div><div class="apv-kv">' + rows + '</div>';
+      if (readOnly) {
+        html += '<div class="apv-result">处理结果：' + it.status + (it.handleTime ? ' · ' + it.handleTime : '') + '</div>';
+      } else {
+        html += '<div class="apv-sec">审批意见</div><textarea class="apv-opinion" id="apvOpinion" placeholder="请输入审批意见，退回 / 驳回时必填"></textarea>';
+      }
+      document.getElementById('apvBody').innerHTML = html;
+      document.getElementById('apvFoot').style.display = readOnly ? 'none' : 'flex';
+      document.getElementById('apvMask').classList.add('show');
+      document.getElementById('apvBox').classList.add('show');
+    }
+
+    function closeApproveDrawer() {
+      document.getElementById('apvMask').classList.remove('show');
+      document.getElementById('apvBox').classList.remove('show');
+      apvId = null;
+    }
+
+    function apvAction(action) {
+      var it = findItem(apvId);
+      if (!it) return;
+      if (action === '暂存') { showToast('已暂存，稍后可继续办理'); return; }
+      var op = document.getElementById('apvOpinion');
+      if (action !== '同意' && !(op && op.value.trim())) {
+        showToast('退回 / 驳回需填写审批意见');
+        return;
+      }
+      it.tab = 'done';
+      it.status = { '同意': '已同意', '退回': '已退回', '驳回': '已驳回' }[action];
+      it.docStatus = action === '同意' ? '已通过' : '已驳回';
+      it.srcStatus = '已' + action;
+      it.handleTime = '11-27 10:20';
+      it.unread = false;
+      closeApproveDrawer();
+      render();
+      showToast('已' + action + '，单据已转入「已办事项」');
     }
 
     var initTab = new URLSearchParams(location.search).get('tab');
