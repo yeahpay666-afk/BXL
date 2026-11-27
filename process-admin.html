@@ -582,6 +582,14 @@ tbody tr:hover td { background: #fafbfc; }
 .toast { background: #1f2329; border-radius: 3px; font-size: 12.5px; }
 
 /* 自定义规则 */
+/* 审批中心 Tab */
+.ap-tabs { display: flex; gap: 28px; padding: 0 16px; background: #fff; border: 1px solid #e5e7eb; border-radius: 3px; margin-bottom: 12px; }
+.ap-tab { display: flex; align-items: center; gap: 6px; padding: 11px 0; font-size: 13.5px; color: #5b6472; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.ap-tab:hover { color: #1f5fbf; }
+.ap-tab.active { color: #1f5fbf; font-weight: 500; border-bottom-color: #1f5fbf; }
+.ap-count { font-size: 12px; color: #94a3b8; font-weight: 400; }
+.ap-tab.active .ap-count { color: #2f6fe4; }
+
 /* 拖拽交互 */
 .fd-left-tip { font-size: 11px; color: #94a3b8; padding: 0 8px 8px; line-height: 1.5; }
 .palette-item[draggable="true"], .fd-comp[draggable="true"], .node[draggable="true"], .fd-row[draggable="true"] { cursor: grab; }
@@ -643,7 +651,7 @@ tbody tr:hover td { background: #fafbfc; }
     <div class="side-item" data-page="overview" onclick="switchPage('overview','运行监控')">
       运行监控 <span class="side-badge">18</span>
     </div>
-    <div class="side-item" data-page="task" onclick="switchPage('task','任务中心')">任务中心</div>
+    <div class="side-item" data-page="task" onclick="switchPage('task','审批中心')">审批中心</div>
 
     <div class="side-group" onclick="toggleSideGroup(this)">配置管理</div>
     <div class="side-item active" data-page="model" onclick="switchPage('model','流程建模')">流程建模</div>
@@ -675,7 +683,7 @@ tbody tr:hover td { background: #fafbfc; }
       <div class="stats">
         <div class="stat"><div class="stat-label">中台在跑流程定义</div><div class="stat-value">26</div><div class="stat-sub">草稿 4 · 已发布 22</div></div>
         <div class="stat stat-link" onclick="gotoInstance('运行中')"><div class="stat-label">运行中实例</div><div class="stat-value">18</div><div class="stat-sub warn">超时 3 · 挂起 1</div></div>
-        <div class="stat stat-link" onclick="switchPage('task','任务中心')"><div class="stat-label">待办任务</div><div class="stat-value">47</div><div class="stat-sub">今日新增 12</div></div>
+        <div class="stat stat-link" onclick="switchPage('task','审批中心')"><div class="stat-label">待办任务</div><div class="stat-value">47</div><div class="stat-sub">今日新增 12</div></div>
         <div class="stat stat-link" onclick="gotoInstance('已完成')"><div class="stat-label">本月完成</div><div class="stat-value">386</div><div class="stat-sub ok">平均时长 6.4h</div></div>
       </div>
       <div class="card card-pad" style="margin-bottom:12px">
@@ -713,29 +721,28 @@ tbody tr:hover td { background: #fafbfc; }
       </div>
     </section>
 
-    <!-- 任务中心 -->
+    <!-- 审批中心 -->
     <section class="page" id="page-task">
       <div class="page-head">
         <div>
-          <div class="page-title">任务中心</div>
-          <div class="page-desc">中台 BPM 产生的任务节点；审批人可在此办理，管理员可转办、加签、催办与挂起</div>
+          <div class="page-title">审批中心</div>
+          <div class="page-desc">中台自建流程的审批中心 · 仅处理中台引擎实例；OA / 每刻单据请在首页「我的待办」跳转源系统办理</div>
         </div>
       </div>
+      <div class="ap-tabs">
+        <div class="ap-tab active" data-task-tab="pending" onclick="switchTaskTab('pending')">待办事项 <span class="ap-count" id="taskCntPending">5</span></div>
+        <div class="ap-tab" data-task-tab="mine" onclick="switchTaskTab('mine')">我提交的 <span class="ap-count" id="taskCntMine">3</span></div>
+        <div class="ap-tab" data-task-tab="done" onclick="switchTaskTab('done')">已办事项 <span class="ap-count" id="taskCntDone">4</span></div>
+      </div>
       <div class="toolbar">
-        <div class="search-box"><span>⌕</span><input id="taskKw" placeholder="任务 / 单据 / 处理人" oninput="renderTask()"></div>
+        <div class="search-box"><span>⌕</span><input id="taskKw" placeholder="单据 / 流程 / 处理人" oninput="renderTask()"></div>
         <select class="select" id="taskState" onchange="renderTask()">
-          <option value="all">全部任务</option><option value="待办">待办</option><option value="超时">超时</option>
-          <option value="已办">已办</option><option value="挂起">挂起</option>
+          <option value="all">全部状态</option><option value="待办">待办</option><option value="超时">超时</option><option value="挂起">挂起</option>
         </select>
       </div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th style="width:15%">任务编号</th><th style="width:20%">业务单据</th><th>环节</th>
-              <th>处理人</th><th>到达时间</th><th>截止时间</th><th>状态</th><th style="width:190px">操作</th>
-            </tr>
-          </thead>
+          <thead id="taskHead"></thead>
           <tbody id="taskBody"></tbody>
         </table>
       </div>
@@ -1198,7 +1205,7 @@ tbody tr:hover td { background: #fafbfc; }
 <!-- 任务办理页 -->
 <div class="approve" id="approvePanel">
   <div class="ap-head">
-    <div class="dz-back" onclick="closeApprove()">‹ 返回任务中心</div>
+    <div class="dz-back" onclick="closeApprove()">‹ 返回审批中心</div>
     <div>
       <div class="ap-title" id="apTitle">—</div>
       <div class="ap-sub" id="apSub">—</div>
@@ -1266,14 +1273,21 @@ var INSTANCES = [
 ];
 
 var TASKS = [
-  { id: 'T-20261127-0231', biz: '合同评审-HT2026-0891', def: '中台-合同评审', node: '法务会签', handler: '王强 / 陈曦', arrive: '11-27 09:20', due: '11-29 09:20', state: '待办' },
-  { id: 'T-20261127-0230', biz: 'FY-2026-0451', def: '中台-费用预支', node: '财务审核', handler: '张建国', arrive: '11-26 09:00', due: '11-27 09:00', state: '超时' },
-  { id: 'T-20261127-0229', biz: 'YY-2026-0233', def: '中台-用印申请', node: '部门审核', handler: '刘洋', arrive: '11-27 08:10', due: '11-28 08:10', state: '待办' },
-  { id: 'T-20261126-0228', biz: 'GYS-2026-0078', def: '中台-供应商引入', node: '质量部审核', handler: '周敏', arrive: '11-26 17:30', due: '11-28 17:30', state: '待办' },
-  { id: 'T-20261127-0227', biz: '合同评审-HT2026-0891', def: '中台-合同评审', node: '合同初审', handler: '李娜', arrive: '11-27 09:15', due: '—', state: '已办' },
-  { id: 'T-20261126-0226', biz: 'FY-2026-0451', def: '中台-费用预支', node: '部门审批', handler: '赵磊', arrive: '11-26 08:30', due: '11-27 08:30', state: '已办' },
-  { id: 'T-20261125-0225', biz: 'XY-2026-0019', def: '中台-客户信用额度调整', node: '销售总监审批', handler: '周敏', arrive: '11-25 16:40', due: '11-27 16:40', state: '挂起' },
-  { id: 'T-20261126-0224', biz: '合同评审-HT2026-0876', def: '中台-合同评审', node: '法务会签', handler: '陈曦', arrive: '11-26 15:20', due: '11-28 15:20', state: '待办' }
+  { id: 'T-20261127-0231', biz: '合同评审-HT2026-0891', def: '中台-合同评审', node: '法务会签', handler: '王强 / 陈曦', starter: '王强', arrive: '11-27 09:20', due: '11-29 09:20', state: '待办', tab: 'pending' },
+  { id: 'T-20261127-0230', biz: 'FY-2026-0451', def: '中台-费用预支', node: '财务审核', handler: '张建国', starter: '赵磊', arrive: '11-26 09:00', due: '11-27 09:00', state: '超时', tab: 'pending' },
+  { id: 'T-20261127-0229', biz: 'YY-2026-0233', def: '中台-用印申请', node: '部门审核', handler: '刘洋', starter: '刘洋', arrive: '11-27 08:10', due: '11-28 08:10', state: '待办', tab: 'pending' },
+  { id: 'T-20261126-0228', biz: 'GYS-2026-0078', def: '中台-供应商引入', node: '质量部审核', handler: '周敏', starter: '周敏', arrive: '11-26 17:30', due: '11-28 17:30', state: '待办', tab: 'pending' },
+  { id: 'T-20261125-0225', biz: 'XY-2026-0019', def: '中台-客户信用额度调整', node: '销售总监审批', handler: '周敏', starter: '周敏', arrive: '11-25 16:40', due: '11-27 16:40', state: '挂起', tab: 'pending' },
+  { id: 'T-20261127-0227', biz: '合同评审-HT2026-0891', def: '中台-合同评审', node: '合同初审', handler: '李娜', starter: '王强', arrive: '11-27 09:15', due: '—', state: '已办', tab: 'done', result: '已同意', handled: '11-27 09:35', docState: '审批中' },
+  { id: 'T-20261126-0226', biz: 'FY-2026-0451', def: '中台-费用预支', node: '部门审批', handler: '赵磊', starter: '赵磊', arrive: '11-26 08:30', due: '11-27 08:30', state: '已办', tab: 'done', result: '已退回', handled: '11-26 10:10', docState: '审批中' },
+  { id: 'T-20261126-0224', biz: '合同评审-HT2026-0876', def: '中台-合同评审', node: '法务会签', handler: '陈曦', starter: '陈曦', arrive: '11-26 15:20', due: '11-28 15:20', state: '已办', tab: 'done', result: '已同意', handled: '11-26 16:05', docState: '审批中' },
+  { id: 'T-20261125-0221', biz: 'CG-2026-0112', def: '中台-采购订单审批', node: '采购复核', handler: '王强', starter: '王强', arrive: '11-25 10:40', due: '11-27 10:40', state: '已办', tab: 'done', result: '已转办', handled: '11-25 14:22', docState: '审批中' }
+];
+
+var MY_INSTANCES = [
+  { id: 'I-20261127-0088', biz: '合同评审-HT2026-0891', def: '中台-合同评审', node: '法务会签', handler: '陈曦', submit: '11-27 09:20', dur: '2h 10m', state: '进行中' },
+  { id: 'I-20261126-0086', biz: 'FY-2026-0451', def: '中台-费用预支', node: '财务审核', handler: '张建国', submit: '11-26 09:00', dur: '6h 40m', state: '进行中' },
+  { id: 'I-20261124-0079', biz: 'YY-2026-0234', def: '中台-用印申请', node: '已完成', handler: '—', submit: '11-24 14:10', dur: '1d 3h', state: '已通过' }
 ];
 
 var FORMS = [
@@ -1344,10 +1358,11 @@ function toggleSideGroup(el) {
 }
 
 function pill(state) {
-  if (state === '已发布' || state === '启用' || state === '运行中' || state === '已完成' || state === '已迁移') return 'on';
-  if (state === '草稿' || state === '待启动' || state === '待评估') return 'draft';
-  if (state === '迁移中' || state === '已挂起') return 'warn';
-  if (state === '超时' || state === '已终止' || state === '失败') return 'danger';
+  if (state === '已发布' || state === '启用' || state === '运行中' || state === '已完成' || state === '已迁移' || state === '已同意' || state === '已通过') return 'on';
+  if (state === '草稿' || state === '待启动' || state === '待评估' || state === '已撤销') return 'draft';
+  if (state === '迁移中' || state === '已挂起' || state === '已退回' || state === '已转办') return 'warn';
+  if (state === '超时' || state === '已终止' || state === '失败' || state === '已驳回') return 'danger';
+  if (state === '进行中') return 'blue';
   return 'off';
 }
 
@@ -1443,31 +1458,114 @@ function renderInstance() {
   }).join('');
 }
 
+var taskTab = 'pending';
+var TASK_STATUS = {
+  pending: [['all', '全部状态'], ['待办', '待办'], ['超时', '超时'], ['挂起', '挂起']],
+  mine: [['all', '全部状态'], ['进行中', '进行中'], ['已通过', '已通过'], ['已驳回', '已驳回'], ['已撤销', '已撤销']],
+  done: [['all', '全部状态'], ['已同意', '已同意'], ['已驳回', '已驳回'], ['已退回', '已退回'], ['已转办', '已转办']]
+};
+
+function switchTaskTab(tab) {
+  taskTab = tab;
+  document.querySelectorAll('.ap-tab').forEach(function (el) {
+    el.classList.toggle('active', el.dataset.taskTab === tab);
+  });
+  var sel = document.getElementById('taskState');
+  sel.innerHTML = TASK_STATUS[tab].map(function (p) {
+    return '<option value="' + p[0] + '">' + p[1] + '</option>';
+  }).join('');
+  renderTask();
+}
+
+function taskCounts() {
+  var pending = TASKS.filter(function (t) { return t.tab === 'pending'; }).length;
+  var done = TASKS.filter(function (t) { return t.tab === 'done'; }).length;
+  var p = document.getElementById('taskCntPending');
+  var m = document.getElementById('taskCntMine');
+  var d = document.getElementById('taskCntDone');
+  if (p) p.textContent = pending;
+  if (m) m.textContent = MY_INSTANCES.length;
+  if (d) d.textContent = done;
+}
+
 function renderTask() {
   var kw = (document.getElementById('taskKw').value || '').trim().toLowerCase();
   var st = document.getElementById('taskState').value;
-  var rows = TASKS.filter(function (t) {
-    if (kw && t.id.toLowerCase().indexOf(kw) === -1 && t.biz.toLowerCase().indexOf(kw) === -1 && t.handler.indexOf(kw) === -1) return false;
+  var head = document.getElementById('taskHead');
+  var body = document.getElementById('taskBody');
+  taskCounts();
+
+  if (taskTab === 'mine') {
+    head.innerHTML = '<tr><th style="width:24%">业务单据</th><th>当前环节</th><th>当前处理人</th><th>提交时间</th><th>耗时</th><th>状态</th><th style="width:190px">操作</th></tr>';
+    var ins = MY_INSTANCES.filter(function (t) {
+      if (kw && t.biz.toLowerCase().indexOf(kw) === -1 && t.def.toLowerCase().indexOf(kw) === -1 && t.handler.toLowerCase().indexOf(kw) === -1) return false;
+      if (st !== 'all' && t.state !== st) return false;
+      return true;
+    });
+    if (!ins.length) {
+      body.innerHTML = '<tr><td colspan="7" class="empty">未找到匹配的单据</td></tr>';
+      return;
+    }
+    body.innerHTML = ins.map(function (t) {
+      var ops = '<button class="btn-link" onclick="toast(\'查看进度：' + t.biz + '（原型占位）\')">查看进度</button>';
+      if (t.state === '进行中') {
+        ops += '<button class="btn-link" onclick="toast(\'已催办当前处理人\')">催办</button>' +
+          '<button class="btn-link danger" onclick="toast(\'撤回需发起人权限（原型占位）\')">撤回</button>';
+      }
+      return '<tr>' +
+        '<td><div class="t-name">' + t.biz + '</div><div class="t-sub">' + t.def + ' · ' + t.id + '</div></td>' +
+        '<td>' + t.node + '</td>' +
+        '<td>' + t.handler + '</td>' +
+        '<td class="muted">' + t.submit + '</td>' +
+        '<td class="muted">' + t.dur + '</td>' +
+        '<td><span class="pill ' + pill(t.state) + '">' + t.state + '</span></td>' +
+        '<td>' + ops + '</td></tr>';
+    }).join('');
+    return;
+  }
+
+  if (taskTab === 'done') {
+    head.innerHTML = '<tr><th style="width:26%">业务单据</th><th>环节</th><th>处理结果</th><th>处理时间</th><th>单据状态</th><th style="width:130px">操作</th></tr>';
+    var doneRows = TASKS.filter(function (t) { return t.tab === 'done'; }).filter(function (t) {
+      if (kw && t.biz.toLowerCase().indexOf(kw) === -1 && t.def.toLowerCase().indexOf(kw) === -1 && t.handler.toLowerCase().indexOf(kw) === -1) return false;
+      if (st !== 'all' && t.result !== st) return false;
+      return true;
+    });
+    if (!doneRows.length) {
+      body.innerHTML = '<tr><td colspan="6" class="empty">未找到匹配的记录</td></tr>';
+      return;
+    }
+    body.innerHTML = doneRows.map(function (t) {
+      return '<tr>' +
+        '<td><div class="t-name">' + t.biz + '</div><div class="t-sub">' + t.def + ' · ' + t.id + '</div></td>' +
+        '<td>' + t.node + '</td>' +
+        '<td><span class="pill ' + pill(t.result) + '">' + t.result + '</span></td>' +
+        '<td class="muted">' + t.handled + '</td>' +
+        '<td><span class="pill ' + pill(t.docState) + '">' + t.docState + '</span></td>' +
+        '<td><button class="btn-link" onclick="openApprove(\'' + t.id + '\')">查看记录</button></td></tr>';
+    }).join('');
+    return;
+  }
+
+  head.innerHTML = '<tr><th style="width:24%">业务单据</th><th>环节</th><th>发起人</th><th>到达时间</th><th>截止时间</th><th>状态</th><th style="width:190px">操作</th></tr>';
+  var rows = TASKS.filter(function (t) { return t.tab === 'pending'; }).filter(function (t) {
+    if (kw && t.biz.toLowerCase().indexOf(kw) === -1 && t.def.toLowerCase().indexOf(kw) === -1 && t.handler.toLowerCase().indexOf(kw) === -1) return false;
     if (st !== 'all' && t.state !== st) return false;
     return true;
   });
-  var body = document.getElementById('taskBody');
   if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="8" class="empty">未找到匹配的任务</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="empty">未找到匹配的任务</td></tr>';
     return;
   }
   body.innerHTML = rows.map(function (t) {
-    var ops = t.state === '已办'
-      ? '<button class="btn-link" onclick="openApprove(\'' + t.id + '\')">查看记录</button>'
-      : '<button class="btn-link" onclick="openApprove(\'' + t.id + '\')">办理</button>' +
-        '<button class="btn-link" onclick="openApprove(\'' + t.id + '\')">转办</button>' +
-        '<button class="btn-link" onclick="toast(\'加签：向前 / 向后（原型占位）\')">加签</button>' +
-        '<button class="btn-link danger" onclick="toast(\'已催办\')">催办</button>';
+    var ops = '<button class="btn-link" onclick="openApprove(\'' + t.id + '\')">办理</button>' +
+      '<button class="btn-link" onclick="openApprove(\'' + t.id + '\')">转办</button>' +
+      '<button class="btn-link" onclick="toast(\'加签：向前 / 向后（原型占位）\')">加签</button>' +
+      '<button class="btn-link danger" onclick="toast(\'已催办\')">催办</button>';
     return '<tr>' +
-      '<td class="mono">' + t.id + '</td>' +
-      '<td><div class="t-name">' + t.biz + '</div><div class="t-sub">' + t.def + '</div></td>' +
+      '<td><div class="t-name">' + t.biz + '</div><div class="t-sub">' + t.def + ' · ' + t.id + '</div></td>' +
       '<td>' + t.node + '</td>' +
-      '<td>' + t.handler + '</td>' +
+      '<td>' + t.starter + '</td>' +
       '<td class="muted">' + t.arrive + '</td>' +
       '<td class="muted">' + t.due + '</td>' +
       '<td><span class="pill ' + pill(t.state) + '">' + t.state + '</span></td>' +
@@ -2714,9 +2812,11 @@ function openApprove(id) {
   curTask = t;
   document.getElementById('apTitle').textContent = t.def + ' · ' + t.node;
   document.getElementById('apSub').textContent = t.biz;
+  var readonly = t.tab === 'done';
+  var showState = readonly ? (t.result || '已处理') : t.state;
   var st = document.getElementById('apState');
-  st.textContent = t.state;
-  st.className = 'pill ' + pill(t.state);
+  st.textContent = showState;
+  st.className = 'pill ' + pill(showState);
   document.getElementById('apBiz').innerHTML =
     '<dt>单据编号</dt><dd class="mono">' + t.biz + '</dd>' +
     '<dt>所属流程</dt><dd>' + t.def + '</dd>' +
@@ -2729,15 +2829,18 @@ function openApprove(id) {
   document.getElementById('apFlow').innerHTML =
     '<div class="tl-item ok"><div class="tl-title">发起申请</div><div class="tl-desc">赵磊 · 11-26 08:30 · 已提交</div></div>' +
     '<div class="tl-item ok"><div class="tl-title">部门审批</div><div class="tl-desc">李娜 · 11-26 09:10 · 同意</div></div>' +
-    '<div class="tl-item wait"><div class="tl-title">' + t.node + '</div><div class="tl-desc">处理人：' + t.handler + ' · ' + (t.state === '已办' ? '已处理' : '进行中') + '</div></div>' +
+    '<div class="tl-item wait"><div class="tl-title">' + t.node + '</div><div class="tl-desc">处理人：' + t.handler + ' · ' + (readonly ? (t.result || '已处理') : '进行中') + '</div></div>' +
     '<div class="tl-item"><div class="tl-title">抄送归档</div><div class="tl-desc">待到达</div></div>';
   document.getElementById('apLog').innerHTML =
+    (readonly && t.result
+      ? '<div class="list-line"><span>' + t.handler + ' · ' + t.node + ' · ' + t.result + '</span><span class="muted">' + (t.handled || '') + '</span></div>'
+      : '') +
     '<div class="list-line"><span>李娜 · 部门审批 · 同意</span><span class="muted">11-26 09:10</span></div>' +
     '<div class="list-line"><span>赵磊 · 发起申请 · 提交</span><span class="muted">11-26 08:30</span></div>';
   var com = document.getElementById('apComment');
   com.value = '';
-  com.readOnly = t.state === '已办';
-  document.getElementById('apFoot').style.display = t.state === '已办' ? 'none' : 'flex';
+  com.readOnly = readonly;
+  document.getElementById('apFoot').style.display = readonly ? 'none' : 'flex';
   document.getElementById('approvePanel').classList.add('show');
 }
 
@@ -2762,11 +2865,13 @@ function approveAction(kind) {
     return;
   }
   if (kind === '转办') {
-    curTask.state = '已办';
     curTask.handler = '刘洋（已转办）';
-  } else {
-    curTask.state = '已办';
   }
+  curTask.state = '已办';
+  curTask.tab = 'done';
+  curTask.result = kind === '同意' ? '已同意' : kind === '驳回' ? '已驳回' : kind === '退回' ? '已退回' : '已转办';
+  curTask.handled = '11-27 16:40';
+  curTask.docState = '审批中';
   renderTask();
   closeApprove();
   toast('审批已提交：' + kind + (c ? ' · ' + c : ''));
