@@ -393,6 +393,40 @@ tbody tr:last-child td { border-bottom: none; }
 .check-ok { color: #16a34a; font-size: 12px; }
 .check-no { color: #cbd5e1; font-size: 12px; }
 
+/* 迁移任务台 */
+.mig-layout { display: grid; grid-template-columns: 248px minmax(0, 1fr); gap: 12px; align-items: start; }
+.mig-side { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; }
+.mig-side-title { font-size: 11px; color: #94a3b8; padding: 8px 8px 6px; letter-spacing: .3px; }
+.mig-batch { padding: 10px; border: 1px solid transparent; border-radius: 6px; cursor: pointer; margin-bottom: 2px; }
+.mig-batch:hover { background: #f8fafc; }
+.mig-batch.active { background: #eff6ff; border-color: #bfdbfe; }
+.mig-batch-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.mig-batch-name { font-size: 12.5px; font-weight: 500; color: #0f172a; }
+.mig-batch-sub { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+.mig-batch .progress { width: 100%; margin-top: 7px; }
+.mig-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.steps { display: flex; margin: 16px 0 2px; }
+.step { flex: 1; position: relative; font-size: 11px; color: #94a3b8; text-align: center; padding-top: 17px; }
+.step::before { content: ''; position: absolute; top: 5px; left: 0; right: 0; height: 2px; background: #e2e8f0; }
+.step::after {
+  content: ''; position: absolute; top: 1px; left: 50%; transform: translateX(-50%);
+  width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; border: 2px solid #fff;
+}
+.step.done { color: #15803d; }
+.step.done::before { background: #86efac; }
+.step.done::after { background: #22c55e; }
+.step.current { color: #1d4ed8; font-weight: 500; }
+.step.current::after { background: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+.mig-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+.mig-summary .stat { padding: 12px 14px; }
+.mig-summary .stat-value { font-size: 20px; }
+@media (max-width: 1100px) {
+  .mig-layout { grid-template-columns: 1fr; }
+  .mig-side { display: flex; overflow-x: auto; gap: 4px; }
+  .mig-side-title { display: none; }
+  .mig-batch { min-width: 190px; }
+}
+
 /* 迁移进度条 */
 .progress { height: 6px; background: #eef2f7; border-radius: 4px; overflow: hidden; width: 120px; }
 .progress > i { display: block; height: 100%; background: #2563eb; border-radius: 4px; }
@@ -469,6 +503,7 @@ tbody tr:last-child td { border-bottom: none; }
     <div class="side-group">治理</div>
     <div class="side-item" data-page="rule" onclick="switchPage('rule','规则与事件')">规则与事件</div>
     <div class="side-item" data-page="migrate" onclick="switchPage('migrate','迁移与归档')">迁移与归档</div>
+    <div class="side-item" data-page="migboard" onclick="switchPage('migboard','迁移任务台')">迁移任务台</div>
     <div class="side-item" data-page="scope" onclick="switchPage('scope','权限范围')">权限范围</div>
   </aside>
 
@@ -760,6 +795,51 @@ tbody tr:last-child td { border-bottom: none; }
       </div>
     </section>
 
+    <!-- 迁移任务台 -->
+    <section class="page" id="page-migboard">
+      <div class="page-head">
+        <div>
+          <div class="page-title">迁移任务台</div>
+          <div class="page-desc">批次执行与重试、四类校验、流程清单与归档日志；失败任务可单独重试，不影响已成功数据</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn" onclick="toast('新建迁移批次（原型占位）')">+ 新建批次</button>
+          <button class="btn btn-primary" onclick="runMigCheck()">发起校验</button>
+        </div>
+      </div>
+      <div class="mig-layout">
+        <aside class="mig-side">
+          <div class="mig-side-title">迁移批次</div>
+          <div id="migBatchList"></div>
+        </aside>
+        <div class="mig-main">
+          <div class="card card-pad">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+              <div>
+                <div class="page-title" style="font-size:15px" id="mbName">—</div>
+                <div class="page-desc" id="mbSub">—</div>
+              </div>
+              <div class="page-actions" id="mbActions"></div>
+            </div>
+            <div class="steps" id="mbSteps"></div>
+            <div class="mig-summary" id="mbStats"></div>
+          </div>
+          <div class="card" style="padding:0 16px 16px">
+            <div class="drawer-tabs" style="padding:0">
+              <div class="d-tab active" onclick="switchMigTab(this,'tasks')">迁移任务</div>
+              <div class="d-tab" onclick="switchMigTab(this,'checks')">校验结果</div>
+              <div class="d-tab" onclick="switchMigTab(this,'list')">流程清单</div>
+              <div class="d-tab" onclick="switchMigTab(this,'log')">执行日志</div>
+            </div>
+            <div id="mig-tasks" class="mig-panel" style="padding-top:14px"></div>
+            <div id="mig-checks" class="mig-panel" style="display:none;padding-top:14px"></div>
+            <div id="mig-list" class="mig-panel" style="display:none;padding-top:14px"></div>
+            <div id="mig-log" class="mig-panel" style="display:none;padding-top:14px"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 权限范围 -->
     <section class="page" id="page-scope">
       <div class="page-head">
@@ -1038,10 +1118,10 @@ function switchPage(key, label) {
 }
 
 function pill(state) {
-  if (state === '已发布' || state === '启用' || state === '运行中' || state === '已完成') return 'on';
+  if (state === '已发布' || state === '启用' || state === '运行中' || state === '已完成' || state === '已迁移') return 'on';
   if (state === '草稿' || state === '待启动' || state === '待评估') return 'draft';
   if (state === '迁移中' || state === '已挂起') return 'warn';
-  if (state === '超时' || state === '已终止') return 'danger';
+  if (state === '超时' || state === '已终止' || state === '失败') return 'danger';
   return 'off';
 }
 
@@ -1227,7 +1307,7 @@ function renderMigrate() {
       '<td><span class="pill ' + pill(m.state) + '">' + m.state + '</span></td>' +
       '<td>' + m.owner + '</td>' +
       '<td class="muted">' + m.plan + '</td>' +
-      '<td><button class="btn-link" onclick="openMigrateDetail(\'' + m.batch + '\')">明细</button></td></tr>';
+      '<td><button class="btn-link" onclick="gotoMigBoard(\'' + m.batch + '\')">任务台</button></td></tr>';
   }).join('');
 }
 
@@ -2037,6 +2117,225 @@ function approveAction(kind) {
   toast('审批已提交：' + kind + (c ? ' · ' + c : ''));
 }
 
+/* ===== 迁移任务台 ===== */
+var MIG_STEPS = ['待评估', '映射配置', '试迁移', '校验中', '待切换', '已切换', '已归档'];
+var MIG_PROC = ['费用报销单', '付款申请单', '合同评审单', '用印申请单', '供应商准入单', '资产领用单', '客户信用调整单', '项目立项单'];
+var migBatch = 'B-2026-03';
+var MIG_TASK_STORE = {};
+
+function migStepIndex(b) {
+  if (b.pct === 100) return 6;
+  if (b.state === '迁移中') return 3;
+  if (b.state === '待启动') return 1;
+  return 0;
+}
+
+function buildMigTasks(batch) {
+  var b = MIGRATES.find(function (x) { return x.batch === batch; });
+  var idx = migStepIndex(b);
+  return MIG_PROC.map(function (name, i) {
+    var state = '等待', pct = 0, dur = '—', retry = 0;
+    if (idx >= 6) { state = '已完成'; pct = 100; dur = '1m 42s'; }
+    else if (idx === 3) {
+      if (i < 5) { state = '已完成'; pct = 100; dur = '1m 20s'; }
+      else if (i === 5) { state = '运行中'; pct = 62; dur = '运行 3m'; }
+      else { state = '失败'; retry = 2; }
+    }
+    return {
+      id: batch + '-T' + (i + 1),
+      name: name,
+      type: i % 3 === 0 ? '流程定义' : i % 3 === 1 ? '历史归档' : '附件归档',
+      state: state, pct: pct, dur: dur, retry: retry
+    };
+  });
+}
+
+function tasksOfBatch(batch) {
+  if (!MIG_TASK_STORE[batch]) MIG_TASK_STORE[batch] = buildMigTasks(batch);
+  return MIG_TASK_STORE[batch];
+}
+
+function renderMigBoard() {
+  var list = MIGRATES.map(function (b) {
+    return '<div class="mig-batch' + (b.batch === migBatch ? ' active' : '') + '" onclick="selectMigBatch(\'' + b.batch + '\')">' +
+      '<div class="mig-batch-top"><span class="mig-batch-name">' + b.batch + '</span>' +
+      '<span class="pill ' + pill(b.state) + '">' + b.state + '</span></div>' +
+      '<div class="mig-batch-sub">' + b.scope + '</div>' +
+      '<div class="progress"><i style="width:' + b.pct + '%"></i></div></div>';
+  }).join('');
+  document.getElementById('migBatchList').innerHTML = list;
+  renderMigDetail();
+}
+
+function selectMigBatch(batch) {
+  migBatch = batch;
+  renderMigBoard();
+}
+
+function renderMigDetail() {
+  var b = MIGRATES.find(function (x) { return x.batch === migBatch; });
+  if (!b) return;
+  document.getElementById('mbName').textContent = b.batch + ' · ' + b.scope;
+  document.getElementById('mbSub').textContent = '负责人 ' + b.owner + ' · 计划完成 ' + b.plan + ' · 当前状态 ' + b.state;
+  var idx = migStepIndex(b);
+  document.getElementById('mbSteps').innerHTML = MIG_STEPS.map(function (s, i) {
+    return '<div class="step' + (i < idx ? ' done' : '') + (i === idx ? ' current' : '') + '">' + s + '</div>';
+  }).join('');
+
+  var tasks = tasksOfBatch(migBatch);
+  var ok = tasks.filter(function (t) { return t.state === '已完成'; }).length;
+  var fail = tasks.filter(function (t) { return t.state === '失败'; }).length;
+  var run = tasks.filter(function (t) { return t.state === '运行中'; }).length;
+  var wait = tasks.filter(function (t) { return t.state === '等待'; }).length;
+  var stat = [
+    ['任务总数', tasks.length, '按流程 × 数据类型拆分'],
+    ['已完成', ok, '含定义、历史与附件'],
+    ['失败', fail, fail ? '可单独重试' : '无失败任务'],
+    ['运行 / 等待', run + ' / ' + wait, '并发度 4']
+  ];
+  document.getElementById('mbStats').innerHTML = stat.map(function (s, i) {
+    return '<div class="stat"><div class="stat-label">' + s[0] + '</div><div class="stat-value"' +
+      (i === 2 && fail ? ' style="color:#dc2626"' : '') + '>' + s[1] + '</div><div class="stat-sub">' + s[2] + '</div></div>';
+  }).join('');
+
+  var acts = '';
+  if (idx >= 6) {
+    acts = '<button class="btn" onclick="openMigrateDetail(\'' + b.batch + '\')">流程清单</button>' +
+      '<button class="btn btn-primary" onclick="toast(\'导出归档报告（原型占位）\')">导出报告</button>';
+  } else if (b.state === '迁移中') {
+    acts = '<button class="btn" onclick="toast(\'批次已暂停，运行中任务将执行完当前单据\')">暂停批次</button>' +
+      '<button class="btn" onclick="retryMigFailed()">重试失败' + (fail ? '（' + fail + '）' : '') + '</button>' +
+      '<button class="btn btn-primary" onclick="runMigCheck()">发起校验</button>';
+  } else if (b.state === '待启动') {
+    acts = '<button class="btn" onclick="toast(\'映射配置（原型占位）\')">配置映射</button>' +
+      '<button class="btn btn-primary" onclick="toast(\'批次已启动，进入试迁移\')">开始迁移</button>';
+  } else {
+    acts = '<button class="btn" onclick="toast(\'评估任务已提交，将扫描源系统流程清单\')">发起评估</button>' +
+      '<button class="btn" onclick="toast(\'映射配置（原型占位）\')">配置映射</button>';
+  }
+  document.getElementById('mbActions').innerHTML = acts;
+
+  renderMigTasks(tasks);
+  renderMigChecks(b, tasks);
+  renderMigList(b, tasks);
+  renderMigLog(b);
+}
+
+function renderMigTasks(tasks) {
+  var body = tasks.map(function (t) {
+    var ops = '';
+    if (t.state === '失败') ops = '<button class="btn-link danger" onclick="retryMigTask(\'' + t.id + '\')">重试</button>';
+    else if (t.state === '运行中') ops = '<button class="btn-link" onclick="toast(\'已暂停该任务\')">暂停</button>';
+    else if (t.state === '已完成') ops = '<button class="btn-link" onclick="toast(\'查看任务日志（原型占位）\')">日志</button>';
+    else ops = '<button class="btn-link" onclick="toast(\'任务已加入队列\')">开始</button>';
+    return '<tr><td class="mono">' + t.id + '</td><td class="t-name">' + t.name + '</td><td>' + t.type + '</td>' +
+      '<td><span class="pill ' + pill(t.state) + '">' + t.state + '</span></td>' +
+      '<td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><i style="width:' + t.pct + '%"></i></div><span class="muted">' + t.pct + '%</span></div></td>' +
+      '<td class="muted">' + t.dur + '</td><td>' + (t.retry ? '<span class="pill warn">' + t.retry + '</span>' : '—') + '</td>' +
+      '<td>' + ops + '</td></tr>';
+  }).join('');
+  document.getElementById('mig-tasks').innerHTML =
+    '<table class="mini-table"><thead><tr><th style="width:15%">任务编号</th><th>流程</th><th>类型</th><th>状态</th>' +
+    '<th style="width:16%">进度</th><th>耗时</th><th>重试</th><th style="width:70px">操作</th></tr></thead><tbody>' + body + '</tbody></table>';
+}
+
+function renderMigChecks(b, tasks) {
+  var fail = tasks.filter(function (t) { return t.state === '失败'; }).length;
+  var totalFail = fail * 22;
+  var rows = [
+    { name: '条数一致', total: Math.round(b.count * 118), fail: totalFail },
+    { name: '字段抽样', total: 200, fail: fail * 6 },
+    { name: '附件可用', total: Math.round(b.count * 136), fail: fail * 11 },
+    { name: '状态一致', total: Math.round(b.count * 118), fail: fail * 3 }
+  ];
+  var html = '<table class="mini-table"><thead><tr><th>校验项</th><th>总数</th><th>通过</th><th>失败</th><th>通过率</th><th>结果</th></tr></thead><tbody>' +
+    rows.map(function (r) {
+      var pass = Math.max(r.total - r.fail, 0);
+      var rate = r.total ? (pass / r.total * 100) : 100;
+      var ok = r.fail === 0;
+      return '<tr><td class="t-name">' + r.name + '</td><td>' + r.total + '</td><td>' + pass + '</td>' +
+        '<td' + (r.fail ? ' style="color:#dc2626"' : '') + '>' + r.fail + '</td>' +
+        '<td>' + rate.toFixed(rate === 100 ? 0 : 2) + '%</td>' +
+        '<td><span class="pill ' + (ok ? 'on' : 'warn') + '">' + (ok ? '通过' : '需处理') + '</span></td></tr>';
+    }).join('') + '</tbody></table>' +
+    '<p class="hint" style="margin-top:10px">校验口径：条数 100%、字段抽样 ≥200 单、附件 sha256 校验、状态与源系统一致；同一批次全部通过才允许切换。</p>';
+  document.getElementById('mig-checks').innerHTML = html;
+}
+
+function renderMigList(b, tasks) {
+  var names = MIG_PROC;
+  var rows = names.map(function (n, i) {
+    var t = tasks[i];
+    var st = t.state === '已完成' ? '已迁移' : t.state === '运行中' ? '迁移中' : t.state === '失败' ? '失败' : '待迁移';
+    var check = st === '已迁移' ? '<span class="check-ok">✓ 字段一致</span>' : st === '失败' ? '<span class="pill danger">校验失败</span>' : '—';
+    return '<tr><td class="t-name">' + n + '</td><td>泛微 OA</td><td><span class="pill ' + pill(st) + '">' + st + '</span></td>' +
+      '<td>' + check + '</td><td class="muted">' + (st === '已迁移' ? '2026-11-' + (18 + i) : '—') + '</td></tr>';
+  }).join('');
+  document.getElementById('mig-list').innerHTML =
+    '<table class="mini-table"><thead><tr><th>流程名称</th><th>源系统</th><th>迁移状态</th><th>一致性校验</th><th>迁移时间</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<p class="hint" style="margin-top:10px">清单仅列出该批次前 8 个流程原型数据，实际按源系统 167 个流程分页展示。</p>';
+}
+
+function renderMigLog(b) {
+  var idx = migStepIndex(b);
+  var items = [
+    ['批次创建', b.batch + ' · ' + b.scope + ' · ' + b.owner, true],
+    ['映射配置完成', '字段 22 项、状态 18 条、接口 8 个', idx >= 1],
+    ['试迁移通过', '抽样 20 单，表单与流转一致', idx >= 2],
+    ['校验执行', idx >= 4 ? '四项校验全部通过' : '校验进行中，存在失败项待处理', idx >= 3],
+    ['整批切换', 'OA 关闭发起入口，中台定义启用', idx >= 5],
+    ['归档完成', '历史实例写入只读库并建索引', idx >= 6]
+  ];
+  document.getElementById('mig-log').innerHTML = '<div class="timeline">' + items.map(function (it) {
+    return '<div class="tl-item' + (it[2] ? ' ok' : '') + '"><div class="tl-title">' + it[0] +
+      (it[2] ? '' : ' <span class="pill gray">未开始</span>') + '</div><div class="tl-desc">' + it[1] + '</div></div>';
+  }).join('') + '</div>';
+}
+
+function switchMigTab(el, key) {
+  document.querySelectorAll('#page-migboard .d-tab').forEach(function (t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  ['tasks', 'checks', 'list', 'log'].forEach(function (k) {
+    document.getElementById('mig-' + k).style.display = k === key ? 'block' : 'none';
+  });
+}
+
+function retryMigTask(id) {
+  var all = Object.keys(MIG_TASK_STORE).reduce(function (arr, k) { return arr.concat(MIG_TASK_STORE[k]); }, []);
+  var t = all.find(function (x) { return x.id === id; });
+  if (!t) return;
+  t.state = '已完成';
+  t.pct = 100;
+  t.dur = '1m 08s';
+  t.retry += 1;
+  renderMigDetail();
+  toast('任务 ' + id + ' 重试成功');
+}
+
+function retryMigFailed() {
+  var tasks = tasksOfBatch(migBatch);
+  var n = 0;
+  tasks.forEach(function (t) {
+    if (t.state === '失败') {
+      t.state = '已完成'; t.pct = 100; t.dur = '1m 05s'; t.retry += 1; n++;
+    }
+  });
+  renderMigDetail();
+  toast(n ? '已重试 ' + n + ' 个失败任务' : '当前批次无失败任务');
+}
+
+function runMigCheck() {
+  var el = document.querySelectorAll('#page-migboard .d-tab')[1];
+  switchMigTab(el, 'checks');
+  toast('校验任务已提交，结果实时刷新');
+}
+
+function gotoMigBoard(batch) {
+  migBatch = batch;
+  switchPage('migboard', '迁移任务台');
+  renderMigBoard();
+}
+
 (function init() {
   var cats = [];
   MODELS.forEach(function (m) { if (cats.indexOf(m.cat) === -1) cats.push(m.cat); });
@@ -2060,6 +2359,7 @@ function approveAction(kind) {
   renderForm();
   renderDefinition();
   renderMigrate();
+  renderMigBoard();
   renderScopes();
   renderCanvas();
 })();
