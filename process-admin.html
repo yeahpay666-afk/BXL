@@ -486,10 +486,19 @@ body { background: #f4f5f7; color: #1f2329; font-size: 13px; }
 .page-title { font-size: 17px; color: #1f2329; }
 .page-desc { color: #6b7280; }
 
-.btn { height: 30px; border-radius: 3px; border-color: #d5d9e0; color: #3f4650; font-size: 12.5px; }
-.btn:hover { background: #f7f8fa; border-color: #c4c9d2; }
-.btn-primary { background: #2f6fe4; border-color: #2f6fe4; }
-.btn-primary:hover { background: #2560cc; border-color: #2560cc; }
+.main { padding-bottom: 16px; }
+.page.active { display: flex; flex-direction: column; min-height: calc(100vh - 132px); }
+.page.active > .table-wrap:last-child,
+.page.active > .card:last-child { flex: 1; }
+.btn { height: 30px; border-radius: 3px; background: #fff; border-color: #c9dbfa; color: #2f6fe4; font-size: 12.5px; }
+.btn:hover { background: #f2f7ff; border-color: #2f6fe4; color: #2560cc; }
+.btn-primary { background: #2f6fe4; border-color: #2f6fe4; color: #fff; }
+.btn-primary:hover { background: #2560cc; border-color: #2560cc; color: #fff; }
+.ap-body { align-items: stretch; grid-auto-rows: minmax(0, 1fr); }
+.ap-body > div { display: flex; flex-direction: column; min-height: 0; }
+.ap-body > div > .card { display: flex; flex-direction: column; min-height: 0; }
+.ap-body > div > .card:last-child { flex: 1; }
+.ap-textarea { flex: 1; min-height: 84px; resize: none; }
 .btn-link { font-size: 12.5px; }
 .btn-link:hover { text-decoration: none; color: #1a4f9f; }
 
