@@ -441,7 +441,7 @@
 
     .todo-table th {
       text-align: left;
-      padding: 10px 20px;
+      padding: 10px 14px;
       background: #f8fafc;
       font-size: 12px;
       font-weight: 500;
@@ -451,7 +451,7 @@
     }
 
     .todo-table td {
-      padding: 12px 20px;
+      padding: 12px 14px;
       border-bottom: 1px solid #f1f5f9;
       font-size: 13px;
       color: #1e293b;
@@ -878,9 +878,9 @@
 
       // 三个 Tab 的列宽不同：已办多一列「单据状态」
       var COLS = {
-        pending: ['', 104, 100, 128, 140, 112, 92, 96, 132],
-        mine: ['', 104, 100, 128, 140, 112, 92, 136, 96, 132],
-        done: ['', 104, 100, 128, 140, 112, 92, 136, 96, 96, 132]
+        pending: ['24%', '9%', '10%', '12%', '12%', '9%', '9%', '7%', '8%'],
+        mine: ['22%', '8%', '9%', '11%', '11%', '8%', '9%', '9%', '6%', '7%'],
+        done: ['20%', '8%', '9%', '10%', '10%', '8%', '8%', '8%', '6%', '6%', '7%']
       };
       document.getElementById('tableCols').innerHTML = COLS[state.tab].map(function (w) {
         return w ? '<col style="width:' + w + 'px">' : '<col>';
