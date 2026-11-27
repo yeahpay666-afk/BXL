@@ -1015,7 +1015,13 @@
       toastTimer = setTimeout(function () { el.style.display = 'none'; }, 2000);
     }
 
-    render();
+    var initTab = new URLSearchParams(location.search).get('tab');
+    if (initTab === 'approval') initTab = 'pending';
+    if (initTab && ['pending', 'mine', 'done'].indexOf(initTab) > -1) {
+      switchTab(initTab);
+    } else {
+      render();
+    }
   </script>
 </body>
 </html>

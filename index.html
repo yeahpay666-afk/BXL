@@ -3060,7 +3060,8 @@ body { background: #f4f5f7; color: #1f2329; }
 .todo-status.done { color: #1f7a4d; }
 .todo-status.reject { color: #b45309; }
 .todo-tab.active, .notice-tab.active { color: #1f5fbf; border-color: #1f5fbf; }
-.todo-tab .num { background: #f3f4f6; color: #5f6672; }
+.todo-tab .num { background: transparent; color: #94a3b8; font-size: 12px; font-weight: 400; padding: 0; }
+.todo-tab.active .num { color: #1f5fbf; }
 
 .notice-icon, .notice-icon.icon-green, .notice-icon.icon-yellow, .notice-icon.icon-blue {
   background: #eef4fc !important; color: #1f5fbf !important; border-radius: 3px; font-size: 0 !important;
@@ -3236,17 +3237,21 @@ body { background: #f4f5f7; color: #1f2329; }
                       <span class="todo-bubble" id="todoBubble">日程功能尚未完成对接，会议室预定暂沿用现有方式，请通过“企业微信工作台—OA系统”操作！</span>
                     </span>
                   </div>
-                  <a href="todo-list.html" class="portal-card-more">查看全部 →</a>
+                  <a href="todo-list.html?tab=pending" class="portal-card-more" id="todoMoreLink">查看全部 →</a>
                 </div>
       
                 <div class="todo-tabs">
                   <div class="todo-tab active" data-todo-tab="approval" onclick="switchTodoTab('approval')">
-                    待我处理
-                    <span class="num">3</span>
+                    待办事项
+                    <span class="num">12</span>
                   </div>
                   <div class="todo-tab" data-todo-tab="mine" onclick="switchTodoTab('mine')">
-                    我提交的
-                    <span class="num">12</span>
+                    我发起的
+                    <span class="num">10</span>
+                  </div>
+                  <div class="todo-tab" data-todo-tab="done" onclick="switchTodoTab('done')">
+                    已办事项
+                    <span class="num">8</span>
                   </div>
                 </div>
       
@@ -3295,6 +3300,30 @@ body { background: #f4f5f7; color: #1f2329; }
                     <span class="todo-sys oa">OA</span>
                     <span class="todo-status done">已通过</span>
                     <span class="todo-time">2026/10/28   9:00:00</span>
+                  </div>
+                </div>
+
+                <div class="todo-list" id="todoListDone" style="display:none;">
+                  <div class="todo-list-item" onclick="goBizSystem('OA')">
+                    <span class="todo-type">采购类</span>
+                    <span class="todo-row-title">采购订单审批</span>
+                    <span class="todo-sys oa">OA</span>
+                    <span class="todo-status reject">已退回</span>
+                    <span class="todo-time">2026/11/24   10:20:00</span>
+                  </div>
+                  <div class="todo-list-item" onclick="goBizSystem('每刻')">
+                    <span class="todo-type">合同类</span>
+                    <span class="todo-row-title">合同付款申请</span>
+                    <span class="todo-sys maycur">每刻</span>
+                    <span class="todo-status mid">已转办</span>
+                    <span class="todo-time">2026/11/23   16:45:00</span>
+                  </div>
+                  <div class="todo-list-item" onclick="goBizSystem('每刻')">
+                    <span class="todo-type">费用类</span>
+                    <span class="todo-row-title">差旅费用报销单</span>
+                    <span class="todo-sys maycur">每刻</span>
+                    <span class="todo-status done">已同意</span>
+                    <span class="todo-time">2026/11/22   9:30:00</span>
                   </div>
                 </div>
               </div>
@@ -3875,15 +3904,21 @@ body { background: #f4f5f7; color: #1f2329; }
   </div>
 
   <script>
-    // 我的待办：Tab 切换（待我审批 / 我发起的）
+    // 我的待办：Tab 切换（与列表页口径一致：待办事项 / 我发起的 / 已办事项）
     function switchTodoTab(tab) {
       document.querySelectorAll('.todo-tab').forEach(function(t) {
         t.classList.toggle('active', t.dataset.todoTab === tab);
       });
-      var approval = document.getElementById('todoListApproval');
-      var mine = document.getElementById('todoListMine');
-      if (approval) approval.style.display = tab === 'approval' ? '' : 'none';
-      if (mine) mine.style.display = tab === 'mine' ? '' : 'none';
+      var lists = { approval: 'todoListApproval', mine: 'todoListMine', done: 'todoListDone' };
+      Object.keys(lists).forEach(function (key) {
+        var el = document.getElementById(lists[key]);
+        if (el) el.style.display = key === tab ? '' : 'none';
+      });
+      var more = document.getElementById('todoMoreLink');
+      if (more) {
+        var map = { approval: 'pending', mine: 'mine', done: 'done' };
+        more.href = 'todo-list.html?tab=' + (map[tab] || 'pending');
+      }
     }
 
     // 我的待办：跳转业务系统处理（原型占位）
