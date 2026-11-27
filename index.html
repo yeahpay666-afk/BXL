@@ -3068,16 +3068,17 @@ body { background: #f4f5f7; color: #1f2329; }
 .notice-icon::after { content: '公'; font-size: 12px; }
 
 .qe-add-bar {
-  margin: 0 14px 10px; padding: 10px 12px; border-radius: 3px;
-  background: #fff; border: 1px solid #d5d9e0;
+  margin: 0 0 10px; padding: 10px 12px; border-radius: 3px;
+  background: #f6f8fc; border: 0;
 }
-.qe-add-bar:hover { background: #fafbfc; border-color: #c4c9d2; transform: none; box-shadow: none; }
+.qe-add-bar:hover { background: #f1f4f8; border: 0; transform: none; box-shadow: none; }
 .qe-add-bar-icon {
   width: 34px; height: 34px; border-radius: 3px; background: #eef4fc;
   color: #1f5fbf; box-shadow: none; font-size: 18px;
 }
 .qe-add-bar-arrow { color: #9aa1ab; font-size: 15px; }
-.quick-entry-item { background: #fafbfc; border-radius: 3px; }
+.quick-entry { padding: 0; gap: 10px; flex: 1; align-content: stretch; }
+.quick-entry-item { background: #fafbfc; border-radius: 3px; height: 100%; }
 .quick-entry-item:hover { background: #f3f4f6; transform: none; }
 /* 全站只用三种强调色：蓝 / 绿 / 橙 */
 .tone1 { background: #eef4fc !important; color: #1f5fbf !important; }
@@ -3117,17 +3118,20 @@ body { background: #f4f5f7; color: #1f2329; }
 .it-entry-item:hover { background: #f3f4f6; transform: none; }
 .portal-card-body .it-entry-icon { border-radius: 3px; font-size: 14px !important; font-weight: 500; }
 
-.ai-auth-card { background: #fff; border: 1px solid #d5d9e0; border-radius: 3px; margin: 0 14px 10px; padding: 12px 14px; }
-.ai-auth-card:hover { background: #fafbfc; transform: none; box-shadow: none; }
+.ai-auth-card { background: #f6f8fc; border: 0; border-radius: 3px; margin: 0 0 10px; padding: 10px 12px; }
+.ai-auth-card:hover { background: #f1f4f8; transform: none; box-shadow: none; }
 .ai-auth-icon { background: #eef4fc; box-shadow: none; border-radius: 3px; font-size: 12px; font-weight: 600; color: #1f5fbf; }
-.ai-auth-title { font-size: 13.5px; }
+.ai-auth-title { font-size: 14px; }
 .ai-auth-num { color: #1f2329; }
 .ai-auth-arrow { color: #9aa1ab; font-size: 15px; }
-.ai-portal-apps { padding: 0 14px 14px; gap: 8px; }
-.ai-portal-app { background: #fafbfc; border-radius: 3px; padding: 12px 8px; }
+.ai-portal-apps {
+  padding: 0; gap: 10px; flex: 1;
+  display: grid; grid-template-columns: repeat(3, 1fr); align-content: stretch;
+}
+.ai-portal-app { background: #fafbfc; border-radius: 3px; padding: 14px 8px; height: 100%; }
 .ai-portal-app:hover { background: #f3f4f6; transform: none; }
-.ai-portal-app-icon { width: 34px; height: 34px; border-radius: 3px; font-size: 13px; font-weight: 500; }
-.ai-portal-app-name { font-size: 11px; color: #5f6672; }
+.ai-portal-app-icon { width: 40px; height: 40px; border-radius: 3px; font-size: 14px; font-weight: 500; }
+.ai-portal-app-name { font-size: 10px; color: #5f6672; }
 
 .schedule-dot { background: #9aa7b8 !important; }
 .schedule-action-btn { border-radius: 3px; }
