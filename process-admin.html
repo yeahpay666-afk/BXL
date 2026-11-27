@@ -575,6 +575,14 @@ tbody tr:hover td { background: #fafbfc; }
 .check-ok { color: #1f7a4d; }
 
 .toast { background: #1f2329; border-radius: 3px; font-size: 12.5px; }
+
+/* 自定义规则 */
+.rb-cond { display: grid; grid-template-columns: 1fr 84px 1fr 24px; gap: 6px; align-items: center; margin-bottom: 6px; }
+.rb-cond .prop-select, .rb-cond .prop-input { height: 30px; font-size: 12.5px; padding: 0 8px; }
+.rb-del { background: none; color: #94a3b8; font-size: 16px; line-height: 1; padding: 0; }
+.rb-del:hover { color: #b42318; }
+.rb-toolbar { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.custom-tag { margin-left: 6px; }
 </style>
 </head>
 <body>
@@ -828,20 +836,24 @@ tbody tr:hover td { background: #fafbfc; }
       <div class="page-head">
         <div>
           <div class="page-title">规则与事件</div>
-          <div class="page-desc">统一维护办理人规则、条件规则、超时规则与流程事件；事件脚本用于回写业务状态、发送通知</div>
+          <div class="page-desc">内置规则可直接启用，也可自定义办理人、条件、超时规则与流程事件；自定义规则按优先级匹配，支持 Webhook 与脚本</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn" onclick="toast('已导出规则清单（原型占位）')">导出</button>
+          <button class="btn btn-primary" id="btnNewRule" onclick="openRuleBuilder()">+ 新建办理人规则</button>
         </div>
       </div>
       <div class="card" style="padding:0 16px 16px">
         <div class="drawer-tabs" style="padding:0">
-          <div class="d-tab active" onclick="switchRuleTab(this,'assign')">办理人规则</div>
-          <div class="d-tab" onclick="switchRuleTab(this,'condition')">条件规则</div>
-          <div class="d-tab" onclick="switchRuleTab(this,'sla')">超时规则</div>
-          <div class="d-tab" onclick="switchRuleTab(this,'event')">流程事件</div>
+          <div class="d-tab active" data-rule="assign" onclick="switchRuleTab(this,'assign')">办理人规则</div>
+          <div class="d-tab" data-rule="condition" onclick="switchRuleTab(this,'condition')">条件规则</div>
+          <div class="d-tab" data-rule="sla" onclick="switchRuleTab(this,'sla')">超时规则</div>
+          <div class="d-tab" data-rule="event" onclick="switchRuleTab(this,'event')">流程事件</div>
         </div>
         <div id="rule-assign" class="rule-panel" style="padding-top:14px">
           <table class="mini-table">
             <thead><tr><th>规则名称</th><th>类型</th><th>取值</th><th>应用于</th><th>状态</th><th style="width:80px">操作</th></tr></thead>
-            <tbody>
+            <tbody id="tbAssign">
               <tr><td class="t-name">直属上级审批</td><td>组织关系</td><td>发起人的直接上级</td><td>合同评审 · 部门审核</td><td><span class="pill on">启用</span></td><td><button class="btn-link" onclick="toast('规则编辑（原型占位）')">编辑</button></td></tr>
               <tr><td class="t-name">部门负责人</td><td>组织关系</td><td>发起人所属部门负责人</td><td>费用预支 · 部门审批</td><td><span class="pill on">启用</span></td><td><button class="btn-link" onclick="toast('规则编辑（原型占位）')">编辑</button></td></tr>
               <tr><td class="t-name">法务角色会签</td><td>角色</td><td>角色「法务专员」全部成员</td><td>合同评审 · 法务会签</td><td><span class="pill on">启用</span></td><td><button class="btn-link" onclick="toast('规则编辑（原型占位）')">编辑</button></td></tr>
@@ -853,7 +865,7 @@ tbody tr:hover td { background: #fafbfc; }
         <div id="rule-condition" class="rule-panel" style="display:none;padding-top:14px">
           <table class="mini-table">
             <thead><tr><th>所属流程</th><th>分支条件</th><th>目标节点</th><th>优先级</th><th style="width:80px">操作</th></tr></thead>
-            <tbody>
+            <tbody id="tbCond">
               <tr><td class="t-name">合同评审</td><td class="mono">amount &gt; 500000</td><td>总裁审批</td><td>1</td><td><button class="btn-link" onclick="toast('条件编辑（原型占位）')">编辑</button></td></tr>
               <tr><td class="t-name">合同评审</td><td class="mono">contractType == '框架'</td><td>法务会签</td><td>2</td><td><button class="btn-link" onclick="toast('条件编辑（原型占位）')">编辑</button></td></tr>
               <tr><td class="t-name">费用预支</td><td class="mono">days &gt; 3</td><td>财务总监审批</td><td>1</td><td><button class="btn-link" onclick="toast('条件编辑（原型占位）')">编辑</button></td></tr>
@@ -864,7 +876,7 @@ tbody tr:hover td { background: #fafbfc; }
         <div id="rule-sla" class="rule-panel" style="display:none;padding-top:14px">
           <table class="mini-table">
             <thead><tr><th>规则名称</th><th>适用节点</th><th>时限</th><th>超时动作</th><th style="width:80px">操作</th></tr></thead>
-            <tbody>
+            <tbody id="tbSla">
               <tr><td class="t-name">审批超时提醒</td><td>全部审批节点</td><td>24 小时</td><td>提醒处理人 + 抄送上级</td><td><button class="btn-link" onclick="toast('超时规则编辑（原型占位）')">编辑</button></td></tr>
               <tr><td class="t-name">财务审核加急</td><td>费用预支 · 财务审核</td><td>8 小时</td><td>提醒 + 标记超时</td><td><button class="btn-link" onclick="toast('超时规则编辑（原型占位）')">编辑</button></td></tr>
               <tr><td class="t-name">法务会签超时</td><td>合同评审 · 法务会签</td><td>48 小时</td><td>自动升级至法务负责人</td><td><button class="btn-link" onclick="toast('超时规则编辑（原型占位）')">编辑</button></td></tr>
@@ -874,7 +886,7 @@ tbody tr:hover td { background: #fafbfc; }
         <div id="rule-event" class="rule-panel" style="display:none;padding-top:14px">
           <table class="mini-table">
             <thead><tr><th>事件名称</th><th>事件类型</th><th>异步</th><th>动作</th><th>状态</th><th style="width:80px">操作</th></tr></thead>
-            <tbody>
+            <tbody id="tbEvent">
               <tr><td class="t-name">回写业务状态</td><td class="mono">TASK_CREATED / PROCESS_COMPLETED</td><td>否</td><td>更新业务单据状态为「审批中 / 已通过」</td><td><span class="pill on">启用</span></td><td><button class="btn-link" onclick="toast('脚本编辑（原型占位）')">编辑</button></td></tr>
               <tr><td class="t-name">退回标记</td><td class="mono">TASK_CREATED</td><td>否</td><td>判断回退命令，业务状态置为「已退回」</td><td><span class="pill on">启用</span></td><td><button class="btn-link" onclick="toast('脚本编辑（原型占位）')">编辑</button></td></tr>
               <tr><td class="t-name">抄送通知</td><td class="mono">PROCESS_COMPLETED</td><td>是</td><td>向发起人与抄送人发送待阅消息</td><td><span class="pill on">启用</span></td><td><button class="btn-link" onclick="toast('脚本编辑（原型占位）')">编辑</button></td></tr>
@@ -988,6 +1000,78 @@ tbody tr:hover td { background: #fafbfc; }
 <!--PAGES-->
   </main>
 </div>
+<!-- 自定义规则抽屉 -->
+<div class="mask" id="ruleMask" onclick="closeRuleBuilder()"></div>
+<div class="drawer" id="ruleDrawer" style="width:620px">
+  <div class="drawer-head">
+    <div>
+      <div class="drawer-title" id="rbTitle">新建自定义规则</div>
+      <div class="drawer-sub">保存后按优先级参与匹配，可随时停用或修改</div>
+    </div>
+    <button class="drawer-close" onclick="closeRuleBuilder()">×</button>
+  </div>
+  <div class="drawer-body">
+    <div class="prop-row">
+      <div class="prop-label">规则类型</div>
+      <select class="prop-select" id="rbType" onchange="syncRuleType()">
+        <option value="assign">办理人规则</option>
+        <option value="condition">条件规则</option>
+        <option value="sla">超时规则</option>
+        <option value="event">流程事件</option>
+      </select>
+    </div>
+    <div class="prop-row">
+      <div class="prop-label">规则名称 <span style="color:#b42318">*</span></div>
+      <input class="prop-input" id="rbName" placeholder="例如：金额超过 50 万加签财务总监">
+    </div>
+    <div class="prop-row">
+      <div class="prop-label">适用流程</div>
+      <select class="prop-select" id="rbProcess">
+        <option>合同评审</option><option>费用预支</option><option>供应商引入</option>
+        <option>员工入职</option><option>印章借用</option><option>采购订单</option>
+      </select>
+    </div>
+    <div class="prop-row">
+      <div class="prop-label" id="rbTriggerLabel">触发时机</div>
+      <select class="prop-select" id="rbTrigger">
+        <option>节点进入时</option><option>提交前</option><option>节点完成时</option><option>流程结束时</option>
+      </select>
+    </div>
+    <div class="prop-row">
+      <div class="prop-label">条件（满足全部/任一后执行）</div>
+      <div id="rbConds"></div>
+      <div class="rb-toolbar">
+        <button class="btn" style="height:28px;font-size:12px" onclick="addRuleCond()">+ 添加条件</button>
+        <select class="prop-select" id="rbLogic" style="width:96px;height:28px;font-size:12px">
+          <option>且 AND</option><option>或 OR</option>
+        </select>
+      </div>
+    </div>
+    <div class="prop-row">
+      <div class="prop-label" id="rbActionLabel">执行动作</div>
+      <select class="prop-select" id="rbAction">
+        <option>指派审批人</option><option>跳转到指定节点</option><option>超时提醒 / 升级</option>
+        <option>发送通知</option><option>调用自定义 Webhook</option><option>阻断提交并提示</option>
+        <option>写回业务字段</option>
+      </select>
+    </div>
+    <div class="prop-row">
+      <div class="prop-label" id="rbParamLabel">动作参数</div>
+      <input class="prop-input" id="rbParam" placeholder="如：角色「财务总监」/ 节点「总裁审批」/ https://...">
+    </div>
+    <div class="prop-row">
+      <div class="prop-label">优先级（数字越小越先匹配）</div>
+      <input class="prop-input" id="rbPriority" value="10" style="width:120px">
+    </div>
+    <div class="prop-check"><input type="checkbox" id="rbEnabled" checked><label for="rbEnabled">保存后立即启用</label></div>
+    <div class="prop-tip">自定义规则与内置规则同级别执行；同一流程按优先级升序匹配，先命中先生效。所有变更记录到流程版本，可在变更记录中追溯。</div>
+  </div>
+  <div style="padding:12px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px">
+    <button class="btn" onclick="closeRuleBuilder()">取消</button>
+    <button class="btn btn-primary" onclick="saveRule()">保存</button>
+  </div>
+</div>
+
 <!-- 流程详情抽屉 -->
 <div class="mask" id="mask" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
@@ -1458,11 +1542,169 @@ function renderScopes() {
   }).join('');
 }
 
-function switchRuleTab(el, key) {
+var CUSTOM_RULES = [];
+var ruleSeq = 0;
+var ruleTab = 'assign';
+var rbEditId = null;
+var RULE_FIELDS = ['金额', '申请人部门', '单据类型', '供应商类型', '合同类型', '审批时长'];
+var RULE_OPS = ['大于', '小于', '等于', '不等于', '包含'];
+var RULE_LABEL = { assign: '新建办理人规则', condition: '新建条件规则', sla: '新建超时规则', event: '新建流程事件' };
+var RULE_DEFAULT_ACTION = { assign: '指派审批人', condition: '跳转到指定节点', sla: '超时提醒 / 升级', event: '调用自定义 Webhook' };
+
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function switchRuleTab(el, key) { activateRuleTab(key, el); }
+
+function activateRuleTab(key, el) {
   document.querySelectorAll('#page-rule .d-tab').forEach(function (t) { t.classList.remove('active'); });
-  el.classList.add('active');
+  var tab = el || document.querySelector('#page-rule .d-tab[data-rule="' + key + '"]');
+  if (tab) tab.classList.add('active');
   ['assign', 'condition', 'sla', 'event'].forEach(function (k) {
     document.getElementById('rule-' + k).style.display = k === key ? 'block' : 'none';
+  });
+  ruleTab = key;
+  document.getElementById('btnNewRule').textContent = '+ ' + RULE_LABEL[key];
+}
+
+function ruleCondHtml(field, op, val) {
+  var fs = RULE_FIELDS.map(function (f) { return '<option' + (f === field ? ' selected' : '') + '>' + f + '</option>'; }).join('');
+  var os = RULE_OPS.map(function (o) { return '<option' + (o === op ? ' selected' : '') + '>' + o + '</option>'; }).join('');
+  return '<div class="rb-cond">' +
+    '<select class="prop-select rb-field">' + fs + '</select>' +
+    '<select class="prop-select rb-op">' + os + '</select>' +
+    '<input class="prop-input rb-val" placeholder="值" value="' + escHtml(val) + '">' +
+    '<button class="rb-del" title="删除条件" onclick="this.parentNode.remove()">×</button>' +
+    '</div>';
+}
+
+function addRuleCond() {
+  document.getElementById('rbConds').insertAdjacentHTML('beforeend', ruleCondHtml('金额', '大于', ''));
+}
+
+function syncRuleType() {
+  var type = document.getElementById('rbType').value;
+  var map = {
+    assign: ['触发时机', '执行动作', '动作参数', '如：角色「财务总监」/ 指定用户'],
+    condition: ['触发时机', '分支动作', '目标节点', '如：节点「总裁审批」'],
+    sla: ['计时起点', '超时动作', '时限 / 处理方式', '如：24 小时 / 提醒并抄送上级'],
+    event: ['监听事件', '执行动作', '事件参数 / 回调地址', '如：PROCESS_COMPLETED / https://...']
+  }[type];
+  document.getElementById('rbTriggerLabel').textContent = map[0];
+  document.getElementById('rbActionLabel').textContent = map[1];
+  document.getElementById('rbParamLabel').textContent = map[2];
+  document.getElementById('rbParam').placeholder = map[3];
+}
+
+function openRuleBuilder(id) {
+  rbEditId = id || null;
+  var r = id ? CUSTOM_RULES.filter(function (x) { return x.id === id; })[0] : null;
+  var type = r ? r.type : ruleTab;
+  document.getElementById('rbTitle').textContent = r ? '编辑自定义规则' : '新建自定义' + RULE_LABEL[type].replace('新建', '');
+  document.getElementById('rbType').value = type;
+  document.getElementById('rbName').value = r ? r.name : '';
+  document.getElementById('rbProcess').value = r ? r.process : '合同评审';
+  document.getElementById('rbTrigger').value = r ? r.trigger : '节点进入时';
+  document.getElementById('rbAction').value = r ? r.action : RULE_DEFAULT_ACTION[type];
+  document.getElementById('rbParam').value = r ? r.param : '';
+  document.getElementById('rbPriority').value = r ? r.priority : 10;
+  document.getElementById('rbEnabled').checked = r ? r.enabled : true;
+  document.getElementById('rbLogic').value = r ? r.logic : '且 AND';
+  var box = document.getElementById('rbConds');
+  box.innerHTML = '';
+  (r && r.conds && r.conds.length ? r.conds : [{ field: '金额', op: '大于', val: '' }]).forEach(function (c) {
+    box.insertAdjacentHTML('beforeend', ruleCondHtml(c.field, c.op, c.val));
+  });
+  syncRuleType();
+  document.getElementById('ruleMask').classList.add('show');
+  document.getElementById('ruleDrawer').classList.add('show');
+}
+
+function closeRuleBuilder() {
+  document.getElementById('ruleMask').classList.remove('show');
+  document.getElementById('ruleDrawer').classList.remove('show');
+  rbEditId = null;
+}
+
+function condText(r) {
+  var list = (r.conds || []).filter(function (c) { return c.val !== ''; }).map(function (c) {
+    return c.field + ' ' + c.op + ' ' + c.val;
+  });
+  if (!list.length) return '无条件';
+  return list.join(r.logic.indexOf('或') > -1 ? ' 或 ' : ' 且 ');
+}
+
+function saveRule() {
+  var name = document.getElementById('rbName').value.trim();
+  if (!name) { toast('请填写规则名称'); return; }
+  var conds = [];
+  document.querySelectorAll('#rbConds .rb-cond').forEach(function (row) {
+    var val = row.querySelector('.rb-val').value.trim();
+    if (!val) return;
+    conds.push({ field: row.querySelector('.rb-field').value, op: row.querySelector('.rb-op').value, val: val });
+  });
+  if (!conds.length) { toast('请至少填写一条完整条件'); return; }
+  var type = document.getElementById('rbType').value;
+  var data = {
+    id: rbEditId || ('cr' + (++ruleSeq)),
+    type: type,
+    name: name,
+    process: document.getElementById('rbProcess').value,
+    trigger: document.getElementById('rbTrigger').value,
+    action: document.getElementById('rbAction').value,
+    param: document.getElementById('rbParam').value.trim(),
+    priority: document.getElementById('rbPriority').value || '10',
+    enabled: document.getElementById('rbEnabled').checked,
+    logic: document.getElementById('rbLogic').value,
+    conds: conds
+  };
+  var isEdit = !!rbEditId;
+  if (isEdit) {
+    CUSTOM_RULES = CUSTOM_RULES.map(function (x) { return x.id === rbEditId ? data : x; });
+  } else {
+    CUSTOM_RULES.push(data);
+  }
+  closeRuleBuilder();
+  activateRuleTab(type);
+  renderCustomRules();
+  toast(isEdit ? '规则已更新' : '自定义规则已保存并启用');
+}
+
+function editRule(id) { openRuleBuilder(id); }
+
+function deleteRule(id) {
+  CUSTOM_RULES = CUSTOM_RULES.filter(function (x) { return x.id !== id; });
+  renderCustomRules();
+  toast('规则已删除');
+}
+
+function ruleOps(id) {
+  return '<button class="btn-link" onclick="editRule(\'' + id + '\')">编辑</button> ' +
+    '<button class="btn-link" style="color:#b42318" onclick="deleteRule(\'' + id + '\')">删除</button>';
+}
+
+function renderCustomRules() {
+  ['tbAssign', 'tbCond', 'tbSla', 'tbEvent'].forEach(function (id) {
+    var tb = document.getElementById(id);
+    tb.querySelectorAll('.custom-row').forEach(function (tr) { tr.remove(); });
+  });
+  CUSTOM_RULES.forEach(function (r) {
+    var tag = '<span class="pill blue custom-tag">自定义</span>';
+    var st = r.enabled ? '<span class="pill on">启用</span>' : '<span class="pill off">停用</span>';
+    var param = r.param ? ' → ' + escHtml(r.param) : '';
+    var html = '';
+    if (r.type === 'assign') {
+      html = '<tr class="custom-row"><td class="t-name">' + escHtml(r.name) + tag + '</td><td>自定义</td><td>' + escHtml(condText(r)) + param + '</td><td>' + escHtml(r.process) + ' · ' + escHtml(r.trigger) + '</td><td>' + st + '</td><td>' + ruleOps(r.id) + '</td></tr>';
+    } else if (r.type === 'condition') {
+      html = '<tr class="custom-row"><td class="t-name">' + escHtml(r.process) + '</td><td class="mono">' + escHtml(condText(r)) + '</td><td>' + escHtml(r.param || r.action) + '</td><td>' + escHtml(r.priority) + '</td><td>' + ruleOps(r.id) + '</td></tr>';
+    } else if (r.type === 'sla') {
+      html = '<tr class="custom-row"><td class="t-name">' + escHtml(r.name) + tag + '</td><td>' + escHtml(r.process) + ' · ' + escHtml(r.trigger) + '</td><td>' + escHtml(r.param || '—') + '</td><td>' + escHtml(r.action) + '</td><td>' + ruleOps(r.id) + '</td></tr>';
+    } else {
+      html = '<tr class="custom-row"><td class="t-name">' + escHtml(r.name) + tag + '</td><td class="mono">' + escHtml(r.trigger) + '</td><td>是</td><td>' + escHtml(r.action) + param + '</td><td>' + st + '</td><td>' + ruleOps(r.id) + '</td></tr>';
+    }
+    var tb = { assign: 'tbAssign', condition: 'tbCond', sla: 'tbSla', event: 'tbEvent' }[r.type];
+    document.getElementById(tb).insertAdjacentHTML('beforeend', html);
   });
 }
 
