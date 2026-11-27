@@ -268,36 +268,122 @@ tbody tr:last-child td { border-bottom: none; }
 .prop-tip { font-size: 11px; color: #94a3b8; line-height: 1.6; background: #f8fafc; border-radius: 6px; padding: 8px 10px; }
 .dz-empty { font-size: 12px; color: #94a3b8; text-align: center; padding: 40px 10px; }
 
-/* 表单设计 */
-.form-designer { display: grid; grid-template-columns: 190px 1fr 260px; gap: 12px; align-items: start; }
-.fd-col { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
-.fd-item { padding: 8px 10px; border: 1px dashed #dbe3ec; border-radius: 6px; font-size: 12px; color: #475569; margin-bottom: 6px; cursor: pointer; }
-.fd-item:hover { border-color: #93c5fd; color: #1d4ed8; background: #f8fbff; }
-.fd-canvas { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; min-height: 420px; }
-.fd-field {
-  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #eef2f7;
-  border-radius: 6px; margin-bottom: 8px; font-size: 13px; background: #fcfdff;
+/* 表单设计（参考飞书审批表单） */
+.fd-layout { flex: 1; display: grid; grid-template-columns: 204px 1fr 296px; min-height: 0; }
+.fd-left { background: #fff; border-right: 1px solid #e2e8f0; padding: 14px 10px; overflow-y: auto; }
+.fd-group { font-size: 11px; color: #94a3b8; padding: 12px 8px 6px; letter-spacing: .3px; }
+.fd-group:first-child { padding-top: 0; }
+.fd-comp {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px;
+  cursor: pointer; font-size: 12.5px; color: #334155;
 }
-.fd-field:hover { border-color: #93c5fd; }
-.fd-field .fd-label { width: 120px; color: #475569; font-size: 12px; }
-.fd-field .fd-ctrl { flex: 1; color: #cbd5e1; font-size: 12px; }
-.fd-field .fd-req { color: #dc2626; }
-.fd-remove { color: #cbd5e1; cursor: pointer; }
-.fd-remove:hover { color: #dc2626; }
+.fd-comp:hover { background: #eff6ff; color: #1d4ed8; }
+.fd-comp-icon {
+  width: 22px; height: 22px; border-radius: 5px; background: #f1f5f9; color: #64748b;
+  font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.fd-comp:hover .fd-comp-icon { background: #dbeafe; color: #1d4ed8; }
+.fd-center { overflow-y: auto; padding: 22px; background: #f1f5f9; }
+.fd-form {
+  max-width: 720px; margin: 0 auto; background: #fff; border-radius: 10px;
+  padding: 26px 30px 28px; box-shadow: 0 2px 10px rgba(15,23,42,.05); min-height: 460px;
+}
+.fd-form-title { font-size: 18px; font-weight: 600; text-align: center; color: #0f172a; }
+.fd-form-desc { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 6px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9; }
+.fd-row {
+  display: flex; align-items: flex-start; gap: 12px; padding: 9px 10px; border: 1px solid transparent;
+  border-radius: 6px; margin-top: 8px; position: relative;
+}
+.fd-row:hover { background: #f8fafc; border-color: #e8eef6; }
+.fd-row.selected { background: #f8fbff; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.fd-row.dragging { opacity: .45; }
+.fd-row.drag-over { box-shadow: inset 0 2px 0 #2563eb; }
+.fd-row-label { width: 96px; flex-shrink: 0; font-size: 13px; color: #475569; text-align: right; padding-top: 8px; line-height: 1.4; word-break: break-all; }
+.fd-row-label .req { color: #dc2626; margin-right: 2px; }
+.fd-row-ctrl { flex: 1; min-width: 0; }
+.fd-input, .fd-textarea {
+  width: 100%; height: 34px; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0 10px;
+  font-size: 13px; color: #1e293b; background: #fff;
+}
+.fd-input::placeholder, .fd-textarea::placeholder { color: #b6c2d2; }
+.fd-input:focus, .fd-textarea:focus { border-color: #2563eb; }
+.fd-textarea { height: 70px; padding: 8px 10px; resize: vertical; }
+.fd-static {
+  height: 34px; border: 1px solid #e8eef6; border-radius: 6px; display: flex; align-items: center;
+  gap: 6px; padding: 0 10px; color: #b6c2d2; font-size: 13px; background: #fbfcfe;
+}
+.fd-static .caret { margin-left: auto; color: #94a3b8; font-size: 10px; }
+.fd-upload {
+  border: 1px dashed #dbe3ec; border-radius: 6px; padding: 14px; text-align: center;
+  color: #94a3b8; font-size: 12px; background: #fbfcfe;
+}
+.fd-upload b { color: #2563eb; font-weight: 500; }
+.fd-opt-line { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 6px; }
+.fd-opt { font-size: 12px; color: #475569; display: flex; align-items: center; gap: 5px; }
+.fd-opt i { width: 13px; height: 13px; border: 1px solid #cbd5e1; border-radius: 50%; display: inline-block; }
+.fd-opt i.sq { border-radius: 3px; }
+.fd-table-like { border: 1px solid #eef2f7; border-radius: 6px; overflow: hidden; }
+.fd-table-like th, .fd-table-like td { padding: 7px 9px; font-size: 12px; }
+.fd-note { font-size: 12px; color: #64748b; background: #f8fafc; border-radius: 6px; padding: 9px 10px; line-height: 1.6; }
+.fd-actions {
+  position: absolute; right: 8px; top: -12px; display: none; gap: 2px; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px; box-shadow: 0 2px 8px rgba(15,23,42,.08); z-index: 3;
+}
+.fd-row:hover .fd-actions, .fd-row.selected .fd-actions { display: flex; }
+.fd-act {
+  width: 24px; height: 24px; border-radius: 4px; background: none; color: #94a3b8; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.fd-act:hover { background: #eff6ff; color: #2563eb; }
+.fd-act.danger:hover { background: #fef2f2; color: #dc2626; }
+.fd-act[draggable="true"] { cursor: grab; }
+.fd-submit { margin-top: 22px; padding-top: 16px; border-top: 1px solid #f1f5f9; display: flex; gap: 10px; justify-content: center; }
+.fd-submit button { height: 34px; padding: 0 26px; border-radius: 6px; font-size: 13px; }
+.fd-right { background: #fff; border-left: 1px solid #e2e8f0; overflow-y: auto; }
+.fd-right-head { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.fd-right-body { padding: 16px; }
+.fd-prop { margin-bottom: 14px; }
+.fd-prop-label { font-size: 12px; color: #64748b; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.fd-prop-input, .fd-prop-select, .fd-prop-area {
+  width: 100%; height: 32px; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0 10px;
+  font-size: 13px; color: #1e293b; background: #fff;
+}
+.fd-prop-area { height: 66px; padding: 8px 10px; resize: vertical; }
+.fd-switch-row { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: #475569; padding: 7px 0; }
+.fd-switch-row input { width: 15px; height: 15px; accent-color: #2563eb; }
+.fd-option-edit { display: flex; gap: 6px; margin-bottom: 6px; }
+.fd-option-edit input { flex: 1; height: 30px; border: 1px solid #e2e8f0; border-radius: 5px; padding: 0 8px; font-size: 12px; }
+.fd-option-del { width: 26px; height: 30px; background: none; color: #cbd5e1; font-size: 14px; }
+.fd-option-del:hover { color: #dc2626; }
+.fd-key { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 11px; color: #94a3b8; background: #f8fafc; border-radius: 4px; padding: 6px 8px; word-break: break-all; }
+.fd-add-opt { font-size: 12px; color: #2563eb; background: none; padding: 2px 0; }
+.fd-add-opt:hover { text-decoration: underline; }
+.fd-del-field { width: 100%; height: 30px; border-radius: 6px; background: #fff; border: 1px solid #fecaca; color: #dc2626; font-size: 12px; margin-top: 6px; }
+.fd-del-field:hover { background: #fef2f2; }
+.designer.preview-mode .fd-layout { grid-template-columns: 1fr; }
+.designer.preview-mode .fd-left, .designer.preview-mode .fd-right { display: none; }
+.designer.preview-mode .fd-actions { display: none !important; }
+.designer.preview-mode .fd-row.selected { border-color: transparent; background: none; box-shadow: none; }
+.designer.preview-mode .fd-row:hover { background: none; border-color: transparent; }
 
 /* 迁移进度条 */
 .progress { height: 6px; background: #eef2f7; border-radius: 4px; overflow: hidden; width: 120px; }
 .progress > i { display: block; height: 100%; background: #2563eb; border-radius: 4px; }
 
+@media (max-width: 1400px) {
+  .fd-layout { grid-template-columns: 184px 1fr 268px; }
+}
 @media (max-width: 1200px) {
   .stats { grid-template-columns: repeat(2, 1fr); }
-  .form-designer { grid-template-columns: 160px 1fr 240px; }
+  .fd-layout { grid-template-columns: 1fr 264px; }
+  .fd-left { display: none; }
 }
 @media (max-width: 1000px) {
   .side { width: 180px; }
   .main { margin-left: 180px; }
   .dz-palette { display: none; }
-  .form-designer { grid-template-columns: 1fr; }
+  .fd-layout { grid-template-columns: 1fr; }
+  .fd-right { display: none; }
 }
 </style>
 </head>
@@ -737,41 +823,47 @@ tbody tr:last-child td { border-bottom: none; }
     <div class="dz-back" onclick="closeFormDesigner()">‹ 返回表单列表</div>
     <div>
       <div class="dz-name" id="fdName">合同评审申请表</div>
-      <div class="dz-meta">在线表单 · 全局表单 · 8 个字段</div>
+      <div class="dz-meta" id="fdMeta">在线表单 · 全局表单 · 8 个字段 · v3</div>
     </div>
     <div class="sp"></div>
-    <button class="btn" onclick="toast('表单预览（原型占位）')">预览</button>
-    <button class="btn btn-primary" onclick="closeFormDesigner();toast('表单已保存并生成新版本')">保存表单</button>
+    <button class="btn" id="fdPreviewBtn" onclick="toggleFormPreview()">预览</button>
+    <button class="btn" onclick="toast('草稿已保存')">保存草稿</button>
+    <button class="btn btn-primary" onclick="saveForm()">保存并发布</button>
   </div>
-  <div class="dz-body" style="padding:16px;overflow:auto;display:block">
-    <div class="form-designer">
-      <div class="fd-col">
-        <div class="dz-palette-title">字段组件</div>
-        <div class="fd-item" onclick="addField('单行文本')">单行文本</div>
-        <div class="fd-item" onclick="addField('多行文本')">多行文本</div>
-        <div class="fd-item" onclick="addField('数字 / 金额')">数字 / 金额</div>
-        <div class="fd-item" onclick="addField('日期')">日期</div>
-        <div class="fd-item" onclick="addField('下拉选择')">下拉选择</div>
-        <div class="fd-item" onclick="addField('人员选择')">人员选择</div>
-        <div class="fd-item" onclick="addField('部门选择')">部门选择</div>
-        <div class="fd-item" onclick="addField('附件上传')">附件上传</div>
-        <div class="fd-item" onclick="addField('明细表')">明细表</div>
+  <div class="dz-body">
+    <div class="fd-layout">
+      <div class="fd-left">
+        <div class="fd-group">基础控件</div>
+        <div class="fd-comp" onclick="addComp('text')"><span class="fd-comp-icon">文</span>单行文本</div>
+        <div class="fd-comp" onclick="addComp('textarea')"><span class="fd-comp-icon">段</span>多行文本</div>
+        <div class="fd-comp" onclick="addComp('number')"><span class="fd-comp-icon">数</span>数字</div>
+        <div class="fd-comp" onclick="addComp('amount')"><span class="fd-comp-icon">额</span>金额</div>
+        <div class="fd-comp" onclick="addComp('date')"><span class="fd-comp-icon">日</span>日期</div>
+        <div class="fd-comp" onclick="addComp('note')"><span class="fd-comp-icon">说</span>说明文字</div>
+        <div class="fd-group">选择控件</div>
+        <div class="fd-comp" onclick="addComp('select')"><span class="fd-comp-icon">下</span>下拉选择</div>
+        <div class="fd-comp" onclick="addComp('radio')"><span class="fd-comp-icon">单</span>单选</div>
+        <div class="fd-comp" onclick="addComp('checkbox')"><span class="fd-comp-icon">多</span>多选</div>
+        <div class="fd-comp" onclick="addComp('person')"><span class="fd-comp-icon">人</span>人员选择</div>
+        <div class="fd-comp" onclick="addComp('dept')"><span class="fd-comp-icon">部</span>部门选择</div>
+        <div class="fd-group">高级控件</div>
+        <div class="fd-comp" onclick="addComp('attachment')"><span class="fd-comp-icon">附</span>附件上传</div>
+        <div class="fd-comp" onclick="addComp('table')"><span class="fd-comp-icon">表</span>明细表</div>
       </div>
-      <div class="fd-canvas" id="fdCanvas"></div>
-      <div class="fd-col">
-        <div class="prop-title">字段属性</div>
-        <div class="prop-row">
-          <div class="prop-label">字段名称</div>
-          <input class="prop-input" value="合同名称">
+      <div class="fd-center">
+        <div class="fd-form">
+          <div class="fd-form-title" id="fdFormTitle">合同评审申请表</div>
+          <div class="fd-form-desc" id="fdFormDesc">请如实填写合同信息，带 * 为必填项</div>
+          <div id="fdCanvas"></div>
+          <div class="fd-submit">
+            <button class="btn" onclick="toast('预览：已暂存')">暂存</button>
+            <button class="btn btn-primary" onclick="toast('预览：已提交')">提交</button>
+          </div>
         </div>
-        <div class="prop-row">
-          <div class="prop-label">字段类型</div>
-          <select class="prop-select"><option>单行文本</option><option>数字 / 金额</option><option>日期</option><option>下拉选择</option></select>
-        </div>
-        <div class="prop-check"><input type="checkbox" checked> 必填</div>
-        <div class="prop-check"><input type="checkbox"> 参与流程条件</div>
-        <div class="prop-check"><input type="checkbox" checked> 列表可见</div>
-        <p class="prop-tip">字段权限按环节配置：申请环节可编辑，审批环节默认只读；涉及金额的字段可参与条件分支。</p>
+      </div>
+      <div class="fd-right">
+        <div class="fd-right-head"><span id="fdRightTitle">表单设置</span><span class="muted" id="fdRightSub">未选中字段</span></div>
+        <div class="fd-right-body" id="fdProps"></div>
       </div>
     </div>
   </div>
@@ -1014,7 +1106,9 @@ function renderForm() {
       '<td class="muted">' + f.proc + '</td>' +
       '<td class="mono">' + f.ver + '</td>' +
       '<td><span class="pill ' + pill(f.state) + '">' + f.state + '</span></td>' +
-      '<td><button class="btn-link" onclick="openFormDesigner()">设计</button>' +
+      '<td>' + (f.type === '在线设计'
+        ? '<button class="btn-link" onclick="openFormDesigner(\'' + f.name + '\')">设计</button>'
+        : '<button class="btn-link" onclick="toast(\'配置 URL 表单地址（原型占位）\')">配置地址</button>') +
       '<button class="btn-link" onclick="toast(\'字段权限：按环节配置可见 / 可编辑\')">字段权限</button></td></tr>';
   }).join('');
 }
@@ -1371,35 +1465,335 @@ function saveDesign(kind) {
   }
 }
 
-/* ===== 表单设计器 ===== */
-var FIELDS = ['合同名称', '合同编号', '客户名称', '合同金额', '合同类型', '签约日期', '经办人', '附件'];
+/* ===== 表单设计器（参考飞书审批表单） ===== */
+var FD_TYPE = {
+  text: { label: '单行文本', icon: '文' },
+  textarea: { label: '多行文本', icon: '段' },
+  number: { label: '数字', icon: '数' },
+  amount: { label: '金额', icon: '额' },
+  date: { label: '日期', icon: '日' },
+  select: { label: '下拉选择', icon: '下' },
+  radio: { label: '单选', icon: '单' },
+  checkbox: { label: '多选', icon: '多' },
+  person: { label: '人员选择', icon: '人' },
+  dept: { label: '部门选择', icon: '部' },
+  attachment: { label: '附件上传', icon: '附' },
+  table: { label: '明细表', icon: '表' },
+  note: { label: '说明文字', icon: '说' }
+};
 
-function openFormDesigner() {
+var FORM_META = {
+  name: '合同评审申请表',
+  desc: '请如实填写合同信息，带 * 为必填项',
+  key: 'contract_review_form',
+  ver: 'v3',
+  submit: '提交'
+};
+
+var FIELDS = [
+  { id: 1, label: '合同名称', type: 'text', required: true, placeholder: '请输入合同名称', desc: '', options: [] },
+  { id: 2, label: '合同编号', type: 'text', required: false, placeholder: '如 HT-2026-0891', desc: '', options: [] },
+  { id: 3, label: '客户名称', type: 'text', required: true, placeholder: '请输入客户名称', desc: '', options: [] },
+  { id: 4, label: '合同金额', type: 'amount', required: true, placeholder: '请输入合同金额', desc: '超过 50 万元将进入总裁审批', options: [] },
+  { id: 5, label: '合同类型', type: 'select', required: true, placeholder: '请选择合同类型', desc: '', options: ['销售合同', '采购合同', '框架协议'] },
+  { id: 6, label: '签约日期', type: 'date', required: true, placeholder: '请选择签约日期', desc: '', options: [] },
+  { id: 7, label: '经办人', type: 'person', required: false, placeholder: '请选择经办人', desc: '', options: [] },
+  { id: 8, label: '合同附件', type: 'attachment', required: false, placeholder: '', desc: '', options: [] }
+];
+
+var fdSel = -1;
+var fdPreview = false;
+var fdDrag = -1;
+var fdSeq = 100;
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function openFormDesigner(name) {
+  var f = name ? FORMS.find(function (x) { return x.name === name; }) : null;
+  if (f) {
+    FORM_META.name = f.name;
+    FORM_META.key = f.key;
+    FORM_META.ver = f.ver;
+  }
+  fdSel = -1;
+  fdPreview = false;
+  var box = document.getElementById('formDesigner');
+  box.classList.remove('preview-mode');
+  box.classList.add('show');
+  document.getElementById('fdPreviewBtn').textContent = '预览';
+  document.getElementById('fdName').textContent = FORM_META.name;
+  document.getElementById('fdFormTitle').textContent = FORM_META.name;
+  document.getElementById('fdFormDesc').textContent = FORM_META.desc;
+  updateFdMeta();
   renderFields();
-  document.getElementById('formDesigner').classList.add('show');
+  renderProps();
 }
 
 function closeFormDesigner() {
   document.getElementById('formDesigner').classList.remove('show');
 }
 
+function updateFdMeta() {
+  document.getElementById('fdMeta').textContent = '在线表单 · 全局表单 · ' + FIELDS.length + ' 个字段 · ' + FORM_META.ver;
+}
+
+function ctrlHTML(f) {
+  var ph = esc(f.placeholder || '');
+  if (f.type === 'textarea') return '<textarea class="fd-textarea" readonly placeholder="' + (ph || '请输入') + '"></textarea>';
+  if (f.type === 'number') return '<input class="fd-input" readonly placeholder="' + (ph || '请输入数字') + '">';
+  if (f.type === 'amount') return '<div style="position:relative"><span style="position:absolute;left:10px;top:7px;color:#94a3b8;font-size:13px">¥</span><input class="fd-input" readonly style="padding-left:24px" placeholder="' + (ph || '请输入金额') + '"></div>';
+  if (f.type === 'date') return '<input class="fd-input" readonly placeholder="' + (ph || '请选择日期') + '">';
+  if (f.type === 'select') return '<div class="fd-static">' + (ph || '请选择') + '<span class="caret">▾</span></div>';
+  if (f.type === 'radio' || f.type === 'checkbox') {
+    var opts = f.options.length ? f.options : ['选项一', '选项二'];
+    return '<div class="fd-opt-line">' + opts.map(function (o) {
+      return '<span class="fd-opt"><i' + (f.type === 'checkbox' ? ' class="sq"' : '') + '></i>' + esc(o) + '</span>';
+    }).join('') + '</div>';
+  }
+  if (f.type === 'person' || f.type === 'dept') {
+    var tip = f.type === 'person' ? (ph || '请选择人员') : (ph || '请选择部门');
+    var av = f.type === 'person' ? '<span style="width:18px;height:18px;border-radius:50%;background:#e0edff;color:#1d4ed8;font-size:10px;display:flex;align-items:center;justify-content:center">张</span>' : '<span style="width:18px;height:18px;border-radius:4px;background:#e0edff;color:#1d4ed8;font-size:10px;display:flex;align-items:center;justify-content:center">部</span>';
+    return '<div class="fd-static">' + av + tip + '</div>';
+  }
+  if (f.type === 'attachment') return '<div class="fd-upload"><b>点击上传</b> 或拖拽文件到此处，单个不超过 20MB</div>';
+  if (f.type === 'table') {
+    return '<div class="fd-table-like"><table><thead><tr><th>名称</th><th>金额</th><th>数量</th></tr></thead><tbody>' +
+      '<tr><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td></tr></tbody></table>' +
+      '<div style="padding:6px 9px;font-size:12px;color:#2563eb">+ 添加一行</div></div>';
+  }
+  if (f.type === 'note') return '<div class="fd-note">' + esc(f.desc || '说明文字：用于填写提示，不参与审批流转') + '</div>';
+  return '<input class="fd-input" readonly placeholder="' + (ph || '请输入') + '">';
+}
+
 function renderFields() {
-  document.getElementById('fdCanvas').innerHTML = FIELDS.map(function (f, i) {
-    return '<div class="fd-field"><span class="fd-label">' + f + (i < 3 ? ' <span class="fd-req">*</span>' : '') + '</span>' +
-      '<span class="fd-ctrl">' + (f.indexOf('金额') > -1 ? '金额输入框' : f.indexOf('日期') > -1 ? '日期选择器' : f === '附件' ? '附件上传' : '单行文本') + '</span>' +
-      '<span class="fd-remove" onclick="removeField(' + i + ')">×</span></div>';
-  }).join('') + '<p class="hint" style="margin-top:10px">共 ' + FIELDS.length + ' 个字段 · 拖动排序（原型占位）</p>';
+  var c = document.getElementById('fdCanvas');
+  if (!c) return;
+  c.innerHTML = FIELDS.map(function (f, i) {
+    return '<div class="fd-row' + (i === fdSel ? ' selected' : '') + '" data-i="' + i + '" draggable="true"' +
+      ' onclick="selectField(' + i + ')"' +
+      ' ondragstart="fdDragStart(event,' + i + ')" ondragover="fdDragOver(event,' + i + ')"' +
+      ' ondrop="fdDrop(event,' + i + ')" ondragend="fdDragEnd()">' +
+      '<div class="fd-row-label"><span class="fd-row-label-text">' + (f.required ? '<span class="req">*</span>' : '') + esc(f.label) + '</span></div>' +
+      '<div class="fd-row-ctrl">' + ctrlHTML(f) +
+      (f.desc && f.type !== 'note' ? '<div class="hint" style="margin-top:4px;font-size:11px">' + esc(f.desc) + '</div>' : '') +
+      '</div>' +
+      '<div class="fd-actions" onclick="event.stopPropagation()">' +
+      '<span class="fd-act" title="拖拽排序">⠿</span>' +
+      '<button class="fd-act" title="复制字段" onclick="copyField(' + i + ')">复</button>' +
+      '<button class="fd-act danger" title="删除字段" onclick="delField(' + i + ')">×</button>' +
+      '</div></div>';
+  }).join('') + (FIELDS.length ? '' : '<div class="empty">从左侧控件库添加字段</div>');
 }
 
-function addField(name) {
-  FIELDS.push(name);
+function renderProps() {
+  var title = document.getElementById('fdRightTitle');
+  var sub = document.getElementById('fdRightSub');
+  var box = document.getElementById('fdProps');
+  if (fdSel < 0 || !FIELDS[fdSel]) {
+    title.textContent = '表单设置';
+    sub.textContent = '未选中字段';
+    box.innerHTML =
+      '<div class="fd-prop"><div class="fd-prop-label">表单名称</div>' +
+      '<input class="fd-prop-input" value="' + esc(FORM_META.name) + '" oninput="setFormMeta(\'name\',this.value)"></div>' +
+      '<div class="fd-prop"><div class="fd-prop-label">表单说明</div>' +
+      '<textarea class="fd-prop-area" oninput="setFormMeta(\'desc\',this.value)">' + esc(FORM_META.desc) + '</textarea></div>' +
+      '<div class="fd-prop"><div class="fd-prop-label">表单 Key</div><div class="fd-key">' + esc(FORM_META.key) + '</div></div>' +
+      '<div class="fd-prop"><div class="fd-prop-label">提交按钮文案</div>' +
+      '<input class="fd-prop-input" value="' + esc(FORM_META.submit) + '" onchange="FORM_META.submit=this.value"></div>' +
+      '<label class="fd-switch-row">允许暂存<input type="checkbox" checked></label>' +
+      '<label class="fd-switch-row">提交后显示流程进度<input type="checkbox" checked></label>' +
+      '<p class="prop-tip">全局表单对所有环节生效；如审批页只需看关键字段，可为环节单独挂「环节表单」。</p>' +
+      '<p class="hint" style="margin-top:10px">点击中间表单中的任一字段，可设置标题、提示、必填与选项。</p>';
+    return;
+  }
+  var f = FIELDS[fdSel];
+  title.textContent = '字段设置';
+  sub.textContent = FD_TYPE[f.type].label;
+  var html =
+    '<div class="fd-prop"><div class="fd-prop-label">字段标题</div>' +
+    '<input class="fd-prop-input" value="' + esc(f.label) + '" oninput="setFieldProp(\'label\',this.value)"></div>' +
+    '<div class="fd-prop"><div class="fd-prop-label">字段类型</div>' +
+    '<select class="fd-prop-select" onchange="setFieldProp(\'type\',this.value)">' +
+    Object.keys(FD_TYPE).map(function (k) {
+      return '<option value="' + k + '"' + (f.type === k ? ' selected' : '') + '>' + FD_TYPE[k].label + '</option>';
+    }).join('') + '</select></div>' +
+    '<div class="fd-prop"><div class="fd-prop-label">提示文字</div>' +
+    '<input class="fd-prop-input" value="' + esc(f.placeholder) + '" placeholder="如：请输入合同名称" oninput="setFieldProp(\'placeholder\',this.value)"></div>' +
+    '<div class="fd-prop"><div class="fd-prop-label">字段说明</div>' +
+    '<textarea class="fd-prop-area" placeholder="填写说明，显示在控件下方" onchange="setFieldProp(\'desc\',this.value)">' + esc(f.desc) + '</textarea></div>' +
+    '<label class="fd-switch-row">必填<input type="checkbox"' + (f.required ? ' checked' : '') + ' onchange="setFieldProp(\'required\',this.checked)"></label>' +
+    '<label class="fd-switch-row">参与流程条件<input type="checkbox"' + (f.condition ? ' checked' : '') + ' onchange="setFieldProp(\'condition\',this.checked)"></label>' +
+    '<label class="fd-switch-row">列表可见<input type="checkbox"' + (f.list !== false ? ' checked' : '') + ' onchange="setFieldProp(\'list\',this.checked)"></label>';
+
+  if (f.type === 'select' || f.type === 'radio' || f.type === 'checkbox') {
+    html += '<div class="fd-prop"><div class="fd-prop-label">选项<span class="muted">' + f.options.length + ' 项</span></div>' +
+      f.options.map(function (o, i) {
+        return '<div class="fd-option-edit"><input value="' + esc(o) + '" onchange="setOption(' + i + ',this.value)">' +
+          '<button class="fd-option-del" onclick="delOption(' + i + ')">×</button></div>';
+      }).join('') +
+      '<button class="fd-add-opt" onclick="addOption()">+ 添加选项</button></div>';
+  }
+  if (f.type === 'table') {
+    html += '<div class="fd-prop"><div class="fd-prop-label">明细列</div>' +
+      '<div class="fd-option-edit"><input value="名称" readonly></div>' +
+      '<div class="fd-option-edit"><input value="金额" readonly></div>' +
+      '<div class="fd-option-edit"><input value="数量" readonly></div>' +
+      '<button class="fd-add-opt" onclick="toast(\'列配置（原型占位）\')">+ 添加列</button></div>';
+  }
+  html += '<div class="fd-prop"><div class="fd-prop-label">字段 Key</div><div class="fd-key">field_' + f.id + '</div></div>' +
+    '<button class="fd-del-field" onclick="delField(' + fdSel + ')">删除字段</button>';
+  box.innerHTML = html;
+}
+
+function selectField(i) {
+  fdSel = i;
   renderFields();
-  toast('已添加字段：' + name);
+  renderProps();
 }
 
-function removeField(i) {
+function setFieldProp(k, v) {
+  var f = FIELDS[fdSel];
+  if (!f) return;
+  f[k] = v;
+  if (k === 'label') {
+    var el = document.querySelector('.fd-row[data-i="' + fdSel + '"] .fd-row-label-text');
+    if (el) el.innerHTML = (f.required ? '<span class="req">*</span>' : '') + esc(f.label);
+    return;
+  }
+  if (k === 'placeholder') {
+    var inp = document.querySelector('.fd-row[data-i="' + fdSel + '"] input, .fd-row[data-i="' + fdSel + '"] textarea');
+    if (inp) inp.setAttribute('placeholder', v);
+    return;
+  }
+  if (k === 'required' || k === 'type') {
+    renderFields();
+    renderProps();
+    return;
+  }
+  renderFields();
+}
+
+function setFormMeta(k, v) {
+  FORM_META[k] = v;
+  if (k === 'name') {
+    document.getElementById('fdName').textContent = v;
+    document.getElementById('fdFormTitle').textContent = v;
+  }
+  if (k === 'desc') document.getElementById('fdFormDesc').textContent = v;
+}
+
+function addComp(type) {
+  var t = FD_TYPE[type];
+  var opts = (type === 'select' || type === 'radio' || type === 'checkbox') ? ['选项一', '选项二'] : [];
+  FIELDS.push({ id: ++fdSeq, label: t.label, type: type, required: false, placeholder: '', desc: '', options: opts });
+  fdSel = FIELDS.length - 1;
+  renderFields();
+  renderProps();
+  updateFdMeta();
+  var row = document.querySelector('.fd-row[data-i="' + fdSel + '"]');
+  if (row && row.scrollIntoView) row.scrollIntoView({ block: 'center' });
+  toast('已添加「' + t.label + '」，可在右侧配置');
+}
+
+function copyField(i) {
+  var src = FIELDS[i];
+  var copy = JSON.parse(JSON.stringify(src));
+  copy.id = ++fdSeq;
+  copy.label = src.label + ' 副本';
+  FIELDS.splice(i + 1, 0, copy);
+  fdSel = i + 1;
+  renderFields();
+  renderProps();
+  updateFdMeta();
+  toast('已复制字段');
+}
+
+function delField(i) {
   FIELDS.splice(i, 1);
+  fdSel = -1;
   renderFields();
+  renderProps();
+  updateFdMeta();
+  toast('字段已删除');
+}
+
+function setOption(i, v) {
+  if (!FIELDS[fdSel]) return;
+  FIELDS[fdSel].options[i] = v;
+  renderFields();
+}
+
+function addOption() {
+  var f = FIELDS[fdSel];
+  if (!f) return;
+  f.options.push('选项' + (f.options.length + 1));
+  renderFields();
+  renderProps();
+}
+
+function delOption(i) {
+  var f = FIELDS[fdSel];
+  if (!f) return;
+  f.options.splice(i, 1);
+  renderFields();
+  renderProps();
+}
+
+function fdDragStart(e, i) {
+  fdDrag = i;
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+  if (e.currentTarget && e.currentTarget.classList) e.currentTarget.classList.add('dragging');
+}
+
+function fdDragOver(e, i) {
+  e.preventDefault();
+  document.querySelectorAll('.fd-row').forEach(function (r) { r.classList.remove('drag-over'); });
+  if (i !== fdDrag && e.currentTarget && e.currentTarget.classList) e.currentTarget.classList.add('drag-over');
+}
+
+function fdDrop(e, i) {
+  e.preventDefault();
+  if (fdDrag < 0 || fdDrag === i) { fdDragEnd(); return; }
+  var moved = FIELDS.splice(fdDrag, 1)[0];
+  FIELDS.splice(i, 0, moved);
+  fdSel = i;
+  fdDrag = -1;
+  renderFields();
+  renderProps();
+  toast('字段顺序已调整');
+}
+
+function fdDragEnd() {
+  fdDrag = -1;
+  document.querySelectorAll('.fd-row').forEach(function (r) { r.classList.remove('dragging', 'drag-over'); });
+}
+
+function toggleFormPreview() {
+  fdPreview = !fdPreview;
+  document.getElementById('formDesigner').classList.toggle('preview-mode', fdPreview);
+  document.getElementById('fdPreviewBtn').textContent = fdPreview ? '退出预览' : '预览';
+  if (fdPreview) {
+    fdSel = -1;
+    renderFields();
+  } else {
+    renderProps();
+  }
+}
+
+function saveForm() {
+  var f = FORMS.find(function (x) { return x.key === FORM_META.key; });
+  if (f) {
+    f.name = FORM_META.name;
+    f.fields = FIELDS.length;
+    f.state = '启用';
+  }
+  closeFormDesigner();
+  renderForm();
+  toast('表单已保存并发布新版本');
 }
 
 (function init() {
