@@ -218,7 +218,7 @@ tbody tr:last-child td { border-bottom: none; }
 .dz-head .sp { flex: 1; }
 .dz-body { flex: 1; display: flex; min-height: 0; }
 .dz-palette {
-  width: 176px; background: #fff; border-right: 1px solid #e2e8f0; padding: 14px 12px; overflow-y: auto;
+  width: 232px; background: #fff; border-right: 1px solid #e2e8f0; padding: 14px 12px; overflow-y: auto;
 }
 .dz-palette-title { font-size: 11px; color: #94a3b8; margin-bottom: 8px; }
 .palette-item {
@@ -232,12 +232,12 @@ tbody tr:last-child td { border-bottom: none; }
 .palette-dot.condition { background: #f59e0b; }
 .palette-dot.cc { background: #a855f7; }
 .palette-dot.end { background: #64748b; }
-.dz-canvas-wrap { flex: 1; overflow: auto; padding: 26px; }
+.dz-canvas-wrap { flex: 1; overflow: auto; padding: 16px; }
 .dz-canvas {
-  max-width: 760px; margin: 0 auto; width: fit-content; min-width: 520px;
+  margin: 0 auto; width: 100%; max-width: 640px;
 }
 .node {
-  position: relative; width: 340px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+  position: relative; width: 100%; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
   padding: 12px 14px; cursor: pointer; transition: all .15s;
 }
 .node:hover { border-color: #93c5fd; box-shadow: 0 4px 12px rgba(37,99,235,.10); }
@@ -249,13 +249,13 @@ tbody tr:last-child td { border-bottom: none; }
 .node-del { position: absolute; right: 8px; top: 8px; font-size: 14px; color: #cbd5e1; display: none; }
 .node:hover .node-del { display: block; }
 .node-del:hover { color: #dc2626; }
-.connector { width: 340px; height: 26px; position: relative; }
+.connector { width: 100%; height: 26px; position: relative; }
 .connector::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #cbd5e1; }
 .connector::after {
   content: '▾'; position: absolute; left: 50%; bottom: -1px; transform: translateX(-50%);
   color: #94a3b8; font-size: 10px; background: #f1f5f9; line-height: 1;
 }
-.dz-props { width: 300px; background: #fff; border-left: 1px solid #e2e8f0; overflow-y: auto; padding: 16px; flex-shrink: 0; }
+.dz-props { width: 340px; background: #fff; border-left: 1px solid #e2e8f0; overflow-y: auto; padding: 14px 16px; flex-shrink: 0; }
 .prop-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
 .prop-row { margin-bottom: 12px; }
 .prop-label { font-size: 12px; color: #64748b; margin-bottom: 5px; }
@@ -269,7 +269,7 @@ tbody tr:last-child td { border-bottom: none; }
 .dz-empty { font-size: 12px; color: #94a3b8; text-align: center; padding: 40px 10px; }
 
 /* 表单设计（参考飞书审批表单） */
-.fd-layout { flex: 1; display: grid; grid-template-columns: 188px minmax(0, 1fr) 272px; min-height: 0; }
+.fd-layout { flex: 1; display: grid; grid-template-columns: 232px minmax(0, 1fr) 340px; min-height: 0; }
 .fd-left { background: #fff; border-right: 1px solid #e2e8f0; padding: 10px 8px; overflow-y: auto; }
 .fd-group { font-size: 11px; color: #94a3b8; padding: 9px 8px 5px; letter-spacing: .3px; }
 .fd-group:first-child { padding-top: 0; }
@@ -371,12 +371,14 @@ tbody tr:last-child td { border-bottom: none; }
 .progress > i { display: block; height: 100%; background: #2563eb; border-radius: 4px; }
 
 @media (max-width: 1400px) {
-  .fd-layout { grid-template-columns: 184px 1fr 268px; }
+  .fd-layout { grid-template-columns: 208px minmax(0, 1fr) 304px; }
 }
 @media (max-width: 1200px) {
   .stats { grid-template-columns: repeat(2, 1fr); }
-  .fd-layout { grid-template-columns: 1fr 264px; }
+  .fd-layout { grid-template-columns: 1fr 300px; }
   .fd-left { display: none; }
+  .dz-palette { width: 208px; }
+  .dz-props { width: 300px; }
 }
 @media (max-width: 1000px) {
   .side { width: 180px; }
@@ -1336,11 +1338,21 @@ function openDesigner(id) {
   document.getElementById('dzMeta').textContent = (m ? m.state + ' · ' + m.ver : '草稿 · 未发布') + ' · 流程 Key：' + (m ? m.key : 'new_process');
   if (m) {
     var ns = nodesFor(m);
+    var APPROVER = {
+      '发起申请': '发起人', '部门审核': '直属上级', '财务审核': '部门负责人', '质量部审核': '部门负责人',
+      '归口部门审核': '部门负责人', '法务会签': '角色「法务专员」', '总裁审批': '指定人员：赵磊', '抄送归档': '发起人直属上级'
+    };
     NODES = ns.map(function (n, i) {
       var isStart = i === 0, isEnd = i === ns.length - 1;
+      var isCc = n.t.indexOf('抄送') > -1, isSign = n.t.indexOf('会签') > -1;
       return {
-        type: isStart ? 'start' : isEnd ? 'end' : (n.t.indexOf('会签') > -1 ? 'countersign' : n.t.indexOf('条件') > -1 ? 'condition' : n.t.indexOf('抄送') > -1 ? 'cc' : 'approval'),
-        name: n.t, approver: '', rule: '', form: '继承全局表单', sla: '', back: !isStart && !isEnd
+        type: isStart ? 'start' : isEnd ? 'end' : (isSign ? 'countersign' : n.t.indexOf('条件') > -1 ? 'condition' : isCc ? 'cc' : 'approval'),
+        name: n.t,
+        approver: APPROVER[n.t] || '',
+        rule: isCc ? '抄送' : isSign ? '会签' : '或签',
+        form: n.t.indexOf('会签') > -1 ? '合同评审-法务会签页' : '继承全局表单',
+        sla: isSign ? '48' : (isStart || isEnd || n.t.indexOf('条件') > -1 ? '' : '24'),
+        back: !isStart && !isEnd
       };
     });
   }
@@ -1383,7 +1395,7 @@ function addNode(type) {
   NODES.splice(NODES.length - 1, 0, { type: type, name: label, approver: '', rule: '', form: '继承全局表单', sla: '', back: true });
   curNode = NODES.length - 2;
   renderCanvas();
-  renderProps();
+  renderFlowProps();
   toast('已添加「' + label + '」，在右侧配置属性');
 }
 
@@ -1398,10 +1410,10 @@ function delNode(e, i) {
 function selectNode(i) {
   curNode = i;
   renderCanvas();
-  renderProps();
+  renderFlowProps();
 }
 
-function renderProps() {
+function renderFlowProps() {
   var n = NODES[curNode];
   var box = document.getElementById('dzProps');
   if (!n) { box.innerHTML = '<div class="dz-empty">选择左侧节点查看属性</div>'; return; }
