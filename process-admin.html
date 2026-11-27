@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>流程中心 - 柏星龙业务数字化中台</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px; color: #1e293b; background: #f5f7fa; line-height: 1.5;
+}
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+input, select { outline: none; font-family: inherit; }
+
+/* 顶部导航 */
+.header {
+  height: 56px; background: #1a365d; color: #fff; display: flex; align-items: center;
+  padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+}
+.header-logo { display: flex; align-items: center; gap: 10px; margin-right: 28px; white-space: nowrap; }
+.header-logo-icon {
+  width: 30px; height: 30px; border-radius: 6px; background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px;
+}
+.header-logo-text { font-size: 15px; font-weight: 600; }
+.header-nav { display: flex; align-items: center; gap: 2px; flex: 1; }
+.header-nav-item {
+  padding: 0 14px; height: 56px; display: flex; align-items: center;
+  color: rgba(255,255,255,0.8); font-size: 13px; cursor: pointer;
+}
+.header-nav-item:hover, .header-nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
+.header-right { display: flex; align-items: center; gap: 14px; font-size: 12px; color: rgba(255,255,255,0.8); }
+.header-avatar {
+  width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#60a5fa,#3b82f6);
+  display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff;
+}
+
+/* 二级导航 */
+.sub-header {
+  height: 44px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;
+  padding: 0 20px; position: fixed; top: 56px; left: 0; right: 0; z-index: 99;
+}
+.sub-nav-item {
+  padding: 0 14px; height: 44px; display: flex; align-items: center; font-size: 13px;
+  color: #64748b; border-bottom: 2px solid transparent; cursor: pointer;
+}
+.sub-nav-item:hover { color: #2563eb; }
+.sub-nav-item.active { color: #2563eb; border-bottom-color: #2563eb; font-weight: 500; }
+
+/* 布局 */
+.layout { display: flex; padding-top: 100px; min-height: 100vh; }
+.side {
+  width: 200px; background: #fff; border-right: 1px solid #e2e8f0;
+  position: fixed; top: 100px; bottom: 0; left: 0; padding: 14px 10px; overflow-y: auto;
+}
+.side-title { font-size: 12px; color: #94a3b8; padding: 6px 10px 10px; }
+.side-item {
+  padding: 10px 12px; border-radius: 6px; font-size: 13px; color: #475569; cursor: pointer;
+  margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center;
+}
+.side-item:hover { background: #f1f5f9; color: #1e293b; }
+.side-item.active { background: #eff6ff; color: #2563eb; font-weight: 500; }
+.side-item .side-badge {
+  font-size: 11px; background: #fee2e2; color: #dc2626; padding: 0 6px; border-radius: 8px;
+}
+
+.main { margin-left: 200px; padding: 16px 20px 32px; flex: 1; min-width: 0; }
+.crumb { font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
+.crumb b { color: #64748b; font-weight: 400; }
+.page { display: none; }
+.page.active { display: block; }
+
+.page-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.page-title { font-size: 18px; font-weight: 600; color: #0f172a; }
+.page-desc { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+.btn {
+  height: 32px; padding: 0 14px; border-radius: 6px; font-size: 13px;
+  background: #fff; border: 1px solid #e2e8f0; color: #334155;
+}
+.btn:hover { border-color: #cbd5e1; background: #f8fafc; }
+.btn-primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+.btn-sm { height: 26px; padding: 0 8px; font-size: 12px; }
+.btn-link { background: none; border: none; color: #2563eb; font-size: 13px; padding: 0 4px; }
+.btn-link:hover { text-decoration: underline; }
+.btn-link.danger { color: #dc2626; }
+
+.card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; }
+.card-pad { padding: 16px; }
+
+/* 统计卡片 */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+.stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+.stat-label { font-size: 12px; color: #64748b; }
+.stat-value { font-size: 24px; font-weight: 600; margin-top: 6px; color: #0f172a; }
+.stat-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.stat-sub.warn { color: #dc2626; }
+
+/* 筛选 */
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.search-box {
+  display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px;
+  border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; width: 260px;
+}
+.search-box input { border: none; flex: 1; font-size: 13px; }
+.search-box span { color: #94a3b8; font-size: 13px; }
+.select {
+  height: 32px; padding: 0 10px; border: 1px solid #e2e8f0; border-radius: 6px;
+  background: #fff; font-size: 13px; color: #334155;
+}
+.toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+
+/* 表格 */
+.table-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; padding: 10px 14px; background: #f8fafc; font-size: 12px; font-weight: 500;
+  color: #64748b; border-bottom: 1px solid #eef2f7; white-space: nowrap;
+}
+td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; vertical-align: middle; }
+tbody tr:hover td { background: #f8fafc; }
+tbody tr:last-child td { border-bottom: none; }
+.t-name { font-weight: 500; color: #0f172a; }
+.t-sub { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; color: #475569; }
+.muted { color: #94a3b8; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 12px;
+  padding: 2px 8px; border-radius: 10px; white-space: nowrap;
+}
+.pill.on { background: #dcfce7; color: #15803d; }
+.pill.off { background: #f1f5f9; color: #64748b; }
+
+.empty { padding: 60px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+
+/* 抽屉 */
+.mask { position: fixed; inset: 0; background: rgba(15,23,42,0.35); display: none; z-index: 200; }
+.mask.show { display: block; }
+.drawer {
+  position: fixed; top: 0; right: -640px; width: 620px; max-width: 96vw; height: 100%;
+  background: #fff; z-index: 201; display: flex; flex-direction: column;
+  box-shadow: -8px 0 24px rgba(15,23,42,0.12); transition: right .25s ease;
+}
+.drawer.show { right: 0; }
+.drawer-head { padding: 16px 20px; border-bottom: 1px solid #eef2f7; display: flex; align-items: flex-start; justify-content: space-between; }
+.drawer-title { font-size: 16px; font-weight: 600; }
+.drawer-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.drawer-close { background: none; font-size: 20px; color: #94a3b8; line-height: 1; }
+.drawer-tabs { display: flex; gap: 4px; padding: 0 16px; border-bottom: 1px solid #eef2f7; overflow-x: auto; }
+.d-tab {
+  padding: 12px 10px; font-size: 13px; color: #64748b; cursor: pointer;
+  border-bottom: 2px solid transparent; white-space: nowrap;
+}
+.d-tab:hover { color: #1e293b; }
+.d-tab.active { color: #2563eb; border-bottom-color: #2563eb; font-weight: 500; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px 40px; }
+.d-panel { display: none; }
+.d-panel.active { display: block; }
+
+.kv { display: grid; grid-template-columns: 110px 1fr; gap: 10px 12px; font-size: 13px; }
+.kv dt { color: #64748b; }
+.kv dd { color: #1e293b; }
+
+.timeline { position: relative; padding-left: 16px; }
+.tl-item { position: relative; padding: 0 0 16px 14px; border-left: 1px solid #e2e8f0; }
+.tl-item:last-child { border-left: none; padding-bottom: 0; }
+.tl-item::before {
+  content: ''; position: absolute; left: -4px; top: 4px; width: 7px; height: 7px;
+  border-radius: 50%; background: #93c5fd; border: 2px solid #fff;
+}
+.tl-title { font-size: 13px; color: #1e293b; font-weight: 500; }
+.tl-desc { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+.mini-table th, .mini-table td { padding: 8px 10px; font-size: 12px; }
+.mini-table { border: 1px solid #eef2f7; border-radius: 6px; overflow: hidden; }
+
+.section-title { font-size: 13px; font-weight: 600; color: #334155; margin: 16px 0 10px; }
+.section-title:first-child { margin-top: 0; }
+.hint { font-size: 12px; color: #94a3b8; line-height: 1.7; }
+.list-line { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px dashed #eef2f7; font-size: 13px; }
+.list-line:last-child { border-bottom: none; }
+
+/* toast */
+.toast {
+  position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
+  background: #1e293b; color: #fff; font-size: 13px; padding: 10px 18px; border-radius: 6px;
+  opacity: 0; pointer-events: none; transition: all .25s; z-index: 300;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 1100px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .side { width: 168px; }
+  .main { margin-left: 168px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="header">
+  <div class="header-logo">
+    <div class="header-logo-icon">柏</div>
+    <div class="header-logo-text">柏星龙业务数字化中台</div>
+  </div>
+  <div class="header-nav">
+    <a class="header-nav-item" href="index.html">首页</a>
+    <div class="header-nav-item">T100</div>
+    <div class="header-nav-item">HR</div>
+    <div class="header-nav-item">OA</div>
+    <div class="header-nav-item">CRM</div>
+    <div class="header-nav-item">SRM</div>
+    <div class="header-nav-item">BI</div>
+    <div class="header-nav-item">报表</div>
+    <div class="header-nav-item">柏家学堂</div>
+  </div>
+  <div class="header-right">
+    <span>深圳 晴 26℃</span>
+    <span>张建国</span>
+    <div class="header-avatar">张</div>
+  </div>
+</div>
+
+<!-- 二级导航 -->
+<div class="sub-header">
+  <a class="sub-nav-item" href="index.html">首页概览</a>
+  <a class="sub-nav-item" href="content-study.html">内容管理</a>
+  <div class="sub-nav-item active">流程中心</div>
+  <a class="sub-nav-item" href="api-center.html">API中心</a>
+  <a class="sub-nav-item" href="role-list.html">系统设置</a>
+</div>
+
+<div class="layout">
+  <!-- 左侧二级菜单 -->
+  <aside class="side">
+    <div class="side-title">流程中心</div>
+    <div class="side-item" data-page="overview" onclick="switchPage('overview','概览')">概览</div>
+    <div class="side-item active" data-page="process" onclick="switchPage('process','流程管理')">
+      流程管理 <span class="side-badge" id="syncBadge">3</span>
+    </div>
+    <div class="side-item" data-page="group" onclick="switchPage('group','分组管理')">分组管理</div>
+    <div class="side-item" data-page="sync" onclick="switchPage('sync','接入与同步')">接入与同步</div>
+    <div class="side-item" data-page="scope" onclick="switchPage('scope','权限范围')">权限范围</div>
+  </aside>
+
+  <main class="main">
+    <div class="crumb"><a href="index.html">首页</a> <b>›</b> 流程中心 <b>›</b> <span id="crumbPage">流程管理</span></div>
+
+    <!-- 概览 -->
+    <section class="page" id="page-overview">
+      <div class="page-head">
+        <div>
+          <div class="page-title">概览</div>
+          <div class="page-desc">流程接入与运行概况，数据每日 02:00 同步</div>
+        </div>
+        <button class="btn" onclick="toast('已触发同步，请稍候')">立即同步</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">已接入流程</div><div class="stat-value">167</div><div class="stat-sub">泛微 OA 148 · 每刻 19</div></div>
+        <div class="stat"><div class="stat-label">启用中</div><div class="stat-value">152</div><div class="stat-sub">停用 15</div></div>
+        <div class="stat"><div class="stat-label">本月发起量</div><div class="stat-value">1,284</div><div class="stat-sub">较上月 +8.6%</div></div>
+        <div class="stat"><div class="stat-label">同步异常</div><div class="stat-value">3</div><div class="stat-sub warn">需重试 · 点击查看日志</div></div>
+      </div>
+      <div class="card card-pad">
+        <div class="section-title">待处理事项</div>
+        <div class="list-line"><span>「会议纪要会签」节点缺少审批人配置</span><span class="muted">11-27 09:20</span></div>
+        <div class="list-line"><span>「8D报告（国际）」workflowId 拉取失败</span><span class="muted">11-27 08:45</span></div>
+        <div class="list-line"><span>「制度意见征询」状态映射缺失 isremark=8</span><span class="muted">11-26 18:10</span></div>
+      </div>
+    </section>
+
+    <!-- 流程管理 -->
+    <section class="page active" id="page-process">
+      <div class="page-head">
+        <div>
+          <div class="page-title">流程管理</div>
+          <div class="page-desc">管理已接入流程的基础信息、启停与可见范围；节点与审批人仍以源系统为准</div>
+        </div>
+        <button class="btn btn-primary" onclick="toast('接入流程：请输入 workflowId 拉取（P1 开放）')">+ 接入流程</button>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><span>⌕</span><input id="kw" placeholder="搜索流程名称 / workflowId" oninput="renderProcess()"></div>
+        <select class="select" id="catFilter" onchange="renderProcess()"><option value="all">全部分类</option></select>
+        <select class="select" id="sysFilter" onchange="renderProcess()">
+          <option value="all">全部来源系统</option><option value="泛微 OA">泛微 OA</option><option value="每刻">每刻</option>
+        </select>
+        <select class="select" id="stateFilter" onchange="renderProcess()">
+          <option value="all">全部状态</option><option value="启用">启用</option><option value="停用">停用</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:24%">流程名称</th>
+              <th>分类</th>
+              <th>来源系统</th>
+              <th>表单字段</th>
+              <th>负责人</th>
+              <th>可见范围</th>
+              <th>状态</th>
+              <th>最近同步</th>
+              <th style="width:110px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="processBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 分组管理 -->
+    <section class="page" id="page-group">
+      <div class="page-head">
+        <div>
+          <div class="page-title">分组管理</div>
+          <div class="page-desc">分类取自源系统，共 18 类；中台仅调整排序与启用状态，不改名、不合并</div>
+        </div>
+        <button class="btn btn-primary" onclick="toast('新增分组（原型暂不开放）')">+ 新增分组</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>排序</th><th>分类名称</th><th>来源</th><th>流程数</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="groupBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 接入与同步 -->
+    <section class="page" id="page-sync">
+      <div class="page-head">
+        <div>
+          <div class="page-title">接入与同步</div>
+          <div class="page-desc">按 workflowId 接入泛微流程，或按单据类型接入每刻；同步记录与失败重试在此查看</div>
+        </div>
+      </div>
+      <div class="card card-pad" style="margin-bottom:12px">
+        <div class="section-title">接入新流程</div>
+        <div class="toolbar" style="margin-bottom:0">
+          <select class="select" id="newSource"><option>泛微 OA</option><option>每刻</option></select>
+          <div class="search-box" style="width:300px"><span>ID</span><input id="newWfId" placeholder="输入 workflowId，如 184"></div>
+          <button class="btn btn-primary" onclick="pullPreview()">拉取并预览</button>
+          <span class="muted" style="font-size:12px">拉取后需确认名称、分类、表单字段才正式接入</span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:18%">时间</th><th>流程</th><th>动作</th><th>结果</th><th>错误信息</th><th>操作人</th></tr></thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 权限范围 -->
+    <section class="page" id="page-scope">
+      <div class="page-head">
+        <div>
+          <div class="page-title">权限范围</div>
+          <div class="page-desc">控制各流程的可见与可发起范围；流程管理员可管理全部流程</div>
+        </div>
+        <button class="btn btn-primary" onclick="toast('新建授权（原型暂不开放）')">+ 新建授权</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>授权对象</th><th>类型</th><th>可见流程</th><th>可发起</th><th>流程管理员</th><th>操作</th></tr></thead>
+          <tbody id="scopeBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 详情抽屉 -->
+<div class="mask" id="mask" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <div class="drawer-title" id="dTitle">—</div>
+      <div class="drawer-sub" id="dSub">—</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+  <div class="drawer-tabs">
+    <div class="d-tab active" onclick="switchDTab(this,'base')">基本信息</div>
+    <div class="d-tab" onclick="switchDTab(this,'fields')">表单字段</div>
+    <div class="d-tab" onclick="switchDTab(this,'nodes')">节点与审批人</div>
+    <div class="d-tab" onclick="switchDTab(this,'status')">状态映射</div>
+    <div class="d-tab" onclick="switchDTab(this,'scope')">权限范围</div>
+    <div class="d-tab" onclick="switchDTab(this,'logs')">变更记录</div>
+  </div>
+  <div class="drawer-body">
+    <div class="d-panel active" id="dp-base"></div>
+    <div class="d-panel" id="dp-fields"></div>
+    <div class="d-panel" id="dp-nodes"></div>
+    <div class="d-panel" id="dp-status"></div>
+    <div class="d-panel" id="dp-scope"></div>
+    <div class="d-panel" id="dp-logs"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var PROCESS = [
+  { id: 1, name: '差旅报销申请', cat: '财务审批类', sys: '每刻', wf: 'MX-BX-001', fields: 8, owner: '张建国', scope: '全公司', state: '启用', sync: '11-26 14:20' },
+  { id: 2, name: '采购合同用印申请', cat: '法务类', sys: '泛微 OA', wf: '184', fields: 12, owner: '陈曦', scope: '法务部 / 采购部', state: '启用', sync: '11-26 13:10' },
+  { id: 3, name: '员工入职流程', cat: '人事管理类', sys: '泛微 OA', wf: '132', fields: 15, owner: '人事部', scope: '全公司', state: '启用', sync: '11-26 09:30' },
+  { id: 4, name: '供应商准入资质审批', cat: '资源开发/管理类', sys: '泛微 OA', wf: '176', fields: 9, owner: '王强', scope: '采购部', state: '启用', sync: '11-25 18:00' },
+  { id: 5, name: '付款申请单', cat: '对公支付单', sys: '每刻', wf: 'MX-FK-003', fields: 6, owner: '财务共享中心', scope: '全公司', state: '启用', sync: '11-25 16:40' },
+  { id: 6, name: '年度预算调整申请', cat: '财务审批类', sys: '泛微 OA', wf: '151', fields: 7, owner: '财务部', scope: '财务部 / 各部门负责人', state: '启用', sync: '11-24 11:20' },
+  { id: 7, name: '会议纪要会签', cat: '人事管理类', sys: '泛微 OA', wf: '118', fields: 3, owner: '行政部', scope: '全公司', state: '停用', sync: '11-22 10:05' },
+  { id: 8, name: '工作联络函', cat: '业务类', sys: '泛微 OA', wf: '142', fields: 4, owner: '各事业部', scope: '全公司', state: '启用', sync: '11-21 15:30' },
+  { id: 9, name: '借款申请单', cat: '借款申请单', sys: '每刻', wf: 'MX-JK-002', fields: 5, owner: '财务共享中心', scope: '全公司', state: '启用', sync: '11-20 09:15' },
+  { id: 10, name: '客户投诉处理', cat: '投诉类', sys: '泛微 OA', wf: '167', fields: 11, owner: '客服中心', scope: '客服中心 / 质量部', state: '启用', sync: '11-19 17:45' },
+  { id: 11, name: '制度意见征询', cat: '法务类', sys: '泛微 OA', wf: '159', fields: 6, owner: '法务部', scope: '全公司', state: '停用', sync: '11-18 14:00' },
+  { id: 12, name: '8D报告（国际）', cat: '质量类-供应链', sys: '泛微 OA', wf: '193', fields: 8, owner: '质量部', scope: '质量部 / 生产部', state: '启用', sync: '11-17 10:20' }
+];
+
+var GROUPS = [
+  { sort: 1, name: '人事管理类', src: '泛微 OA', count: 23, state: '启用' },
+  { sort: 2, name: '财务审批类', src: '泛微 OA', count: 14, state: '启用' },
+  { sort: 3, name: '业务类', src: '泛微 OA', count: 19, state: '启用' },
+  { sort: 4, name: '法务类', src: '泛微 OA', count: 9, state: '启用' },
+  { sort: 5, name: '资源开发/管理类', src: '泛微 OA', count: 8, state: '启用' },
+  { sort: 6, name: '质量类-供应链', src: '泛微 OA', count: 11, state: '启用' },
+  { sort: 7, name: '投诉类', src: '泛微 OA', count: 4, state: '启用' },
+  { sort: 8, name: '报销申请单', src: '每刻', count: 6, state: '启用' }
+];
+
+var LOGS = [
+  { time: '11-27 08:45', proc: '8D报告（国际）', act: '拉取流程定义', res: '失败', err: 'workflowId 193 在 OA 中不存在或已删除', user: '系统' },
+  { time: '11-27 02:00', proc: '全部流程', act: '定时全量同步', res: '成功', err: '—', user: '系统' },
+  { time: '11-26 18:10', proc: '制度意见征询', act: '保存状态映射', res: '成功', err: '—', user: '张建国' },
+  { time: '11-26 14:20', proc: '差旅报销申请', act: '更新可见范围', res: '成功', err: '—', user: '张建国' },
+  { time: '11-25 16:05', proc: '会议纪要会签', act: '停用流程', res: '成功', err: '—', user: '陈曦' }
+];
+
+var SCOPES = [
+  { obj: '全公司', type: '组织', visible: '152', create: '128', admin: '否' },
+  { obj: '财务部', type: '部门', visible: '38', create: '31', admin: '否' },
+  { obj: '采购部', type: '部门', visible: '26', create: '22', admin: '否' },
+  { obj: '法务部', type: '部门', visible: '18', create: '15', admin: '否' },
+  { obj: '流程管理员', type: '角色', visible: '167', create: '167', admin: '是' },
+  { obj: '张建国', type: '人员', visible: '167', create: '152', admin: '是' }
+];
+
+var page = 'process';
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function () { t.classList.remove('show'); }, 2400);
+}
+
+function switchPage(key, label) {
+  page = key;
+  document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+  document.getElementById('page-' + key).classList.add('active');
+  document.querySelectorAll('.side-item').forEach(function (s) {
+    s.classList.toggle('active', s.getAttribute('data-page') === key);
+  });
+  document.getElementById('crumbPage').textContent = label;
+  window.scrollTo(0, 0);
+}
+
+function renderProcess() {
+  var kw = (document.getElementById('kw').value || '').trim().toLowerCase();
+  var cat = document.getElementById('catFilter').value;
+  var sys = document.getElementById('sysFilter').value;
+  var st = document.getElementById('stateFilter').value;
+  var rows = PROCESS.filter(function (p) {
+    if (kw && p.name.toLowerCase().indexOf(kw) === -1 && p.wf.toLowerCase().indexOf(kw) === -1) return false;
+    if (cat !== 'all' && p.cat !== cat) return false;
+    if (sys !== 'all' && p.sys !== sys) return false;
+    if (st !== 'all' && p.state !== st) return false;
+    return true;
+  });
+  var body = document.getElementById('processBody');
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="9" class="empty">未找到匹配的流程</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(function (p) {
+    return '<tr>' +
+      '<td><div class="t-name">' + p.name + '</div><div class="t-sub mono">workflowId ' + p.wf + '</div></td>' +
+      '<td>' + p.cat + '</td>' +
+      '<td>' + p.sys + '</td>' +
+      '<td>' + p.fields + ' 项</td>' +
+      '<td>' + p.owner + '</td>' +
+      '<td class="muted">' + p.scope + '</td>' +
+      '<td><span class="pill ' + (p.state === '启用' ? 'on' : 'off') + '">' + p.state + '</span></td>' +
+      '<td class="muted">' + p.sync + '</td>' +
+      '<td><button class="btn-link" onclick="openDrawer(' + p.id + ')">详情</button>' +
+      '<button class="btn-link ' + (p.state === '启用' ? 'danger' : '') + '" onclick="toggleState(' + p.id + ')">' + (p.state === '启用' ? '停用' : '启用') + '</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function toggleState(id) {
+  var p = PROCESS.find(function (x) { return x.id === id; });
+  p.state = p.state === '启用' ? '停用' : '启用';
+  renderProcess();
+  toast('「' + p.name + '」已' + p.state);
+}
+
+function openDrawer(id) {
+  var p = PROCESS.find(function (x) { return x.id === id; });
+  document.getElementById('dTitle').textContent = p.name;
+  document.getElementById('dSub').textContent = p.sys + ' · ' + p.cat + ' · workflowId ' + p.wf;
+  document.getElementById('dp-base').innerHTML =
+    '<dl class="kv">' +
+    '<dt>流程名称</dt><dd>' + p.name + '</dd>' +
+    '<dt>业务分类</dt><dd>' + p.cat + '</dd>' +
+    '<dt>来源系统</dt><dd>' + p.sys + '</dd>' +
+    '<dt>workflowId</dt><dd class="mono">' + p.wf + '</dd>' +
+    '<dt>发起链接</dt><dd class="mono">/workflow/request?workflowId=' + p.wf + '</dd>' +
+    '<dt>负责人</dt><dd>' + p.owner + '</dd>' +
+    '<dt>可见范围</dt><dd>' + p.scope + '</dd>' +
+    '<dt>启停状态</dt><dd>' + p.state + '</dd>' +
+    '<dt>最近同步</dt><dd>' + p.sync + '</dd>' +
+    '</dl>' +
+    '<p class="hint" style="margin-top:14px">节点、审批人与条件分支由源系统维护，中台只读展示，避免双写产生不一致。</p>';
+
+  document.getElementById('dp-fields').innerHTML =
+    '<div class="section-title">中台展示字段映射</div>' +
+    '<table class="mini-table"><thead><tr><th>中台字段</th><th>源字段</th><th>转换规则</th><th>状态</th></tr></thead><tbody>' +
+    '<tr><td>单据标题</td><td>requestName</td><td>原样</td><td>已映射</td></tr>' +
+    '<tr><td>单据编号</td><td>requestMark</td><td>原样</td><td>已映射</td></tr>' +
+    '<tr><td>金额</td><td>表单字段 amount</td><td>千分位 + 2 位小数</td><td>已映射</td></tr>' +
+    '<tr><td>提交人 / 部门</td><td>creatorName / department</td><td>原样</td><td>已映射</td></tr>' +
+    '<tr><td>当前环节</td><td>currentNodeName</td><td>原样</td><td>已映射</td></tr>' +
+    '<tr><td>截止时间</td><td>—</td><td>—</td><td>待确认</td></tr>' +
+    '</tbody></table>';
+
+  document.getElementById('dp-nodes').innerHTML =
+    '<div class="timeline">' +
+    '<div class="tl-item"><div class="tl-title">发起</div><div class="tl-desc">发起人 · 提交后进入部门经理</div></div>' +
+    '<div class="tl-item"><div class="tl-title">部门经理审核</div><div class="tl-desc">审批人：部门经理（主管领导） · 可退回发起人</div></div>' +
+    '<div class="tl-item"><div class="tl-title">财务审核</div><div class="tl-desc">审批人：财务经理 · 金额 ≥ 50,000 才进入</div></div>' +
+    '<div class="tl-item"><div class="tl-title">总裁审批</div><div class="tl-desc">审批人：总裁 · 条件分支：金额 ≥ 200,000</div></div>' +
+    '<div class="tl-item"><div class="tl-title">归档</div><div class="tl-desc">抄送：申请人直属上级</div></div>' +
+    '</div>' +
+    '<p class="hint" style="margin-top:12px">以上节点来自 OA 流程定义，中台只读；如需调整请到 OA 后台修改后重新同步。</p>';
+
+  document.getElementById('dp-status').innerHTML =
+    '<div class="section-title">状态映射</div>' +
+    '<table class="mini-table"><thead><tr><th>源状态</th><th>中台状态</th><th>说明</th></tr></thead><tbody>' +
+    '<tr><td class="mono">isremark = 0</td><td>待我审批</td><td>节点未提交</td></tr>' +
+    '<tr><td class="mono">isremark = 2</td><td>已办 / 审批中</td><td>已提交，按节点动作区分</td></tr>' +
+    '<tr><td class="mono">isremark = 4</td><td>已通过</td><td>已归档（终态）</td></tr>' +
+    '<tr><td class="mono">isremark = 8</td><td>不展示</td><td>抄送</td></tr>' +
+    '<tr><td class="mono">isremark = 11</td><td>待阅</td><td>传阅</td></tr>' +
+    '</tbody></table>' +
+    '<button class="btn btn-sm" style="margin-top:12px" onclick="toast(\'试算：以 3 张样例单据验证，映射通过\')">用样例单据试算</button>';
+
+  document.getElementById('dp-scope').innerHTML =
+    '<div class="section-title">可见范围</div>' +
+    '<div class="list-line"><span>' + p.scope + '</span><span class="muted">可见 · 可发起</span></div>' +
+    '<div class="section-title">流程管理员</div>' +
+    '<div class="list-line"><span>' + p.owner + '</span><span class="muted">可编辑配置</span></div>' +
+    '<div class="list-line"><span>张建国</span><span class="muted">超级管理员</span></div>';
+
+  document.getElementById('dp-logs').innerHTML =
+    '<div class="list-line"><span>停用流程</span><span class="muted">陈曦 · ' + p.sync + '</span></div>' +
+    '<div class="list-line"><span>更新可见范围</span><span class="muted">张建国 · 11-20 10:15</span></div>' +
+    '<div class="list-line"><span>保存状态映射</span><span class="muted">张建国 · 11-18 09:40</span></div>' +
+    '<div class="list-line"><span>接入流程</span><span class="muted">系统 · 11-10 02:00</span></div>';
+
+  document.getElementById('mask').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+  switchDTab(document.querySelector('.d-tab'), 'base');
+}
+
+function closeDrawer() {
+  document.getElementById('mask').classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
+}
+
+function switchDTab(el, key) {
+  document.querySelectorAll('.d-tab').forEach(function (t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.d-panel').forEach(function (p) { p.classList.remove('active'); });
+  document.getElementById('dp-' + key).classList.add('active');
+}
+
+function renderGroups() {
+  document.getElementById('groupBody').innerHTML = GROUPS.map(function (g) {
+    return '<tr><td class="muted">' + g.sort + '</td><td class="t-name">' + g.name + '</td><td>' + g.src + '</td>' +
+      '<td>' + g.count + '</td><td><span class="pill ' + (g.state === '启用' ? 'on' : 'off') + '">' + g.state + '</span></td>' +
+      '<td><button class="btn-link" onclick="toast(\'排序与启停在 P1 开放\')">编辑</button></td></tr>';
+  }).join('');
+}
+
+function renderLogs() {
+  document.getElementById('logBody').innerHTML = LOGS.map(function (l) {
+    var resCls = l.res === '成功' ? 'pill on' : 'pill off';
+    return '<tr><td class="muted">' + l.time + '</td><td class="t-name">' + l.proc + '</td><td>' + l.act + '</td>' +
+      '<td><span class="' + resCls + '">' + l.res + '</span></td><td class="muted">' + l.err + '</td><td>' + l.user + '</td></tr>';
+  }).join('');
+}
+
+function renderScopes() {
+  document.getElementById('scopeBody').innerHTML = SCOPES.map(function (s) {
+    return '<tr><td class="t-name">' + s.obj + '</td><td>' + s.type + '</td><td>' + s.visible + '</td>' +
+      '<td>' + s.create + '</td><td>' + s.admin + '</td>' +
+      '<td><button class="btn-link" onclick="toast(\'授权编辑在 P1 开放\')">编辑</button></td></tr>';
+  }).join('');
+}
+
+function pullPreview() {
+  var id = (document.getElementById('newWfId').value || '').trim();
+  if (!id) { toast('请先输入 workflowId'); return; }
+  toast('已拉取 workflowId ' + id + ' 的定义，请在预览中确认（P1 开放）');
+}
+
+(function init() {
+  var cats = [];
+  PROCESS.forEach(function (p) { if (cats.indexOf(p.cat) === -1) cats.push(p.cat); });
+  var sel = document.getElementById('catFilter');
+  cats.forEach(function (c) {
+    var o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    sel.appendChild(o);
+  });
+  renderProcess();
+  renderGroups();
+  renderLogs();
+  renderScopes();
+})();
+</script>
+</body>
+</html>
