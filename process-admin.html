@@ -582,6 +582,17 @@ tbody tr:hover td { background: #fafbfc; }
 .toast { background: #1f2329; border-radius: 3px; font-size: 12.5px; }
 
 /* 自定义规则 */
+/* 拖拽交互 */
+.fd-left-tip { font-size: 11px; color: #94a3b8; padding: 0 8px 8px; line-height: 1.5; }
+.palette-item[draggable="true"], .fd-comp[draggable="true"], .node[draggable="true"], .fd-row[draggable="true"] { cursor: grab; }
+.palette-item.dragging, .fd-comp.dragging, .node.dragging, .fd-row.dragging { opacity: .45; }
+.node.drop-above { box-shadow: inset 0 2px 0 #1f5fbf; }
+.node.drop-below { box-shadow: inset 0 -2px 0 #1f5fbf; }
+.fd-row.drop-above { box-shadow: inset 0 2px 0 #1f5fbf; }
+.fd-row.drop-below { box-shadow: inset 0 -2px 0 #1f5fbf; }
+.fd-row.drag-over { background: #f8fbff; }
+#fdCanvas.drop-end { box-shadow: inset 0 -2px 0 #1f5fbf; }
+
 .rb-cond { display: grid; grid-template-columns: 1fr 84px 1fr 24px; gap: 6px; align-items: center; margin-bottom: 6px; }
 .rb-cond .prop-select, .rb-cond .prop-input { height: 30px; font-size: 12.5px; padding: 0 8px; }
 .rb-del { background: none; color: #94a3b8; font-size: 16px; line-height: 1; padding: 0; }
@@ -1113,17 +1124,17 @@ tbody tr:hover td { background: #fafbfc; }
   </div>
   <div class="dz-body">
     <div class="dz-palette">
-      <div class="dz-palette-title">节点组件（点击添加）</div>
-      <div class="palette-item" onclick="addNode('approval')"><span class="palette-dot approval"></span>审批节点</div>
-      <div class="palette-item" onclick="addNode('condition')"><span class="palette-dot condition"></span>条件分支</div>
-      <div class="palette-item" onclick="addNode('countersign')"><span class="palette-dot approval"></span>会签节点</div>
-      <div class="palette-item" onclick="addNode('cc')"><span class="palette-dot cc"></span>抄送节点</div>
-      <div class="palette-item" onclick="addNode('end')"><span class="palette-dot end"></span>结束</div>
+      <div class="dz-palette-title">节点组件（点击或拖入画布）</div>
+      <div class="palette-item" draggable="true" ondragstart="flowPaletteDragStart(event,'approval')" ondragend="flowDragEnd()" onclick="addNode('approval')"><span class="palette-dot approval"></span>审批节点</div>
+      <div class="palette-item" draggable="true" ondragstart="flowPaletteDragStart(event,'condition')" ondragend="flowDragEnd()" onclick="addNode('condition')"><span class="palette-dot condition"></span>条件分支</div>
+      <div class="palette-item" draggable="true" ondragstart="flowPaletteDragStart(event,'countersign')" ondragend="flowDragEnd()" onclick="addNode('countersign')"><span class="palette-dot approval"></span>会签节点</div>
+      <div class="palette-item" draggable="true" ondragstart="flowPaletteDragStart(event,'cc')" ondragend="flowDragEnd()" onclick="addNode('cc')"><span class="palette-dot cc"></span>抄送节点</div>
+      <div class="palette-item" draggable="true" ondragstart="flowPaletteDragStart(event,'end')" ondragend="flowDragEnd()" onclick="addNode('end')"><span class="palette-dot end"></span>结束</div>
       <div class="dz-palette-title" style="margin-top:16px">提示</div>
       <p class="hint">无需画退回线路，退回目标在节点属性中配置；相同处理人自动跳过可在发布时开启。</p>
     </div>
     <div class="dz-canvas-wrap">
-      <div class="dz-canvas" id="dzCanvas"></div>
+      <div class="dz-canvas" id="dzCanvas" ondragover="flowCanvasDragOver(event)" ondrop="flowCanvasDrop(event)"></div>
     </div>
     <div class="dz-props" id="dzProps">
       <div class="dz-empty">选择左侧节点查看属性</div>
@@ -1148,28 +1159,29 @@ tbody tr:hover td { background: #fafbfc; }
   <div class="dz-body">
     <div class="fd-layout">
       <div class="fd-left">
+        <div class="fd-left-tip">控件可拖入表单，字段可拖拽排序</div>
         <div class="fd-group">基础控件</div>
-        <div class="fd-comp" onclick="addComp('text')"><span class="fd-comp-icon">文</span>单行文本</div>
-        <div class="fd-comp" onclick="addComp('textarea')"><span class="fd-comp-icon">段</span>多行文本</div>
-        <div class="fd-comp" onclick="addComp('number')"><span class="fd-comp-icon">数</span>数字</div>
-        <div class="fd-comp" onclick="addComp('amount')"><span class="fd-comp-icon">额</span>金额</div>
-        <div class="fd-comp" onclick="addComp('date')"><span class="fd-comp-icon">日</span>日期</div>
-        <div class="fd-comp" onclick="addComp('note')"><span class="fd-comp-icon">说</span>说明文字</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'text')" ondragend="fdDragEnd()" onclick="addComp('text')"><span class="fd-comp-icon">文</span>单行文本</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'textarea')" ondragend="fdDragEnd()" onclick="addComp('textarea')"><span class="fd-comp-icon">段</span>多行文本</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'number')" ondragend="fdDragEnd()" onclick="addComp('number')"><span class="fd-comp-icon">数</span>数字</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'amount')" ondragend="fdDragEnd()" onclick="addComp('amount')"><span class="fd-comp-icon">额</span>金额</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'date')" ondragend="fdDragEnd()" onclick="addComp('date')"><span class="fd-comp-icon">日</span>日期</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'note')" ondragend="fdDragEnd()" onclick="addComp('note')"><span class="fd-comp-icon">说</span>说明文字</div>
         <div class="fd-group">选择控件</div>
-        <div class="fd-comp" onclick="addComp('select')"><span class="fd-comp-icon">下</span>下拉选择</div>
-        <div class="fd-comp" onclick="addComp('radio')"><span class="fd-comp-icon">单</span>单选</div>
-        <div class="fd-comp" onclick="addComp('checkbox')"><span class="fd-comp-icon">多</span>多选</div>
-        <div class="fd-comp" onclick="addComp('person')"><span class="fd-comp-icon">人</span>人员选择</div>
-        <div class="fd-comp" onclick="addComp('dept')"><span class="fd-comp-icon">部</span>部门选择</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'select')" ondragend="fdDragEnd()" onclick="addComp('select')"><span class="fd-comp-icon">下</span>下拉选择</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'radio')" ondragend="fdDragEnd()" onclick="addComp('radio')"><span class="fd-comp-icon">单</span>单选</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'checkbox')" ondragend="fdDragEnd()" onclick="addComp('checkbox')"><span class="fd-comp-icon">多</span>多选</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'person')" ondragend="fdDragEnd()" onclick="addComp('person')"><span class="fd-comp-icon">人</span>人员选择</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'dept')" ondragend="fdDragEnd()" onclick="addComp('dept')"><span class="fd-comp-icon">部</span>部门选择</div>
         <div class="fd-group">高级控件</div>
-        <div class="fd-comp" onclick="addComp('attachment')"><span class="fd-comp-icon">附</span>附件上传</div>
-        <div class="fd-comp" onclick="addComp('table')"><span class="fd-comp-icon">表</span>明细表</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'attachment')" ondragend="fdDragEnd()" onclick="addComp('attachment')"><span class="fd-comp-icon">附</span>附件上传</div>
+        <div class="fd-comp" draggable="true" ondragstart="fdCompDragStart(event,'table')" ondragend="fdDragEnd()" onclick="addComp('table')"><span class="fd-comp-icon">表</span>明细表</div>
       </div>
       <div class="fd-center">
         <div class="fd-form">
           <div class="fd-form-title" id="fdFormTitle">合同评审申请表</div>
           <div class="fd-form-desc" id="fdFormDesc">请如实填写合同信息，带 * 为必填项</div>
-          <div id="fdCanvas"></div>
+          <div id="fdCanvas" ondragover="fdCanvasDragOver(event)" ondrop="fdCanvasDrop(event)"></div>
           <div class="fd-submit">
             <button class="btn" onclick="toast('预览：已暂存')">暂存</button>
             <button class="btn btn-primary" onclick="toast('预览：已提交')">提交</button>
@@ -1918,7 +1930,9 @@ function renderCanvas() {
   var c = document.getElementById('dzCanvas');
   if (!c) return;
   c.innerHTML = NODES.map(function (n, i) {
-    var wrap = '<div class="node' + (i === curNode ? ' selected' : '') + '" onclick="selectNode(' + i + ')">' +
+    var drag = (i > 0 && n.type !== 'end')
+      ? ' draggable="true" ondragstart="flowNodeDragStart(event,' + i + ')" ondragend="flowDragEnd()"' : '';
+    var wrap = '<div class="node' + (i === curNode ? ' selected' : '') + '"' + drag + ' onclick="selectNode(' + i + ')">' +
       '<div class="node-top"><span class="node-type">' + TYPE_LABEL[n.type] + '</span><span class="node-name">' + n.name + '</span></div>' +
       '<div class="node-desc">' + nodeDesc(n) + '</div>' +
       (i > 0 && n.type !== 'end' ? '<div class="node-del" onclick="delNode(event,' + i + ')">×</div>' : '') +
@@ -1936,6 +1950,87 @@ function nodeDesc(n) {
   if (n.sla) s += ' · 超时 ' + n.sla + ' 小时';
   if (n.back) s += ' · 可退回';
   return s;
+}
+
+var flowDragType = null, flowDragIndex = -1, flowDropIndex = -1;
+
+function flowPaletteDragStart(e, type) {
+  flowDragType = type;
+  flowDragIndex = -1;
+  flowDropIndex = -1;
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', type);
+  }
+}
+
+function flowNodeDragStart(e, i) {
+  if (i <= 0 || NODES[i].type === 'end') { e.preventDefault(); return; }
+  flowDragType = null;
+  flowDragIndex = i;
+  flowDropIndex = -1;
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'node');
+  }
+  if (e.currentTarget && e.currentTarget.classList) e.currentTarget.classList.add('dragging');
+}
+
+function clearFlowDrop() {
+  document.querySelectorAll('#dzCanvas .node').forEach(function (el) {
+    el.classList.remove('drop-above', 'drop-below');
+  });
+}
+
+function flowCanvasDragOver(e) {
+  if (!flowDragType && flowDragIndex < 0) return;
+  e.preventDefault();
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('#dzCanvas .node'));
+  if (!nodes.length) return;
+  var idx = NODES.length - 1;
+  for (var i = 0; i < nodes.length; i++) {
+    var r = nodes[i].getBoundingClientRect();
+    if (e.clientY < r.top + r.height / 2) { idx = i; break; }
+  }
+  idx = Math.max(1, Math.min(idx, NODES.length - 1));
+  flowDropIndex = idx;
+  clearFlowDrop();
+  if (nodes[idx]) nodes[idx].classList.add('drop-above');
+}
+
+function flowCanvasDrop(e) {
+  e.preventDefault();
+  var idx = flowDropIndex;
+  if (idx < 1) idx = Math.max(1, NODES.length - 1);
+  if (flowDragType) {
+    var label = flowTypeLabel(flowDragType);
+    NODES.splice(idx, 0, { type: flowDragType, name: label, approver: '', rule: '', form: '继承全局表单', sla: '', back: true });
+    curNode = idx;
+    toast('已添加「' + label + '」，在右侧配置属性');
+  } else if (flowDragIndex >= 1) {
+    var node = NODES.splice(flowDragIndex, 1)[0];
+    if (flowDragIndex < idx) idx--;
+    idx = Math.max(1, Math.min(idx, NODES.length - 1));
+    NODES.splice(idx, 0, node);
+    curNode = idx;
+    toast('节点顺序已调整');
+  }
+  flowDragEnd();
+  renderCanvas();
+  renderFlowProps();
+}
+
+function flowDragEnd() {
+  flowDragType = null;
+  flowDragIndex = -1;
+  flowDropIndex = -1;
+  clearFlowDrop();
+  document.querySelectorAll('#dzCanvas .node').forEach(function (el) { el.classList.remove('dragging'); });
+  document.querySelectorAll('.palette-item').forEach(function (el) { el.classList.remove('dragging'); });
+}
+
+function flowTypeLabel(type) {
+  return type === 'approval' ? '审批节点' : type === 'condition' ? '条件分支' : type === 'countersign' ? '会签节点' : type === 'cc' ? '抄送节点' : '结束';
 }
 
 function addNode(type) {
@@ -2255,10 +2350,15 @@ function setFormMeta(k, v) {
   if (k === 'desc') document.getElementById('fdFormDesc').textContent = v;
 }
 
-function addComp(type) {
+function makeField(type) {
   var t = FD_TYPE[type];
   var opts = (type === 'select' || type === 'radio' || type === 'checkbox') ? ['选项一', '选项二'] : [];
-  FIELDS.push({ id: ++fdSeq, label: t.label, type: type, required: false, placeholder: '', desc: '', options: opts });
+  return { id: ++fdSeq, label: t.label, type: type, required: false, placeholder: '', desc: '', options: opts };
+}
+
+function addComp(type) {
+  var t = FD_TYPE[type];
+  FIELDS.push(makeField(type));
   fdSel = FIELDS.length - 1;
   renderFields();
   renderProps();
@@ -2312,33 +2412,114 @@ function delOption(i) {
   renderProps();
 }
 
+var fdCompType = null;
+var fdDropIndex = -1;
+
+function fdCompDragStart(e, type) {
+  fdCompType = type;
+  fdDrag = -1;
+  fdDropIndex = -1;
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', type);
+  }
+}
+
 function fdDragStart(e, i) {
   fdDrag = i;
+  fdCompType = null;
+  fdDropIndex = -1;
   if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
   if (e.currentTarget && e.currentTarget.classList) e.currentTarget.classList.add('dragging');
 }
 
 function fdDragOver(e, i) {
+  if (!fdCompType && fdDrag < 0) return;
   e.preventDefault();
-  document.querySelectorAll('.fd-row').forEach(function (r) { r.classList.remove('drag-over'); });
-  if (i !== fdDrag && e.currentTarget && e.currentTarget.classList) e.currentTarget.classList.add('drag-over');
+  document.querySelectorAll('.fd-row').forEach(function (r) { r.classList.remove('drag-over', 'drop-above', 'drop-below'); });
+  var c = document.getElementById('fdCanvas');
+  if (c) c.classList.remove('drop-end');
+  var rect = e.currentTarget.getBoundingClientRect();
+  var after = e.clientY > rect.top + rect.height / 2;
+  fdDropIndex = after ? i + 1 : i;
+  if (e.currentTarget.classList) e.currentTarget.classList.add(after ? 'drop-below' : 'drop-above');
 }
 
 function fdDrop(e, i) {
   e.preventDefault();
+  var idx = fdDropIndex >= 0 ? fdDropIndex : i;
+  if (fdCompType) {
+    var f = makeField(fdCompType);
+    FIELDS.splice(idx, 0, f);
+    fdSel = idx;
+    fdCompType = null;
+    fdDragEnd();
+    renderFields();
+    renderProps();
+    updateFdMeta();
+    toast('已添加「' + f.label + '」，可在右侧配置');
+    return;
+  }
   if (fdDrag < 0 || fdDrag === i) { fdDragEnd(); return; }
   var moved = FIELDS.splice(fdDrag, 1)[0];
-  FIELDS.splice(i, 0, moved);
-  fdSel = i;
+  if (fdDrag < idx) idx--;
+  idx = Math.max(0, Math.min(idx, FIELDS.length));
+  FIELDS.splice(idx, 0, moved);
+  fdSel = idx;
   fdDrag = -1;
+  fdDragEnd();
   renderFields();
   renderProps();
   toast('字段顺序已调整');
 }
 
+function fdCanvasDragOver(e) {
+  if (!fdCompType && fdDrag < 0) return;
+  if (e.target && e.target.closest && e.target.closest('.fd-row')) return;
+  e.preventDefault();
+  fdDropIndex = FIELDS.length;
+  document.querySelectorAll('.fd-row').forEach(function (r) { r.classList.remove('drag-over', 'drop-above', 'drop-below'); });
+  var c = document.getElementById('fdCanvas');
+  if (c) c.classList.add('drop-end');
+}
+
+function fdCanvasDrop(e) {
+  if (!fdCompType && fdDrag < 0) return;
+  e.preventDefault();
+  var c = document.getElementById('fdCanvas');
+  if (c) c.classList.remove('drop-end');
+  if (fdCompType) {
+    var f = makeField(fdCompType);
+    FIELDS.push(f);
+    fdSel = FIELDS.length - 1;
+    fdCompType = null;
+    fdDragEnd();
+    renderFields();
+    renderProps();
+    updateFdMeta();
+    toast('已添加「' + f.label + '」，可在右侧配置');
+    return;
+  }
+  if (fdDrag >= 0) {
+    var moved = FIELDS.splice(fdDrag, 1)[0];
+    FIELDS.push(moved);
+    fdSel = FIELDS.length - 1;
+    fdDragEnd();
+    renderFields();
+    renderProps();
+    toast('字段已移至末尾');
+  }
+}
+
 function fdDragEnd() {
   fdDrag = -1;
-  document.querySelectorAll('.fd-row').forEach(function (r) { r.classList.remove('dragging', 'drag-over'); });
+  fdCompType = null;
+  fdDropIndex = -1;
+  document.querySelectorAll('.fd-row').forEach(function (r) {
+    r.classList.remove('dragging', 'drag-over', 'drop-above', 'drop-below');
+  });
+  var c = document.getElementById('fdCanvas');
+  if (c) c.classList.remove('drop-end');
 }
 
 function toggleFormPreview() {
