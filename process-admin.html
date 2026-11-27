@@ -366,6 +366,33 @@ tbody tr:last-child td { border-bottom: none; }
 .designer.preview-mode .fd-row.selected { border-color: transparent; background: none; box-shadow: none; }
 .designer.preview-mode .fd-row:hover { background: none; border-color: transparent; }
 
+/* 任务办理页 */
+.approve { position: fixed; inset: 0; background: #f1f5f9; z-index: 320; display: none; flex-direction: column; }
+.approve.show { display: flex; }
+.ap-head { height: 52px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; padding: 0 20px; flex-shrink: 0; }
+.ap-title { font-size: 14px; font-weight: 600; }
+.ap-sub { display: block; font-size: 12px; color: #94a3b8; font-weight: 400; margin-top: 2px; }
+.ap-body { flex: 1; overflow: auto; padding: 16px 20px; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 12px; align-items: start; }
+.ap-textarea { width: 100%; height: 84px; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; font-size: 13px; resize: vertical; }
+.ap-quick { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.ap-quick span { font-size: 12px; color: #475569; background: #f1f5f9; border-radius: 12px; padding: 3px 10px; cursor: pointer; }
+.ap-quick span:hover { background: #e0edff; color: #1d4ed8; }
+.ap-foot { background: #fff; border-top: 1px solid #e2e8f0; padding: 12px 20px; display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+.ap-foot .btn { height: 34px; padding: 0 18px; }
+@media (max-width: 1100px) { .ap-body { grid-template-columns: 1fr; } }
+
+/* 实例跟踪条 */
+.trace-strip { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.ts-node { font-size: 12px; padding: 5px 10px; border-radius: 14px; border: 1px solid #e2e8f0; color: #64748b; background: #fff; }
+.ts-node.done { border-color: #bbf7d0; background: #f0fdf4; color: #15803d; }
+.ts-node.current { border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; font-weight: 500; }
+.ts-arrow { color: #cbd5e1; font-size: 12px; }
+
+/* 分类 / 迁移明细 / 权限矩阵 */
+.mini-table select { height: 26px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #334155; background: #fff; }
+.check-ok { color: #16a34a; font-size: 12px; }
+.check-no { color: #cbd5e1; font-size: 12px; }
+
 /* 迁移进度条 */
 .progress { height: 6px; background: #eef2f7; border-radius: 4px; overflow: hidden; width: 120px; }
 .progress > i { display: block; height: 100%; background: #2563eb; border-radius: 4px; }
@@ -548,6 +575,7 @@ tbody tr:last-child td { border-bottom: none; }
           <div class="page-desc">节点式轻量化编排：串行审批、条件分支、会签/或签、抄送；发布后生成流程定义版本，在途实例不受新版本影响</div>
         </div>
         <div class="page-actions">
+          <button class="btn" onclick="openCategoryManage()">分类管理</button>
           <button class="btn" onclick="toast('从模板创建：人事 / 财务 / 采购 / 法务（原型占位）')">从模板创建</button>
           <button class="btn btn-primary" onclick="openDesigner()">+ 新建流程</button>
         </div>
@@ -870,6 +898,52 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
   </div>
 </div>
+<!-- 任务办理页 -->
+<div class="approve" id="approvePanel">
+  <div class="ap-head">
+    <div class="dz-back" onclick="closeApprove()">‹ 返回任务中心</div>
+    <div>
+      <div class="ap-title" id="apTitle">—</div>
+      <div class="ap-sub" id="apSub">—</div>
+    </div>
+    <div class="sp" style="flex:1"></div>
+    <span class="pill warn" id="apState">待办</span>
+  </div>
+  <div class="ap-body">
+    <div>
+      <div class="card card-pad">
+        <div class="section-title">业务单据</div>
+        <dl class="kv" id="apBiz"></dl>
+        <div class="section-title">审批意见</div>
+        <textarea class="ap-textarea" id="apComment" placeholder="请输入审批意见，驳回 / 退回时必填"></textarea>
+        <div class="ap-quick">
+          <span onclick="setComment('同意，符合要求')">同意，符合要求</span>
+          <span onclick="setComment('金额与合同不一致，请补充')">请补充材料</span>
+          <span onclick="setComment('预算超标，退回调整')">退回调整</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card card-pad">
+        <div class="section-title">流程进度</div>
+        <div class="timeline" id="apFlow"></div>
+      </div>
+      <div class="card card-pad" style="margin-top:12px">
+        <div class="section-title">审批记录</div>
+        <div id="apLog"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ap-foot" id="apFoot">
+    <button class="btn" onclick="toast('已暂存，稍后可继续办理')">暂存</button>
+    <button class="btn" onclick="approveAction('转办')">转办</button>
+    <button class="btn" onclick="approveAction('加签')">加签</button>
+    <button class="btn" onclick="approveAction('退回')">退回</button>
+    <button class="btn" onclick="approveAction('驳回')">驳回</button>
+    <button class="btn btn-primary" onclick="approveAction('同意')">同意</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 var MODELS = [
@@ -1069,9 +1143,9 @@ function renderTask() {
   }
   body.innerHTML = rows.map(function (t) {
     var ops = t.state === '已办'
-      ? '<button class="btn-link" onclick="toast(\'查看审批记录（原型占位）\')">查看记录</button>'
-      : '<button class="btn-link" onclick="toast(\'打开办理页（原型占位）\')">办理</button>' +
-        '<button class="btn-link" onclick="toast(\'转办给他人（原型占位）\')">转办</button>' +
+      ? '<button class="btn-link" onclick="openApprove(\'' + t.id + '\')">查看记录</button>'
+      : '<button class="btn-link" onclick="openApprove(\'' + t.id + '\')">办理</button>' +
+        '<button class="btn-link" onclick="openApprove(\'' + t.id + '\')">转办</button>' +
         '<button class="btn-link" onclick="toast(\'加签：向前 / 向后（原型占位）\')">加签</button>' +
         '<button class="btn-link danger" onclick="toast(\'已催办\')">催办</button>';
     return '<tr>' +
@@ -1111,7 +1185,7 @@ function renderForm() {
       '<td>' + (f.type === '在线设计'
         ? '<button class="btn-link" onclick="openFormDesigner(\'' + f.name + '\')">设计</button>'
         : '<button class="btn-link" onclick="toast(\'配置 URL 表单地址（原型占位）\')">配置地址</button>') +
-      '<button class="btn-link" onclick="toast(\'字段权限：按环节配置可见 / 可编辑\')">字段权限</button></td></tr>';
+      '<button class="btn-link" onclick="openFieldPerm(\'' + f.name + '\')">字段权限</button></td></tr>';
   }).join('');
 }
 
@@ -1153,7 +1227,7 @@ function renderMigrate() {
       '<td><span class="pill ' + pill(m.state) + '">' + m.state + '</span></td>' +
       '<td>' + m.owner + '</td>' +
       '<td class="muted">' + m.plan + '</td>' +
-      '<td><button class="btn-link" onclick="toast(\'查看批次明细（原型占位）\')">明细</button></td></tr>';
+      '<td><button class="btn-link" onclick="openMigrateDetail(\'' + m.batch + '\')">明细</button></td></tr>';
   }).join('');
 }
 
@@ -1195,6 +1269,7 @@ function nodesFor(m) {
 
 function openDrawer(id) {
   var m = MODELS.find(function (x) { return x.id === id; });
+  document.querySelector('#drawer .drawer-tabs').style.display = 'flex';
   document.getElementById('dTitle').textContent = m.name;
   document.getElementById('dSub').textContent = m.cat + ' · ' + m.key + ' · ' + m.ver + ' · ' + m.state;
   document.getElementById('dp-base').innerHTML =
@@ -1270,6 +1345,7 @@ function openDrawer(id) {
 
 function showTrace(id) {
   var i = INSTANCES.find(function (x) { return x.id === id; });
+  document.querySelector('#drawer .drawer-tabs').style.display = 'flex';
   document.getElementById('dTitle').textContent = i.id;
   document.getElementById('dSub').textContent = i.def + ' ' + i.ver + ' · ' + i.biz + ' · ' + i.state;
   document.getElementById('dp-base').innerHTML =
@@ -1284,12 +1360,19 @@ function showTrace(id) {
     '<dt>状态</dt><dd><span class="pill ' + pill(i.state) + '">' + i.state + '</span></dd>' +
     '</dl>';
   document.getElementById('dp-nodes').innerHTML =
+    '<div class="trace-strip">' +
+    '<span class="ts-node done">发起申请</span><span class="ts-arrow">→</span>' +
+    '<span class="ts-node done">部门审核</span><span class="ts-arrow">→</span>' +
+    '<span class="ts-node current">' + (i.node === '—' ? '结束' : i.node) + '</span>' +
+    (i.node === '—' ? '' : '<span class="ts-arrow">→</span><span class="ts-node">抄送归档</span>') +
+    '</div>' +
     '<div class="timeline">' +
-    '<div class="tl-item ok"><div class="tl-title">发起申请</div><div class="tl-desc">' + i.starter + ' · ' + i.start + ' · 已提交</div></div>' +
-    '<div class="tl-item ok"><div class="tl-title">部门审核</div><div class="tl-desc">赵磊 · 11-27 08:20 · 同意</div></div>' +
-    '<div class="tl-item wait"><div class="tl-title">' + (i.node === '—' ? '结束' : i.node) + '</div><div class="tl-desc">' +
-    (i.handler === '—' ? '流程已结束' : '处理人：' + i.handler + ' · 进行中' + (i.timeout ? ' · 已超时' : '')) + '</div></div>' +
-    (i.node === '—' ? '' : '<div class="tl-item"><div class="tl-title">抄送归档</div><div class="tl-desc">待到达</div></div>') +
+    '<div class="tl-item ok"><div class="tl-title">发起申请 <span class="pill on">已完成</span></div><div class="tl-desc">' + i.starter + ' · ' + i.start + ' · 已提交</div></div>' +
+    '<div class="tl-item ok"><div class="tl-title">部门审核 <span class="pill on">已同意</span></div><div class="tl-desc">赵磊 · 11-27 08:20 · 同意</div></div>' +
+    '<div class="tl-item wait"><div class="tl-title">' + (i.node === '—' ? '结束' : i.node) + ' <span class="pill ' + (i.state === '已完成' ? 'on' : i.timeout ? 'danger' : 'warn') + '">' +
+    (i.state === '已完成' ? '已完成' : i.timeout ? '已超时' : i.state === '已挂起' ? '已挂起' : '进行中') + '</span></div><div class="tl-desc">' +
+    (i.handler === '—' ? '流程已结束' : '处理人：' + i.handler + (i.timeout ? ' · 已超时' : '')) + '</div></div>' +
+    (i.node === '—' ? '' : '<div class="tl-item"><div class="tl-title">抄送归档 <span class="pill gray">待到达</span></div><div class="tl-desc">—</div></div>') +
     '</div>' +
     '<div style="margin-top:14px;display:flex;gap:8px"><button class="btn btn-sm" onclick="openDrawer(1)">查看流程定义</button>' +
     '<button class="btn btn-sm" onclick="toast(\'导出流程跟踪图（原型占位）\')">导出跟踪图</button></div>';
@@ -1806,6 +1889,152 @@ function saveForm() {
   closeFormDesigner();
   renderForm();
   toast('表单已保存并发布新版本');
+}
+
+/* ===== 分类管理 ===== */
+var CATS = [
+  { name: '财务类', code: 'FIN', count: 12, sort: 1, owner: '张建国', state: '启用' },
+  { name: '法务类', code: 'LEGAL', count: 9, sort: 2, owner: '陈曦', state: '启用' },
+  { name: '行政类', code: 'ADM', count: 8, sort: 3, owner: '刘洋', state: '启用' },
+  { name: '采购类', code: 'PUR', count: 14, sort: 4, owner: '王强', state: '启用' },
+  { name: '业务类', code: 'BIZ', count: 6, sort: 5, owner: '李娜', state: '启用' },
+  { name: '人事类', code: 'HR', count: 23, sort: 6, owner: '人事部', state: '停用' }
+];
+
+function simpleDrawer(title, sub, html) {
+  document.getElementById('dTitle').textContent = title;
+  document.getElementById('dSub').textContent = sub;
+  document.querySelector('#drawer .drawer-tabs').style.display = 'none';
+  document.querySelectorAll('#drawer .d-panel').forEach(function (p) { p.classList.remove('active'); });
+  var base = document.getElementById('dp-base');
+  base.innerHTML = html;
+  base.classList.add('active');
+  document.getElementById('mask').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+}
+
+function openCategoryManage() {
+  var rows = CATS.map(function (c) {
+    return '<tr><td class="t-name">' + c.name + '</td><td class="mono">' + c.code + '</td><td>' + c.count + '</td>' +
+      '<td>' + c.sort + '</td><td>' + c.owner + '</td>' +
+      '<td><span class="pill ' + (c.state === '启用' ? 'on' : 'off') + '">' + c.state + '</span></td>' +
+      '<td><button class="btn-link" onclick="toast(\'编辑分类（原型占位）\')">编辑</button>' +
+      '<button class="btn-link danger" onclick="toast(\'已停用该分类\')">停用</button></td></tr>';
+  }).join('');
+  simpleDrawer('流程分类', '共 ' + CATS.length + ' 个分类 · 有流程的分类不可删除',
+    '<table class="mini-table"><thead><tr><th>分类名称</th><th>编码</th><th>流程数</th><th>排序</th><th>负责人</th><th>状态</th><th style="width:100px">操作</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>' +
+    '<div style="margin-top:12px"><button class="btn btn-sm" onclick="toast(\'新建分类（原型占位）\')">+ 新建分类</button></div>' +
+    '<p class="hint" style="margin-top:10px">分类用于流程建模与迁移批次划分；停用后不可新建流程，在途实例不受影响。</p>');
+}
+
+/* ===== 迁移批次明细 ===== */
+function openMigrateDetail(batch) {
+  var b = MIGRATES.find(function (x) { return x.batch === batch; });
+  if (!b) return;
+  var names = ['费用报销单', '付款申请单', '合同评审单', '用印申请单', '供应商准入单', '资产领用单'];
+  var states = ['已迁移', '已迁移', '迁移中', '待迁移', '待迁移', '待评估'];
+  var rows = names.map(function (n, i) {
+    var st = states[i];
+    var cls = st === '已迁移' ? 'on' : st === '迁移中' ? 'warn' : 'off';
+    var check = st === '已迁移' ? '<span class="check-ok">✓ 字段一致</span>' : st === '迁移中' ? '校验中' : '<span class="check-no">—</span>';
+    return '<tr><td class="t-name">' + n + '</td><td>泛微 OA</td>' +
+      '<td><span class="pill ' + cls + '">' + st + '</span></td><td>' + check + '</td>' +
+      '<td class="muted">' + (st === '已迁移' ? '2026-11-' + (18 + i) : '—') + '</td></tr>';
+  }).join('');
+  simpleDrawer('迁移批次 ' + b.batch, b.scope + ' · ' + b.state + ' · ' + b.pct + '%',
+    '<table class="mini-table"><thead><tr><th>流程名称</th><th>源系统</th><th>迁移状态</th><th>一致性校验</th><th>迁移时间</th></tr></thead><tbody>' +
+    rows + '</tbody></table>' +
+    '<p class="hint" style="margin-top:10px">校验项：流程数、节点数、表单字段、办理人规则四项一致才允许切换；切换前需试运行 20 单。</p>');
+}
+
+/* ===== 字段权限矩阵 ===== */
+function openFieldPerm(formName) {
+  var stages = ['发起', '部门审核', '法务会签', '归档'];
+  var rows = FIELDS.map(function (f, i) {
+    var cells = stages.map(function (s) {
+      var val = '只读';
+      if (s === '发起') val = f.type === 'attachment' ? '可上传' : (f.type === 'note' ? '隐藏' : '可编辑');
+      else if (s === '法务会签') val = i < 4 ? '只读' : '隐藏';
+      var opts = ['可编辑', '可上传', '只读', '隐藏'].map(function (o) {
+        return '<option' + (o === val ? ' selected' : '') + '>' + o + '</option>';
+      }).join('');
+      return '<td><select>' + opts + '</select></td>';
+    }).join('');
+    return '<tr><td>' + esc(f.label) + '</td>' + cells + '</tr>';
+  }).join('');
+  simpleDrawer('字段权限 · ' + formName, '按环节控制可见与编辑，审批环节默认只读',
+    '<table class="mini-table"><thead><tr><th>字段</th>' + stages.map(function (s) {
+      return '<th>' + s + '</th>';
+    }).join('') + '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<p class="hint" style="margin-top:10px">权限按「环节 × 字段」生效；设为「隐藏」的字段不会出现在该环节的表单与打印模板中。</p>');
+}
+
+/* ===== 任务办理 ===== */
+var curTask = null;
+
+function openApprove(id) {
+  var t = TASKS.find(function (x) { return x.id === id; });
+  if (!t) return;
+  curTask = t;
+  document.getElementById('apTitle').textContent = t.def + ' · ' + t.node;
+  document.getElementById('apSub').textContent = t.biz;
+  var st = document.getElementById('apState');
+  st.textContent = t.state;
+  st.className = 'pill ' + pill(t.state);
+  document.getElementById('apBiz').innerHTML =
+    '<dt>单据编号</dt><dd class="mono">' + t.biz + '</dd>' +
+    '<dt>所属流程</dt><dd>' + t.def + '</dd>' +
+    '<dt>申请人</dt><dd>赵磊</dd>' +
+    '<dt>所属部门</dt><dd>市场部</dd>' +
+    '<dt>金额</dt><dd>¥ 12,800.00</dd>' +
+    '<dt>申请事由</dt><dd>客户拜访差旅预支</dd>' +
+    '<dt>到达时间</dt><dd>' + t.arrive + '</dd>' +
+    '<dt>截止时间</dt><dd>' + t.due + '</dd>';
+  document.getElementById('apFlow').innerHTML =
+    '<div class="tl-item ok"><div class="tl-title">发起申请</div><div class="tl-desc">赵磊 · 11-26 08:30 · 已提交</div></div>' +
+    '<div class="tl-item ok"><div class="tl-title">部门审批</div><div class="tl-desc">李娜 · 11-26 09:10 · 同意</div></div>' +
+    '<div class="tl-item wait"><div class="tl-title">' + t.node + '</div><div class="tl-desc">处理人：' + t.handler + ' · ' + (t.state === '已办' ? '已处理' : '进行中') + '</div></div>' +
+    '<div class="tl-item"><div class="tl-title">抄送归档</div><div class="tl-desc">待到达</div></div>';
+  document.getElementById('apLog').innerHTML =
+    '<div class="list-line"><span>李娜 · 部门审批 · 同意</span><span class="muted">11-26 09:10</span></div>' +
+    '<div class="list-line"><span>赵磊 · 发起申请 · 提交</span><span class="muted">11-26 08:30</span></div>';
+  var com = document.getElementById('apComment');
+  com.value = '';
+  com.readOnly = t.state === '已办';
+  document.getElementById('apFoot').style.display = t.state === '已办' ? 'none' : 'flex';
+  document.getElementById('approvePanel').classList.add('show');
+}
+
+function closeApprove() {
+  document.getElementById('approvePanel').classList.remove('show');
+  curTask = null;
+}
+
+function setComment(v) {
+  document.getElementById('apComment').value = v;
+}
+
+function approveAction(kind) {
+  if (!curTask) return;
+  var c = (document.getElementById('apComment').value || '').trim();
+  if ((kind === '驳回' || kind === '退回') && !c) {
+    toast('请填写' + kind + '原因');
+    return;
+  }
+  if (kind === '加签') {
+    toast('已加签，需选择加签人（原型占位）');
+    return;
+  }
+  if (kind === '转办') {
+    curTask.state = '已办';
+    curTask.handler = '刘洋（已转办）';
+  } else {
+    curTask.state = '已办';
+  }
+  renderTask();
+  closeApprove();
+  toast('审批已提交：' + kind + (c ? ' · ' + c : ''));
 }
 
 (function init() {
