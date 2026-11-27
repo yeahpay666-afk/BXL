@@ -883,7 +883,7 @@
         done: ['20%', '8%', '9%', '10%', '10%', '8%', '8%', '8%', '6%', '6%', '7%']
       };
       document.getElementById('tableCols').innerHTML = COLS[state.tab].map(function (w) {
-        return w ? '<col style="width:' + w + 'px">' : '<col>';
+        return '<col style="width:' + w + '">';
       }).join('');
 
       var rows = filtered();
