@@ -323,19 +323,7 @@
     .mark-text { font-size: 12px; flex-shrink: 0; white-space: nowrap; }
     .mark-text.timeout { color: #dc2626; }
 
-    .sys-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-
-    .sys-badge::before { content: '✳'; font-size: 11px; }
-    .sys-badge.maycur { background: #eff6ff; color: #2563eb; }
-    .sys-badge.oa { background: #f5f3ff; color: #7c3aed; }
+    .sys-text { font-size: 13px; color: #334155; white-space: nowrap; }
 
     .node-cell { font-size: 13px; color: #334155; }
 
@@ -835,7 +823,7 @@
     }
 
     function sysBadge(sys) {
-      return '<span class="sys-badge ' + (sys === '每刻' ? 'maycur' : 'oa') + '">' + (SYS_TEXT[sys] || sys) + '</span>';
+      return '<span class="sys-text">' + (SYS_TEXT[sys] || sys) + '</span>';
     }
 
     function timeCell(t) {
