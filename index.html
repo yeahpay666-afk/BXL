@@ -3055,15 +3055,15 @@ body { background: #f4f5f7; color: #1f2329; }
 }
 
 .todo-sys.maycur, .todo-sys.oa { color: #5f6672; }
-.todo-status.wait { color: #8a6100; }
+.todo-status.wait { color: #b45309; }
 .todo-status.mid { color: #1f5fbf; }
 .todo-status.done { color: #1f7a4d; }
-.todo-status.reject { color: #b42318; }
+.todo-status.reject { color: #b45309; }
 .todo-tab.active, .notice-tab.active { color: #1f5fbf; border-color: #1f5fbf; }
 .todo-tab .num { background: #f3f4f6; color: #5f6672; }
 
 .notice-icon, .notice-icon.icon-green, .notice-icon.icon-yellow, .notice-icon.icon-blue {
-  background: #f3f4f6 !important; color: #6b7280 !important; border-radius: 3px; font-size: 0 !important;
+  background: #eef4fc !important; color: #1f5fbf !important; border-radius: 3px; font-size: 0 !important;
 }
 .notice-icon::after { content: '公'; font-size: 12px; }
 
@@ -3073,28 +3073,30 @@ body { background: #f4f5f7; color: #1f2329; }
 }
 .qe-add-bar:hover { background: #fafbfc; border-color: #c4c9d2; transform: none; box-shadow: none; }
 .qe-add-bar-icon {
-  width: 34px; height: 34px; border-radius: 3px; background: #f3f4f6;
-  color: #5f6672; box-shadow: none; font-size: 18px;
+  width: 34px; height: 34px; border-radius: 3px; background: #eef4fc;
+  color: #1f5fbf; box-shadow: none; font-size: 18px;
 }
 .qe-add-bar-arrow { color: #9aa1ab; font-size: 15px; }
 .quick-entry-item { background: #fafbfc; border-radius: 3px; }
 .quick-entry-item:hover { background: #f3f4f6; transform: none; }
-.quick-entry-icon, .icon-blue, .icon-green, .icon-red, .icon-yellow, .icon-purple,
-.icon-orange, .icon-cyan, .icon-pink, .icon-indigo, .icon-gray {
-  background: #f3f4f6 !important; color: #5f6672 !important; border-radius: 4px;
-}
+/* 全站只用三种强调色：蓝 / 绿 / 橙 */
+.tone1 { background: #eef4fc !important; color: #1f5fbf !important; }
+.tone2 { background: #eef7f1 !important; color: #1f7a4d !important; }
+.tone3 { background: #fdf4e7 !important; color: #b45309 !important; }
 
 .news-portal-item { border-bottom-color: #f0f1f3; }
 .news-portal-thumb {
-  background: #e9edf2 !important; border-radius: 3px;
+  background: #eef4fc !important; border-radius: 3px;
   display: flex; align-items: center; justify-content: center;
-  color: #a6afba; font-size: 12px; letter-spacing: 1px;
+  color: #1f5fbf; font-size: 12px; letter-spacing: 1px;
 }
 .news-portal-thumb::after { content: '新闻'; }
+.news-portal-item:nth-child(2) .news-portal-thumb { background: #eef7f1 !important; color: #1f7a4d; }
+.news-portal-item:nth-child(3) .news-portal-thumb { background: #fdf4e7 !important; color: #b45309; }
 
 .study-progress { height: 4px; border-radius: 2px; background: #eef0f3; }
 .study-progress-bar { border-radius: 2px; }
-.study-progress-bar.green { background: #1f5fbf; }
+.study-progress-bar.green { background: #1f7a4d; }
 .study-progress-bar.orange { background: #1f5fbf; }
 .study-tabs { gap: 16px; padding: 0 14px; border-bottom: 1px solid #eef0f3; }
 .study-tab {
@@ -3105,19 +3107,19 @@ body { background: #f4f5f7; color: #1f2329; }
 .study-tab.active { background: transparent; color: #1f5fbf; border-bottom-color: #1f5fbf; font-weight: 500; }
 .study-list { padding: 10px 14px 14px; }
 
-.attendance-stats-full .attendance-stat-num,
+.attendance-stats-full .attendance-stat-num { color: #1f2329; }
 .attendance-stats-full .attendance-stat-num.green,
-.attendance-stats-full .attendance-stat-num.blue,
-.attendance-stats-full .attendance-stat-num.purple { color: #1f2329; }
-.attendance-stats-full .attendance-stat-num.orange { color: #b42318; }
+.attendance-stats-full .attendance-stat-num.blue { color: #1f5fbf; }
+.attendance-stats-full .attendance-stat-num.purple { color: #1f7a4d; }
+.attendance-stats-full .attendance-stat-num.orange { color: #b45309; }
 
 .it-entry-item { background: #fafbfc; border-radius: 3px; }
 .it-entry-item:hover { background: #f3f4f6; transform: none; }
-.portal-card-body .it-entry-icon { background: #f3f4f6 !important; color: #5f6672 !important; border-radius: 3px; font-size: 14px !important; font-weight: 500; }
+.portal-card-body .it-entry-icon { border-radius: 3px; font-size: 14px !important; font-weight: 500; }
 
 .ai-auth-card { background: #fff; border: 1px solid #d5d9e0; border-radius: 3px; margin: 0 14px 10px; padding: 12px 14px; }
 .ai-auth-card:hover { background: #fafbfc; transform: none; box-shadow: none; }
-.ai-auth-icon { background: #f3f4f6; box-shadow: none; border-radius: 3px; font-size: 12px; font-weight: 600; color: #1f5fbf; }
+.ai-auth-icon { background: #eef4fc; box-shadow: none; border-radius: 3px; font-size: 12px; font-weight: 600; color: #1f5fbf; }
 .ai-auth-title { font-size: 13.5px; }
 .ai-auth-num { color: #1f2329; }
 .ai-auth-arrow { color: #9aa1ab; font-size: 15px; }
@@ -3549,19 +3551,19 @@ body { background: #f4f5f7; color: #1f2329; }
                 <div class="portal-card-body">
                   <div class="it-entry">
                     <a href="it-service.html" class="it-entry-item">
-                      <div class="it-entry-icon icon-blue">宿</div>
+                      <div class="it-entry-icon tone1">宿</div>
                       <div class="it-entry-name">宿舍申请</div>
                     </a>
                     <a href="fault-report.html" class="it-entry-item">
-                      <div class="it-entry-icon icon-red">障</div>
+                      <div class="it-entry-icon tone3">障</div>
                       <div class="it-entry-name">故障申报</div>
                     </a>
                     <a href="software-download.html" class="it-entry-item">
-                      <div class="it-entry-icon icon-green">软</div>
+                      <div class="it-entry-icon tone2">软</div>
                       <div class="it-entry-name">软件下载</div>
                     </a>
                     <a href="account-permission.html" class="it-entry-item">
-                      <div class="it-entry-icon icon-yellow">权</div>
+                      <div class="it-entry-icon tone1">权</div>
                       <div class="it-entry-name">账号权限</div>
                     </a>
                   </div>
@@ -3584,15 +3586,15 @@ body { background: #f4f5f7; color: #1f2329; }
                 </a>
                 <div class="ai-portal-apps" id="aiPortalApps">
                   <a href="ai-resume.html" class="ai-portal-app">
-                    <div class="ai-portal-app-icon icon-purple">简</div>
+                    <div class="ai-portal-app-icon tone1">简</div>
                     <div class="ai-portal-app-name">简历筛选</div>
                   </a>
                   <a href="ai-meeting.html" class="ai-portal-app">
-                    <div class="ai-portal-app-icon icon-blue">会</div>
+                    <div class="ai-portal-app-icon tone2">会</div>
                     <div class="ai-portal-app-name">智能会议</div>
                   </a>
                   <a href="ai-contract.html" class="ai-portal-app">
-                    <div class="ai-portal-app-icon icon-green">合</div>
+                    <div class="ai-portal-app-icon tone3">合</div>
                     <div class="ai-portal-app-name">合同审查</div>
                   </a>
                 </div>
@@ -5247,9 +5249,9 @@ body { background: #f4f5f7; color: #1f2329; }
   
 /* ===== AI智能板块：渲染从智能体列表页添加的智能体 ===== */
 var DEFAULT_AI_PORTAL_APPS = [
-  { id: 'ai-resume',   name: '简历筛选', icon: '简', color: 'icon-purple', href: 'ai-resume.html' },
-  { id: 'ai-meeting',  name: '智能会议', icon: '会', color: 'icon-blue',   href: 'ai-meeting.html' },
-  { id: 'ai-contract', name: '合同审查', icon: '合', color: 'icon-green',  href: 'ai-contract.html' }
+  { id: 'ai-resume',   name: '简历筛选', icon: '简', color: 'tone1', href: 'ai-resume.html' },
+  { id: 'ai-meeting',  name: '智能会议', icon: '会', color: 'tone2', href: 'ai-meeting.html' },
+  { id: 'ai-contract', name: '合同审查', icon: '合', color: 'tone3', href: 'ai-contract.html' }
 ];
 
 function getAiPortalApps() {
@@ -5279,21 +5281,21 @@ updateNotifyBadge();
 
 /* ===== 添加常用应用 / 编辑模式 ===== */
 var APP_CATALOG = [
-  { id: "expense-apply",    name: "报销申请",   icon: "报", color: "icon-yellow",   href: "expense-apply.html" },
-  { id: "asset-out",        name: "资产出库",   icon: "资", color: "icon-blue",     href: "asset-out.html" },
-  { id: "purchase-apply",   name: "采购申请",   icon: "采", color: "icon-orange",   href: "purchase-apply.html" },
-  { id: "contract-approve", name: "合同审批",   icon: "合", color: "icon-green",    href: "contract-approve.html" },
-  { id: "seal-apply",       name: "用印申请",   icon: "印", color: "icon-pink",     href: "seal-apply.html" },
-  { id: "leave-travel",     name: "请假出差",   icon: "假", color: "icon-purple",   href: "leave-travel.html" },
-  { id: "travel-reimburse", name: "差旅报销",   icon: "差", color: "icon-cyan",     href: "#" },
-  { id: "meeting-room",     name: "会议室预订", icon: "会", color: "icon-indigo",   href: "#" },
-  { id: "business-card",    name: "名片印制",   icon: "名", color: "icon-gray",     href: "#" },
-  { id: "expense-audit",    name: "费用审批",   icon: "费", color: "icon-red",      href: "#" },
-  { id: "work-report",      name: "工作汇报",   icon: "汇", color: "icon-blue",     href: "#" },
-  { id: "recruitment",      name: "招聘申请",   icon: "招", color: "icon-green",    href: "#" },
-  { id: "training-apply",   name: "培训申请",   icon: "培", color: "icon-purple",   href: "#" },
-  { id: "vehicle-apply",    name: "用车申请",   icon: "车", color: "icon-orange",   href: "#" },
-  { id: "visitor-apply",    name: "访客申请",   icon: "访", color: "icon-pink",     href: "#" }
+  { id: "expense-apply",    name: "报销申请",   icon: "报", color: "tone1", href: "expense-apply.html" },
+  { id: "asset-out",        name: "资产出库",   icon: "资", color: "tone2", href: "asset-out.html" },
+  { id: "purchase-apply",   name: "采购申请",   icon: "采", color: "tone3", href: "purchase-apply.html" },
+  { id: "contract-approve", name: "合同审批",   icon: "合", color: "tone1", href: "contract-approve.html" },
+  { id: "seal-apply",       name: "用印申请",   icon: "印", color: "tone2", href: "seal-apply.html" },
+  { id: "leave-travel",     name: "请假出差",   icon: "假", color: "tone3", href: "leave-travel.html" },
+  { id: "travel-reimburse", name: "差旅报销",   icon: "差", color: "tone1", href: "#" },
+  { id: "meeting-room",     name: "会议室预订", icon: "会", color: "tone2", href: "#" },
+  { id: "business-card",    name: "名片印制",   icon: "名", color: "tone3", href: "#" },
+  { id: "expense-audit",    name: "费用审批",   icon: "费", color: "tone1", href: "#" },
+  { id: "work-report",      name: "工作汇报",   icon: "汇", color: "tone2", href: "#" },
+  { id: "recruitment",      name: "招聘申请",   icon: "招", color: "tone3", href: "#" },
+  { id: "training-apply",   name: "培训申请",   icon: "培", color: "tone1", href: "#" },
+  { id: "vehicle-apply",    name: "用车申请",   icon: "车", color: "tone2", href: "#" },
+  { id: "visitor-apply",    name: "访客申请",   icon: "访", color: "tone3", href: "#" }
 ];
 
 // 默认快捷入口
